@@ -1,0 +1,83 @@
+:root {
+    --main-background-color: #1a1a2b;
+    --main-text-color: #fff;
+    --button-background-color: #3b3b5c;
+    --button-hover-background-color: #6B52A3;
+    --link-background-color: #2e2e4c;
+    --link-hover-background-color: #6B52A3;
+    --border-color: #6B52A3;
+  }
+
+  :root.light {
+    --main-background-color: #F0E8F9;
+    --main-text-color: #333;
+    --button-background-color: #BFA5D1;
+    --button-hover-background-color: #8F6CAF;
+    --link-background-color: #F5ECFF;
+    --link-hover-background-color: #8F6CAF;
+    --border-color: #BFA5D1;
+  }
+  
+  :root.blueneon {
+    --main-background-color: #1A1A2E;
+    --main-text-color: #FFFFFF;
+    --button-background-color: #0077B6;
+    --button-hover-background-color: #00A6FB;
+    --link-background-color: #1A1A2E;
+    --link-hover-background-color: #00A6FB;
+    --border-color: #0077B6;
+}
+
+
+  #custom-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+  }
+  
+  #custom-menu ul {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    list-style: none;
+    padding: 0;
+  }
+  
+  #custom-menu li {
+    margin: 10px 0;
+  }
+  
+  #custom-menu li a {
+    color: var(--main-text-color);
+    text-decoration: none;
+    font-family: "Exo 2", sans-serif;
+  }
+  
+  #custom-menu li a i {
+    margin-right: 5px;
+  }
+  
+  #custom-menu li:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  #custom-menu li:hover a {
+    color: var(--main-text-color);
+  }
+  
+  #custom-menu li:focus {
+    outline: none;
+  }
+  
+  #custom-menu li:focus a {
+    color: var(--main-text-color);
+  }

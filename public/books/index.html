@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/books.css">
+  <script src="/assets/themes.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <title>Games</title>
+  <script src="script.js"></script>
+</head>
+<body>
+  <div class="iframe-container" style="display:none;">
+    <div class="game-title">
+      <div id="game-text-name"></div>
+  </div>
+      <iframe class="game-iframe" src="" frameborder="0"></iframe>
+  </div>
+
+
+  <h1 style="text-align: center;">Games</h1>
+  <div class="search-container" >
+    <input type="text" id="searchInput" placeholder="Search for a game">
+  </div>
+  <div class="games-container">
+    <a href="#" class="game" onclick="loadGame(event, 'files/1v1lol')">
+      <img src="files/1v1lol/splash.png"  class="game-logo">
+      <h3 class="game-name">1v1.lol</h3>
+    </a>    
+    <a href="#" class="game" onclick="loadGame(event, 'files/cookie-clicker')">
+      <img src="files/cookie-clicker/img/perfectCookie.png"class="game-logo">
+      <h3 class="game-name">Cookie Clicker</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/2048')">
+      <img src="files/2048/2048.png"class="game-logo">
+      <h3 class="game-name">2048</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/soccer-skills')">
+      <img src="files/soccer-skills/splash.png"class="game-logo">
+      <h3 class="game-name">Soccer Skills</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/2048-multitask')">
+      <img src="files/2048-multitask/splash.png"class="game-logo">
+      <h3 class="game-name">2048 Multitask</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/minecraft-15')">
+      <img src="files/minecraft-15/splash.jpeg"class="game-logo">
+      <h3 class="game-name">Minecraft 1.5</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/minecraft-18')">
+      <img src="files/minecraft-18/splash.png"class="game-logo">
+      <h3 class="game-name">Minecraft 1.8</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/minecraft-classic')">
+      <img src="files/minecraft-classic/pack.png"class="game-logo">
+      <h3 class="game-name">Minecraft Classic</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/bitlife')">
+      <img src="files/bitlife/logo.png"class="game-logo">
+      <h3 class="game-name">Bitlife</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/DogeMiner')">
+      <img src="files/DogeMiner/img/dogeminer_300x300.png"class="game-logo">
+      <h3 class="game-name">DogeMiner</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/Dogeminer2')">
+      <img src="files/Dogeminer2/thumb.jpg"class="game-logo">
+      <h3 class="game-name">DogeMiner 2</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/1')">
+      <img src="files/1/meta/apple-touch-icon.png"class="game-logo">
+      <h3 class="game-name">1</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/1v1space')">
+      <img src="files/1v1space/splash.png"class="game-logo">
+      <h3 class="game-name">1v1 Space</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/10-minutes-till-dawn')">
+      <img src="files/10-minutes-till-dawn/splash.png"class="game-logo">
+      <h3 class="game-name">10 Minutes Till Dawn</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/99balls')">
+      <img src="files/99balls/99-balls-evo.jpg"class="game-logo">
+      <h3 class="game-name">99 balls</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/100ng')">
+      <img src="files/100ng/100ng.jpg"class="game-logo">
+      <h3 class="game-name">100 Player Ping Pong</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/geodash')">
+      <img src="files/geodash/geoscratchicon.png"class="game-logo">
+      <h3 class="game-name">Geometry Dash</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/among-us')">
+      <img src="files/among-us/red.png"class="game-logo">
+      <h3 class="game-name">Among Us</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/roblox')">
+      <img src="files/roblox/splash.png"class="game-logo">
+      <h3 class="game-name">Roblox</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/vex2')">
+      <img src="files/vex2/splash.jpg"class="game-logo">
+      <h3 class="game-name">Vex 2</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/vex3')">
+      <img src="files/vex3/vex3.png"class="game-logo">
+      <h3 class="game-name">Vex 3</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/vex4')">
+      <img src="files/vex4/vex-4.jpg"class="game-logo">
+      <h3 class="game-name">Vex 4</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/vex5')">
+      <img src="files/vex5/vex.jpeg"class="game-logo">
+      <h3 class="game-name">Vex 5</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/vex6')">
+      <img src="files/vex6/vex-6.jpg"class="game-logo">
+      <h3 class="game-name">Vex 6</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/vex7')">
+      <img src="files/vex7/vex-7.jpg"class="game-logo">
+      <h3 class="game-name">Vex 7</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/vex7')">
+      <img src="files/vex7/vex-7.jpg"class="game-logo">
+      <h3 class="game-name">Vex 7</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/basketball-stars')">
+      <img src="files/basketball-stars/assets/images/basketball-stars.png" class="game-logo">
+      <h3 class="game-name">Basketball Stars</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/wordle')">
+      <img src="files/wordle/img/logo_96x96.png" class="game-logo">
+      <h3 class="game-name">Wordle</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/awesometanks2')">
+      <img src="files/awesometanks2/awesometanks2.jpg" class="game-logo">
+      <h3 class="game-name">Awesome Tanks 2</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/bacon-may-die')">
+      <img src="files/bacon-may-die/splash.png" class="game-logo">
+      <h3 class="game-name">Bacon May Die</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/baldis-basics')">
+      <img src="files/baldis-basics/splash.png" class="game-logo">
+      <h3 class="game-name">Baldis Basics</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/subway-surfers')">
+      <img src="files/subway-surfers/img/splash.jpg" class="game-logo">
+      <h3 class="game-name">Subway Surfer</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/bigredbutton')">
+      <img src="files/bigredbutton/bigredbutton.png" class="game-logo">
+      <h3 class="game-name">Big Red Button</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/cluster-rush')">
+      <img src="files/cluster-rush/splash.png" class="game-logo">
+      <h3 class="game-name">Cluster Rush</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/paperio2')">
+      <img src="files/paperio2/images/icon192.png" class="game-logo">
+      <h3 class="game-name">Paper IO 2</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/ducklife1')">
+      <img src="files/ducklife1/ducklife.png" class="game-logo">
+      <h3 class="game-name">Ducklife 1</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/ducklife2')">
+      <img src="files/ducklife2/ducklife2.png" class="game-logo">
+      <h3 class="game-name">Ducklife 2</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/ducklife3')">
+      <img src="files/ducklife3/duck.png" class="game-logo">
+      <h3 class="game-name">Ducklife 3</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/ducklife4')">
+      <img src="files/ducklife4/splash.jpg" class="game-logo">
+      <h3 class="game-name">Ducklife 4</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/weavesilk')">
+      <img src="files/weavesilk/thumb.png" class="game-logo">
+      <h3 class="game-name">Weavesilk</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/slope')">
+      <img src="files/slope/slope4.jpeg" class="game-logo">
+      <h3 class="game-name">Slope</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/slope-2')">
+      <img src="files/slope-2/slope-2-logo.png" class="game-logo">
+      <h3 class="game-name">Slope 2</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/Rocket-League')">
+      <img src="files/Rocket-League/splash.png" class="game-logo">
+      <h3 class="game-name">Rocket League</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/retro-bowl')">
+      <img src="files/retro-bowl/img/splash.png" class="game-logo">
+      <h3 class="game-name">Retro Bowl</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/shellshockers')">
+      <img src="files/shellshockers/img/favicon.jpg" class="game-logo">
+      <h3 class="game-name">Shell Shockers</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/papaspizzaria')">
+      <img src="files/papaspizzaria/papaspizzaria.jpg" class="game-logo">
+      <h3 class="game-name">Papas Pizzaria</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/motox3m')">
+      <img src="files/motox3m/splash.jpg" class="game-logo">
+      <h3 class="game-name">Motox3m</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/motox3m-pool')">
+      <img src="files/motox3m-pool/splash.jpg" class="game-logo">
+      <h3 class="game-name">Motox3m Pool</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/motox3m-spooky')">
+      <img src="files/motox3m-spooky/splash.jpeg" class="game-logo">
+      <h3 class="game-name">Motox3m Spooky</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/motox3m-winter')">
+      <img src="files/motox3m-winter/download.jpeg" class="game-logo">
+      <h3 class="game-name">Motox3m Winter</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/motox3m-winter')">
+      <img src="files/motox3m2/moto-x3m-2.jpg" class="game-logo">
+      <h3 class="game-name">Motox3m 2</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/backrooms')">
+      <img src="files/backrooms/img/splash.jpg" class="game-logo">
+      <h3 class="game-name">Backrooms</h3>
+    </a>
+    <a href="#" class="game" onclick="loadGame(event, 'files/drift-boss')">
+      <img src="files/drift-boss/splash.png" class="game-logo">
+      <h3 class="game-name">Drift Boss</h3>
+    </a>
+  </div>
+  <div id="noGamesFound" style="display:none; text-align: center;">No Games Found &#x1F61E;<br>
+    Suggest a Game in our <a href="https://discord.gg/p9h3dTHAMA">Discord</a>
+  </div>
+  <script>
+    function searchGames() {
+      var searchInput = document.getElementById('searchInput');
+      var filter = searchInput.value.toLowerCase();
+      var gamesContainer = document.querySelector('.games-container');
+      var games = gamesContainer.getElementsByClassName('game');
+      var noGamesFound = document.getElementById('noGamesFound');
+  
+      var foundGames = false; 
+  
+      for (var i = 0; i < games.length; i++) {
+        var gameName = games[i].querySelector('.game-name').textContent.toLowerCase();
+        if (gameName.indexOf(filter) > -1) {
+          games[i].style.display = 'block';
+          foundGames = true;
+        } else {
+          games[i].style.display = 'none';
+        }
+      }
+  
+      if (foundGames) {
+        noGamesFound.style.display = 'none';
+      } else {
+        noGamesFound.style.display = 'block';
+      }
+    }
+  
+    document.getElementById('searchInput').addEventListener('input', searchGames);
+</script>
+  
+</body>
+</html>
+

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html >
+  <head>
+    <meta charset="utf-8" />
+    <meta name="googlebot" content="index, follow, snippet" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/icons/site.webmanifest">
+    <link id="" rel="stylesheet" type="text/css" href="css/main.css" >
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="/assets/themes.js"> </script>
+    <script src="/uv/uv.bundle.js" defer></script>
+    <script src="/uv/uv.config.js" defer></script>
+    <script src="/register-sw.js" defer></script>
+    <script src="/assets/search.js" defer></script>
+    <script src="/assets/main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+    <link rel="icon" type="image/png" href="/icons/favicon/favicon-32x32.png" />
+    <link href="https://fonts.googleapis.com/css2?family=Tilt+Prism&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk&display=swap" rel="stylesheet" />   
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.cdnfonts.com/css/blacklisted" rel="stylesheet" />
+    <script src="/assets/search.js" defer></script>
+    <script type="application/ld+json"></script>
+    <title>New Tab</title>
+  </head>
+  <body>
+    <header class="mainheading">
+      <h1 class="heading">Shadow</h1>
+    </header>
+    <br><br>
+    <div class="search-container">
+      <form id="uv-form" class="flex-center">
+        <input style="z-index: -9999;" id="uv-search-engine" value="" type="hidden"/>
+        <input id="uv-address" class="mainurl"type="text" placeholder="Search the web" autofocus/>
+      </form>
+      <div class="shortcuts">
+        <a id="discord">
+          <img src="/icons/shortcuts/discord.jpg" alt="" />
+          <span>Discord</span>
+        </a>
+        <a id = "chess">
+          <img src="/icons/shortcuts/chess.png" alt="" />
+          <span>Chess</span>
+        </a>
+        <a  id="mc">
+          <img src="/icons/shortcuts/minecraft.png" alt="" />
+          <span>Minecraft</span>
+        </a>
+        <a id="poki">
+          <img src="/icons/shortcuts/poki.png" alt="" />
+          <span>Poki</span>
+        </a>
+        <a  id = "y8">
+          <img src="/icons/shortcuts/y8.png" alt="" />
+          <span>Y8 Games</span>
+        </a>
+        <a id="yt">
+          <img src="https://www.teamphenomenalhope.org/wp-content/uploads/2017/04/YouTube-icon-full_color-520x300.png" alt="" />
+          <span>YouTube</span>
+        </a>
+        <a id ="gpt">
+          <img src="/icons/shortcuts/chatgpt.png" alt="" />
+          <span>ChatGPT</span>
+        </a>
+        <a id ="vs" >
+          <img src="/icons/shortcuts/vscode.png" alt="" />
+          <span>VS Code</span>
+        </a>
+        <a id ="github">
+          <img src="/icons/shortcuts/github.webp" alt="" />
+          <span>Github</span>
+        </a>
+        <a id ="calc">
+          <img src="/icons/shortcuts/calculator.png" alt="" />
+          <span>Calculator</span>
+        </a>
+      </div>
+    </div>
+
+  </body>
+
+<script>
+  var searchEngineValue = localStorage.getItem("searchengine");
+    if (!searchEngineValue) {
+    searchEngineValue = "https://www.google.com/search?q=%s";
+  }
+  document.getElementById("uv-search-engine").value = searchEngineValue;
+  </script>
+
+<script src="/assets/panic.js"></script>
+
+<script>
+  document.getElementById("uv-address").addEventListener("input", function() {
+  this.suggestions = [];
+});
+
+</script> 
+</html>
+
+

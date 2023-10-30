@@ -1,0 +1,107 @@
+:root {
+  --primary-background-color: #1a1a2b;
+  --secondary-background-color: #2a2a3d;
+  --accent-color: #5B3A75;
+  --main-text-color: #fff;
+  --search-placeholder-color: #999;
+  --bookmark-background-color: #6B52A3;
+  --bookmark-hover-background-color: #5B3A75;
+  --input-background-color: #1a1a2b;
+  --input-text-color: #fff;
+  --input-placeholder-color: #ccc;
+  --button-background-color: #6B52A3;
+  --button-text-color: #fff;
+  --button-hover-background-color: #8F6CAF;
+  --cancel-button-background-color: #4C2C63;
+  --save-button-background-color: #3A9259;
+}
+
+:root.light {
+  --primary-background-color: #F0E8F9; 
+  --secondary-background-color: #F5ECFF; 
+  --accent-color: #BFA5D1; 
+  --main-text-color: #333; 
+  --search-placeholder-color: #999; 
+  --bookmark-background-color: #6B52A3; 
+  --bookmark-hover-background-color: #5B3A75;
+  --input-background-color: #F0E8F9; 
+  --input-text-color: #333;
+  --input-placeholder-color: #ccc; 
+  --button-background-color: #6B52A3; 
+  --button-text-color: #fff; 
+  --button-hover-background-color: #8F6CAF; 
+  --cancel-button-background-color: #4C2C63; 
+  --save-button-background-color: #3A9259; 
+}
+
+:root.blueneon {
+--primary-background-color: #0077B6;
+--secondary-background-color: #1A1A2E; 
+--accent-color: #0077B6; 
+--main-text-color: #FFFFFF;
+--search-placeholder-color: #999;
+--bookmark-background-color: #0077B6; 
+--bookmark-hover-background-color: #00A6FB; 
+--input-background-color: #1A1A2E; 
+--input-text-color: #FFFFFF;
+--input-placeholder-color: #ccc;
+--button-background-color: #0077B6; 
+--button-text-color: #FFFFFF;
+--button-hover-background-color: #8F6CAF;
+--cancel-button-background-color: #4C2C63;
+--save-button-background-color: #3A9259;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--primary-background-color);
+  color: var(--main-text-color);
+  padding-left: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a2b;
+  border-radius: 15px;
+  height: 95%;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6B52A3;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4b52a3;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+h1 {
+  font-size: 32px;
+  color: aliceblue;
+}
+
+h2 {
+  font-size: 18px;
+  width: 40vw;
+  line-height: 25px;
+}
+
+.card {
+  width: 50vw;
+}
+
+#encodeDropDownMain {
+  
+}
+
+.dropdown {
+  display: none;
+  width: 20vw;
+}

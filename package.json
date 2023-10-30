@@ -1,0 +1,28 @@
+{
+    "name": "shadow",
+    "version": "1.0.0",
+    "description": "Shadow proxy",
+    "type": "module",
+    "engines": {
+      "npm": ">=7.0.0",
+      "node": ">=16.0.0"
+    },
+    "scripts": {
+      "start": "node index.js",
+      "shadow": "node index.js"
+    },
+    "keywords": [
+      "proxy"
+    ],
+    "author": "",
+    "license": "GPL-3.0-or-later",
+    "dependencies": {
+      "@titaniumnetwork-dev/ultraviolet": "^1.0.10",
+      "@tomphttp/bare-server-node": "^2.0.0",
+      "axios": "^1.4.0",
+      "compression": "^1.7.4",
+      "cors": "^2.8.5",
+      "express": "^4.18.2"
+    }
+  }
+  
