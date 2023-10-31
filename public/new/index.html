@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+  <title>New Tab</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Shadow</h1>
+    <div class="search-container">
+      <p class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></p>
+      <input type="text" placeholder="Search Google or type a URL">
+    </div>
+    <div class="shortcuts">
+      <a class="shortcut add">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Plus_symbol.svg/1707px-Plus_symbol.svg.png">
+        <p>Add shortcut</p>
+      </a>
+    </div>
+  </div>
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Add a Shortcut</h2>
+      <form id="shortcut-form">
+        <label for="shortcut-name">Name:</label>
+        <input type="text" id="shortcut-name" name="name">
+        <label for="shortcut-url">URL:</label>
+        <input type="text" id="shortcut-url" name="url">
+        <button type="button" id="add-shortcut">Add</button>
+      </form>
+    </div>
+  </div>
+  <div id="edit-shortcut-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeedit">&times;</span>
+      <h2>Edit Shortcut</h2>
+      <form id="edit-shortcut-form">
+        <label for="edit-shortcut-name">Name:</label>
+        <input type="text" id="edit-shortcut-name" required>
+        <label for="edit-shortcut-url">URL:</label>
+        <input type="text" id="edit-shortcut-url" required>
+        <button type="button" id="edit-shortcut">Save</button>
+      </form>
+    </div>
+  </div>
+  <div id="shortcut-context-menu" class="context-menu">
+      <li id="edit-context-menu-option"><i class="fa-regular fa-pen-to-square"></i> Edit</li>
+      <li id="delete-context-menu-option"><i class="fa-solid fa-trash"></i> Delete</li>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

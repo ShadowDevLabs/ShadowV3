@@ -1,165 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Shadow Browser</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="css/index.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon/favicon-16x16.png">
-    <link rel="manifest" href="/icons/site.webmanifest">
-    <script src="/assets/themes.js"></script>
-    <script src="/uv/uv.bundle.js" defer></script>
-    <script src="/uv/uv.config.js" defer></script>
-    <script src="/register-sw.js" defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa&display=swap" rel="stylesheet">
-    <script src="/assets/search.js" defer></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,500,1,0" />
-    <script src="/assets/options.js" defer></script>
-    <script src="/assets/tab.js"></script>
-    <script src="/assets/panic.js"></script>
-    <script>
-    function checkFirst(a, b) {let c = localStorage.getItem(a);if (a==null) {localStorage.setItem(a, b);}}
-    checkFirst("bare","/bare/")
-    checkFirst("proxy","uv") // Setup for dynamic swap
-    checkFirst("autoInjectEnabled", true)
-    checkFirst("ua", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36")
-</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+  <title>Shadow</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="tab-container">
-        <ul class="tabs"></ul>
-        <div class="input-container">
-            <i class="fas fa-plus" id="add-tab-btn"></i>
-            <button class="back-btn"><i class="fas fa-chevron-left"></i></button>
-            <button class="refresh-btn"><i class="fas fa-sync"></i></button>
-            <button class="forward-btn"><i class="fas fa-chevron-right"></i></button>
-            <form class="inputcontainermain" id="uv-form">
-                <input class="search" type="text" id="uv-address" placeholder="Type URL here">
-                <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden"/>
-            </form>
-            <button id="bookmark-btn" style="border:none; margin-right: 15px; "><span class="material-symbols-outlined" style="color:yellow">star</span></button>
-                <div class="rightcontrol">
-                    <a onclick="openNewTab()"><i class="fa-solid fa-user-ninja"></i></a>
-                    <a onclick="initInject()"><i class="fa-solid fa-syringe"></i></a>
-                    <a onclick="settingoptions()"><i class="fa-solid fa-gear"></i></a>
-                    <a onclick="devtooltoggle()"><i class="fa-solid fa-wrench"></i></a>
-                    <a href="https://github.com/Phantom-Web-Works/Shadow-V2" target="_blank"><i class="fa-brands fa-github"></i></a>
-                    <a onclick="alert('Bare switcher coming soon!')"><i class="fa-solid fa-shuffle"></i></a>
-                </div>        
-        </div>
-        <div class="bookmarks-panel" id="bookmarks-panel">
-          <!-- Bookmarks will be  added here -->
-          <div class="bookmarks-dropdown" id="bookmarks-dropdown">
-              <!-- Additional bookmarks will be shown here as a dropdown -->
-          </div>
-      </div>
-      
-      <!-- The popup for adding bookmarks -->
-      <div class="bookmark-popup" id="bookmark-popup" style="padding:20px; width:400px; height:200px">
-        <h2>Create A Bookmark</h2>
-          <input type="text" id="bookmark-title-input" placeholder="Bookmark Title">
-          <input type="text" id="bookmark-link-input" placeholder="Bookmark Link">
-          <div class="button-container-bookmark ">
-              <button id="bookmark-cancel">Cancel</button>
-              <button id="bookmark-confirm">Confirm</button>
-          </div>
-      </div>
-        <div class="tab-panels">
-            <div class="tab-panel active" data-src="">
-                <iframe src="" frameborder="0"></iframe>
-            </div>
-        </div>
+
+  <div id="loading-screen">
+    <div class="dot-container">
+    <i class="loading-dots"><i class="fa-solid fa-circle"></i></i>
+    <i class="loading-dots"><i class="fa-solid fa-circle"></i></i>
+    <i class="loading-dots"><i class="fa-solid fa-circle"></i></i> <br> <br>
     </div>
-    <div class="desc left-margin">
-        <p id="uv-error"></p>
-        <pre id="uv-error-code"></pre>
-    </div>
+    <p class="loading-text">Loading Shadow Browser</p>
+  </div>
+
+  
+  <div id="tabs-container">
+    <button id="add-tab" class="control-button" style="font-size: 15px; height:fit-content;margin-top: 7.5px;"><i class="fas fa-plus"></i></button>
+  </div>
+  
+  <div id="header">
+    <button id="back-button" class="control-button"><i class="fas fa-arrow-left"></i></button>
+    <button id="forward-button" class="control-button"><i class="fas fa-arrow-right"></i></button>
+    <button id="refresh-button" class="control-button"><i class="fas fa-redo"></i></button>
+    <form id="uv-form" class="inputcontainermain">
+      <input type="text" id="search-bar" placeholder="Search or enter a URL">
+      <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden"/>
+    </form>
+    <div id="menu-button" class="control-button" style="margin-left: 15px;  font-size: 24px;">&#8801;</div>
+  </div>
+  <div id="myDropdown" class="dropdown-content" style="display:none">
+      <table>
+        <tr>
+          <td><button data-add-tab><i class="fas fa-plus"></i> New tab</button></td>
+        </tr>
+      </table>
+      <table>
+        <tr>
+          <td><button data-add-tab><i class="fas fa-plus"></i> Add Boomark </button></td>
+        </tr>
+      </table>
+    <div class="separator"></div>
+    <table>
+      <tr>
+        <td><button data-add-tab><i class="fas fa-history"></i> History</button></td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td><button data-add-tab onclick='createTab("Settings", "/settings");'><i class="fas fa-cog"></i> Settings</button></td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td><button data-add-tab><i class="fas fa-question-circle"></i> Help</button></td>
+      </tr>
+    </table>
+    <div class="separator"></div>
+    <table>
+      <tr>
+        <td><button data-add-tab><i class="fas fa-expand-arrows-alt"></i> Fullscreen</button></td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td><button data-add-tab><i class="fas fa-sign-out-alt"></i>Open About:Blank</button></td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td><button data-add-tab><i class="fas fa-sign-out-alt"></i>Open Tab in Abt:Blank</button></td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td><button data-add-tab><i class="fa-solid fa-circle-xmark"></i> Exit</button></td>
+      </tr>
+    </table>
+  </div>
+
+  <div id="bookmarks-container"></div>  
+  <div id="iframes-container"></div>
+  <div class="desc left-margin">
+    <p id="uv-error"></p>
+    <pre id="uv-error-code"></pre>
+  </div>
+  <script src="script.js" async></script>
+  <script src="/assets/themes.js"></script>
+  <script src="/uv/uv.bundle.js" ></script>
+  <script src="/uv/uv.config.js" ></script>
+  <script src="/uv/uv.sw.js" ></script>
+  <script src="/uv/uv.config.js" ></script>
+  <script src="/register-sw.js" ></script>
+  <script src="/assets/search.js" ></script>
 </body>
 </html>
-
-
-<script>
-var searchEngineValue = localStorage.getItem("searchengine");
-  if (!searchEngineValue) {
-  searchEngineValue = "https://www.google.com/search?q=%s";
-}
-document.getElementById("uv-search-engine").value = searchEngineValue;
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("uv-form");
-  const address = document.getElementById("uv-address");
-  const searchEngine = document.getElementById("uv-search-engine");
-  const error = document.getElementById("uv-error");
-  const errorCode = document.getElementById("uv-error-code");
-
-  const registerServiceWorker = function(){registerSW().catch((err) => {
-    error.textContent = "Failed to register service worker.";
-    errorCode.textContent = err.toString();
-    throw err;
-  })};
-
-  window.addEventListener('load', async () => {
-    await registerServiceWorker();
-  });
-
-  function changeTabSrc(src) {
-  const activeTabPanel = document.querySelector('.tab-panel.active');
-  if (activeTabPanel) {
-      const iframe = activeTabPanel.querySelector('iframe');
-      iframe.src = src;
-  }
-}
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    await registerServiceWorker;
-        const url = search(address.value, searchEngine.value);
-        const imgsrc = `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${url}&size=15`;
-        const faviconsrc = `<img src="${imgsrc}">`;
-        changeTabSrc(__uv$config.prefix + __uv$config.encodeUrl(url));
-        setTimeout(function() {
-          const activeTabPanel = document.querySelector('.tab-panel.active');
-          const iframe = activeTabPanel.querySelector('iframe');
-          iframe.addEventListener('load', updatefaviconagain);
-        }, 3000);
-  });
-
-    window.addEventListener("storage", (event) => {
-      if (event.key === "mainurl") {
-        registerServiceWorker.then(() => {
-          const url = localStorage.getItem("mainurl")
-          const imgsrc = `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${url}&size=15`;
-          const faviconsrc = `<img src="${imgsrc}">`;
-          changeTabSrc(__uv$config.prefix + __uv$config.encodeUrl(url));
-          localStorage.removeItem("mainurl");
-          setTimeout(function() {
-            const activeTabPanel = document.querySelector('.tab-panel.active');
-            const iframe = activeTabPanel.querySelector('iframe');
-            iframe.addEventListener('load', updatefaviconagain);
-          }, 3000);
-        });
-      }
-    });
-  });
-</script>
-
-<script>
-function calculateServerPing(serverURL) {
-  const beaconData = 'ping-test';
-  const startTime = performance.now();
-  navigator.sendBeacon(serverURL, beaconData);
-  const endTime = performance.now();
-  const pingTime = endTime - startTime;
-  const pingResultElement = document.getElementById('pingResult');
-  alert(`Average ping to ${serverURL}: ${pingTime.toFixed(2)} ms`);
-}
-
-function devtoolToggleOnIframe() {
-    var activeTabIframe = document.querySelector('.tab-panel.active iframe');
-    activeTabIframe.contentWindow.devtoolToggle()
-  }
-</script>
-
-<script src="/assets/inject.js"></script>
