@@ -165,7 +165,6 @@ iframe.active {
   background-color: var(--tab-background);
   border: 1px solid var(--tab-border);
   border-radius: 5px;
-  display: ;
   flex-direction: column;
   z-index: 1;
 }
