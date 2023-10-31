@@ -15,22 +15,22 @@ window.addEventListener('load', function() {
   const iframesContainer = document.getElementById("iframes-container");
   const addTabButton = document.getElementById("add-tab");
   
-  function updateTabTitleFromIframe(iframe) {
-      const tab = tabs[currentTabIndex];
-      const src = iframe.src;
-      const faviconSrc = `https://www.google.com/s2/favicons?domain=${src}&sz=64`;
-      const faviconImg = document.createElement('img');
-      faviconImg.className = "favicon"
-      faviconImg.src = faviconSrc;
-      tab.textContent = '';
-      const closeButton = document.createElement("span");
-      closeButton.className = "close-tab-button";
-      closeButton.innerHTML = "&#10006;"; 
-      closeButton.addEventListener("click", () => closeTab(tabs.indexOf(tab)));
-      tab.appendChild(faviconImg);
-      tab.appendChild(document.createTextNode(' '));
-      tab.appendChild(document.createTextNode(iframe.contentDocument.title));
-      tab.appendChild(closeButton);
+  function updateTabTitleFromIframe(iframe, faviconSrc) {
+    const tab = tabs[currentTabIndex];
+    const src = iframe.src;
+    const modifiedSrc = src.replace(window.location.origin, "").replace("/uv/service/", "");
+    const faviconImg = document.createElement('img');
+    faviconImg.className = "favicon";
+    faviconImg.src = faviconSrc || `https://www.google.com/s2/favicons?domain=${modifiedSrc}&sz=64`;
+    tab.textContent = '';
+    const closeButton = document.createElement("span");
+    closeButton.className = "close-tab-button";
+    closeButton.innerHTML = "&#10006;";
+    closeButton.addEventListener("click", () => closeTab(tabs.indexOf(tab)));
+    tab.appendChild(faviconImg);
+    tab.appendChild(document.createTextNode(' '));
+    tab.appendChild(document.createTextNode(iframe.contentDocument.title));
+    tab.appendChild(closeButton);
   }
   
   function createTab(title, url) {
@@ -49,27 +49,6 @@ window.addEventListener('load', function() {
   
     const iframe = document.createElement("iframe");
     iframe.src = url;
-  
-    iframe.onload = function () {
-      const tab = tabs[currentTabIndex];
-      let src = iframe.src;
-      src = src.replace(window.location.origin, "");
-      alert(src);
-      const faviconSrc = `https://www.google.com/s2/favicons?domain=${src}&sz=36`;
-      const faviconImg = document.createElement('img');
-      faviconImg.src = faviconSrc;
-      faviconImg.className = "favicon"
-      tab.textContent = '';
-      const closeButton = document.createElement("span");
-      closeButton.className = "close-tab-button";
-      closeButton.innerHTML = "&#10006;"; 
-      closeButton.addEventListener("click", () => closeTab(tabs.indexOf(tab)));
-      tab.appendChild(faviconImg);
-      tab.appendChild(document.createTextNode(' '));
-      tab.appendChild(document.createTextNode(iframe.contentDocument.title));
-      tab.appendChild(closeButton);
-    };
-  
     iframesContainer.appendChild(iframe);
   
     switchTab(tabs.indexOf(tab)); 
@@ -94,7 +73,7 @@ window.addEventListener('load', function() {
     searchInput.value = currentSrc;
   }
   
-  function loadUrl(url) {
+  function loadUrl(url, faviconsrc) {
     if (url !== "") {
       if (currentTabIndex !== -1) {
         const iframe = iframesContainer.children[currentTabIndex];
@@ -102,7 +81,8 @@ window.addEventListener('load', function() {
         iframe.src = url;
   
         iframe.onload = function () {
-          updateTabTitleFromIframe(iframe);
+          const faviconsrc2 = `https://www.google.com/s2/favicons?domain=${faviconsrc}&sz=64`;
+          updateTabTitleFromIframe(iframe, faviconsrc2);
         };
       }
     }
@@ -232,7 +212,7 @@ window.addEventListener('load', function() {
       event.preventDefault();
       await registerServiceWorker;
       const url = search(address.value, searchEngine.value);
-      loadUrl(__uv$config.prefix + __uv$config.encodeUrl(url));
+      loadUrl(__uv$config.prefix + __uv$config.encodeUrl(url), url);
     });
   });
   
