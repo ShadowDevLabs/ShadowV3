@@ -35,20 +35,36 @@
     </form>
     <div id="menu-button" class="control-button" style="margin-left: 15px;  font-size: 24px;">&#8801;</div>
   </div>
-  <div id="context-menu" class="context-menu" style="display:none;">
-    <ul>
-      <li data-action="edit">Edit Bookmark</li>
-      <li data-action="delete">Delete Bookmark</li>
-    </ul>
+  <div id="bookmark-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-bookmark">&times;</span>
+      <h2>Add a Bookmark</h2>
+      <form id="bookmark-form">
+        <label for="bookmark-name">Name:</label>
+        <input type="text" id="bookmark-name" name="name">
+        <label for="bookmark-url">URL:</label>
+        <input type="text" id="bookmark-url" name="url">
+        <button type="button" id="add-bookmark">Add</button>
+      </form>
+    </div>
   </div>
-  <div id="edit-panel" class="edit-panel">
-    <h2>Edit Bookmark</h2>
-    <input type="text" id="edit-title" placeholder="Title" />
-    <input type="text" id="edit-url" placeholder="URL" />
-    <button id="edit-save">Save</button>
+  <div id="edit-bookmark-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-bookmark" id="close-edit-bookmark">&times;</span>
+      <h2>Edit Bookmark</h2>
+      <form id="edit-bookmark-form">
+        <label for="edit-bookmark-name">Name:</label>
+        <input type="text" id="edit-bookmark-name" required>
+        <label for="edit-bookmark-url">URL:</label>
+        <input type="text" id="edit-bookmark-url" required>
+        <button type="button" id="edit-bookmark">Save</button>
+      </form>
+    </div>
   </div>
-  
-  
+  <div id="bookmark-context-menu" class="context-menu">
+    <li id="edit-bookmark-context-menu-option"><i class="fa-regular fa-pen-to-square"></i> Edit</li>
+    <li id="delete-bookmark-context-menu-option"><i class="fa-solid fa-trash"></i> Delete</li>
+  </div>
   <div id="myDropdown" class="dropdown-content" style="display:none">
       <table>
         <tr>
@@ -57,7 +73,7 @@
       </table>
       <table>
         <tr>
-          <td><button data-add-tab><i class="fas fa-plus"></i> Add Boomark </button></td>
+          <td id="bookmarkadd"><button data-add-tab><i class="fas fa-plus"></i> Add Boomark </button></td>
         </tr>
       </table>
     <div class="separator"></div>
@@ -116,144 +132,4 @@
 </body>
 </html>
 
-<script>
-window.onload = function() {
-  const maxBookmarks = 20; // Maximum number of bookmarks
-  const addBookmarkButton = document.querySelector(".bookmark.add");
-  const modal = document.getElementById("bookmark-modal");
-  const closeBookmarkModal = document.querySelector(".close-bookmark");
-  addBookmarkButton.addEventListener("click", () => {
-    modal.style.display = "block";
-  });
-  closeBookmarkModal.addEventListener("click", () => {
-    modal.style.display = "none";
-  });
-  window.addEventListener("click", (event) => {
-    if (event.target === modal) {
-      modal.style.display = "none";
-    }
-  });
-
-  const addBookmark = document.getElementById("add-bookmark");
-  const bookmarkName = document.getElementById("bookmark-name");
-  const bookmarkUrl = document.getElementById("bookmark-url");
-  const bookmarkForm = document.getElementById("bookmark-form");
-  const bookmarksContainer = document.querySelector(".bookmarks");
-
-  modal.addEventListener("click", function (event) {
-    if (event.target === addBookmark) {
-      if (bookmarksContainer.querySelectorAll(".bookmark").length >= maxBookmarks) {
-        alert("You've reached the maximum number of bookmarks (20). Please delete some bookmarks to add new ones.");
-        return;
-      }
-      const name = bookmarkName.value;
-      const url = bookmarkUrl.value;
-      if (name && url) {
-        const newBookmark = document.createElement("a");
-        newBookmark.className = "bookmark";
-        const domain = url;
-        const size = 64;
-        const imgSrc = `https://www.google.com/s2/favicons?domain=${domain}&sz=${size}`;
-        newBookmark.innerHTML = `
-          <img src="${imgSrc}">
-          <p>${name}</p>
-        `;
-        newBookmark.setAttribute("data-url", url);
-        bookmarksContainer.insertBefore(newBookmark, addBookmarkButton);
-        const bookmarks = JSON.parse(localStorage.getItem("bookmarks")) || [];
-        bookmarks.push({ name, url });
-        localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
-        modal.style.display = "none";
-        bookmarkForm.reset();
-      }
-    }
-  });
-
-  function loadBookmarks() {
-    const bookmarks = JSON.parse(localStorage.getItem("bookmarks")) || [];
-    bookmarks.slice(0, maxBookmarks).forEach((bookmark) => {
-      const { name, url } = bookmark;
-      const newBookmark = document.createElement("a");
-      newBookmark.className = "bookmark";
-      const domain = url;
-      const size = 64;
-      const imgSrc = `https://www.google.com/s2/favicons?domain=${domain}&sz=${size}`;
-      newBookmark.innerHTML = `
-        <img src="${imgSrc}">
-        <p>${name}</p>
-      `;
-      newBookmark.setAttribute("data-url", url);
-      bookmarksContainer.insertBefore(newBookmark, addBookmarkButton);
-    });
-  }
-
-  loadBookmarks();
-  const bookmarkContextMenu = document.getElementById("bookmark-context-menu");
-  let selectedBookmark;
-  bookmarksContainer.addEventListener("contextmenu", (event) => {
-    event.preventDefault();
-    const bookmark = event.target.closest(".bookmark");
-    if (bookmark && bookmark !== addBookmarkButton) {
-      selectedBookmark = bookmark;
-      bookmarkContextMenu.style.left = `${event.pageX}px`;
-      bookmarkContextMenu.style.top = `${event.pageY}px`;
-      bookmarkContextMenu.style.display = "block";
-    }
-  });
-
-  document.addEventListener("click", () => {
-    bookmarkContextMenu.style.display = "none";
-  });
-
-  document.getElementById("edit-bookmark-context-menu-option").addEventListener("click", () => {
-    bookmarkContextMenu.style.display = "none";
-    const name = selectedBookmark.querySelector("p").textContent;
-    const url = selectedBookmark.getAttribute("data-url");
-    const imgSrc = `https://www.google.com/s2/favicons?domain=${url}&sz=64`;
-    const editBookmarkModal = document.getElementById("edit-bookmark-modal");
-    const editBookmarkNameInput = document.getElementById("edit-bookmark-name");
-    const editBookmarkUrlInput = document.getElementById("edit-bookmark-url");
-    editBookmarkNameInput.value = name;
-    editBookmarkUrlInput.value = url;
-    editBookmarkModal.style.display = "block";
-    document.getElementById("edit-bookmark").addEventListener("click", () => {
-      selectedBookmark.querySelector("p").textContent = editBookmarkNameInput.value;
-      const newURL = editBookmarkUrlInput.value;
-      selectedBookmark.setAttribute("data-url", newURL);
-      const newImgSrc = `https://www.google.com/s2/favicons?domain=${newURL}&sz=64`;
-      selectedBookmark.querySelector("img").src = newImgSrc;
-      const bookmarks = JSON.parse(localStorage.getItem("bookmarks")) || [];
-      const selectedBookmarkIndex = bookmarks.findIndex(
-        (bookmark) => bookmark.name === name
-      );
-      if (selectedBookmarkIndex !== -1) {
-        bookmarks[selectedBookmarkIndex] = {
-          name: editBookmarkNameInput.value,
-          url: newURL,
-        };
-        localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
-      }
-      editBookmarkModal.style.display = "none";
-    });
-  });
-
-  document.getElementById("close-edit-bookmark").addEventListener("click", () => {
-    const editBookmarkModal = document.getElementById("edit-bookmark-modal");
-    editBookmarkModal.style.display = "none";
-  });
-
-  document.getElementById("delete-bookmark-context-menu-option").addEventListener("click", () => {
-    bookmarkContextMenu.style.display = "none";
-    if (selectedBookmark !== addBookmarkButton) {
-      selectedBookmark.remove();
-      const name = selectedBookmark.querySelector("p").textContent;
-      const bookmarks = JSON.parse(localStorage.getItem("bookmarks")) || [];
-      const updatedBookmarks = bookmarks.filter(
-        (bookmark) => bookmark.name !== name
-      );
-      localStorage.setItem("bookmarks", JSON.stringify(updatedBookmarks));
-    }
-  });
-}
-
-</script>
+<script src="bookmarks.js"></script>

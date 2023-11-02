@@ -138,6 +138,117 @@ window.addEventListener('load', function() {
     createTab("New Tab", "new.html");
   });
   
+  const editPanel = document.getElementById("edit-panel");
+  const editTitleInput = document.getElementById("edit-title");
+  const editUrlInput = document.getElementById("edit-url");
+  const editSaveButton = document.getElementById("edit-save");
+  
+  // Initialize bookmarks from local storage
+  let bookmarks = JSON.parse(localStorage.getItem("bookmarks")) || [];
+  
+  // Function to save bookmarks to local storage
+  function saveBookmarks() {
+    localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+  }
+  
+  function addBookmark(title, url) {
+    const bookmarksContainer = document.getElementById("bookmarks-container");
+    const bookmark = document.createElement("div");
+    bookmark.className = "bookmark";
+    const icon = document.createElement("i");
+    icon.className = "fas fa-bookmark";
+    const text = document.createElement("span");
+    text.textContent = title;
+    bookmark.appendChild(icon);
+    bookmark.appendChild(text);
+  
+    bookmark.addEventListener("contextmenu", (event) => {
+      event.preventDefault();
+      showBookmarkContextMenu(event, title, url);
+    });
+  
+    bookmarksContainer.appendChild(bookmark);
+  
+    const bookmarkObj = { title, url };
+    bookmarks.push(bookmarkObj);
+    saveBookmarks(); // Save the updated bookmarks to local storage
+  }
+  
+  
+  function showBookmarkContextMenu(event, title, url) {
+    const existingContextMenu = document.querySelector(".context-menu");
+    if (existingContextMenu) {
+      document.body.removeChild(existingContextMenu);
+    }
+  
+    const contextMenu = document.createElement("div");
+    contextMenu.className = "context-menu";
+    contextMenu.innerHTML = `
+      <ul>
+        <li data-action="edit">Edit Bookmark</li>
+        <li data-action="delete">Delete Bookmark</li>
+      </ul>
+    `;
+  
+    contextMenu.style.left = `${event.clientX}px`;
+    contextMenu.style.top = `${event.clientY}px`;
+  
+    document.body.appendChild(contextMenu);
+  
+    contextMenu.addEventListener("click", (e) => {
+      const action = e.target.getAttribute("data-action");
+      if (action === "edit") {
+        handleEditBookmark(title, url);
+      } else if (action === "delete") {
+        const index = bookmarks.findIndex((bookmark) => bookmark.title === title);
+        if (index >= 0) {
+          bookmarks.splice(index, 1);
+          saveBookmarks();
+          const bookmarksContainer = document.getElementById("bookmarks-container");
+          bookmarksContainer.removeChild(bookmarksContainer.childNodes[index]);
+        }
+      }
+  
+      document.body.removeChild(contextMenu);
+    });
+  
+    document.addEventListener("click", (e) => {
+      if (e.target !== contextMenu && !contextMenu.contains(e.target)) {
+        document.body.removeChild(contextMenu);
+      }
+    });
+  }
+  
+  function handleEditBookmark(title, url) {
+    editTitleInput.value = title;
+    editUrlInput.value = url;
+    editSaveButton.dataset.index = bookmarks.findIndex((bookmark) => bookmark.title === title);
+    editPanel.style.display = "block";
+  }
+  
+  function handleSaveEdit() {
+    const title = editTitleInput.value;
+    const url = editUrlInput.value;
+    const index = parseInt(editSaveButton.dataset.index);
+  
+    if (index >= 0) {
+      bookmarks[index].title = title;
+      bookmarks[index].url = url;
+      saveBookmarks();
+      const bookmarksContainer = document.getElementById("bookmarks-container");
+      bookmarksContainer.childNodes[index].querySelector("span").textContent = title;
+    }
+  
+    editPanel.style.display = "none";
+  }
+  
+  editSaveButton.addEventListener("click", handleSaveEdit);
+  
+  // Initialize bookmarks from local storage
+  bookmarks.forEach((bookmark) => {
+    addBookmark(bookmark.title, bookmark.url);
+  });
+  
   createTab("Home", "/home");
   const menuButton = document.getElementById("menu-button");
   const dropdown = document.getElementById("myDropdown");

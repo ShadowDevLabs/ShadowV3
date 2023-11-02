@@ -328,6 +328,7 @@ iframe.active {
   width:100%;
 }
 
+/* Style for the context menu */
 .context-menu {
   position: absolute;
   background-color: var(--background-color);
@@ -353,6 +354,7 @@ iframe.active {
   color: var(--accent-color);
 }
 
+/* Style for the edit panel */
 .edit-panel {
   display: none;
   position: fixed;
