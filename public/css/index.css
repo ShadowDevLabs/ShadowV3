@@ -23,21 +23,22 @@ body, html {
 }
 
 .tab {
+  display: inline-block;
   padding: 8px 16px;
+  background-color: var(--tab-background);
+  color: var(--text-color);
   border: 1px solid var(--tab-border);
-  border-radius: 5px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
   cursor: pointer;
   margin-right: 5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--text-color);
-
 }
 
 .active {
   background-color: var(--tab-border);
-  border-color: var(--tab-background);
 }
 
 .tab-content {
@@ -45,16 +46,18 @@ body, html {
   align-items: center;
 }
 
-
 .favicon {
-  width: 20px;
-  height: 20px;
+  width: 25px;
+  height: 25px;
   margin-right: 5px;
+  vertical-align: top;
 }
 
 .tab-title {
   font-size: 14px;
+  vertical-align: middle;
 }
+
 
 #header {
   background-color: var(--tab-background);
@@ -323,4 +326,66 @@ iframe.active {
 
 .inputcontainermain {
   width:100%;
+}
+
+.context-menu {
+  position: absolute;
+  background-color: var(--background-color);
+  border: 1px solid var(--tab-border);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+}
+
+.context-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.context-menu li {
+  padding: 8px 12px;
+  cursor: pointer;
+  color: var(--text-color);
+}
+
+.context-menu li:hover {
+  background-color: var(--tab-background);
+  color: var(--accent-color);
+}
+
+.edit-panel {
+  display: none;
+  position: fixed;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  border: 1px solid var(--tab-border);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 200;
+  padding: 10px;
+}
+
+.edit-panel h2 {
+  margin: 0;
+  font-size: 18px;
+  text-align: center;
+}
+
+.edit-panel input {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 5px;
+  border: 1px solid var(--tab-border);
+  border-radius: 5px;
+}
+
+#edit-save {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: var(--accent-color);
+  color: var(--text-color);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }

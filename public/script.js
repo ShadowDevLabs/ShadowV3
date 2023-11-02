@@ -68,7 +68,10 @@ window.addEventListener('load', function() {
   
     let currentSrc = iframesContainer.children[index].src;
     if (currentSrc.includes(window.location.origin)) {
-      currentSrc = currentSrc.replace(window.location.origin, "shadow://");
+      currentSrc = currentSrc.replace(window.location.origin, "shadow:/");
+      if (currentSrc.includes(".html")) {
+        currentSrc = currentSrc.replace(".html", "");
+      }
     }
     searchInput.value = currentSrc;
   }
@@ -132,31 +135,10 @@ window.addEventListener('load', function() {
   refreshButton.addEventListener("click", refresh);
 
   addTabButton.addEventListener("click", function () {
-    createTab("New Tab", "/new");
+    createTab("New Tab", "new.html");
   });
   
-  function addBookmark(title, url) {
-    const bookmarksContainer = document.getElementById("bookmarks-container");
-    const bookmark = document.createElement("div");
-    bookmark.className = "bookmark";
-    const icon = document.createElement("i");
-    icon.className = "fas fa-bookmark";
-    const text = document.createElement("span");
-    text.textContent = title;
-    bookmark.appendChild(icon);
-    bookmark.appendChild(text);
-    bookmark.addEventListener("click", () => {
-      searchInput.value = url;
-      loadUrl();
-    });
-  
-    bookmarksContainer.appendChild(bookmark);
-  }
-  
   createTab("Home", "/home");
-  addBookmark("Google", "https://www.google.com");
-  
-  
   const menuButton = document.getElementById("menu-button");
   const dropdown = document.getElementById("myDropdown");
   let isDropdownVisible = false;
@@ -197,7 +179,8 @@ window.addEventListener('load', function() {
     const searchEngine = document.getElementById("uv-search-engine");
     const error = document.getElementById("uv-error");
     const errorCode = document.getElementById("uv-error-code");
-  
+    let mainurl = localStorage.getItem('mainurl');
+
     const registerServiceWorker = registerSW().catch((err) => {
       error.textContent = "Failed to register service worker.";
       errorCode.textContent = err.toString();
@@ -208,6 +191,13 @@ window.addEventListener('load', function() {
       await registerServiceWorker();
     });
   
+    window.addEventListener('storage', function(event) {
+      if (event.key === 'mainurl') {
+        var mainurl = localStorage.getItem('mainurl');
+        loadUrl(__uv$config.prefix + __uv$config.encodeUrl(mainurl), mainurl);
+      }
+    });
+    
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       await registerServiceWorker;
@@ -215,5 +205,4 @@ window.addEventListener('load', function() {
       loadUrl(__uv$config.prefix + __uv$config.encodeUrl(url), url);
     });
   });
-  
   

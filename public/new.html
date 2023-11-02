@@ -3,18 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/css/main.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Rubik&display=swap" rel="stylesheet">
   <title>New Tab</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+  
 </head>
 <body>
   <div class="container">
     <h1>Shadow</h1>
-    <div class="search-container">
+    <div class="search-container show-animation">
       <p class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></p>
-      <input type="text" placeholder="Search Google or type a URL">
+      <form id="uv-form" class="inputcontainermain">
+        <input type="text" id="uv-address" placeholder="Search or enter a URL">
+        <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden"/>
+      </form>
     </div>
     <div class="shortcuts">
       <a class="shortcut add">
@@ -53,6 +60,17 @@
       <li id="edit-context-menu-option"><i class="fa-regular fa-pen-to-square"></i> Edit</li>
       <li id="delete-context-menu-option"><i class="fa-solid fa-trash"></i> Delete</li>
   </div>
-  <script src="script.js"></script>
+  <div class="desc left-margin">
+    <p id="uv-error"></p>
+    <pre id="uv-error-code"></pre>
+  </div>
+  <script src="/assets/main.js"></script>
+  <script src="/assets/themes.js"></script>
+  <script src="/uv/uv.bundle.js" ></script>
+  <script src="/uv/uv.config.js" ></script>
+  <script src="/uv/uv.sw.js" ></script>
+  <script src="/uv/uv.config.js" ></script>
+  <script src="/register-sw.js" ></script>
+  <script src="/assets/search.js" ></script>
 </body>
 </html>
