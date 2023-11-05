@@ -3,79 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shadow</title>
+  <!-- Stylesheets -->
   <link rel="stylesheet" href="/css/index.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
-  <title>Shadow</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&display=swap">
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
 </head>
 <body>
-
+  <!-- Loading Screen -->
   <div id="loading-screen">
     <div class="dot-container">
-    <i class="loading-dots"><i class="fa-solid fa-circle"></i></i>
-    <i class="loading-dots"><i class="fa-solid fa-circle"></i></i>
-    <i class="loading-dots"><i class="fa-solid fa-circle"></i></i> <br> <br>
+      <i class="loading-dots"><i class="fa-solid fa-circle"></i></i>
+      <i class="loading-dots"><i class="fa-solid fa-circle"></i></i>
+      <i class="loading-dots"><i class="fa-solid fa-circle"></i></i>
     </div>
+    <br><br>
     <p class="loading-text">Loading Shadow Browser</p>
   </div>
 
-  
+  <!-- Tabs Container -->
   <div id="tabs-container">
-    <button id="add-tab" class="control-button" style="font-size: 15px; height:fit-content;margin-top: 7.5px;"><i class="fas fa-plus"></i></button>
+    <button id="add-tab" class="control-button" style="font-size: 15px; height: fit-content; margin-top: 7.5px;">
+      <i class="fas fa-plus"></i>
+    </button>
   </div>
-  
+
+  <!-- Header -->
   <div id="header">
     <button id="back-button" class="control-button"><i class="fas fa-arrow-left"></i></button>
     <button id="forward-button" class="control-button"><i class="fas fa-arrow-right"></i></button>
     <button id="refresh-button" class="control-button"><i class="fas fa-redo"></i></button>
     <form id="uv-form" class="inputcontainermain">
       <input type="text" id="search-bar" placeholder="Search or enter a URL">
-      <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden"/>
+      <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
     </form>
-    <div id="menu-button" class="control-button" style="margin-left: 15px;  font-size: 24px;">&#8801;</div>
+    <div id="menu-button" class="control-button" style="margin-left: 15px; font-size: 24px;">&#8801;</div>
   </div>
-  <div id="bookmark-modal" class="modal">
-    <div class="modal-content">
-      <span class="close-bookmark">&times;</span>
-      <h2>Add a Bookmark</h2>
-      <form id="bookmark-form">
-        <label for="bookmark-name">Name:</label>
-        <input type="text" id="bookmark-name" name="name">
-        <label for="bookmark-url">URL:</label>
-        <input type="text" id="bookmark-url" name="url">
-        <button type="button" id="add-bookmark">Add</button>
-      </form>
-    </div>
-  </div>
-  <div id="edit-bookmark-modal" class="modal">
-    <div class="modal-content">
-      <span class="close-bookmark" id="close-edit-bookmark">&times;</span>
-      <h2>Edit Bookmark</h2>
-      <form id="edit-bookmark-form">
-        <label for="edit-bookmark-name">Name:</label>
-        <input type="text" id="edit-bookmark-name" required>
-        <label for="edit-bookmark-url">URL:</label>
-        <input type="text" id="edit-bookmark-url" required>
-        <button type="button" id="edit-bookmark">Save</button>
-      </form>
-    </div>
-  </div>
-  <div id="bookmark-context-menu" class="context-menu">
-    <li id="edit-bookmark-context-menu-option"><i class="fa-regular fa-pen-to-square"></i> Edit</li>
-    <li id="delete-bookmark-context-menu-option"><i class="fa-solid fa-trash"></i> Delete</li>
-  </div>
-  <div id="myDropdown" class="dropdown-content" style="display:none">
-      <table>
-        <tr>
-          <td><button data-add-tab><i class="fas fa-plus"></i> New tab</button></td>
-        </tr>
-      </table>
-      <table>
-        <tr>
-          <td id="bookmarkadd"><button data-add-tab><i class="fas fa-plus"></i> Add Boomark </button></td>
-        </tr>
-      </table>
+
+  <!-- Dropdown Menu -->
+  <div id="myDropdown" class="dropdown-content" style="display: none">
+    <table>
+      <tr>
+        <td><button data-add-tab><i class="fas fa-plus"></i> New tab</button></td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td><button data-add-tab onclick="newBookmark()"><i class="fas fa-plus"></i> Add Bookmark</button></td>
+      </tr>
+    </table>
     <div class="separator"></div>
     <table>
       <tr>
@@ -100,12 +77,12 @@
     </table>
     <table>
       <tr>
-        <td><button data-add-tab><i class="fas fa-sign-out-alt"></i>Open About:Blank</button></td>
+        <td><button data-add-tab><i class="fas fa-sign-out-alt"></i> Open About:Blank</button></td>
       </tr>
     </table>
     <table>
       <tr>
-        <td><button data-add-tab><i class="fas fa-sign-out-alt"></i>Open Tab in Abt:Blank</button></td>
+        <td><button data-add-tab><i class="fas fa-sign-out-alt"></i> Open Tab in Abt:Blank</button></td>
       </tr>
     </table>
     <table>
@@ -115,21 +92,26 @@
     </table>
   </div>
 
-  <div id="bookmarks-container"></div>  
+  <!-- Bookmarks Container -->
+  <div id="bookmarks-container"></div>
+
+  <!-- Iframes Container -->
   <div id="iframes-container"></div>
+
   <div class="desc left-margin">
     <p id="uv-error"></p>
     <pre id="uv-error-code"></pre>
   </div>
+
+  <!-- Scripts -->
   <script src="script.js" async></script>
+  <script src="bookmarks.js" async></script>
   <script src="/assets/themes.js"></script>
-  <script src="/uv/uv.bundle.js" ></script>
-  <script src="/uv/uv.config.js" ></script>
-  <script src="/uv/uv.sw.js" ></script>
-  <script src="/uv/uv.config.js" ></script>
-  <script src="/register-sw.js" ></script>
-  <script src="/assets/search.js" ></script>
+  <script src="/uv/uv.bundle.js"></script>
+  <script src="/uv/uv.config.js"></script>
+  <script src="/uv/uv.sw.js"></script>
+  <script src="/uv/uv.config.js"></script>
+  <script src="/register-sw.js"></script>
+  <script src="/assets/search.js"></script>
 </body>
 </html>
-
-<script src="bookmarks.js"></script>
