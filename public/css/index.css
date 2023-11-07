@@ -6,6 +6,16 @@
   --accent-color: #6c3da3;
 }
 
+
+
+:root.light {
+  --background-color: #eae7f5;
+  --tab-background: #f0ebfa;
+  --tab-border: rgba(126, 124, 248, 0.152);
+  --text-color: #1d1d1d;
+  --accent-color: #c3a9e3;
+}
+
 body, html {
   margin: 0;
   padding: 0;
@@ -223,8 +233,8 @@ iframe.active {
 
 .dropdown-content {
   position: absolute;
-  background-color: #262648;
-  color: #ffffff;
+  background-color:var(--tab-background);
+  color: var(--text-color);
   width: 200px;
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -237,7 +247,7 @@ iframe.active {
 
 .dropdown-content a {
   text-decoration: none;
-  color: #ffffff;
+  color:var(--text-color);
   display: block;
   font-family: 'Poppins', sans-serif;
   padding: 8px 0;
@@ -250,7 +260,7 @@ iframe.active {
 
 .dropdown-content button {
   background-color: transparent;
-  color: #ffffff;
+  color: var(--text-color);
   padding: 4px 8px;
   border: none;
   width:100%;
@@ -328,66 +338,26 @@ iframe.active {
   width:100%;
 }
 
-/* Style for the context menu */
 .context-menu {
   position: absolute;
+  padding: 5px;
+  border-radius: 5px;
   background-color: var(--background-color);
   border: 1px solid var(--tab-border);
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
   z-index: 100;
 }
 
-.context-menu ul {
+.context-menu .menu-item {
   list-style: none;
-  margin: 0;
-  padding: 0;
+  cursor: pointer; 
+  transition: background-color 0.3s; 
 }
 
-.context-menu li {
-  padding: 8px 12px;
-  cursor: pointer;
-  color: var(--text-color);
-}
-
-.context-menu li:hover {
-  background-color: var(--tab-background);
-  color: var(--accent-color);
-}
-
-/* Style for the edit panel */
-.edit-panel {
-  display: none;
-  position: fixed;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  border: 1px solid var(--tab-border);
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-  z-index: 200;
-  padding: 10px;
-}
-
-.edit-panel h2 {
-  margin: 0;
-  font-size: 18px;
-  text-align: center;
-}
-
-.edit-panel input {
-  display: block;
-  width: 100%;
-  margin: 10px 0;
-  padding: 5px;
-  border: 1px solid var(--tab-border);
+.context-menu .menu-item:hover {
+  background-color: var(--tab-border); 
   border-radius: 5px;
 }
 
-#edit-save {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  background-color: var(--accent-color);
-  color: var(--text-color);
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
+
+

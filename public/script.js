@@ -15,7 +15,7 @@ window.addEventListener('load', function() {
   const iframesContainer = document.getElementById("iframes-container");
   const addTabButton = document.getElementById("add-tab");
   
-  function updateTabTitleFromIframe(iframe, faviconSrc) {
+  function updateTabTitleFromIframe(iframe, faviconSrc, title) {
     const tab = tabs[currentTabIndex];
     const src = iframe.src;
     const modifiedSrc = src.replace(window.location.origin, "").replace("/uv/service/", "");
@@ -29,9 +29,11 @@ window.addEventListener('load', function() {
     closeButton.addEventListener("click", () => closeTab(tabs.indexOf(tab)));
     tab.appendChild(faviconImg);
     tab.appendChild(document.createTextNode(' '));
-    tab.appendChild(document.createTextNode(iframe.contentDocument.title));
+    const tabTitle = title || iframe.contentDocument.title;
+    tab.appendChild(document.createTextNode(tabTitle));
     tab.appendChild(closeButton);
-  }
+}
+
   
   function createTab(title, url) {
     const tab = document.createElement("div");
@@ -80,9 +82,8 @@ window.addEventListener('load', function() {
     if (url !== "") {
       if (currentTabIndex !== -1) {
         const iframe = iframesContainer.children[currentTabIndex];
-        
         iframe.src = url;
-  
+        updateTabTitleFromIframe(iframe, "loading.gif", " ");
         iframe.onload = function () {
           const faviconsrc2 = `https://www.google.com/s2/favicons?domain=${faviconsrc}&sz=64`;
           updateTabTitleFromIframe(iframe, faviconsrc2);
