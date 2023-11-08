@@ -20,7 +20,7 @@ function isDuplicateBookmark(title, url) {
 
 function addBookmark(title, url) {
   const duplicateIndex = bookmarks.findIndex((bookmark) => bookmark.title === title && bookmark.url === url);
-
+  
   if (duplicateIndex !== -1) {
     bookmarks.splice(duplicateIndex, 1);
     const existingBookmark = bookmarksContainer.querySelector(
@@ -41,7 +41,10 @@ function addBookmark(title, url) {
   text.textContent = title;
   bookmark.appendChild(icon);
   bookmark.appendChild(text);
-
+  bookmark.addEventListener("click", () => {
+    const dataUrl = bookmark.getAttribute("data-url");
+    loadUrl(dataUrl, __uv$config.encodeUrl(dataUrl)); 
+  });
   bookmark.addEventListener("contextmenu", (event) => {
     event.preventDefault();
     showBookmarkContextMenu(event, title, url);
@@ -113,4 +116,7 @@ function deleteBookmark(title, url) {
 }
 
 
-addBookmark("ws", "ws");
+function newBookmark(){
+  const iframe = iframesContainer.children[currentTabIndex];
+  addBookmark(iframe.contentWindow.document.title, iframe.src);
+}
