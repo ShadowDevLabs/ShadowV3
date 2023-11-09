@@ -35,6 +35,7 @@ body, html {
 .tab {
   display: inline-block;
   padding: 8px 16px;
+  font-family: 'Roboto', sans-serif;
   background-color: var(--tab-background);
   color: var(--text-color);
   border: 1px solid var(--tab-border);
@@ -53,6 +54,7 @@ body, html {
 
 .tab-content {
   display: flex;
+  font-family: 'Roboto', sans-serif;
   align-items: center;
 }
 
@@ -115,6 +117,7 @@ body, html {
   padding: 8px;
   width:99%;
   font-size: 16px;
+  font-family: 'Roboto', sans-serif;
   border: 1px solid var(--tab-border);
   border-radius: 20px;
   color: var(--text-color);
