@@ -31,7 +31,7 @@
 
   <!-- Header -->
   <div id="header">
-    <button id="back-button" class="control-button"><i class="fas fa-arrow-left"></i></button>
+    <button id="back-button" class="control-button" style="margin-left:5px;"><i class="fas fa-arrow-left"></i></button>
     <button id="forward-button" class="control-button"><i class="fas fa-arrow-right"></i></button>
     <button id="refresh-button" class="control-button"><i class="fas fa-redo"></i></button>
     <form id="uv-form" class="inputcontainermain">
@@ -56,12 +56,12 @@
     <div class="separator"></div>
     <table>
       <tr>
-        <td><button data-add-tab><i class="fas fa-history"></i> History</button></td>
+        <td><button data-add-tab onclick='createTab("Settings", "/settings", "https://cdn-icons-png.flaticon.com/512/126/126472.png");'><i class="fas fa-cog"></i> Settings</button></td>
       </tr>
     </table>
     <table>
       <tr>
-        <td><button data-add-tab onclick='createTab("Settings", "/settings");'><i class="fas fa-cog"></i> Settings</button></td>
+        <td><button data-add-tab onclick='createTab("Shadow Web Store", "/extensions");'><i class="fa-solid fa-puzzle-piece"></i> Extensions</button></td>
       </tr>
     </table>
     <table>
@@ -69,25 +69,30 @@
         <td><button data-add-tab onclick='createTab("Shadow Chat", "/uv/service/hvtrs8%2F-e%2Cwkdeevbmt%2Cim%2Fahcnlens-1315118394947654851-137366258326532%3A705")'><i class="fa-solid fa-comments"></i> Chat</button></td>
       </tr>
     </table>
+    <table>
+      <tr>
+        <td><button data-add-tab onclick='createTab("discord.gg/goshadow", "/uv/service/hvtr%3A-%2Ffiqcmrf.eg-gmsjafou")'><i class="fa-brands fa-discord"></i> Discord</button></td>
+      </tr>
+    </table>
     <div class="separator"></div>
     <table>
       <tr>
-        <td><button data-add-tab><i class="fas fa-expand-arrows-alt"></i> Fullscreen</button></td>
+        <td><button data-add-tab onclick="iframefullscreen()"><i class="fas fa-expand-arrows-alt"></i> Fullscreen</button></td>
       </tr>
     </table>
     <table>
       <tr>
-        <td><button data-add-tab><i class="fas fa-sign-out-alt"></i> Open About:Blank</button></td>
+        <td><button data-add-tab onclick="abtblank()"><i class="fas fa-sign-out-alt"></i> Open About:Blank</button></td>
       </tr>
     </table>
     <table>
       <tr>
-        <td><button data-add-tab><i class="fas fa-sign-out-alt"></i> Open Tab in Abt:Blank</button></td>
+        <td><button data-add-tab onclick="iframeabtblank()"><i class="fas fa-sign-out-alt"></i> Open Tab in Abt:Blank</button></td>
       </tr>
     </table>
     <table>
       <tr>
-        <td><button data-add-tab><i class="fa-solid fa-circle-xmark"></i> Exit</button></td>
+        <td><button data-add-tab onclick="exit()"><i class="fa-solid fa-circle-xmark"></i> Exit</button></td>
       </tr>
     </table>
   </div>

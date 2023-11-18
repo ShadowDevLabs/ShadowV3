@@ -45,25 +45,28 @@ h1 {
   border-radius: 20px;
   padding: 0px 10px;
   margin-top: -3%;
-  width: 30%;
+  width:30vw;
+  background-color: var(--tab-background);
+}
+
+.search-container input {
+  flex: 1;
+  border: none;
+  outline: none;
+  width:27.5vw;
+  font-size: 16px;
+  color: var(--text-color);
   background-color: var(--tab-background);
 }
 
 .search-icon {
   background-size: cover;
   margin: 15px 10px;
-  color:var(--tab-border);
+  color: var(--tab-border);
 }
 
-input[type="text"] {
-  flex: 1;
-  border: none;
-  outline: none;
-  font-size: 16px;
-  color: var(--text-color);
-  background-color: var(--tab-background);
 
-}
+
 .shortcuts {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
