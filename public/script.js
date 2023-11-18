@@ -96,6 +96,12 @@ window.addEventListener('load', function() {
           case "new":
             favicon = "/favicon/new.ico"
             break;
+          case "extensions":
+            favicon = "/favicon/extensions.png"
+            break;
+          case "chat":
+            favicon = "/favicon/chat.png"
+            break;
           default:
             favicon = "/favicon/default.ico"
             break;
