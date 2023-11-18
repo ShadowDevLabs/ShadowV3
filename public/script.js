@@ -82,11 +82,31 @@ window.addEventListener('load', function() {
       if (currentTabIndex !== -1) {
         const iframe = iframesContainer.children[currentTabIndex];
         iframe.src = url;
-        updateTabTitleFromIframe(iframe, "loading.gif", " ");
-        iframe.onload = function () {
-          const faviconsrc2 = `https://www.google.com/s2/favicons?domain=${faviconsrc}&sz=64`;
-          updateTabTitleFromIframe(iframe, faviconsrc2);
+        updateTabTitleFromIframe(iframe, "/icons/loading.gif", " ");
+        if(!faviconsrc){
+          let favicon;
+          console.log(url.replace("/pages/", "").replace(".html", ""))
+          switch (url.replace("/pages/", "").replace(".html", "")) {
+          case "settings":
+            favicon = "/favicon/settings.ico"
+            break;
+          case "home":
+            favicon = "/favicon/home.png"
+            break;
+          case "new":
+            favicon = "/favicon/new.ico"
+            break;
+          default:
+            favicon = "/favicon/default.ico"
+            break;
+        }
+          updateTabTitleFromIframe(iframe, favicon);
+        } else {
+          iframe.onload = function () {
+            const faviconsrc2 = `https://www.google.com/s2/favicons?domain=${faviconsrc}&sz=64`;
+            updateTabTitleFromIframe(iframe, faviconsrc2);
         };
+      }
       }
     }
   }
@@ -203,7 +223,7 @@ window.addEventListener('load', function() {
       event.preventDefault();
       await registerServiceWorker;
       const url = search(address.value, searchEngine.value);
-      if(!url.startsWith("/")) loadUrl(__uv$config.prefix + __uv$config.encodeUrl(url), url); else loadUrl(url, url)
+      if(!url.startsWith("/")) loadUrl(__uv$config.prefix + __uv$config.encodeUrl(url), url); else loadUrl(url, false)
     });
   });
   
