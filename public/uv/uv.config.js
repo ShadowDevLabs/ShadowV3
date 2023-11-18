@@ -12,7 +12,6 @@ self.__uv$config = {
 };
 
 if (typeof window != 'undefined' && window.document) {
-    window.onload = parent.autoLoad();
     let bareServer = localStorage.getItem("bare");
     self.__uv$config.bare = bareServer;
 

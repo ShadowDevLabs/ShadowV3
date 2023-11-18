@@ -10,12 +10,22 @@ function search(input, template) {
   let url;
 
   try {
+    if(input.includes("shadow://")) {
+    input.replace("shadow://", "")
+    url = "/pages/"+input+".html";
+    return url
+    }
+  } catch(err) {
+    console.log(err);
+  }
+
+  try {
     url = new URL(input);
     if (url.hostname.includes(".")) {
       return url.toString();
     }
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
 
   try {
@@ -24,7 +34,7 @@ function search(input, template) {
       return url.toString();
     }
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
 
   return template.replace("%s", encodeURIComponent(input));
