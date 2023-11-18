@@ -8,11 +8,12 @@
  */
 function search(input, template) {
   let url;
+  console.log(input)
 
   try {
     if(input.includes("shadow://")) {
-    input.replace("shadow://", "")
-    url = "/pages/"+input+".html";
+    url = "/pages/"+input.replace("shadow://", "")+".html";
+    console.log(url)
     return url
     }
   } catch(err) {

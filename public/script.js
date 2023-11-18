@@ -203,7 +203,7 @@ window.addEventListener('load', function() {
       event.preventDefault();
       await registerServiceWorker;
       const url = search(address.value, searchEngine.value);
-      loadUrl(__uv$config.prefix + __uv$config.encodeUrl(url), url);
+      if(!url.startsWith("/")) loadUrl(__uv$config.prefix + __uv$config.encodeUrl(url), url); else loadUrl(url, url)
     });
   });
   
