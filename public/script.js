@@ -26,9 +26,8 @@ window.addEventListener('load', function() {
     const closeButton = document.createElement("span");
     closeButton.className = "close-tab-button";
     closeButton.innerHTML = "&#10006;";
-    closeButton.addEventListener("click", () => closeTab(tabs.indexOf(tab)));
+    closeButton.addEventListener("click", (e) => {console.log(e); closeTab(tabs.indexOf(tab)); e.stopPropagation;});
     tab.appendChild(faviconImg);
-    tab.appendChild(document.createTextNode(' '));
     const tabTitle = title || iframe.contentDocument.title;
     tab.appendChild(document.createTextNode(tabTitle));
     tab.appendChild(closeButton);
@@ -46,7 +45,7 @@ window.addEventListener('load', function() {
     const closeButton = document.createElement("span");
     closeButton.className = "close-tab-button";
     closeButton.innerHTML = "&#10006;";
-    closeButton.addEventListener("click", () => closeTab(tabs.indexOf(tab)));
+    closeButton.addEventListener("click", (e) => {console.log(e); closeTab(tabs.indexOf(tab)); e.stopPropagation;});
     tab.appendChild(closeButton);
   
     const iframe = document.createElement("iframe");
@@ -57,6 +56,7 @@ window.addEventListener('load', function() {
   
   
   function switchTab(index) {
+    console.log("Switching\n" + index)
     if (currentTabIndex !== -1) {
       tabs[currentTabIndex].classList.remove("active");
       iframesContainer.children[currentTabIndex].classList.remove("active");
@@ -68,11 +68,12 @@ window.addEventListener('load', function() {
     iframesContainer.children[index].classList.add("active");
   
     let currentSrc = iframesContainer.children[index].src;
-    if (currentSrc.includes(window.location.origin)) {
-      currentSrc = currentSrc.replace(window.location.origin, "shadow:/");
-      if (currentSrc.includes(".html")) {
-        currentSrc = currentSrc.replace(".html", "");
-      }
+    console.log(currentSrc)
+    if (!currentSrc.includes("/uv/service/")) {
+      currentSrc = currentSrc.replace("pages/", "");
+      currentSrc = currentSrc.replace(location.href, "")
+      currentSrc = currentSrc.replace(".html", "");
+      currentSrc = "shadow://"+currentSrc
     }
     searchInput.value = currentSrc;
   }
@@ -88,22 +89,22 @@ window.addEventListener('load', function() {
           console.log(url.replace("/pages/", "").replace(".html", ""))
           switch (url.replace("/pages/", "").replace(".html", "")) {
           case "settings":
-            favicon = "/favicon/settings.ico"
+            favicon = "/icons/settings.png"
             break;
           case "home":
-            favicon = "/favicon/home.png"
+            favicon = "/icons/home.png"
             break;
           case "new":
-            favicon = "/favicon/new.ico"
+            favicon = "/icons/new.png"
             break;
           case "extensions":
-            favicon = "/favicon/extensions.png"
+            favicon = "/icons/extensions.png"
             break;
           case "chat":
-            favicon = "/favicon/chat.png"
+            favicon = "/icons/chat.png"
             break;
           default:
-            favicon = "/favicon/default.ico"
+            favicon = "/icons/default.png"
             break;
         }
           updateTabTitleFromIframe(iframe, favicon);
@@ -122,8 +123,10 @@ window.addEventListener('load', function() {
       if (tabs.length > 1) {
         if (index === tabs.length - 1) {
           switchTab(index - 1);
+          console.log("Minus one "+(index-1))
         } else {
           switchTab(index + 1);
+          console.log("Plus one "+(index+1))
         }
       } else {
         searchInput.value = "";
@@ -212,10 +215,6 @@ window.addEventListener('load', function() {
       error.textContent = "Failed to register service worker.";
       errorCode.textContent = err.toString();
       throw err;
-    });
-  
-    window.addEventListener('load', async () => {
-      await registerServiceWorker();
     });
   
     window.addEventListener('storage', function(event) {
