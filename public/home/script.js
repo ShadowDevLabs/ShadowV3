@@ -32,4 +32,6 @@ gsap.from(".header", {
       duration: 0.2,
     });
   });
-  
+
+
+
