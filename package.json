@@ -1,6 +1,6 @@
 {
-    "name": "shadow",
-    "version": "1.0.0",
+    "name": "Shadow",
+    "version": "3.0.0",
     "description": "Shadow proxy",
     "type": "module",
     "engines": {
