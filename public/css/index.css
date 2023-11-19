@@ -183,12 +183,12 @@ body, html {
   background: none;
   border: none;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 50%;
   font-size: 18px;
   padding: 5px;
   margin-right: 10px;
   color: var(--text-color);
-  transition: color 0.4s;
+  transition: background-color 0.4s;
 }
 
 .control-button:hover {
@@ -204,7 +204,7 @@ body, html {
   margin-left: 10px;
   padding: 3px;
   color: var(--text-color);
-  transition: color 0.4s;
+  transition: background-color 0.4s;
 }
 
 .close-tab-button:hover {
@@ -239,6 +239,17 @@ iframe {
 
 iframe.active {
   display: block;
+  animation: .1s fade-in ease-in 
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 #bookmarks-container {
@@ -381,8 +392,6 @@ iframe.active {
   padding: 0;
 }
 
-
-
 @keyframes fadeIn {
   0%, 100% {
     opacity: 0.5;
@@ -391,7 +400,6 @@ iframe.active {
     opacity: 1;
   }
 }
-
 
 .inputcontainermain {
   width:100%;

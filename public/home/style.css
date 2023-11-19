@@ -63,7 +63,7 @@ h1 {
 
 .discord {
   display: block;
-  margin: 3vw auto; /* Adjusted margin for centering */
+  margin: 3vw auto;
   padding: 8px 12px;
   text-align: center;
   color: var(--text-color);
@@ -73,6 +73,7 @@ h1 {
   font-size: 18px;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
+  background-color: var(--accent-color);
 }
 
 .discord:hover {
