@@ -73,7 +73,6 @@ h1 {
   font-size: 18px;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
-  background-color: var(--accent-color);
 }
 
 .discord:hover {
