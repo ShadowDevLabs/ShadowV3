@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/books.css">
   <script src="/assets/themes.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -24,10 +25,6 @@
     <input type="text" id="searchInput" placeholder="Search for a game">
   </div>
   <div class="games-container" id="games-container">
-    <a href="#" class="game" onclick="loadGame(event, 'files/1v1lol')">
-      <img src="files/1v1lol/splash.png" class="game-logo">
-      <h3 class="game-name">1v1.lol</h3>
-    </a>
   </div>
   <div id="noGamesFound" style="display:none; text-align: center;">No Games Found &#x1F61E;<br>
     Suggest a Game in our <a href="https://discord.gg/p9h3dTHAMA">Discord</a>
@@ -66,17 +63,22 @@
         const response = await fetch('games.json');
         const games = await response.json();
         const gameContainer = document.querySelector('.games-container');
+
         games.forEach(game => {
           const gameElement = document.createElement('a');
           gameElement.className = "game";
-          gameElement.onClick = "loadGame(event, `files/${game.root}`)";
+          gameElement.addEventListener('click', function(event) {
+            loadGame(event, `files/${game.root}`);
+          });
 
           gameElement.innerHTML = `
-                  <img loading='lazy' src='files/${game.root}/${game.img}' class="game-logo">
-                  <h3 class="game-name">${game.name}</h3>
-              `;
+            <img loading='lazy' src='files/${game.root}/${game.img}' class="game-logo">
+            <h3 class="game-name">${game.name}</h3>
+          `;
           gameContainer.appendChild(gameElement);
         });
+
+        sortGames();
       } catch (error) {
         console.error('Error fetching or displaying games:', error);
       }
