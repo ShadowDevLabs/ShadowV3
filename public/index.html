@@ -114,6 +114,21 @@
   </div>
 
   <!-- Scripts -->
+  <script>
+    function updateSearchInput() {
+        var storedSearchEngine = localStorage.getItem("searchEngineValue");
+        var searchInput = document.getElementById("uv-search-engine");
+        searchInput.value = storedSearchEngine || 'https://www.google.com/search?q=%s';
+    }
+    
+    updateSearchInput();
+    
+    window.addEventListener("storage", function (e) {
+        if (e.key === "searchEngineValue") {
+            updateSearchInput();
+        }
+    });
+    </script>    
   <script src="script.js" async></script>
   <script src="bookmarks.js" async></script>
   <script src="/assets/themes.js"></script>

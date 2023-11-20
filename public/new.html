@@ -67,6 +67,21 @@
     <p id="uv-error"></p>
     <pre id="uv-error-code"></pre>
   </div>
+  <script>
+    function updateSearchInput() {
+        var storedSearchEngine = localStorage.getItem("searchEngineValue");
+        var searchInput = document.getElementById("uv-search-engine");
+        searchInput.value = storedSearchEngine || 'https://www.google.com/search?q=%s';
+    }
+    
+    updateSearchInput();
+    
+    window.addEventListener("storage", function (e) {
+        if (e.key === "searchEngineValue") {
+            updateSearchInput();
+        }
+    });
+    </script> 
   <script src="/assets/main.js"></script>
   <script src="/assets/themes.js"></script>
   <script src="/uv/uv.bundle.js" ></script>

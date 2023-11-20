@@ -17,8 +17,8 @@ if (tabData.icon) {
 }
 
 var settingsDefaultTab = {
-  title: "Shadow Settings",
-  icon: "/favicon/favicon-32x32.png",
+  title: "Shadow",
+  icon: "/icons/logo.png",
 };
 
 function setTitle(title = "") {
@@ -74,53 +74,45 @@ function setCloak() {
   switch (cloak) {
     case "search":
       setTitle("Google Search");
-      setFavicon("/cloaks/Google Search.ico");
-      location.reload();
+      setFavicon("/icons/cloaks/Google Search.ico");
       break;
     case "drive":
       setTitle("Google Drive");
-      setFavicon("/cloaks/Google Drive.ico");
-      location.reload();
+      setFavicon("/icons/cloaks/Google Drive.ico");
       break;
     case "youtube":
       setTitle("YouTube");
-      setFavicon("/cloaks/YouTube.ico");
-      location.reload();
+      setFavicon("/icons/cloaks/YouTube.ico");
       break;
     case "gmail":
       setTitle("Gmail");
-      setFavicon("/cloaks/Gmail.ico");
-      location.reload();
+      setFavicon("/icons/cloaks/Gmail.ico");
       break;
     case "calendar":
       setTitle("Google Calendar");
-      setFavicon("/cloaks/Calendar.ico");
-      location.reload();
+      setFavicon("/icons/cloaks/Calendar.ico");
       break;
     case "meets":
       setTitle("Google Meet");
-      setFavicon("/cloaks/Meet.ico");
-      location.reload();
+      setFavicon("/icons/cloaks/Meet.ico");
       break;
     case "classroom":
       setTitle("Google Classroom");
-      setFavicon("/cloaks/Classroom.png");
-      location.reload();
+      setFavicon("/icons/cloaks/Classroom.png");
       break;
     case "canvas":
       setTitle("Canvas");
-      setFavicon("/cloaks/Canvas.ico");
-      location.reload();
+      setFavicon("/icons/cloaks/Canvas.ico");
       break;
     case "zoom":
       setTitle("Zoom");
-      setFavicon("/cloaks/Zoom.ico");
-      location.reload();
+      setFavicon("/icons/cloaks/Zoom.ico");
+      
       break;
     case "khan":
       setTitle("Khan Academy");
-      setFavicon("/cloaks/Khan Academy.ico");
-      location.reload();
+      setFavicon("/icons/cloaks/Khan Academy.ico");
+      
       break;
   }
 }
@@ -136,3 +128,28 @@ function resetTab() {
   };
   localStorage.setItem("tab", JSON.stringify(tabData));
 }
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  if(localStorage.getItem('tab')) {
+      updateTabItem();
+  }
+
+  window.addEventListener('storage', function(event) {
+      if (event.key === 'tab') {
+          updateTabItem();
+      }
+  });
+
+  function updateTabItem() {
+      var tabItem = JSON.parse(localStorage.getItem('tab'));
+      document.title = tabItem.title;
+      var favicon = document.querySelector('link[rel="icon"]');
+      if (favicon) {
+          favicon.href = tabItem.icon;
+      }
+  }
+});
+
+
+

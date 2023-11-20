@@ -333,3 +333,25 @@ function exit() {
       window.close();
   }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  if(localStorage.getItem('tab')) {
+      updateTabItem();
+  }
+
+  window.addEventListener('storage', function(event) {
+      if (event.key === 'tab') {
+          updateTabItem();
+      }
+  });
+
+  function updateTabItem() {
+      var tabItem = JSON.parse(localStorage.getItem('tab'));
+      document.title = tabItem.title;
+      var favicon = document.querySelector('link[rel="icon"]');
+      if (favicon) {
+          favicon.href = tabItem.icon;
+      }
+  }
+});
+
