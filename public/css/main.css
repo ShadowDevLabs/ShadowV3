@@ -53,7 +53,7 @@ h1 {
   flex: 1;
   border: none;
   outline: none;
-  width:27.5vw;
+  width:27vw;
   font-size: 16px;
   color: var(--text-color);
   background-color: var(--tab-background);

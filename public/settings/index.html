@@ -8,6 +8,9 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap">
   <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/settings.css">
+  <script src="script.js"></script>
+  <link rel="icon" href="icons/logo.png" type="image/x-icon">
+  <script src="/assets/settings.js"></script>
 </head>
 <body onload="showContent('general')">
   <div id="sidebar">
@@ -75,7 +78,7 @@
         <div class="section-content">
           <p class="section-text">The button below opens the site as an about:blank, hiding it from your history.
           </p>
-          <button class="icon-button"><i class="fas fa-rocket"></i> Launch</button>
+          <button class="icon-button"><i class="fas fa-rocket" onclick="abtblank()"></i> Launch</button>
         </div>
       </div> 
     </div>
@@ -188,5 +191,6 @@
     }
   </script>
   <script src="/assets/themes.js"></script>
+  <script src="/assets/settings.js"></script>
 </body>
 </html>
