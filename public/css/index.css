@@ -130,7 +130,7 @@ body, html {
 
 .tab {
   display: inline-block;
-  max-width: 150px; /* Set your desired max-width */
+  max-width: 250px; /* Set your desired max-width */
   padding: 8px 16px;
   font-family: 'Roboto', sans-serif;
   background-color: var(--tab-background);
@@ -201,7 +201,7 @@ body, html {
   cursor: pointer;
   margin-top: 2px;
   border-radius: 50%;
-  margin-left: 10px;
+  margin-left: 17px;
   padding: 3px;
   color: var(--text-color);
   transition: background-color 0.4s;
