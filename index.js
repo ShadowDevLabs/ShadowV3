@@ -9,7 +9,7 @@ import cors from "cors";
 import { createBareServer } from "@tomphttp/bare-server-node";
 const publicPath = fileURLToPath(new URL("./public/", import.meta.url));
 
-let port = 3030;
+let port = 8080;
 
 const bare = createBareServer("/bare/");
 const app = express();

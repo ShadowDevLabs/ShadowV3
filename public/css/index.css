@@ -31,35 +31,36 @@ body, html {
 
 #loading-screen {
   position: fixed;
-  top: 0;
-  left: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
   background: linear-gradient(45deg, var(--accent-color), var(--tab-background));
   border-radius: 0;
   text-align: center;
-  z-index:9999;
+  z-index: 9999;
 }
 
-#loading-screen img {
-  width: 20vw;
-  height: 20vw;
-  border-radius: 50%;
-  margin-top:5vw;
-}
 
 .dot-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top:20px;
+  margin-top: 20px;
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .loading-dots {
-  font-size: 20px;
+  font-size: 30px;
   color: var(--text-color);
   margin: 0 5px;
   z-index: 9999;
+  top: 50%;
+  left: 50%;
   animation: bounce 1s infinite;
 }
 
@@ -72,36 +73,16 @@ body, html {
 }
 
 .loading-text {
-  font-size: 18px;
+  font-size: 25px;
   font-family: 'Poppins', sans-serif;
   color: var(--text-color);
   margin-top: 10px;
-  animation: fadeIn 1s infinite;
-}
-
-.bar {
-  width: 50%;
-  height: 10px;
-  margin: 2vw auto;
-  background-color: rgba(255, 255, 255, 0.2);
-  position: relative;
-}
-
-.progress {
-  height: 100%;
-  background-color: var(--text-color);
   position: absolute;
-  animation: progressAnimation 2s infinite alternate;
+  top: 47%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-@keyframes progressAnimation {
-  0% {
-    width: 0;
-  }
-  100% {
-    width: 100%;
-  }
-}
 
 @keyframes fadeIn {
   0%, 100% {
