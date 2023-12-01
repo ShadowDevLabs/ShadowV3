@@ -19,41 +19,53 @@ window.addEventListener('load', function() {
     const tab = tabs[currentTabIndex];
     const src = iframe.src;
     const modifiedSrc = src.replace(window.location.origin, "").replace("/uv/service/", "");
+
     const faviconImg = document.createElement('img');
     faviconImg.className = "favicon";
     faviconImg.src = faviconSrc || `https://www.google.com/s2/favicons?domain=${modifiedSrc}&sz=64`;
-    tab.textContent = '';
+
+    const titleContainer = document.createElement('div');
+    titleContainer.className = 'tab-title';
+    const tabTitle = title || iframe.contentDocument.title;
+    titleContainer.appendChild(document.createTextNode(tabTitle));
+
     const closeButton = document.createElement("span");
     closeButton.className = "close-tab-button";
     closeButton.innerHTML = "&#10006;";
-    closeButton.addEventListener("click", (e) => {console.log(e); closeTab(tabs.indexOf(tab)); e.stopPropagation;});
+    closeButton.addEventListener("click", (e) => { console.log(e); closeTab(tabs.indexOf(tab)); e.stopPropagation; });
+
+    tab.textContent = ''; // Clear the tab content
     tab.appendChild(faviconImg);
-    const tabTitle = title || iframe.contentDocument.title;
-    tab.appendChild(document.createTextNode(tabTitle));
+    tab.appendChild(titleContainer);
     tab.appendChild(closeButton);
 }
 
-  
-  function createTab(title, url) {
+
+function createTab(title, url) {
     const tab = document.createElement("div");
     tab.className = "tab";
-    tab.textContent = title;
+
+    const titleContainer = document.createElement('div');
+    titleContainer.className = 'tab-title';
+    titleContainer.textContent = title;
+    tab.appendChild(titleContainer);
+
     tab.addEventListener("click", () => switchTab(tabs.indexOf(tab)));
     tabsContainer.insertBefore(tab, addTabButton);
     tabs.push(tab);
-  
+
     const closeButton = document.createElement("span");
     closeButton.className = "close-tab-button";
     closeButton.innerHTML = "&#10006;";
-    closeButton.addEventListener("click", (e) => {console.log(e); closeTab(tabs.indexOf(tab)); e.stopPropagation;});
+    closeButton.addEventListener("click", (e) => { console.log(e); closeTab(tabs.indexOf(tab)); e.stopPropagation; });
     tab.appendChild(closeButton);
-  
+
     const iframe = document.createElement("iframe");
     iframe.src = url;
     iframesContainer.appendChild(iframe);
-    switchTab(tabs.indexOf(tab)); 
-  }
-  
+    switchTab(tabs.indexOf(tab));
+}
+
   
   function switchTab(index) {
     console.log("Switching\n" + index)
