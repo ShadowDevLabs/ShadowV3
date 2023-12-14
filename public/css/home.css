@@ -8,6 +8,14 @@
   --accent-color: #8a3ffc;
 }
 
+:root.blueneon {
+  --background-color: #1A1A2E;
+  --tab-background: #262648;
+  --tab-border: #4d4d86;
+  --text-color: #FFFFFF;
+  --accent-color: #00A6FB;
+}
+
 :root.light {
   --background-color: #eae7f5;
   --tab-background: #f0ebfa;
@@ -15,6 +23,7 @@
   --text-color: #1d1d1d;
   --accent-color: #c3a9e3;
 }
+
 body {
   margin: 0;
   padding: 0;
