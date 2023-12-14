@@ -11,12 +11,13 @@
 }
 
 :root.blueneon {
-  --background-color: #1A1A2E;
-  --tab-background: #262648;
-  --tab-border: #4d4d86;
-  --text-color: #FFFFFF;
-  --accent-color: #00A6FB;
+  --background-color: #001A33; 
+  --tab-background: #00203C; 
+  --tab-border: #00A3E0;
+  --text-color: #FFFFFF; 
+  --accent-color: #00A6FB; 
 }
+
 
 :root.light {
   --background-color: #eae7f5;
@@ -25,6 +26,23 @@
   --text-color: #1d1d1d;
   --accent-color: #c3a9e3;
 }
+
+:root.sunset {
+  --background-color: #fce6cf;
+  --tab-background: #ffd9b3;
+  --tab-border: #e27d60;
+  --text-color: #2c3e50;
+  --accent-color: #ffb6b9;
+}
+
+:root.ocean {
+  --background-color: #003366;
+  --tab-background: #005cbf;
+  --tab-border: #0077cc;
+  --text-color: #ffffff;
+  --accent-color: #00a1ff;
+}
+
 
 body, html {
   margin: 0;

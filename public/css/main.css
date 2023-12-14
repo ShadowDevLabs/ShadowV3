@@ -14,13 +14,30 @@
   --accent-color: #c3a9e3;
 }
 
-:root.blueneon{
-  --background-color: #1A1A2E;
-  --tab-background: #262648;
-  --tab-border: #4d4d86;
-  --text-color: #FFFFFF;
-  --accent-color: #00A6FB;
+:root.blueneon {
+  --background-color: #001A33; 
+  --tab-background: #00203C; 
+  --tab-border: #00A3E0;
+  --text-color: #FFFFFF; 
+  --accent-color: #00A6FB; 
 }
+
+:root.sunset {
+  --background-color: #fce6cf;
+  --tab-background: #ffd9b3;
+  --tab-border: #e27d60;
+  --text-color: #2c3e50;
+  --accent-color: #ffb6b9;
+}
+
+:root.ocean {
+  --background-color: #003366;
+  --tab-background: #005cbf;
+  --tab-border: #0077cc;
+  --text-color: #ffffff;
+  --accent-color: #00a1ff;
+}
+
 
 body, html {
   margin: 0;
@@ -135,22 +152,22 @@ h1 {
 }
 
 .modal-content {
-  background-color: #1c1c38;
+  background-color: var(--background-color);
   margin: auto;
   padding: 20px;
-  border: 1px solid #4d4d86;
+  border: 1px solid var(--tab-border);
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   width: 300px;
-  color: #ffffff;
+  color: var(--text-color);
 }
 
 .modal h2 {
-  color: #ffffff;
+  color: var(--text-color);
 }
 
 .close {
-  color: #ffffff;
+  color: var(--text-color);
   float: right;
   font-size: 28px;
   font-weight: bold;
@@ -158,29 +175,33 @@ h1 {
 }
 
 .close:hover {
-  color: #6c3da3;
+  color: var(--accent-color);
 }
 
-#shortcut-form, #edit-shortcut-form {
+#shortcut-form,
+#edit-shortcut-form {
   display: flex;
   flex-direction: column;
 }
 
-#shortcut-form label, #edit-shortcut-form label {
-  color: #ffffff;
+#shortcut-form label,
+#edit-shortcut-form label {
+  color: var(--text-color);
   margin-top: 10px;
 }
 
-#shortcut-form input, #edit-shortcut-form input {
-  border: 1px solid #4d4d86;
+#shortcut-form input,
+#edit-shortcut-form input {
+  border: 1px solid var(--tab-border);
   border-radius: 5px;
   padding: 8px;
   margin-top: 5px;
 }
 
-#add-shortcut, #edit-shortcut {
-  background-color: #6c3da3;
-  color: #ffffff;
+#add-shortcut,
+#edit-shortcut {
+  background-color: var(--accent-color);
+  color: var(--text-color);
   border: none;
   border-radius: 5px;
   padding: 8px;
@@ -189,7 +210,7 @@ h1 {
 }
 
 #add-shortcut:hover {
-  background-color: #4d4d86;
+  background-color: var(--tab-border);
 }
 
 #shortcut-context-menu {
