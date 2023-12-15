@@ -53,6 +53,14 @@
   --text-color: #ffffff;
   --accent-color: #f2f2f2;
 }
+:root.crimsonpurple {
+  --background-color: #2a0238;
+  --tab-background: #3d2749;
+  --tab-border: #734c85;
+  --text-color: #ffffff;
+  --accent-color: #583163;
+}
+
 
 body, html {
   margin: 0;
