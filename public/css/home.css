@@ -39,6 +39,13 @@
   --accent-color: #00a1ff;
 }
 
+:root.crimsonblaze {
+  --background-color: #2c0104;
+  --tab-background: #492727;
+  --tab-border: #854c4c;
+  --text-color: #ffffff;
+  --accent-color: #db0f0f;
+}
 
 body {
   margin: 0;
