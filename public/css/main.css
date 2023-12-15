@@ -46,6 +46,14 @@
   --accent-color: #db0f0f;
 }
 
+:root.amoled {
+  --background-color: #000000;
+  --tab-background: #000000;
+  --tab-border: #ffffff;
+  --text-color: #ffffff;
+  --accent-color: #f2f2f2;
+}
+
 body, html {
   margin: 0;
   padding: 0;

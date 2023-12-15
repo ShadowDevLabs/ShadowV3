@@ -135,7 +135,6 @@ function handleShortcutClick(event) {
   if (shortcut && !shortcut.classList.contains("add")) {
     const url = shortcut.getAttribute("data-url");
     const url2 = search(url, searchEngine.value);
-    alert(url2);
     localStorage.setItem('mainurl', url2);
   }
 }
