@@ -340,7 +340,7 @@ function iframeabtblank() {
 
 
 function exit() {
-  var confirm = window.confirm("Are you sure you want to close this tab?");
+  var confirm = window.confirm("Are you sure you want to close Shadow Browser?");
   if (confirm) {
       window.close();
   }
