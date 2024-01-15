@@ -13,7 +13,16 @@ function addBookmark(title, url) {
   text.textContent = title;
   bookmark.appendChild(icon);
   bookmark.appendChild(text);
-
+  bookmark.addEventListener("click", (e) => {
+    const dataUrl = bookmark.getAttribute("data-url");
+    if(e.shiftKey) {
+      //Open in new tab
+      tabs.createTab(dataUrl)
+    } else {
+      //Open in current tab
+      tabs.load(dataUrl); 
+    }
+  });
   bookmark.addEventListener("contextmenu", (event) => {
     event.preventDefault();
     showBookmarkContextMenu(event, title, url, Array.from(bookmarksContainer.children).indexOf(bookmark));
