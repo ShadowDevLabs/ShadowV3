@@ -83,5 +83,10 @@ function deleteBookmark(index) {
   }
 }
 
+function newBookmark(){
+  const iframe = iframesContainer.children[currentTabIndex];
+  addBookmark(iframe.contentWindow.document.title, iframe.src);
+}
+
 window.addEventListener("beforeunload", saveBookmarksToLocalStorage);
 window.addEventListener("load", loadBookmarksFromLocalStorage);
