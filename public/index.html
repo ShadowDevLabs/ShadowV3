@@ -9,9 +9,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&display=swap">
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
-  <link rel="apple-touch-icon" sizes="180x180" href="/icons/favicon/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon/favicon-16x16.png">
+  <link rel="icon" href="icons/logo.png" type="image/x-icon">
+  <script src="/assets/settings.js"></script>
 </head>
 <body>
   <!-- Loading Screen -->
@@ -22,9 +21,6 @@
       <i class="loading-dots"><i class="fa-solid fa-circle"></i></i>
     </div>
     <p class="loading-text">Loading Shadow Browser</p>
-    <div class="bar">
-      <div class="progress"></div>
-    </div>
   </div>
 
   <!-- Tabs Container -->
@@ -61,7 +57,16 @@
     <div class="separator"></div>
     <table>
       <tr>
+<<<<<<< HEAD
         <td><button data-add-tab onclick='tabs.createTab("shadow:/\/settings")'><i class="fas fa-cog"></i> Settings</button></td>
+=======
+        <td><button data-add-tab onclick='createTab("discord.gg/goshadow", "/uv/service/hvtr%3A-%2Ffiqcmrf.eg-gmsjafou")'><i class="fa-brands fa-discord"></i> Discord</button></td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td><button data-add-tab onclick='createTab("Shadow Chat", "chat")'><i class="fa-solid fa-comments"></i> Chat</button></td>
+>>>>>>> refs/remotes/origin/main
       </tr>
     </table>
     <table>
@@ -71,12 +76,16 @@
     </table>
     <table>
       <tr>
+<<<<<<< HEAD
         <td><button data-add-tab onclick='tabs.createTab("shadow:/\/chat")'><i class="fa-solid fa-comments"></i> Chat</button></td>
       </tr>
     </table>
     <table>
       <tr>
         <td><button data-add-tab onclick='tabs.createTab("discord.gg/goshadow")'><i class="fa-brands fa-discord"></i> Discord</button></td>
+=======
+        <td><button data-add-tab onclick='createTab("Settings", "/settings", "https\:/\/cdn-icons-png.flaticon.com/512/126/126472.png");'><i class="fas fa-cog"></i> Settings</button></td>
+>>>>>>> refs/remotes/origin/main
       </tr>
     </table>
     <div class="separator"></div>
@@ -121,8 +130,32 @@
     <pre id="uv-error-code"></pre>
   </div>
 
+  <a class="powered-by-container" target="_blank" href="https://serverdeploy.pro">
+    <img src="https://media.discordapp.net/attachments/1127291920285192223/1156579785900834896/IMG_6905.png?ex=654b89dd&is=653914dd&hm=ca122b80fc706c5692735d75ec7c843ad2c02e480fa51646d043ace2107d7bc2&=" alt="ServerDeploy Logo">
+    <span class="powered-by-text">ServerDeploy</span>
+  </a>
   <!-- Scripts -->
+<<<<<<< HEAD
   <script src="/assets/search.js"></script>
+=======
+  <script>
+    function updateSearchInput() {
+        var storedSearchEngine = localStorage.getItem("searchEngineValue");
+        var searchInput = document.getElementById("uv-search-engine");
+        searchInput.value = storedSearchEngine || 'https://www.google.com/search?q=%s';
+    }
+    
+    updateSearchInput();
+    
+    window.addEventListener("storage", function (e) {
+        if (e.key === "searchEngineValue") {
+            updateSearchInput();
+        }
+    });
+    </script>    
+  <script src="script.js" async></script>
+  <script src="bookmarks.js" async></script>
+>>>>>>> refs/remotes/origin/main
   <script src="/assets/themes.js"></script>
   <script src="/assets/options.js"></script>
   <script src="/assets/search.js"></script>
@@ -130,6 +163,7 @@
   <script src="/uv/uv.config.js"></script>
   <script src="/uv/uv.sw.js"></script>
   <script src="/uv/uv.config.js"></script>
+<<<<<<< HEAD
   <script src="/assets/register-sw.js"></script>
   <script src="/assets/tabs.js" async></script>
   <script src="/assets/bookmarks.js" async></script>
@@ -170,5 +204,10 @@
     parent.setTab();
   }
   </script>
+=======
+  <script src="/register-sw.js"></script>
+  
+  <script src="/assets/search.js"></script>
+>>>>>>> refs/remotes/origin/main
 </body>
 </html>

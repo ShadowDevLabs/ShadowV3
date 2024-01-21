@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/books.css">
   <script src="/assets/themes.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -15,24 +16,28 @@
   <div class="iframe-container" style="display:none;">
     <div class="game-title">
       <div id="game-text-name"></div>
+    </div>
+    <iframe class="game-iframe" src="" frameborder="0"></iframe>
   </div>
-      <iframe class="game-iframe" src="" frameborder="0"></iframe>
-  </div>
-
 
   <h1 style="text-align: center;">Games</h1>
-  <div class="search-container" >
+  <div class="search-container">
     <input type="text" id="searchInput" placeholder="Search for a game">
   </div>
+<<<<<<< HEAD
   <div class="games-container">
     <a href="#" class="game" onclick="loadGame(event, 'files/1v1lol')">
       <img src="files/1v1lol/splash.png"  class="game-logo">
       <h3 class="game-name">1v1.lol</h3>
     </a>    
+=======
+  <div class="games-container" id="games-container">
+>>>>>>> refs/remotes/origin/main
   </div>
   <div id="noGamesFound" style="display:none; text-align: center;">No Games Found &#x1F61E;<br>
     Suggest a Game in our <a href="https://discord.gg/p9h3dTHAMA">Discord</a>
   </div>
+
   <script>
     function searchGames() {
       var searchInput = document.getElementById('searchInput');
@@ -40,9 +45,8 @@
       var gamesContainer = document.querySelector('.games-container');
       var games = gamesContainer.getElementsByClassName('game');
       var noGamesFound = document.getElementById('noGamesFound');
-  
-      var foundGames = false; 
-  
+      var foundGames = false;
+
       for (var i = 0; i < games.length; i++) {
         var gameName = games[i].querySelector('.game-name').textContent.toLowerCase();
         if (gameName.indexOf(filter) > -1) {
@@ -52,17 +56,112 @@
           games[i].style.display = 'none';
         }
       }
-  
+
       if (foundGames) {
         noGamesFound.style.display = 'none';
       } else {
         noGamesFound.style.display = 'block';
       }
     }
-  
+
     document.getElementById('searchInput').addEventListener('input', searchGames);
-</script>
-  
+
+    async function displayGames() {
+      try {
+        const response = await fetch('games.json');
+        const games = await response.json();
+        const gameContainer = document.querySelector('.games-container');
+
+        games.forEach(game => {
+          const gameElement = document.createElement('a');
+          gameElement.className = "game";
+          gameElement.addEventListener('click', function(event) {
+            loadGame(event, `files/${game.root}`);
+          });
+
+          gameElement.innerHTML = `
+            <img loading='lazy' src='files/${game.root}/${game.img}' class="game-logo">
+            <h3 class="game-name">${game.name}</h3>
+          `;
+          gameContainer.appendChild(gameElement);
+        });
+
+        sortGames();
+      } catch (error) {
+        console.error('Error fetching or displaying games:', error);
+      }
+    }
+
+    window.onload = displayGames;
+
+    let currentGameIframe = null;
+
+    function sortGames() {
+      var gamesContainer = document.querySelector('.games-container');
+      var games = Array.from(gamesContainer.getElementsByClassName('game'));
+
+      games.sort(function (a, b) {
+        var gameNameA = a.querySelector('.game-name').textContent.toLowerCase();
+        var gameNameB = b.querySelector('.game-name').textContent.toLowerCase();
+        return gameNameA.localeCompare(gameNameB);
+      });
+
+      gamesContainer.innerHTML = '';
+
+      for (var i = 0; i < games.length; i++) {
+        gamesContainer.appendChild(games[i]);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', sortGames);
+
+    function filterGames() {
+      var searchInput = document.getElementById('searchInput');
+      var filter = searchInput.value.toLowerCase();
+      var gamesContainer = document.querySelector('.games-container');
+      var games = gamesContainer.getElementsByClassName('game');
+
+      for (var i = 0; i < games.length; i++) {
+        var gameName = games[i].querySelector('.game-name').textContent.toLowerCase();
+        if (gameName.indexOf(filter) > -1) {
+          games[i].style.display = 'block';
+        } else {
+          games[i].style.display = 'none';
+        }
+      }
+    }
+
+    document.getElementById('searchInput').addEventListener('input', filterGames);
+
+    function loadGame(event, filePath) {
+      const iframeContainer = document.querySelector('.iframe-container');
+      const gametextname = document.getElementById('game-text-name');
+      const gameTitle = document.querySelector('.game-title');
+      const gameIframe = document.querySelector('.game-iframe');
+
+      if (currentGameIframe) {
+        currentGameIframe.src = '';
+      }
+
+      const clickedLink = event.currentTarget;
+      const gameName = clickedLink.querySelector('.game-name').textContent;
+
+      gameIframe.src = filePath;
+      gametextname.innerHTML = `<div class="back-button"><i class="fas fa-arrow-left" onclick="closeGame()"></i> ${gameName}</div>`;
+      iframeContainer.style.display = 'block';
+
+      currentGameIframe = gameIframe;
+    }
+
+    function closeGame() {
+      if (currentGameIframe) {
+        currentGameIframe.src = '';
+        currentGameIframe = null;
+      }
+
+      const iframeContainer = document.querySelector('.iframe-container');
+      iframeContainer.style.display = 'none';
+    }
+  </script>
 </body>
 </html>
-

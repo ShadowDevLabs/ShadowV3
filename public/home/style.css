@@ -1,0 +1,118 @@
+
+
+:root {
+  --background-color: #1c1c38;
+  --tab-background: #262648;
+  --tab-border: #4d4d86;
+  --text-color: #ffffff;
+  --accent-color: #8a3ffc;
+}
+
+:root.light {
+  --background-color: #eae7f5;
+  --tab-background: #f0ebfa;
+  --tab-border: rgba(126, 124, 248, 0.152);
+  --text-color: #1d1d1d;
+  --accent-color: #c3a9e3;
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+header {
+  text-align: center;
+  padding: 5px;
+}
+
+h1 {
+  font-size: 36px;
+  padding-bottom: 0;
+  color: var(--accent-color);
+}
+
+.subtitle {
+  font-size: 18px;
+  padding-top: 0;
+  margin: 0 auto;
+  max-width: 70%;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.feature {
+  margin: 10px 0;
+  padding: 10px;
+  border: 2px solid var(--tab-border);
+  border-radius: 10px;
+  text-align: center;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.feature:hover {
+  background-color: var(--tab-background);
+}
+
+
+
+.animated {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 1s forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.social-icon {
+  font-size: 24px;
+  margin: 0 10px;
+  color: var(--accent-color);
+  text-decoration: none;
+  position: relative;
+}
+
+.social-icon:hover::before {
+  content: attr(data-name);
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--tab-background);
+  color: var(--text-color);
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.social-icon:hover::after {
+  content: '\2022';
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--tab-background);
+  font-size: 14px;
+}

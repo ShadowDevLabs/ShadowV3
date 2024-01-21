@@ -4,6 +4,7 @@
   --tab-border: #4d4d86;
   --text-color: #ffffff;
   --accent-color: #6c3da3;
+<<<<<<< HEAD
 }
 
 :root.light {
@@ -138,3 +139,189 @@
     outline: none;
     border-color: var(--primary-color);
   }
+=======
+}
+
+:root.light {
+  --background-color: #F0E8F9;
+  --tab-background: #262648;
+  --tab-border: #4d4d86;
+  --text-color: #333;
+  --accent-color: #8F6CAF;
+}
+
+:root.blueneon {
+  --background-color: #001A33; 
+  --tab-background: #00203C; 
+  --tab-border: #00A3E0;
+  --text-color: #FFFFFF; 
+  --accent-color: #00A6FB; 
+}
+
+:root.sunset {
+  --background-color: #fce6cf;
+  --tab-background: #ffd9b3;
+  --tab-border: #e27d60;
+  --text-color: #2c3e50;
+  --accent-color: #ffb6b9;
+}
+
+:root.ocean {
+  --background-color: #003366;
+  --tab-background: #005cbf;
+  --tab-border: #0077cc;
+  --text-color: #ffffff;
+  --accent-color: #00a1ff;
+}
+
+:root.crimsonblaze {
+  --background-color: #2c0104;
+  --tab-background: #492727;
+  --tab-border: #854c4c;
+  --text-color: #ffffff;
+  --accent-color: #db0f0f;
+}
+
+:root.amoled {
+  --background-color: #000000;
+  --tab-background: #000000;
+  --tab-border: #ffffff;
+  --text-color: #ffffff;
+  --accent-color: #f2f2f2;
+}
+:root.crimsonpurple {
+  --background-color: #2a0238;
+  --tab-background: #3d2749;
+  --tab-border: #734c85;
+  --text-color: #ffffff;
+  --accent-color: #583163;
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-color);
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-color);
+  font-size: 16px;
+}
+
+.games-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 20px;
+}
+
+.game {
+  position: relative;
+  overflow: hidden;
+  width: 200px;
+  margin: 10px;
+  background-color: var(--tab-background);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.game:hover {
+  transform: scale(1.05);
+}
+
+.game-logo {
+  width: 100%;
+  height: 175px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  object-fit: cover;
+}
+
+.game-content {
+  padding: 15px;
+}
+
+.game-name {
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: capitalize;
+  text-align:center;
+  margin-top: 10px;
+}
+
+.game-description {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.search-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 5%;
+}
+
+#searchInput {
+  padding: 10px;
+  border: 2px solid var(--tab-border);
+  border-radius: 5px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  color: var(--text-color);
+  background-color: var(--tab-background);
+  transition: border-color 0.2s ease;
+  width: 250px;
+}
+
+#searchInput::placeholder {
+  color: var(--text-color);
+  opacity: 0.7;
+}
+
+#searchInput:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.iframe-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 99999;
+  width: 100%;
+  height: 100%;
+  background-color: var(--background-color);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.back-button {
+  position: absolute;
+  left: 10px;
+  font-size: 20px;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.game-iframe {
+  width: 100%;
+  height: 95%;
+  border: none;
+}
+
+.game-title {
+  background-color: var(--accent-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 5%;
+  color: var(--text-color);
+}
+
+#game-text-name {
+  margin-top: -15px;
+}
+>>>>>>> refs/remotes/origin/main

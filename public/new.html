@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Rubik&display=swap" rel="stylesheet">
   <title>New Tab</title>
+  <script src="/assets/themes.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
@@ -67,6 +68,21 @@
     <p id="uv-error"></p>
     <pre id="uv-error-code"></pre>
   </div>
+  <script>
+    function updateSearchInput() {
+        var storedSearchEngine = localStorage.getItem("searchEngineValue");
+        var searchInput = document.getElementById("uv-search-engine");
+        searchInput.value = storedSearchEngine || 'https://www.google.com/search?q=%s';
+    }
+    
+    updateSearchInput();
+    
+    window.addEventListener("storage", function (e) {
+        if (e.key === "searchEngineValue") {
+            updateSearchInput();
+        }
+    });
+    </script> 
   <script src="/assets/main.js"></script>
   <script src="/assets/themes.js"></script>
   <script src="/uv/uv.bundle.js" ></script>

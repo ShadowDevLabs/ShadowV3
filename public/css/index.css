@@ -10,6 +10,18 @@
   --accent-color: #6c3da3;
 }
 
+<<<<<<< HEAD
+=======
+:root.blueneon {
+  --background-color: #001A33; 
+  --tab-background: #00203C; 
+  --tab-border: #00A3E0;
+  --text-color: #FFFFFF; 
+  --accent-color: #00A6FB; 
+}
+
+
+>>>>>>> refs/remotes/origin/main
 :root.light {
   --background-color: #F0E8F9;
   --tab-background: #262648;
@@ -63,6 +75,47 @@
   --tab-border: #734c85;
   --text-color: #ffffff;
   --accent-color: #583163;
+}
+
+:root.sunset {
+  --background-color: #fce6cf;
+  --tab-background: #ffd9b3;
+  --tab-border: #e27d60;
+  --text-color: #2c3e50;
+  --accent-color: #ffb6b9;
+}
+
+:root.ocean {
+  --background-color: #003366;
+  --tab-background: #005cbf;
+  --tab-border: #0077cc;
+  --text-color: #ffffff;
+  --accent-color: #00a1ff;
+}
+
+:root.crimsonblaze {
+  --background-color: #2c0104;
+  --tab-background: #492727;
+  --tab-border: #854c4c;
+  --text-color: #ffffff;
+  --accent-color: #db0f0f;
+}
+
+:root.crimsonpurple {
+  --background-color: #2a0238;
+  --tab-background: #3d2749;
+  --tab-border: #734c85;
+  --text-color: #ffffff;
+  --accent-color: #583163;
+}
+
+
+:root.amoled {
+  --background-color: #000000;
+  --tab-background: #000000;
+  --tab-border: #ffffff;
+  --text-color: #ffffff;
+  --accent-color: #f2f2f2;
 }
 
 body, html {
@@ -173,7 +226,10 @@ body, html {
 
 .tab-title {
   flex: 1;
+<<<<<<< HEAD
   margin-left:5px;
+=======
+>>>>>>> refs/remotes/origin/main
   max-width: 220px;
   white-space: nowrap;
   overflow: hidden;
@@ -474,6 +530,32 @@ iframe.active {
   margin-right: 7.5px;
 }
 
+<<<<<<< HEAD
+=======
+
+.powered-by-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  border-radius: 5px;
+  margin:7.5px;
+  z-index: 9999;
+  cursor:pointer;
+  padding: 5px;
+  color:black;
+  text-decoration: none;
+  background-color: rgba(255, 255, 255, 0.45);
+  display: flex;
+  align-items: center;
+}
+
+.powered-by-container img {
+  width: 25px;
+  height: 25px;
+  margin-right: 7.5px;
+}
+
+>>>>>>> refs/remotes/origin/main
 .powered-by-text {
   font-size: 16px;
   font-weight: bold;
