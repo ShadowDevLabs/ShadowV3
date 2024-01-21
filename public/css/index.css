@@ -10,8 +10,6 @@
   --accent-color: #6c3da3;
 }
 
-<<<<<<< HEAD
-=======
 :root.blueneon {
   --background-color: #001A33; 
   --tab-background: #00203C; 
@@ -21,7 +19,6 @@
 }
 
 
->>>>>>> refs/remotes/origin/main
 :root.light {
   --background-color: #F0E8F9;
   --tab-background: #262648;
@@ -226,10 +223,6 @@ body, html {
 
 .tab-title {
   flex: 1;
-<<<<<<< HEAD
-  margin-left:5px;
-=======
->>>>>>> refs/remotes/origin/main
   max-width: 220px;
   white-space: nowrap;
   overflow: hidden;
@@ -530,32 +523,6 @@ iframe.active {
   margin-right: 7.5px;
 }
 
-<<<<<<< HEAD
-=======
-
-.powered-by-container {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  border-radius: 5px;
-  margin:7.5px;
-  z-index: 9999;
-  cursor:pointer;
-  padding: 5px;
-  color:black;
-  text-decoration: none;
-  background-color: rgba(255, 255, 255, 0.45);
-  display: flex;
-  align-items: center;
-}
-
-.powered-by-container img {
-  width: 25px;
-  height: 25px;
-  margin-right: 7.5px;
-}
-
->>>>>>> refs/remotes/origin/main
 .powered-by-text {
   font-size: 16px;
   font-weight: bold;
