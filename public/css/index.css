@@ -452,4 +452,30 @@ iframe.active {
   border-radius: 5px;
 }
 
+.powered-by-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  border-radius: 5px;
+  margin:7.5px;
+  z-index: 9999;
+  cursor:pointer;
+  padding: 5px;
+  color:black;
+  text-decoration: none;
+  background-color: rgba(255, 255, 255, 0.45);
+  display: flex;
+  align-items: center;
+}
 
+.powered-by-container img {
+  width: 25px;
+  height: 25px;
+  margin-right: 7.5px;
+}
+
+.powered-by-text {
+  font-size: 16px;
+  font-weight: bold;
+  font-family: 'Poppins', sans-serif;
+}
