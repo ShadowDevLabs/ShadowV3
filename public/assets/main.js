@@ -18,8 +18,10 @@ const shortcutName = document.getElementById("shortcut-name");
 const shortcutUrl = document.getElementById("shortcut-url");
 const shortcutForm = document.getElementById("shortcut-form");
 const shortcutsContainer = document.querySelector(".shortcuts");
-modal.addEventListener("click", function (event) {
-  if (event.target === addShortcut) {
+shortcutUrl.addEventListener("keypress", (e) => { if(e.key=="Enter") addShortcutClicked() })
+shortcutName.addEventListener("keypress", (e) => { if(e.key=="Enter") addShortcutClicked() })
+addShortcut.addEventListener("click", addShortcutClicked)
+function addShortcutClicked() {
     if (shortcutsContainer.querySelectorAll(".shortcut").length >= maxShortcuts) {
       alert("You've reached the maximum number of shortcuts (10). Please delete some shortcuts to add new ones.");
       return;
@@ -43,9 +45,8 @@ modal.addEventListener("click", function (event) {
       localStorage.setItem("shortcuts", JSON.stringify(shortcuts));
       modal.style.display = "none";
       shortcutForm.reset();
-    }
   }
-});
+};
 function loadShortcuts() {
   const shortcuts = JSON.parse(localStorage.getItem("shortcuts")) || [];
   shortcuts.slice(0, maxShortcuts).forEach((shortcut) => {
@@ -92,7 +93,10 @@ document.getElementById("edit-context-menu-option").addEventListener("click", ()
   editNameInput.value = name;
   editUrlInput.value = url; 
   editModal.style.display = "block";
-  document.getElementById("edit-shortcut").addEventListener("click", () => {
+  document.getElementById("edit-shortcut").addEventListener("click", edited)
+  editNameInput.addEventListener("keypress", (e) => { if(e.key=="Enter") edited() })
+  editUrlInput.addEventListener("keypress", (e) => { if(e.key=="Enter") edited() })
+  function edited() {
     selectedShortcut.querySelector("p").textContent = editNameInput.value;
     const newURL = editUrlInput.value;
     selectedShortcut.setAttribute("data-url", newURL); 
@@ -110,7 +114,7 @@ document.getElementById("edit-context-menu-option").addEventListener("click", ()
       localStorage.setItem("shortcuts", JSON.stringify(shortcuts));
     }
     editModal.style.display = "none";
-  });
+  };
 });
 document.getElementById("closeedit").addEventListener("click", () => {
   const editModal = document.getElementById("edit-shortcut-modal");
@@ -142,13 +146,5 @@ function handleShortcutClick(event) {
 
 shortcutsContainer.addEventListener("click", handleShortcutClick);
 
-const form = document.getElementById("uv-form");
-const address = document.getElementById("uv-address");
-const searchEngine = document.getElementById("uv-search-engine");
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const url = search(address.value, searchEngine.value);
-  localStorage.setItem('mainurl', url);
-});
 
 

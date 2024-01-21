@@ -45,6 +45,12 @@
   </div>
 </body>
 <script src="script.js"></script>
+<script>
+  onload = () => {
+    parent.updateOmni();
+    parent.setTab();
+  }
+</script>
 </html>
 
 <script>
@@ -52,5 +58,4 @@
     var checkbox = document.getElementById("toggleSwitch");
     checkbox.checked = !checkbox.checked;
   }
-
 </script>

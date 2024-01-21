@@ -1,5 +1,6 @@
 const stockSW = "/uv/sw.js";
 const isServiceWorkerSupported = 'serviceWorker' in navigator;
+if('undefined' === typeof window) importScripts("https://cdn.rawgit.com/mozilla/localForage/master/dist/localforage.js");
 
 function isLocalhost() {
   return (
@@ -23,6 +24,5 @@ async function registerSW() {
   }
 }
 
-registerSW();
 
 

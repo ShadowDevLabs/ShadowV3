@@ -16,7 +16,6 @@
 <body>
   <!-- Loading Screen -->
   <div id="loading-screen">
-    <img src="icons/logo.png" alt="Logo">
     <div class="dot-container">
       <i class="loading-dots"><i class="fa-solid fa-circle"></i></i>
       <i class="loading-dots"><i class="fa-solid fa-circle"></i></i>
@@ -30,7 +29,7 @@
 
   <!-- Tabs Container -->
   <div id="tabs-container">
-    <button id="add-tab" class="control-button" style="font-size: 15px; height: fit-content; margin-top: 7.5px;">
+    <button onclick="tabs.createTab();"id="add-tab" class="control-button" style="font-size: 15px; height: fit-content; margin-top: 7.5px;">
       <i class="fas fa-plus"></i>
     </button>
   </div>
@@ -51,7 +50,7 @@
   <div id="myDropdown" class="dropdown-content" style="display: none">
     <table>
       <tr>
-        <td  onclick='createTab("New Tab", "/new.html");'><button data-add-tab><i class="fas fa-plus"></i> New tab</button></td>
+        <td  id="new-tab" onclick='tabs.createTab("shadow:/\/new");'><button data-add-tab><i class="fas fa-plus"></i> New tab</button></td>
       </tr>
     </table>
     <table>
@@ -62,22 +61,22 @@
     <div class="separator"></div>
     <table>
       <tr>
-        <td><button data-add-tab onclick='createTab("Settings", "/settings", "https\:/\/cdn-icons-png.flaticon.com/512/126/126472.png");'><i class="fas fa-cog"></i> Settings</button></td>
+        <td><button data-add-tab onclick='tabs.createTab("shadow:/\/settings")'><i class="fas fa-cog"></i> Settings</button></td>
       </tr>
     </table>
     <table>
       <tr>
-        <td><button data-add-tab onclick='createTab("Extensions", "/extensions");'><i class="fa-solid fa-puzzle-piece"></i> Extensions</button></td>
+        <td><button data-add-tab onclick='tabs.createTab("shadow:/\/extensions")'><i class="fa-solid fa-puzzle-piece"></i> Extensions</button></td>
       </tr>
     </table>
     <table>
       <tr>
-        <td><button data-add-tab onclick='createTab("Shadow Chat", "shadow/\/:chat")'><i class="fa-solid fa-comments"></i> Chat</button></td>
+        <td><button data-add-tab onclick='tabs.createTab("shadow:/\/chat")'><i class="fa-solid fa-comments"></i> Chat</button></td>
       </tr>
     </table>
     <table>
       <tr>
-        <td><button data-add-tab onclick='createTab("discord.gg/goshadow", "/uv/service/hvtr%3A-%2Ffiqcmrf.eg-gmsjafou")'><i class="fa-brands fa-discord"></i> Discord</button></td>
+        <td><button data-add-tab onclick='tabs.createTab("discord.gg/goshadow")'><i class="fa-brands fa-discord"></i> Discord</button></td>
       </tr>
     </table>
     <div class="separator"></div>
@@ -105,7 +104,10 @@
 
   <!-- Bookmarks Container -->
   <div id="bookmarks-container"></div>
-
+  <div class="context-menu" id="bookmark-context-menu" style="display:none;">
+  <div class="menu-item" onclick="editBookmark(`${title}`, `${url}`)">Edit</div>
+  <div class="menu-item" onclick="deleteBookmark(`${title}`, `${url}`)">Delete</div>
+  </div>
   <!-- Iframes Container -->
   <div id="iframes-container"></div>
 
@@ -115,14 +117,53 @@
   </div>
 
   <!-- Scripts -->
-  <script src="script.js" async></script>
-  <script src="bookmarks.js" async></script>
+  <script src="/assets/search.js"></script>
   <script src="/assets/themes.js"></script>
+  <script src="/assets/options.js"></script>
+  <script src="/assets/search.js"></script>
   <script src="/uv/uv.bundle.js"></script>
   <script src="/uv/uv.config.js"></script>
   <script src="/uv/uv.sw.js"></script>
   <script src="/uv/uv.config.js"></script>
-  <script src="/register-sw.js"></script>
-  <script src="/assets/search.js"></script>
+  <script src="/assets/register-sw.js"></script>
+  <script src="/assets/tabs.js" async></script>
+  <script src="/assets/bookmarks.js" async></script>
+  <script>
+    function updateOmni() {
+      tabs.updateOmni();
+    }
+    function setTab() {
+      tabs.setTab();
+    }
+    function createTab(i) {
+      tabs.createTab(i);
+    }
+    const ua = navigator.userAgent
+
+    if(ua.includes("OPR") || ua.includes("Firefox")) {
+      //Some features are unsupported (For example omnibox auto update omnibox)
+      if(confirm("You are using an unsupported browser. \nSome features may not work, would you like to enable the experimental support features?")) {
+        showExpirmentalFeatures();
+        if(confirm("Would you like to remember this choice? You can always change this in settings.")) {
+          localStorage.setItem("expirementalSupport", true)
+        }
+      } else {
+        console.log("User doesn't want experimental support features")
+      }
+    } else {
+      console.log("Using supported browser, continue")
+    }
+  </script>
+  <script>
+  window.addEventListener('load', function() {const loadingScreen = document.getElementById('loading-screen');loadingScreen.style.display = 'none';});
+  document.getElementById("search-bar").addEventListener("focus", (e) => {
+      console.log("Selecting");
+      e.target.select();
+  })
+  onload = () => {        
+    parent.updateOmni();
+    parent.setTab();
+  }
+  </script>
 </body>
 </html>

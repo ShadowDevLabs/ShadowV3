@@ -11,27 +11,13 @@ self.__uv$config = {
     sw: '/uv/uv.sw.js',
 };
 
-if (typeof window != 'undefined' && window.document) {
-    let bareServer = localStorage.getItem("bare");
-    self.__uv$config.bare = bareServer;
-
-    function inject(content, type) {
-        switch(type) {
-        case "js":
-            const elementJS = document.createElement("script");
-            elementJS.innerHTML = content;
-            document.body.appendChild(elementJS);
-            break;
-        case "css":
-            const elementCSS = document.createElement("style");
-            elementCSS.innerHTML = content;
-            document.head.appendChild(elementCSS);
-            break;
-        default:
-            const element = document.createElement("div");
-            element.innerHTML = content;
-            document.body.prepend(element);
-            break;
-        }
+onload = () => {
+    try {
+        parent.updateOmni();
+        parent.setTab();
+    }
+    catch (e) {
+        console.warn("Error with sending update request to omnibox, are you in an iframe?");
+        console.log(e)
     }
 }

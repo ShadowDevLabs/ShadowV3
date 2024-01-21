@@ -6,7 +6,7 @@ import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
 import { join } from "path";
 import { hostname } from "os";
 import cors from "cors";
-import { createBareServer } from "@tomphttp/bare-server-node";
+import { createBareServer } from "@nebula-services/bare-server-node";
 const publicPath = fileURLToPath(new URL("./public/", import.meta.url));
 
 let port = 8080;

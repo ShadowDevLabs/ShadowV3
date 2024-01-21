@@ -1,21 +1,3 @@
-// Add an animation to the header
-gsap.from(".header", {
-    opacity: 0,
-    y: -50,
-    duration: 1,
-    delay: 0.5,
-    ease: "power2.out",
-  });
-  
-  gsap.from(".features li", {
-    opacity: 0,
-    y: 20,
-    duration: 1,
-    delay: 1,
-    ease: "power2.out",
-    stagger: 0.2,
-  });
-  
   const discordButton = document.getElementById("dscbtn");
   discordButton.addEventListener("mouseenter", () => {
     gsap.to(discordButton, {
@@ -33,5 +15,19 @@ gsap.from(".header", {
     });
   });
 
+const features = document.getElementsByClassName("feature");
+features[0].addEventListener("click", function(){
+  parent.document.getElementById("search-bar").select();
+})
 
+features[1].addEventListener("click", function(){
+  parent.createTab("shadow://settings");
+})
 
+features[2].addEventListener("click", function(){
+  parent.createTab("shadow://extensions");
+})
+
+features[4].addEventListener("click", function(){
+  parent.createTab("https://now.gg/play/roblox-corporation/5349/roblox");
+})

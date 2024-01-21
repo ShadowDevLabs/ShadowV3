@@ -7,17 +7,9 @@ function changeTheme() {
 
 function changetheme(theme) {
   const root = document.documentElement;
-
-  if (theme === 'light') {
-      root.classList.add('light');
-      root.classList.remove('blueneon');
-  } else if (theme === 'blueneon') {
-      root.classList.add('blueneon');
-      root.classList.remove('light');
-  } else {
-      root.classList.remove('light', 'blueneon');
-  }
+  root.className = theme;
 }
+
 
 window.addEventListener('storage', function (e) {
   if (e.key === 'theme') {
@@ -32,6 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const theme = localStorage.getItem('theme');
   if (theme) {
       changetheme(theme);
-      document.getElementById('themeSelector').value = theme;
+      try{document.getElementById('themeSelector').value = theme;}catch(e){}
   }
 });

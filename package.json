@@ -1,5 +1,5 @@
 {
-    "name": "Shadow",
+    "name": "shadow",
     "version": "3.0.0",
     "description": "Shadow proxy",
     "type": "module",
@@ -16,9 +16,10 @@
     ],
     "author": "",
     "license": "GPL-3.0-or-later",
-    "dependencies": {
-      "@titaniumnetwork-dev/ultraviolet": "^1.0.10",
-      "@tomphttp/bare-server-node": "^2.0.0",
+    "dependencies": {    
+      "@nebula-services/bare-server-node": "2.0.1-patch.1",
+      "@nebula-services/dynamic": "0.7.2-patch.2",
+      "@nebula-services/ultraviolet": "1.0.1-1.patch.7",
       "axios": "^1.4.0",
       "compression": "^1.7.4",
       "cors": "^2.8.5",

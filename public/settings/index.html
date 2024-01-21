@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap">
   <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/settings.css">
+  <title>Settings</title>
 </head>
 <body onload="showContent('general')">
   <div id="sidebar">
@@ -66,6 +67,10 @@
             <option value="dark">Dark (Default)</option>
             <option value="light">Light</option>
             <option value="blueneon">Blue Neon</option>
+            <option value="sunset">Sunset</option>
+            <option value="crimsonblaze">Crimson Blaze</option>
+            <option value="crimsonpurple">Crimson Purple</option>
+            <option value="amoled">Amoled</option>
         </select>
         </div>
       </div> <br><br>
@@ -76,6 +81,19 @@
           <p class="section-text">The button below opens the site as an about:blank, hiding it from your history.
           </p>
           <button class="icon-button"><i class="fas fa-rocket"></i> Launch</button>
+        </div>
+      </div> 
+      <br><br>
+      <!--Toggle auto save/load tabs-->
+      <div class="settings-section">
+        <h2 class="section-title">Auto save/load tabs</h2>
+        <div class="section-content">
+          <p class="section-text">Automatically reload tabs from older sessions, toggle auto saving and loading here.
+          </p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="toggleSwitch">
+            <label for="toggleSwitch" class="slider"></label>
+          </div>
         </div>
       </div> 
     </div>
@@ -96,14 +114,14 @@
                 <option value="yandex">Yandex</option>
               </select>
           </div> 
-        </div>
+        </div><br><br>
       <!-- Proxy -->
       <div class="settings-section">
           <h2 class="section-title">Proxy</h2>
           <div class="section-content">
             <p class="section-text">This is the proxy that is used when searching.
             </p>
-            <select id="searchEngineDropdown" class="input-field">
+            <select id="proxyDropdown" class="input-field">
               <option value="ultraviolet">Ultraviolet</option>
             </select>
         </div> 
@@ -141,7 +159,7 @@
               <h3>Bare Server 2</h3>
             </div>
             <div class="box-content">
-              <div class "status-container">
+              <div class="status-container">
                 <p class="tag">Ping: 200ms</p> <br>
                 <div class="status">
                   <div class="flashing-light"></div>
@@ -149,7 +167,7 @@
                 </div>
               </div>
               <br>
-              <button class="icon-button" id="bare" onclick="changeBare('https://use.astroid.wtf/bare/');">Choose Bare</button>
+              <button class="icon-button" id="bare" onclick="changeBare('https:/\/use.astroid.wtf/bare/');">Choose Bare</button>
             </div>
           </div>
           <!-- Custom server -->
@@ -174,6 +192,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.rawgit.com/mozilla/localForage/master/dist/localforage.js"></script>
   <script>
     function showContent(contentId) {
       const contentSections = document.querySelectorAll('#content > div');
@@ -186,7 +205,18 @@
         selectedSection.style.display = 'block';
       }
     }
+    function changeBare(i="/bare/") {
+      localforage.setItem("bare", i).then(console.log(localforage.getItem("bare")));
+    }
+    
+    console.log(localforage.getItem("bare"));
   </script>
   <script src="/assets/themes.js"></script>
+  <script>
+    onload = () => {
+      parent.updateOmni();
+      parent.setTab();
+    }
+  </script>
 </body>
 </html>
