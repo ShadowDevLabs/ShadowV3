@@ -12,7 +12,7 @@ function abtblank() {
     }
   
     if (!inFrame && !navigator.userAgent.includes("Firefox")) {
-      const popup = window.open("about:blank", name, `width=${width},height=${height}`);
+      const popup = window.open("about:blank", `width=${width},height=${height}`);
   
       if (!popup || popup.closed) {
         alert("Allow popups and redirects to hide this from showing up in your history.");

@@ -135,27 +135,7 @@
     <span class="powered-by-text">ServerDeploy</span>
   </a>
   <!-- Scripts -->
-<<<<<<< HEAD
   <script src="/assets/search.js"></script>
-=======
-  <script>
-    function updateSearchInput() {
-        var storedSearchEngine = localStorage.getItem("searchEngineValue");
-        var searchInput = document.getElementById("uv-search-engine");
-        searchInput.value = storedSearchEngine || 'https://www.google.com/search?q=%s';
-    }
-    
-    updateSearchInput();
-    
-    window.addEventListener("storage", function (e) {
-        if (e.key === "searchEngineValue") {
-            updateSearchInput();
-        }
-    });
-    </script>    
-  <script src="script.js" async></script>
-  <script src="bookmarks.js" async></script>
->>>>>>> refs/remotes/origin/main
   <script src="/assets/themes.js"></script>
   <script src="/assets/options.js"></script>
   <script src="/assets/search.js"></script>
@@ -163,7 +143,6 @@
   <script src="/uv/uv.config.js"></script>
   <script src="/uv/uv.sw.js"></script>
   <script src="/uv/uv.config.js"></script>
-<<<<<<< HEAD
   <script src="/assets/register-sw.js"></script>
   <script src="/assets/tabs.js" async></script>
   <script src="/assets/bookmarks.js" async></script>
@@ -204,10 +183,5 @@
     parent.setTab();
   }
   </script>
-=======
-  <script src="/register-sw.js"></script>
-  
-  <script src="/assets/search.js"></script>
->>>>>>> refs/remotes/origin/main
 </body>
 </html>
