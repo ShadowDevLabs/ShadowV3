@@ -1,26 +1,10 @@
 
-<<<<<<< HEAD
-=======
-
->>>>>>> refs/remotes/origin/main
 :root {
   --background-color: #1c1c38;
   --tab-background: #262648;
   --tab-border: #4d4d86;
   --text-color: #ffffff;
-<<<<<<< HEAD
-  --accent-color: #6c3da3;
-}
-
-:root.light {
-  --background-color: #F0E8F9;
-  --tab-background: #262648;
-  --tab-border: #4d4d86;
-  --text-color: #333;
-  --accent-color: #8F6CAF;
-=======
   --accent-color: #8a3ffc;
->>>>>>> refs/remotes/origin/main
 }
 
 :root.blueneon {
@@ -39,8 +23,6 @@
   --accent-color: #ffb6b9;
 }
 
-<<<<<<< HEAD
-=======
 :root.light {
   --background-color: #eae7f5;
   --tab-background: #f0ebfa;
@@ -48,7 +30,6 @@
   --text-color: #1d1d1d;
   --accent-color: #c3a9e3;
 }
->>>>>>> refs/remotes/origin/main
 :root.ocean {
   --background-color: #003366;
   --tab-background: #005cbf;
@@ -72,10 +53,6 @@
   --text-color: #ffffff;
   --accent-color: #f2f2f2;
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> refs/remotes/origin/main
 :root.crimsonpurple {
   --background-color: #2a0238;
   --tab-background: #3d2749;
@@ -94,29 +71,18 @@ body {
 
 header {
   text-align: center;
-<<<<<<< HEAD
-  padding: 20px;
-=======
   padding: 5px;
->>>>>>> refs/remotes/origin/main
 }
 
 h1 {
   font-size: 36px;
-<<<<<<< HEAD
-=======
   padding-bottom: 0;
->>>>>>> refs/remotes/origin/main
   color: var(--accent-color);
 }
 
 .subtitle {
   font-size: 18px;
-<<<<<<< HEAD
-=======
   padding-top: 0;
->>>>>>> refs/remotes/origin/main
-  margin: 0 auto;
   max-width: 70%;
 }
 
@@ -142,32 +108,6 @@ h1 {
 }
 
 
-<<<<<<< HEAD
-.discord {
-  display: block;
-  margin: 3vw auto;
-  padding: 8px 12px;
-  text-align: center;
-  color: var(--text-color);
-  text-decoration: none;
-  border-radius: 5px;
-  width:fit-content;
-  font-size: 18px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-  background-color: var(--accent-color);
-}
-
-.discord:hover {
-  background-color: #6c3da3;
-  transform: scale(1.05);
-}
-
-.discord i{
-  margin-top:5px;
-}
-=======
->>>>>>> refs/remotes/origin/main
 
 .animated {
   opacity: 0;
@@ -180,8 +120,6 @@ h1 {
     opacity: 1;
     transform: translateY(0);
   }
-<<<<<<< HEAD
-=======
 }
 
 .social-icons {
@@ -222,5 +160,4 @@ h1 {
   transform: translateX(-50%);
   color: var(--tab-background);
   font-size: 14px;
->>>>>>> refs/remotes/origin/main
 }
