@@ -1,20 +1,3 @@
-  const discordButton = document.getElementById("dscbtn");
-  discordButton.addEventListener("mouseenter", () => {
-    gsap.to(discordButton, {
-      backgroundColor: "#6c3da3",
-      scale: 1.05,
-      duration: 0.2,
-    });
-  });
-  
-  discordButton.addEventListener("mouseleave", () => {
-    gsap.to(discordButton, {
-      backgroundColor: "var(--accent-color)",
-      scale: 1,
-      duration: 0.2,
-    });
-  });
-
 const features = document.getElementsByClassName("feature");
 features[0].addEventListener("click", function(){
   parent.document.getElementById("search-bar").select();

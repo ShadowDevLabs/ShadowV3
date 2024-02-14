@@ -61,6 +61,13 @@
   --accent-color: #583163;
 }
 
+:root.immortal {
+  --background-color: #083344;
+  --tab-background: #0a3b4f;
+  --tab-border: #DBEAFE;
+  --text-color: #93C5FD;
+  --accent-color: #0891B2;
+}
 
 body, html {
   margin: 0;
@@ -82,46 +89,51 @@ body, html {
 }
 
 h1 {
-  font-size: 82px;
-  color: var(--text-color);
+  font-size: 85px;
+  text-transform: capitalize;
+  font-weight: bold;
+  background: linear-gradient(45deg, var(--accent-color), var(--tab-border));
+  -webkit-background-clip: text;
+  background-clip: text;
+  margin-top: 4%;
+  color: transparent;
 }
 
 .search-container {
-  display: flex;
-  align-items: center;
-  border: 1px solid var(--tab-border);
+  border: 1px solid var(--accent-color);
   border-radius: 20px;
   padding: 0px 10px;
-  margin-top: -3%;
-  width:30vw;
+  box-shadow: 0 0 10px 2px var(--accent-color);
+  margin-top: -2%;
   background-color: var(--tab-background);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .search-container input {
-  flex: 1;
   border: none;
+  margin-right: 5px;
   outline: none;
-  width:27vw;
+  width: 25vw;
   font-size: 16px;
   color: var(--text-color);
-  background-color: var(--tab-background);
+  background-color: var(--tab-background)
 }
 
+
 .search-icon {
-  background-size: cover;
   margin: 15px 10px;
   color: var(--tab-border);
 }
 
-
-
 .shortcuts {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
+  gap: 10px;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
 .shortcut {
@@ -276,3 +288,15 @@ h1 {
 
 }
 
+.sponsor {
+  display: block;
+  border-radius:5px;
+  opacity:0.8;
+  margin: 0 auto;
+  max-width: 100%;
+  box-shadow: 0 0 10px 5px red;
+  position: fixed;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+}

@@ -1,5 +1,5 @@
 const menuButton = document.getElementById("menu-button");
-const dropdown = document.getElementById("myDropdown");
+const dropdown = document.getElementById("menu-dropdown");
 let isDropdownVisible = false;
 const menuButtons = dropdown.querySelectorAll("button[data-add-tab]");
 

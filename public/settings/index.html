@@ -8,15 +8,12 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap">
   <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/settings.css">
-<<<<<<< HEAD
   <title>Settings</title>
-=======
   <script src="script.js"></script>
   <link rel="icon" href="icons/logo.png" type="image/x-icon">
   <script src="/assets/settings.js"></script>
->>>>>>> refs/remotes/origin/main
 </head>
-<body onload="showContent('general')">
+<body onload="showContent('general');parent.updateOmni();parent.setTab();">
   <div id="sidebar">
     <div class="menu-item" onclick="showContent('general')">
       <i class="fas fa-cog menu-icon"></i>
@@ -77,6 +74,7 @@
             <option value="crimsonblaze">Crimson Blaze</option>
             <option value="crimsonpurple">Crimson Purple</option>
             <option value="amoled">Amoled</option>
+            <option value="immortal">Immortal</option>
         </select>
         </div>
       </div> <br><br>
@@ -240,11 +238,5 @@
     document.getElementById("searchEngineDropdown").addEventListener("change", updateLocalStorage);
 </script>
   <script src="/assets/themes.js"></script>
-  <script>
-    onload = () => {
-      parent.updateOmni();
-      parent.setTab();
-    }
-  </script>
 </body>
 </html>

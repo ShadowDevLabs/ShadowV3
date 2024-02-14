@@ -61,6 +61,13 @@
   --accent-color: #583163;
 }
 
+:root.immortal {
+  --background-color: #083344;
+  --tab-background: #0a3b4f;
+  --tab-border: #0E7490;
+  --text-color: #ffffff;
+  --accent-color: #0891B2;
+}
 
 body {
   margin: 0;

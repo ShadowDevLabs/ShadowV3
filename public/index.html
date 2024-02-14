@@ -43,7 +43,7 @@
   </div>
 
   <!-- Dropdown Menu -->
-  <div id="myDropdown" class="dropdown-content" style="display: none">
+  <div id="menu-dropdown" class="dropdown-content" style="display: none">
     <table>
       <tr>
         <td  id="new-tab" onclick='tabs.createTab("shadow:/\/new");'><button data-add-tab><i class="fas fa-plus"></i> New tab</button></td>
@@ -57,16 +57,7 @@
     <div class="separator"></div>
     <table>
       <tr>
-<<<<<<< HEAD
         <td><button data-add-tab onclick='tabs.createTab("shadow:/\/settings")'><i class="fas fa-cog"></i> Settings</button></td>
-=======
-        <td><button data-add-tab onclick='createTab("discord.gg/goshadow", "/uv/service/hvtr%3A-%2Ffiqcmrf.eg-gmsjafou")'><i class="fa-brands fa-discord"></i> Discord</button></td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td><button data-add-tab onclick='createTab("Shadow Chat", "chat")'><i class="fa-solid fa-comments"></i> Chat</button></td>
->>>>>>> refs/remotes/origin/main
       </tr>
     </table>
     <table>
@@ -76,16 +67,12 @@
     </table>
     <table>
       <tr>
-<<<<<<< HEAD
         <td><button data-add-tab onclick='tabs.createTab("shadow:/\/chat")'><i class="fa-solid fa-comments"></i> Chat</button></td>
       </tr>
     </table>
     <table>
       <tr>
         <td><button data-add-tab onclick='tabs.createTab("discord.gg/goshadow")'><i class="fa-brands fa-discord"></i> Discord</button></td>
-=======
-        <td><button data-add-tab onclick='createTab("Settings", "/settings", "https\:/\/cdn-icons-png.flaticon.com/512/126/126472.png");'><i class="fas fa-cog"></i> Settings</button></td>
->>>>>>> refs/remotes/origin/main
       </tr>
     </table>
     <div class="separator"></div>
@@ -119,20 +106,18 @@
   </div>
   <!-- Iframes Container -->
   <div id="iframes-container"></div>
-  <!--Sponsor-->
-  <a class="powered-by-container" target="_blank" href="https://serverdeploy.pro">
-    <img src="https://media.discordapp.net/attachments/1127291920285192223/1156579785900834896/IMG_6905.png?ex=654b89dd&is=653914dd&hm=ca122b80fc706c5692735d75ec7c843ad2c02e480fa51646d043ace2107d7bc2&=" alt="ServerDeploy Logo">
-    <span class="powered-by-text">Powered by ServerDeploy</span>
-  </a>
-
   <div class="desc left-margin">
     <p id="uv-error"></p>
     <pre id="uv-error-code"></pre>
   </div>
 
-  <a class="powered-by-container" target="_blank" href="https://serverdeploy.pro">
-    <img src="https://media.discordapp.net/attachments/1127291920285192223/1156579785900834896/IMG_6905.png?ex=654b89dd&is=653914dd&hm=ca122b80fc706c5692735d75ec7c843ad2c02e480fa51646d043ace2107d7bc2&=" alt="ServerDeploy Logo">
-    <span class="powered-by-text">ServerDeploy</span>
+  <a id="billigerhost" class="powered-by-container" target="_blank">
+    <img src="https://billing.billigerhost.com/templates/lagom2/assets/img/favicons/favicon.ico" alt="ServerDeploy Logo">
+    <span class="powered-by-text"><span style="color: #ad271f;">Billiger</span>Host</span>
+  </a>
+
+  <a id="discord" class="discord" target="_blank">
+    <i class="fa-brands fa-discord"></i>
   </a>
   <!-- Scripts -->
   <script src="/assets/search.js"></script>
@@ -156,6 +141,35 @@
     function createTab(i) {
       tabs.createTab(i);
     }
+    function load(i) {
+      tabs.load(i);
+    }
+    function devAlert(i) {
+      const alertPopup = document.getElementById("dev-alert");
+      let message = `You have some extensions that are NOT from the store:\n`
+      i.forEach(a => {
+        message+=`${a}\n`
+      });
+      message+="Would you like to continue?"
+    }
+    function updateMenu(i) {
+      const menu = document.getElementById("menu-dropdown");
+      const item = menu.children[0];
+      console.log(item)
+      const newElem = item.cloneNode();
+      console.log(newElem)
+      const a = newElem.children
+      console.log(a)
+      a.innerHTML = `button data-add-tab onclick=\"${i.onclick}\"><i class=\"${i.iconClass}\"></i> ${i.label}</button>`;
+      menu.appendChild(newElem);
+    }
+    const obj = {
+      "onclick": "",
+      "iconClass": "",
+      "label": ""
+    }
+    updateMenu(obj)
+
     const ua = navigator.userAgent
 
     if(ua.includes("OPR") || ua.includes("Firefox")) {
@@ -181,6 +195,15 @@
   onload = () => {        
     parent.updateOmni();
     parent.setTab();
+  }
+
+  document.getElementById("billigerhost").onclick = (e) => {
+    if(e.shiftKey) {
+      parent.createTab("https://billing.billigerhost.com");
+      setTimeout(updateOmni, 2500);
+    } else {
+      window.open("https://billing.billigerhost.com", "_blank");
+    }
   }
   </script>
 </body>

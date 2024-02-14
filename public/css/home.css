@@ -61,6 +61,14 @@
   --accent-color: #583163;
 }
 
+:root.immortal {
+  --background-color: #083344;
+  --tab-background: #0a3b4f;
+  --tab-border: #0E7490;
+  --text-color: #ffffff;
+  --accent-color: #0891B2;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -83,7 +91,9 @@ h1 {
 .subtitle {
   font-size: 18px;
   padding-top: 0;
+  margin: 0 auto;
   max-width: 70%;
+  margin-bottom: 5vh;
 }
 
 .container {
@@ -107,8 +117,6 @@ h1 {
   background-color: var(--tab-background);
 }
 
-
-
 .animated {
   opacity: 0;
   transform: translateY(20px);
@@ -124,8 +132,9 @@ h1 {
 
 .social-icons {
   display: flex;
+  margin-top:10vh;
   justify-content: center;
-  margin-top: 30px;
+  bottom:0px;
 }
 
 .social-icon {

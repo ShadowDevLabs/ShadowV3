@@ -137,9 +137,11 @@ function handleShortcutClick(event) {
   event.preventDefault();
   const shortcut = event.target.closest(".shortcut");
   if (shortcut && !shortcut.classList.contains("add")) {
-    const url = shortcut.getAttribute("data-url");
-    const url2 = search(url, searchEngine.value);
-    localStorage.setItem('mainurl', url2);
+    if(event.shiftKey) {
+      parent.createTab(shortcut.getAttribute("data-url"));
+    } else {
+      parent.load(shortcut.getAttribute("data-url"));
+    }
   }
 }
 

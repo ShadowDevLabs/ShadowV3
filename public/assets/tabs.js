@@ -1,3 +1,5 @@
+localStorage.setItem("shortenUrls", true)
+
 const error = document.getElementById("uv-error");
 const errorCode = document.getElementById("uv-error-code");
 const registerServiceWorker = registerSW().catch((err) => {
@@ -23,10 +25,12 @@ class Tab {
    constructor() {
       document.getElementById("uv-form").addEventListener("submit", async (e) => {
          e.preventDefault();
+         searchInput.blur()
          const url = searchInput.value
-         console.log(url)
          tabs.load(url)
       });
+      this.fullUrl = ""
+      if(localStorage.getItem("saveTabs") && window.confirm("Session ended unexpectedly, do you want to reopen your tabs?")) this.loadAllTabs(); else this.createTab();
     };
    async load(src, i = activeTabIndex) {
       const iframe = tabsArr[i].iframe;
@@ -38,6 +42,7 @@ class Tab {
       //Functions to create all the elements used by the tab in the tab bar
       function createTabItems() {
          //Tab icon
+         tab.img.className = "tab-icon";
          tab.tab.appendChild(tab.img);
          //Tab title
          const titleContainer = document.createElement("div");
@@ -46,7 +51,7 @@ class Tab {
          //Close button
          const closeBtn = document.createElement("span");
          closeBtn.className = "close-tab-button";
-         closeBtn.innerHTML = "&#10006;";
+         closeBtn.innerHTML = "&#x2715;";
          closeBtn.addEventListener("click", (e) => tabs.closeTab(tabsArr.findIndex((obj) => obj.tab === tab.tab)));
          tab.tab.appendChild(closeBtn);
       }
@@ -71,13 +76,8 @@ class Tab {
       activeTabIndex = tabsArr.length - 1;
    };
    closeTab(i, force = false) {
-      sessionStorage.setItem("history", JSON.stringify(["abc"]))
-      const currentHistory = JSON.parse(sessionStorage.getItem("history"))
-      console.log("Current history is ",currentHistory)
-      //sessionStorage.setItem("history",JSON.stringify(currentHistory.push(this.getSrc(i))))
         const isActive = activeTabIndex === i;
         if(isActive) {
-         console.log("Closing active tab")
             //Delete elements
             tabsArr[i].iframe.remove(); 
             tabsArr[i].tab.remove();
@@ -122,6 +122,10 @@ class Tab {
    updateOmni() {
       if(document.activeElement!=searchInput) {
       let currentSrc = this.getSrc();
+      this.fullUrl = currentSrc;
+      // if(localStorage.getItem("shortenUrls")) {
+      //   currentSrc = currentSrc.subString(0, currentSrc.lastIndexOf("?"));
+      //}
       searchInput.value = currentSrc;
       }
    };
@@ -164,7 +168,6 @@ class Tab {
       for (let i = 0; i < tabsArr.length; i++) {
          openTabs.push(this.getSrc(i));
       }
-      console.log(openTabs)
       localStorage.setItem("activeTabs", JSON.stringify(openTabs));
    };
    loadAllTabs() {
@@ -189,7 +192,6 @@ class Tab {
 }
 
 const tabs = new Tab();
-tabs.createTab();
 
 setInterval(function() {
    for(let i = 0; i < tabsArr.length; i++) {

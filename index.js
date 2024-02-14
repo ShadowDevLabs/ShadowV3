@@ -2,7 +2,7 @@ import compression from "compression";
 import express from "express";
 import { createServer } from "http";
 import { fileURLToPath } from "url";
-import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
+import { uvPath } from "@nebula-services/ultraviolet";
 import { join } from "path";
 import { hostname } from "os";
 import cors from "cors";
