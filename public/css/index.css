@@ -181,6 +181,19 @@ body, html {
   background-color: rgba(0, 0, 0, 0.25);
 }
 
+.menu-button{
+  padding:5px;
+  border-radius: 50%;
+  color:var(--text-color);
+  margin-right:5px;
+  cursor:pointer;
+  transition: all ease 0.4s;
+}
+
+.menu-button:hover{
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
 #search-bar {
   flex: 1;
   padding: 8px;
@@ -271,7 +284,7 @@ iframe.active {
   color: var(--text-color);
 }
 
-#menu-button:hover + #menu-container {
+#menu-container {
   display: flex;
 }
 
@@ -481,4 +494,8 @@ label {
 
 input[type="checkbox"] {
   margin-right: 10px;
+}
+
+span{
+  vertical-align: text-bottom;
 }

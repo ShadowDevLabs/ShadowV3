@@ -54,8 +54,28 @@ body, html {
   margin-top: 20px; 
   margin-bottom: 20px; 
   padding: 20px;
+  max-height: 75%;
+  width: 65vw;
+  overflow-y:scroll;
   color: var(--text-color);
-  transition: background-color 0.4s;
+  transition: all 0.4s;
+}
+
+#content::-webkit-scrollbar {
+  width: 12px;
+}
+
+#content::-webkit-scrollbar-track {
+  background: var(--tab-background);
+}
+
+#content::-webkit-scrollbar-thumb {
+  background-color: var(--accent-color);
+  border-radius: 10px;
+}
+
+#content::-webkit-scrollbar-thumb:hover {
+  background-color: lighten(var(--accent-color), 10%);
 }
 
 .menu-item:hover + #content {
