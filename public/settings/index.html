@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap">
   <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/settings.css">
+  <link rel="stylesheet" href="/css/themes.css">
   <title>Settings</title>
   <script src="script.js"></script>
   <link rel="icon" href="icons/logo.png" type="image/x-icon">
@@ -139,41 +140,6 @@
         <div class="section-content">
           <p class="section-text">Switch between bare servers. Some bare servers might be slower or faster based on your location.</p>
         </div>
-        <!-- Server 1 -->
-        <div class="box-container" style="display: flex;"> 
-          <div class="box">
-            <div class="box-header">
-              <h3>Bare Server 1</h3>
-            </div>
-            <div class="box-content">
-              <div class="status-container">
-                <p class="tag">Ping: 200ms</p> <br>
-                <div class="status">
-                  <div class="flashing-light"></div>
-                  <p class="online-text">Status: Online</p> <br> 
-                </div>
-              </div>
-              <br>
-              <button class="icon-button" id="bare" onclick="changeBare('/bare/')">Choose Bare</button>
-            </div>
-          </div>
-          <!-- Server 2 -->
-          <div class="box">
-            <div class="box-header">
-              <h3>Bare Server 2</h3>
-            </div>
-            <div class="box-content">
-              <div class="status-container">
-                <p class="tag">Ping: 200ms</p> <br>
-                <div class="status">
-                  <div class="flashing-light"></div>
-                  <p class="online-text">Status: Online</p> <br> 
-                </div>
-              </div>
-              <br>
-              <button class="icon-button" id="bare" onclick="changeBare('https:/\/use.astroid.wtf/bare/');">Choose Bare</button>
-            </div>
-          </div>
           <!-- Custom server -->
           <div class="box">
             <div class="box-header">
@@ -189,6 +155,46 @@
               </div>
               <input placeholder="example.com/bare/" style="width:90%;" class="input-field" id="customBareInput"/> <br><br>
               <button class="icon-button" id="bare" onclick="customBare = document.getElementById('customBareInput').value; changeBare(customBare);">Choose Bare</button>
+            </div>
+          </div>
+        </div>
+      <!--Proxy-->
+      <div class="settings-section">
+        <h2 class="section-title">Proxy Server Switcher</h2>
+        <div class="section-content">
+          <p class="section-text">Choose a proxy server. Some servers may provide more privacy, but they may also effect speeds.</p>
+        </div>
+          <!-- Custom server -->
+          <div class="box">
+            <div class="box-header">
+              <h3>Custom server</h3>
+            </div>
+            <div class="box-content">
+              <div class="status-container">
+                <p class="tag">Ping: 200ms</p> <br>
+                <div class="status">
+                  <div class="flashing-light"></div>
+                  <p class="online-text">Status: Online</p> <br> 
+                </div>
+              </div>
+              <input placeholder="example.com/bare/" style="width:90%;" class="input-field" id="customBareInput"/> <br><br>
+              <button class="icon-button" id="bare" onclick="customBare = document.getElementById('customBareInput').value; changeBare(customBare);">Choose Bare</button>
+            </div>
+          </div>
+        </div>
+      <!--UA-->
+      <div class="settings-section">
+        <h2 class="section-title">User Agent Switcher</h2>
+        <div class="section-content">
+          <p class="section-text">Switch between different user agents. Some agents may cause issues.</p>
+        </div>
+          <div class="box">
+            <div class="box-header">
+              <h3>Custom Agent</h3>
+            </div>
+            <div class="box-content">
+              <input placeholder="" style="width:90%;" class="input-field" id="custom-ua"/> <br><br>
+              <button class="icon-button" id="ua" onclick="customUA = document.getElementById('custom-ua').value; changeUA(customUA);">Choose Agent</button>
             </div>
           </div>
         </div>
@@ -209,11 +215,25 @@
         selectedSection.style.display = 'block';
       }
     }
-    function changeBare(i="/bare/") {
-      localforage.setItem("bare", i).then(console.log(localforage.getItem("bare")));
+
+    async function checkBare(i) {
+      let req = await fetch(i);
+      if(req.headers.get("Content-Type") === "application/json" && req.status == "200") {
+        console.log("Bare exists")
+        return true
+      } else {
+      console.log("Bare doesn't exist")
+      return false
+      }
     }
-    
-    console.log(localforage.getItem("bare"));
+
+    function changeBare(i="/bare/") {
+      if(checkBare(i)) {
+      localforage.setItem("bare", i).then(console.log(localforage.getItem("bare")));
+      } else {
+        document.getElementById("bare-error").style.display = "block"
+      }
+    }
   </script>
   <script>
     function updateLocalStorage() {

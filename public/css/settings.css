@@ -6,76 +6,12 @@
   --accent-color: #6c3da3;
 }
 
-:root.blueneon {
-  --background-color: #001A33; 
-  --tab-background: #00203C; 
-  --tab-border: #00A3E0;
-  --text-color: #FFFFFF; 
-  --accent-color: #00A6FB; 
-}
-
-:root.sunset {
-  --background-color: #fce6cf;
-  --tab-background: #ffd9b3;
-  --tab-border: #e27d60;
-  --text-color: #2c3e50;
-  --accent-color: #ffb6b9;
-}
-
-:root.ocean {
-  --background-color: #003366;
-  --tab-background: #005cbf;
-  --tab-border: #0077cc;
-  --text-color: #ffffff;
-  --accent-color: #00a1ff;
-}
-
-:root.crimsonblaze {
-  --background-color: #2c0104;
-  --tab-background: #492727;
-  --tab-border: #854c4c;
-  --text-color: #ffffff;
-  --accent-color: #db0f0f;
-}
-
-:root.light {
-  --background-color: #eae7f5;
-  --tab-background: #f0ebfa;
-  --tab-border: rgba(126, 124, 248, 0.152);
-  --text-color: #1d1d1d;
-  --accent-color: #c3a9e3;
-}
-
-:root.amoled {
-  --background-color: #000000;
-  --tab-background: #000000;
-  --tab-border: #ffffff;
-  --text-color: #ffffff;
-  --accent-color: #f2f2f2;
-}
-:root.crimsonpurple {
-  --background-color: #2a0238;
-  --tab-background: #3d2749;
-  --tab-border: #734c85;
-  --text-color: #ffffff;
-  --accent-color: #583163;
-}
-
-:root.immortal {
-  --background-color: #083344;
-  --tab-background: #0a3b4f;
-  --tab-border: #0E7490;
-  --text-color: #ffffff;
-  --accent-color: #0891B2;
-}
-
 body, html {
   margin: 0;
   padding: 0;
   height: 100%;
   background-color: var(--background-color);
   font-family: Arial, sans-serif;
-  overflow: hidden;
   display: flex;
 }
 

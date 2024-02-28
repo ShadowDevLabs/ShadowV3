@@ -23,20 +23,30 @@ Manifest layout:
 
 class Extensions {
     constructor() {
-      this.extensions = JSON.parse(localStorage.getItem("extensions"));
-      let devExts = []
+      checkDev()
+      this.extensions = JSON.parse(localStorage.getItem("extensions")); 
+    }
+
+    init() {
+      this.extensions.forEach(i => {
+        this.load(i.constructor.name)
+      })
+    }
+
+    checkDev() {
+      let devExts = [];
       this.extensions.forEach(i => {
         if(i.origin !== "store") {
-          devExts.append(i.name)
+          devExts.append(i.name);
         }
       });
-      if(devExts.length !== 0) {
-        parent.devAlert(devExts)
+      if(devExts.length > 0) {
+        parent.devAlert(devExts);
       }
     }
     
     load(id) {
-      const extension = this.getInfo(id)
+      const extension = this.get(id);
       if(!extension || !extension.enabled) {
         switch(extension.features) {
             case menu-bar: 
@@ -47,9 +57,10 @@ class Extensions {
         switch(extension.type) {
           case listen: 
             document.addEventListener("fetch", (i) => {
-              eval(code)
+              eval(extension.code)
             })
-          case inject:
+          case run:
+            eval(extension.code);
           default:
             let tag = document.createElement("script");
             tag.innerHTML = extension.code;
@@ -58,7 +69,12 @@ class Extensions {
       }
     }
 
-    getInfo(id) {
-    return JSON.parse(localStorage.getItem("extensions"))[id] || false
+    get(id) {
+    this.update();
+    return this.extensions || false;
+    }
+
+    update() {
+      this.extensions = JSON.parse(localStorage.getItem("extensions"))[id];
     }
 }

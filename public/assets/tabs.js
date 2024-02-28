@@ -2,11 +2,7 @@ localStorage.setItem("shortenUrls", true)
 
 const error = document.getElementById("uv-error");
 const errorCode = document.getElementById("uv-error-code");
-const registerServiceWorker = registerSW().catch((err) => {
-   error.textContent = "Failed to register service worker.";
-   errorCode.textContent = err.toString();
-   throw err;
-});
+
 const decode = (i) => {
    return self.__uv$config.decodeUrl(i);
 }
@@ -27,7 +23,7 @@ class Tab {
          e.preventDefault();
          searchInput.blur()
          const url = searchInput.value
-         tabs.load(url)
+         tabs.load(url) 
       });
       this.fullUrl = ""
       if(localStorage.getItem("saveTabs") && window.confirm("Session ended unexpectedly, do you want to reopen your tabs?")) this.loadAllTabs(); else this.createTab();
@@ -35,7 +31,6 @@ class Tab {
    async load(src, i = activeTabIndex) {
       const iframe = tabsArr[i].iframe;
       const url = self.search(src, searchEngine.value);
-      await self.registerServiceWorker;
       iframe.src = url;
    };
    createTab(src = tabsArr.length === 0 ? "shadow://home" : "shadow://new") {
@@ -152,13 +147,18 @@ class Tab {
    };
    async setTab(i = activeTabIndex) {
       //Set the icon for the tab
-        let iconUrl;
-        if(this.getSrc(i).startsWith("shadow://")) {
+      let iconUrl;
+      const src = this.getSrc(i)
+      if(src.startsWith("shadow://")) {
         iconUrl = `/icons/pages/${this.getSrc(i).replace("shadow://","")}.html`
-        } else {
-      iconUrl = `https://www.google.com/s2/favicons?domain=${this.getSrc(i)}&sz=24`
+      } else if(src === "about:blank") {
+          return
+      } else {
+      try {
+         iconUrl = `https://www.google.com/s2/favicons?domain=${src}&sz=24`
+      } catch(e){}
       tabsArr[i].img.src = iconUrl
-        }
+      }
         //Set the title for a tab
       let title = tabsArr[i].iframe.contentDocument.title
       tabsArr[i].tab.querySelector(".tab-title").textContent = title

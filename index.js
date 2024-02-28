@@ -3,6 +3,7 @@ import express from "express";
 import { createServer } from "http";
 import { fileURLToPath } from "url";
 import { uvPath } from "@nebula-services/ultraviolet";
+import { dynamicPath } from "@nebula-services/dynamic"
 import { join } from "path";
 import { hostname } from "os";
 import cors from "cors";
@@ -20,6 +21,7 @@ app.use(cors());
 app.use(express.static(publicPath, { maxAge: "1y" }));
 
 app.use("/uv/", express.static(uvPath));
+app.use("/dynamic/", express.static(dynamicPath))
 
 app.use((req, res) => {
   res.status(404);

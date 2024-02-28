@@ -18,7 +18,6 @@ function search(input, template) {
     return url
     }
   } catch(err) {
-    console.log(err);
   }
 
   try {
@@ -27,7 +26,6 @@ function search(input, template) {
       return "/uv/service/"+self.__uv$config.encodeUrl(url.toString());
     }
   } catch (err) {
-    console.log(err);
   }
 
   try {
@@ -35,8 +33,7 @@ function search(input, template) {
     if (url.hostname.includes(".")) {
       return "/uv/service/"+self.__uv$config.encodeUrl(url.toString());
     }
-  } catch (err) {
-    console.log(err);
+  } catch (err) { 
   }
 
   return "/uv/service/"+self.__uv$config.encodeUrl(template.replace("%s", encodeURIComponent(input)));

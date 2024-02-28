@@ -1,7 +1,7 @@
 /*global Ultraviolet*/
 self.__uv$config = {
     prefix: "/uv/service/",
-    bare: "/bare/",
+    bare: "https://phantom.lol/bare/",
     encodeUrl: Ultraviolet.codec.xor.encode,
     decodeUrl: Ultraviolet.codec.xor.decode,
     handler: "/uv/uv.handler.js",
@@ -32,8 +32,8 @@ var extLoaded;
   function loadExtensions() {
     if (!extLoaded) {
       try {
-        let tag = document.createElement("script");
-        tag.src = "/assets/extensions.js";
+        const extensionController = new Extensions()
+        
         extLoaded = true;
         console.log("Extensions loaded!")
         console.log(tag)

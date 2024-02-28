@@ -6,96 +6,33 @@
   --accent-color: #6c3da3;
 }
 
-:root.light {
-  --background-color: #F0E8F9;
-  --tab-background: #262648;
-  --tab-border: #4d4d86;
-  --text-color: #333;
-  --accent-color: #8F6CAF;
-}
-
-:root.blueneon {
-  --background-color: #001A33; 
-  --tab-background: #00203C; 
-  --tab-border: #00A3E0;
-  --text-color: #FFFFFF; 
-  --accent-color: #00A6FB; 
-}
-
-:root.sunset {
-  --background-color: #fce6cf;
-  --tab-background: #ffd9b3;
-  --tab-border: #e27d60;
-  --text-color: #2c3e50;
-  --accent-color: #ffb6b9;
-}
-
-:root.ocean {
-  --background-color: #003366;
-  --tab-background: #005cbf;
-  --tab-border: #0077cc;
-  --text-color: #ffffff;
-  --accent-color: #00a1ff;
-}
-
-:root.crimsonblaze {
-  --background-color: #2c0104;
-  --tab-background: #492727;
-  --tab-border: #854c4c;
-  --text-color: #ffffff;
-  --accent-color: #db0f0f;
-}
-
-:root.amoled {
-  --background-color: #000000;
-  --tab-background: #000000;
-  --tab-border: #ffffff;
-  --text-color: #ffffff;
-  --accent-color: #f2f2f2;
-}
-:root.crimsonpurple {
-  --background-color: #2a0238;
-  --tab-background: #3d2749;
-  --tab-border: #734c85;
-  --text-color: #ffffff;
-  --accent-color: #583163;
-}
-
-:root.immortal {
-  --background-color: #083344;
-  --tab-background: #0a3b4f;
-  --tab-border: #DBEAFE;
-  --text-color: #93C5FD;
-  --accent-color: #0891B2;
-}
 
 body, html {
   margin: 0;
   padding: 0;
   height: 100%;
   background-color: var(--background-color);
-  font-family: Arial, sans-serif;
+  font-family: 'Poppins', sans-serif;
   overflow: hidden;
 }
 
 .container {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  margin: -10% auto;
+  margin: 5% auto;
+  width:fit-content;
   justify-content: center;
   height: 100vh;
   background-color: var(--background-color);
 }
 
 h1 {
-  font-size: 85px;
+  font-size: 75px;
   text-transform: capitalize;
+  text-align:center;
   font-weight: bold;
   background: linear-gradient(45deg, var(--accent-color), var(--tab-border));
   -webkit-background-clip: text;
   background-clip: text;
-  margin-top: 4%;
   color: transparent;
 }
 
@@ -104,7 +41,7 @@ h1 {
   border-radius: 20px;
   padding: 0px 10px;
   box-shadow: 0 0 10px 2px var(--accent-color);
-  margin-top: -2%;
+  margin-top: -6%;
   background-color: var(--tab-background);
   display: flex;
   justify-content: center;
@@ -116,6 +53,7 @@ h1 {
   margin-right: 5px;
   outline: none;
   width: 25vw;
+  font-family: 'Poppins', sans-serif;
   font-size: 16px;
   color: var(--text-color);
   background-color: var(--tab-background)
@@ -129,7 +67,7 @@ h1 {
 
 .shortcuts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 10px;
   justify-content: center;
   align-items: center;
@@ -137,7 +75,7 @@ h1 {
 }
 
 .shortcut {
-  display: flex;
+  display: block;
   flex-direction: column;
   align-items: center;
   text-align: center;
@@ -145,6 +83,7 @@ h1 {
   color: var(--text-color);
   transition: background-color 0.3s;
   border-radius: 5px;
+  font-family: 'Poppins', sans-serif;
   padding: 5px;
   height: 90px;
 }
@@ -164,8 +103,7 @@ h1 {
 .shortcut p {
   margin-top: 10px;
   font-size: 15px;
-  font-family: 'Open Sans', sans-serif;
-
+  font-family: 'Poppins', sans-serif;
   color: var(--text-color);
 }
 

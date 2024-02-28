@@ -6,6 +6,7 @@
   <title>Shadow</title>
   <!-- Stylesheets -->
   <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="/css/themes.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&display=swap">
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
@@ -110,6 +111,20 @@
     <p id="uv-error"></p>
     <pre id="uv-error-code"></pre>
   </div>
+  <!-- Dev extension warning -->
+  <div class="extensions_disclaimer" style="display:none;" id="dev-alert">
+    <div class="extensions_disclaimer_content">
+      <h2 style="color: var(--accent-color)">Warning</h2>
+      <p id="dev-alert-text"></p>
+      <div class="buttons">
+        <button class="continue-button" onclick="devWarning(true)">Continue</button>
+        <button class="cancel-button" onclick="devWarning(false)">Cancel</button>
+      </div>
+      <label for="remember-choice">
+        <input type="checkbox" id="remember-choice"> Remember Choice
+      </label>
+    </div>
+  </div>
 
   <a id="billigerhost" class="powered-by-container" target="_blank">
     <img src="https://billing.billigerhost.com/templates/lagom2/assets/img/favicons/favicon.ico" alt="ServerDeploy Logo">
@@ -128,30 +143,52 @@
   <script src="/uv/uv.config.js"></script>
   <script src="/uv/uv.sw.js"></script>
   <script src="/uv/uv.config.js"></script>
-  <script src="/assets/register-sw.js"></script>
   <script src="/assets/tabs.js" async></script>
   <script src="/assets/bookmarks.js" async></script>
+  <script src="/assets/localforage.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/register-sw.js", {
+          scope: "/"
+        });
+      });
+    }
+  </script>
   <script>
     function updateOmni() {
       tabs.updateOmni();
     }
+
     function setTab() {
       tabs.setTab();
     }
+
     function createTab(i) {
       tabs.createTab(i);
     }
+
     function load(i) {
       tabs.load(i);
     }
+
     function devAlert(i) {
-      const alertPopup = document.getElementById("dev-alert");
       let message = `You have some extensions that are NOT from the store:\n`
       i.forEach(a => {
         message+=`${a}\n`
       });
-      message+="Would you like to continue?"
+      message+="These could potentially be dangerous. Would you like to continue?"
+      document.getElementById("dev-alert-text").innerText = message;
+      document.getElementById("dev-alert").style.display = "block";
     }
+
+    function devWarning(i) {
+      if(i) {
+        document.querySelector("iframe.active").contentWindow.devContinue();
+      }
+      document.getElementById("dev-alert").style.display = "none";
+    }
+
     function updateMenu(i) {
       const menu = document.getElementById("menu-dropdown");
       const item = menu.children[0];
@@ -189,7 +226,6 @@
   <script>
   window.addEventListener('load', function() {const loadingScreen = document.getElementById('loading-screen');loadingScreen.style.display = 'none';});
   document.getElementById("search-bar").addEventListener("focus", (e) => {
-      console.log("Selecting");
       e.target.select();
   })
   onload = () => {        
