@@ -53,7 +53,7 @@
     </table>
     <table>
       <tr>
-        <td><button data-add-tab onclick="newBookmark()"><i class="fas fa-plus"></i> Add Bookmark</button></td>
+        <td><button data-add-tab onclick="bookmarksManager.newBookmark()"><i class="fas fa-plus"></i> Add Bookmark</button></td>
       </tr>
     </table>
     <div class="separator"></div>
@@ -157,6 +157,7 @@
     }
   </script>
   <script>
+
     function updateOmni() {
       tabs.updateOmni();
     }
