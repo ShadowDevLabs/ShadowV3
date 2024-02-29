@@ -11,7 +11,7 @@ body, html {
   padding: 0;
   height: 100%;
   background-color: var(--background-color);
-  font-family: Arial, sans-serif;
+  font-family: 'Poppins', sans-serif;
   display: flex;
 }
 
@@ -109,6 +109,7 @@ body, html {
   border: 1px solid var(--tab-border);
   border-radius: 5px;
   color: var(--text-color);
+  font-family: 'Poppins', sans-serif;
   background-color: var(--tab-background);
 }
 
@@ -152,11 +153,13 @@ body, html {
   padding: 0;
 }
 
+
 .input-field select {
   width: 100%;
   padding: 5px;
   border: 1px solid var(--tab-border);
   border-radius: 5px;
+  font-family: 'Poppins', sans-serif;
   color: var(--text-color);
   background-color: var(--tab-background);
 }
@@ -164,6 +167,15 @@ body, html {
 .input-field select:focus {
   outline: none;
   border-color: var(--accent-color);
+}
+
+#themeSelector option{
+  padding: 5px 10px;
+  font-family: 'Poppins', sans-serif;
+}
+
+select option{
+  font-family: 'Poppins', sans-serif;
 }
 
 .box {
