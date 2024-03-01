@@ -231,9 +231,10 @@ root.oceanwave {
 }
 
 :root.blurple {
-    --background-color: #5865a6;
-    --tab-background: #48528e;
-    --tab-border: #48528e;
-    --text-color: #6A5ACD;
-    --accent-color: #6A5ACD;
+    --background-color: #5865F2;
+    --tab-background: #5865F2;
+    --tab-border: #4E5D94;
+    --text-color: #FFFFFF;
+    --accent-color: #7289DA;
 }
+
