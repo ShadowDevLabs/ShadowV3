@@ -134,7 +134,7 @@
         <div class="section-content">
           <p class="section-text">Changing this will change the search engine used when searching.
           </p>
-          <select id="searchEngineDropdown" class="input-field">
+          <select id="searchEngineDropdown" class="input-field" onchange="updateCookies()">
             <option value="google" data-url="https://www.google.com/search?q=s">Google</option>
             <option value="bing" data-url="https://www.bing.com/search?q=s">Bing</option>
             <option value="yahoo" data-url="https://search.yahoo.com/search?p=s">Yahoo</option>
@@ -269,7 +269,7 @@
     }
   </script>
   <script>
-    function uptCookies() {
+    function updateCookies() {
       var dropdown = document.getElementById("searchEngineDropdown");
       var selectedOption = dropdown.options[dropdown.selectedIndex];
       var dataUrl = selectedOption.getAttribute("data-url");
@@ -277,18 +277,11 @@
     }
 
     var storedSearchEngine = localStorage.getItem("searchEngineValue");
-    var uptCookiesdropdown = document.getElementById("searchEngineDropdown");
+    var searchEngineDropdown = document.getElementById("searchEngineDropdown");
 
-    for (var i = 0; i < dropdown.options.length; i++) {
-      if (dropdown.options[i].getAttribute("data-url") === storedSearchEngine) {
-        dropdown.selectedIndex = i;
-        break;
-      }
-    }
+    updateCookies();
+    searchEngineDropdown.addEventListener("change", updateCookies);
 
-    uptCookies();
-
-    document.getElementById("searchEngineDropdown").addEventListener("change", uptCookies);
   </script>
   <script src="/assets/themes.js"></script>
   <script src="/assets/options.js"></script>
