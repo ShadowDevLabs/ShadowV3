@@ -1,4 +1,4 @@
-:root {
+:root. {
     --background-color: #1c1c38;
     --tab-background: #262648;
     --tab-border: #4d4d86;
@@ -30,14 +30,6 @@
     --accent-color: #ffb6b9;
 }
 
-:root.ocean {
-    --background-color: #003366;
-    --tab-background: #005cbf;
-    --tab-border: #0077cc;
-    --text-color: #ffffff;
-    --accent-color: #00a1ff;
-}
-
 :root.crimsonblaze {
     --background-color: #2c0104;
     --tab-background: #492727;
@@ -54,23 +46,8 @@
     --accent-color: #f2f2f2;
 }
 
-:root.crimsonpurple {
-    --background-color: #2a0238;
-    --tab-background: #3d2749;
-    --tab-border: #734c85;
-    --text-color: #ffffff;
-    --accent-color: #583163;
-}
 
-:root.immortal {
-    --background-color: #083344;
-    --tab-background: #0a3b4f;
-    --tab-border: #DBEAFE;
-    --text-color: #93C5FD;
-    --accent-color: #0891B2;
-}
-
-root.oceanwave {
+:root.oceanwave {
     --background-color: #1e3a5f;
     --tab-background: #2b5876;
     --tab-border: #4e7c9b;
@@ -110,22 +87,6 @@ root.oceanwave {
     --accent-color: #45e2a3;
 }
 
-:root.stormysky {
-    --background-color: #1c2c3a;
-    --tab-background: #2e4c5e;
-    --tab-border: #557a8c;
-    --text-color: #e6f1f4;
-    --accent-color: #4575e2;
-}
-
-:root.peachykeen {
-    --background-color: #3a2c23;
-    --tab-background: #5e4c3d;
-    --tab-border: #8c7a6d;
-    --text-color: #f4efe6;
-    --accent-color: #e2a245;
-}
-
 :root.oceanicdive {
     --background-color: #012a36;
     --tab-background: #024959;
@@ -134,44 +95,12 @@ root.oceanwave {
     --accent-color: #04a8c6;
 }
 
-:root.royalvelvet {
-    --background-color: #250d3b;
-    --tab-background: #3d2c57;
-    --tab-border: #6c5980;
-    --text-color: #eae2f8;
-    --accent-color: #9a72ac;
-}
-
 :root.earthybrown {
     --background-color: #3e2c1c;
     --tab-background: #5e4634;
     --tab-border: #8c6a55;
     --text-color: #f4f1ee;
     --accent-color: #c79a6b;
-}
-
-:root.coolmint {
-    --background-color: #1c3a2a;
-    --tab-background: #2e5c44;
-    --tab-border: #4c8c69;
-    --text-color: #e3fcef;
-    --accent-color: #2ebf91;
-}
-
-:root.lavenderdream {
-    --background-color: #2c1c3a;
-    --tab-background: #443e5e;
-    --tab-border: #6d5c8c;
-    --text-color: #f3e6ff;
-    --accent-color: #9a72db;
-}
-
-:root.sandybeach {
-    --background-color: #3a2c1c;
-    --tab-background: #5e4c2e;
-    --tab-border: #8c7a55;
-    --text-color: #f4f1e6;
-    --accent-color: #e2ba45;
 }
 
 :root.arcticchill {
@@ -196,14 +125,6 @@ root.oceanwave {
     --tab-border: #8c557a;
     --text-color: #f6e6f4;
     --accent-color: #e24592;
-}
-
-:root.citrusburst {
-    --background-color: #3a2c1c;
-    --tab-background: #5e4c2e;
-    --tab-border: #8c7a55;
-    --text-color: #f4f1e6;
-    --accent-color: #e2c045;
 }
 
 :root.deepsea {
@@ -237,4 +158,3 @@ root.oceanwave {
     --text-color: #FFFFFF;
     --accent-color: #7289DA;
 }
-
