@@ -1,8 +1,8 @@
 
 function changeTheme() {
-  const selectedOption = document.getElementById('themeSelector').value;
-  changetheme(selectedOption);
-  localStorage.setItem('theme', selectedOption);
+  const selectedTheme = document.getElementById('themeSelector').value;
+  changetheme(selectedTheme);
+  localStorage.setItem('theme', selectedTheme);
 }
 
 function changetheme(theme) {

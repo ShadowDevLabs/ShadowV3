@@ -73,8 +73,10 @@
 <script src="script.js"></script>
 <script>
   onload = () => {
+    try{
     parent.updateOmni();
     parent.setTab();
+    } catch(e){}
   }
 </script>
 </html>
