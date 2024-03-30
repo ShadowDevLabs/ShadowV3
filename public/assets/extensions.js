@@ -70,8 +70,8 @@ class Extensions {
     }
 
     get(id) {
-    this.update();
-    return this.extensions || false;
+      this.update();
+      return this.extensions || false;
     }
 
     update() {
