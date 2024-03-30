@@ -81,7 +81,8 @@ h1 {
   text-align: center;
   text-decoration: none;
   color: var(--text-color);
-  transition: background-color 0.3s;
+  transition: all 0.3s;
+  max-width:150px;
   border-radius: 5px;
   font-family: 'Poppins', sans-serif;
   padding: 5px;

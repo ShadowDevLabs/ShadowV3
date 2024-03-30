@@ -15,7 +15,7 @@
         "proxy"
     ],
     "author": "",
-    "license": "GPL-3.0-or-later",
+    "license": "GPL-3.0-only",
     "dependencies": {
         "@nebula-services/bare-server-node": "2.0.1-patch.1",
         "@nebula-services/dynamic": "0.7.2-patch.2",

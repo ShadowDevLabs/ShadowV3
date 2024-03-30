@@ -1,97 +1,105 @@
-class Bookmarks {
+class BookmarksManager {
     constructor() {
-        this.bookmarks = [] //Init the array
-        this.container = document.getElementById("bookmarks-container") //Container for bookmarks (Under omnibox/searchbar)
-        this.load(); //Start loading
+        this.container = document.getElementById("bookmarks-container");
+        window.addEventListener("beforeunload", this.save.bind(this));
+        window.addEventListener("load", this.load.bind(this));
     }
+
+    addBookmark(title, url) {
+        const bookmark = document.createElement("div");
+        bookmark.className = "bookmark";
+        bookmark.setAttribute("data-title", title);
+        bookmark.setAttribute("data-url", url);
+        const icon = document.createElement("i");
+        icon.className = "fas fa-bookmark";
+        const text = document.createElement("span");
+        text.textContent = title;
+        bookmark.appendChild(icon);
+        bookmark.appendChild(text);
+        bookmark.addEventListener("click", (e) => this.onClick(e, bookmark));
+        bookmark.addEventListener("contextmenu", (event) => this.showBookmarkContextMenu(event, title, url, Array.from(this.container.children).indexOf(bookmark)));
+
+        this.container.appendChild(bookmark);
+    }
+
+    save() {
+        const bookmarks = Array.from(this.container.children).map(bookmark => ({
+            title: bookmark.getAttribute("data-title"),
+            url: bookmark.getAttribute("data-url"),
+        }));
+
+        localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+    }
+
     load() {
-        this.container.children.forEach(i => {i.remove()}); //Delete current bookmarks just in case
-        this.bookmarks = JSON.parse(localStorage.getItem("bookmarks")); //Set bookmarks from localStorage (Array of objects)
-        this.bookmarks.forEach(i => {this.new(i["url"], i["title"])}); //Create a bookmark for each one loaded up here ^^^
+        const storedBookmarks = localStorage.getItem("bookmarks");
+        if (storedBookmarks) {
+            const bookmarks = JSON.parse(storedBookmarks);
+            bookmarks.forEach(bookmark => this.addBookmark(bookmark.title, bookmark.url));
+        }
     }
-    new(i, a) {
-        //i: Url
-        //a: Title
 
-        //Create and setup the bookmark element (And sub-elements)
-        function createBookmarkElem(url, title) {
-            const bookmark = document.createElement("div");
-            bookmark.className = "bookmark";
-            bookmark.setAttribute("data-url", url);
-            bookmark.setAttribute("data-title", title);
-            const icon = document.createElement("i");
-            icon.className = "fas fa-bookmark";
-            const text = document.createElement("span");
-            text.textContent = title;
-            bookmark.appendChild(icon);
-            bookmark.appendChild(text);
-            this.container.appendChild(bookmark);
-            return bookmark;
-        }
+    showBookmarkContextMenu(event, title, url, index) {
+        event.preventDefault()
+        //Rework code: very inefficient to make an entirely new element each right click, clutters and overlaps, easier way is to just use one and move it, then check the events target to get the bookmark info
+        const contextMenu = document.createElement("div");
+        contextMenu.className = "context-menu";
+        contextMenu.innerHTML = `
+            <div class="menu-item" onclick="bookmarksManager.editBookmark(${index})">Edit</div>
+            <div class="menu-item" onclick="bookmarksManager.deleteBookmark(${index})">Delete</div>
+        `;
+        contextMenu.style.left = `${event.clientX}px`;
+        contextMenu.style.top = `${event.clientY}px`;
 
-        const bookmarkObj = {
-            url: i,
-            title: a,
-            elem: createBookmarkElem(url, title)
-        }
+        document.body.appendChild(contextMenu);
 
-        this.bookmarks.push(bookmarkObj);
-        bookmarkObj.elem.addEventListener("click", function(e) {
-            if(e.shiftKey) {
-                tabs.createTab(bookmarkObj.url);
-            } else {
-                tabs.loadTab(bookmarkObj.url);
-            }
+        document.addEventListener("click", () => {
+            document.body.removeChild(contextMenu);
         });
-        bookmarkObj.elem.addEventListener("contextmenu", function(e){
-            this.showContextMenu(e);
-        })
     }
 
-    delete(i/*Either the bookmark object, or the name + url as an array*/) {
-        if(typeof i === "Object") {
-            this.bookmarks.splice(this.bookmarks.findIndex(i), 1); //Delete object from array
-            i.elem.remove(); //Remove element from page
-        } else {
-            switch(typeof i) {
-                case "Array":
-                    this.bookmarks.forEach(a => {
-                        if(a.url === i[0] && a.title === i[1]) {
-                            //If url and title from array are found in bookmarks, remove them 
-                            this.bookmarks.splice(this.bookmarks.findIndex(a), 1);
-                            a.elem.remove();
-                        }
-                    })
-                    break;
-                case "String":
-                    this.bookmarks.forEach(a => {
-                        if(a.url === i) {
-                            //If only provided with title, delete bookmarks with the title 
-                            this.bookmarks.splice(this.bookmarks.findIndex(a), 1);
-                            a.elem.remove();
-                        } else if(a.title === i) {
-                            //If only provided with title, delete bookmarks with the title
-                            this.bookmarks.splice(this.bookmarks.findIndex(a), 1);
-                            a.elem.remove();
-                        }
-                    })
-                    break;
-                default: 
-                    console.log("Unknown type when deleting bookmark");
-                    break;
-            }
-        } 
-    }
+    editBookmark(index) {
+        const bookmarks = Array.from(this.container.children);
+        const bookmark = bookmarks[index];
+        const textElement = bookmark.querySelector("span");
 
-    showContextMenu(e) {
-        const menu = document.getElementById("bookmarks-context-menu");
-        if(e.target.className === "bookmark") {
-            e.preventDefault()
-            menu.style.left = `${e.clientX}px`;
-            menu.style.top = `${e.clientY}px`;
-            menu.setAttribute("hidden", false);
-        } else {
-            menu.setAttribute("hidden", true)
+        const newTitle = prompt("Enter new title:", bookmark.getAttribute("data-title"));
+        const newUrl = prompt("Enter new URL:", bookmark.getAttribute("data-url"));
+
+        if (newTitle !== null && newUrl !== null) {
+            bookmark.setAttribute("data-title", newTitle);
+            bookmark.setAttribute("data-url", newUrl);
+            textElement.textContent = newTitle;
+            this.save();
         }
+    }
+
+    deleteBookmark(index) {
+        const bookmarks = Array.from(this.container.children);
+        const bookmark = bookmarks[index];
+
+        if (confirm(`Are you sure you want to delete the bookmark: ${bookmark.getAttribute("data-title")}?`)) {
+            this.container.removeChild(bookmark);
+            this.save();
+        }
+    }
+
+    onClick(e, bookmark) {
+        const url = bookmark.getAttribute("data-url");
+        if (e.shiftKey) {
+            // Open in new tab
+            tabs.createTab(url);
+        } else {
+            // Open in current tab
+            tabs.load(url);
+        }
+    }
+
+    newBookmark() {
+        const iframesContainer = document.getElementById("iframes-container");
+        const iframe = iframesContainer.children[activeTabIndex];
+        this.addBookmark(iframe.contentWindow.document.title, iframe.src);
     }
 }
+
+const bookmarksManager = new BookmarksManager();

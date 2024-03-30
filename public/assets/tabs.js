@@ -22,6 +22,7 @@ class Tab {
       document.getElementById("uv-form").addEventListener("submit", async (e) => {
          e.preventDefault();
          searchInput.blur()
+         searchInput.value;
          const url = searchInput.value
          tabs.load(url) 
       });

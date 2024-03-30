@@ -11,7 +11,7 @@ body, html {
   padding: 0;
   height: 100%;
   background-color: var(--background-color);
-  font-family: Arial, sans-serif;
+  font-family: 'Poppins', sans-serif;
   display: flex;
 }
 
@@ -54,8 +54,28 @@ body, html {
   margin-top: 20px; 
   margin-bottom: 20px; 
   padding: 20px;
+  max-height: 75%;
+  width: 65vw;
+  overflow-y:scroll;
   color: var(--text-color);
-  transition: background-color 0.4s;
+  transition: all 0.4s;
+}
+
+#content::-webkit-scrollbar {
+  width: 12px;
+}
+
+#content::-webkit-scrollbar-track {
+  background: var(--tab-background);
+}
+
+#content::-webkit-scrollbar-thumb {
+  background-color: var(--accent-color);
+  border-radius: 10px;
+}
+
+#content::-webkit-scrollbar-thumb:hover {
+  background-color: lighten(var(--accent-color), 10%);
 }
 
 .menu-item:hover + #content {
@@ -89,6 +109,7 @@ body, html {
   border: 1px solid var(--tab-border);
   border-radius: 5px;
   color: var(--text-color);
+  font-family: 'Poppins', sans-serif;
   background-color: var(--tab-background);
 }
 
@@ -132,11 +153,13 @@ body, html {
   padding: 0;
 }
 
+
 .input-field select {
   width: 100%;
   padding: 5px;
   border: 1px solid var(--tab-border);
   border-radius: 5px;
+  font-family: 'Poppins', sans-serif;
   color: var(--text-color);
   background-color: var(--tab-background);
 }
@@ -144,6 +167,15 @@ body, html {
 .input-field select:focus {
   outline: none;
   border-color: var(--accent-color);
+}
+
+#themeSelector option{
+  padding: 5px 10px;
+  font-family: 'Poppins', sans-serif;
+}
+
+select option{
+  font-family: 'Poppins', sans-serif;
 }
 
 .box {
