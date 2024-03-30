@@ -1,17 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shadow</title>
   <!-- Stylesheets -->
   <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="/css/themes.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&display=swap">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&display=swap">
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
   <link rel="icon" href="icons/logo.png" type="image/x-icon">
   <script src="/assets/settings.js"></script>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
+
 <body>
   <!-- Loading Screen -->
   <div id="loading-screen">
@@ -25,7 +31,8 @@
 
   <!-- Tabs Container -->
   <div id="tabs-container">
-    <button id="add-tab" class="control-button" style="font-size: 15px; height: fit-content; margin-top: 7.5px;">
+    <button onclick="tabs.createTab();" id="add-tab" class="control-button"
+      style="font-size: 15px; height: fit-content; margin-top: 7.5px;">
       <i class="fas fa-plus"></i>
     </button>
   </div>
@@ -39,46 +46,54 @@
       <input type="text" id="search-bar" placeholder="Search or enter a URL" autocomplete="off">
       <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
     </form>
-    <div id="menu-button" class="control-button" style="margin-left: 15px; font-size: 24px;">&#8801;</div>
+    <div id="menu-button" class="menu-button" style="margin-left: 15px; font-size: 24px;"><span
+        class="material-symbols-outlined">menu_open</span></div>
   </div>
 
   <!-- Dropdown Menu -->
-  <div id="myDropdown" class="dropdown-content" style="display: none">
+  <div id="menu-dropdown" class="dropdown-content" style="display: none">
     <table>
       <tr>
-        <td  onclick='createTab("New Tab", "/new.html");'><button data-add-tab><i class="fas fa-plus"></i> New tab</button></td>
+        <td id="new-tab" onclick='tabs.createTab("shadow:/\/new");'><button data-add-tab><i class="fas fa-plus"></i> New
+            tab</button></td>
       </tr>
     </table>
     <table>
       <tr>
-        <td><button data-add-tab onclick="newBookmark()"><i class="fas fa-plus"></i> Add Bookmark</button></td>
-      </tr>
-    </table>
-    <div class="separator"></div>
-    <table>
-      <tr>
-        <td><button data-add-tab onclick='createTab("discord.gg/goshadow", "/uv/service/hvtr%3A-%2Ffiqcmrf.eg-gmsjafou")'><i class="fa-brands fa-discord"></i> Discord</button></td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td><button data-add-tab onclick='createTab("Shadow Chat", "chat")'><i class="fa-solid fa-comments"></i> Chat</button></td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td><button data-add-tab onclick='createTab("Extensions", "/extensions");'><i class="fa-solid fa-puzzle-piece"></i> Extensions</button></td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td><button data-add-tab onclick='createTab("Settings", "/settings", "https\:/\/cdn-icons-png.flaticon.com/512/126/126472.png");'><i class="fas fa-cog"></i> Settings</button></td>
+        <td><button data-add-tab onclick="bookmarksManager.newBookmark()"><i class="fas fa-plus"></i> Add
+            Bookmark</button></td>
       </tr>
     </table>
     <div class="separator"></div>
     <table>
       <tr>
-        <td><button data-add-tab onclick="iframefullscreen()"><i class="fas fa-expand-arrows-alt"></i> Fullscreen</button></td>
+        <td><button data-add-tab onclick='tabs.createTab("shadow:/\/settings")'><i class="fas fa-cog"></i>
+            Settings</button></td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td><button data-add-tab onclick='tabs.createTab("shadow:/\/extensions")'><i
+              class="fa-solid fa-puzzle-piece"></i> Extensions</button></td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td><button data-add-tab onclick='tabs.createTab("shadow:/\/chat")'><i class="fa-solid fa-comments"></i>
+            Chat</button></td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td><button data-add-tab onclick='tabs.createTab("discord.gg/goshadow")'><i class="fa-brands fa-discord"></i>
+            Discord</button></td>
+      </tr>
+    </table>
+    <div class="separator"></div>
+    <table>
+      <tr>
+        <td><button data-add-tab onclick="iframefullscreen()"><i class="fas fa-expand-arrows-alt"></i>
+            Fullscreen</button></td>
       </tr>
     </table>
     <table>
@@ -88,7 +103,8 @@
     </table>
     <table>
       <tr>
-        <td><button data-add-tab onclick="iframeabtblank()"><i class="fas fa-sign-out-alt"></i> Open Tab in Abt:Blank</button></td>
+        <td><button data-add-tab onclick="iframeabtblank()"><i class="fas fa-sign-out-alt"></i> Open Tab in
+            Abt:Blank</button></td>
       </tr>
     </table>
     <table>
@@ -100,44 +116,161 @@
 
   <!-- Bookmarks Container -->
   <div id="bookmarks-container"></div>
-
+  <div class="context-menu" id="bookmark-context-menu" style="display:none;">
+    <div class="menu-item" onclick="editBookmark(`${title}`, `${url}`)">Edit</div>
+    <div class="menu-item" onclick="deleteBookmark(`${title}`, `${url}`)">Delete</div>
+  </div>
   <!-- Iframes Container -->
   <div id="iframes-container"></div>
-
   <div class="desc left-margin">
     <p id="uv-error"></p>
     <pre id="uv-error-code"></pre>
   </div>
+  <!-- Dev extension warning -->
+  <div class="extensions_disclaimer" style="display:none;" id="dev-alert">
+    <div class="extensions_disclaimer_content">
+      <h2 style="color: var(--accent-color)">Warning</h2>
+      <p id="dev-alert-text"></p>
+      <div class="buttons">
+        <button class="continue-button" onclick="devWarning(true)">Continue</button>
+        <button class="cancel-button" onclick="devWarning(false)">Cancel</button>
+      </div>
+      <label for="remember-choice">
+        <input type="checkbox" id="remember-choice"> Remember Choice
+      </label>
+    </div>
+  </div>
 
-  <a class="powered-by-container" target="_blank" href="https://serverdeploy.pro">
-    <img src="https://media.discordapp.net/attachments/1127291920285192223/1156579785900834896/IMG_6905.png?ex=654b89dd&is=653914dd&hm=ca122b80fc706c5692735d75ec7c843ad2c02e480fa51646d043ace2107d7bc2&=" alt="ServerDeploy Logo">
-    <span class="powered-by-text">ServerDeploy</span>
+  <a id="billigerhost" class="powered-by-container" target="_blank">
+    <img src="https://billing.billigerhost.com/templates/lagom2/assets/img/favicons/favicon.ico"
+      alt="ServerDeploy Logo">
+    <span class="powered-by-text"><span style="color: #ad271f;">Billiger</span>Host</span>
+  </a>
+
+  <a id="discord" class="discord" target="_blank">
+    <i class="fa-brands fa-discord"></i>
   </a>
   <!-- Scripts -->
-  <script>
-    function updateSearchInput() {
-        var storedSearchEngine = localStorage.getItem("searchEngineValue");
-        var searchInput = document.getElementById("uv-search-engine");
-        searchInput.value = storedSearchEngine || 'https://www.google.com/search?q=%s';
-    }
-    
-    updateSearchInput();
-    
-    window.addEventListener("storage", function (e) {
-        if (e.key === "searchEngineValue") {
-            updateSearchInput();
-        }
-    });
-    </script>    
-  <script src="script.js" async></script>
-  <script src="bookmarks.js" async></script>
+  <script src="/assets/search.js"></script>
   <script src="/assets/themes.js"></script>
+  <script src="/assets/options.js"></script>
+  <script src="/assets/search.js"></script>
   <script src="/uv/uv.bundle.js"></script>
   <script src="/uv/uv.config.js"></script>
   <script src="/uv/uv.sw.js"></script>
   <script src="/uv/uv.config.js"></script>
-  <script src="/register-sw.js"></script>
-  
-  <script src="/assets/search.js"></script>
+  <script src="/assets/tabs.js" async></script>
+  <script src="/assets/bookmarks.js" async></script>
+  <script src="/assets/localforage.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/sw.js", {
+          scope: "/"
+        });
+      });
+    }
+  </script>
+  <script>
+
+  document.getElementById("uv-search-engine").value = localStorage.getItem("searchEngineValue");
+
+    function updtSearchEngine(value) {
+      document.getElementById("uv-search-engine").value = value;
+    }
+    window.addEventListener("storage", function (event) {
+      if (event.key === "searchEngineValue") {
+        updtSearchEngine(event.newValue);
+      }
+    });
+
+
+    function updateOmni() {
+      tabs.updateOmni();
+    }
+
+    function setTab() {
+      tabs.setTab();
+    }
+
+    function createTab(i) {
+      tabs.createTab(i);
+    }
+
+    function load(i) {
+      tabs.load(i);
+    }
+
+    function devAlert(i) {
+      let message = `You have some extensions that are NOT from the store:\n`
+      i.forEach(a => {
+        message += `${a}\n`
+      });
+      message += "These could potentially be dangerous. Would you like to continue?"
+      document.getElementById("dev-alert-text").innerText = message;
+      document.getElementById("dev-alert").style.display = "block";
+    }
+
+    function devWarning(i) {
+      if (i) {
+        document.querySelector("iframe.active").contentWindow.devContinue();
+      }
+      document.getElementById("dev-alert").style.display = "none";
+    }
+
+    function updateMenu(i) {
+      const menu = document.getElementById("menu-dropdown");
+      const item = menu.children[0];
+      console.log(item)
+      const newElem = item.cloneNode();
+      console.log(newElem)
+      const a = newElem.children
+      console.log(a)
+      a.innerHTML = `button data-add-tab onclick=\"${i.onclick}\"><i class=\"${i.iconClass}\"></i> ${i.label}</button>`;
+      menu.appendChild(newElem);
+    }
+    const obj = {
+      "onclick": "",
+      "iconClass": "",
+      "label": ""
+    }
+    updateMenu(obj)
+
+    const ua = navigator.userAgent
+
+    if (ua.includes("OPR") || ua.includes("Firefox")) {
+      //Some features are unsupported (For example omnibox auto update omnibox)
+      if (confirm("You are using an unsupported browser. \nSome features may not work, would you like to enable the experimental support features?")) {
+        showExpirmentalFeatures();
+        if (confirm("Would you like to remember this choice? You can always change this in settings.")) {
+          localStorage.setItem("expirementalSupport", true)
+        }
+      } else {
+        console.log("User doesn't want experimental support features")
+      }
+    } else {
+      console.log("Using supported browser, continue")
+    }
+  </script>
+  <script>
+    window.addEventListener('load', function () { const loadingScreen = document.getElementById('loading-screen'); loadingScreen.style.display = 'none'; });
+    document.getElementById("search-bar").addEventListener("focus", (e) => {
+      e.target.select();
+    })
+    onload = () => {
+      parent.updateOmni();
+      parent.setTab();
+    }
+
+    document.getElementById("billigerhost").onclick = (e) => {
+      if (e.shiftKey) {
+        parent.createTab("https://billing.billigerhost.com");
+        setTimeout(updateOmni, 2500);
+      } else {
+        window.open("https://billing.billigerhost.com", "_blank");
+      }
+    }
+  </script>
 </body>
+
 </html>

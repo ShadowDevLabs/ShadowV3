@@ -6,69 +6,12 @@
   --accent-color: #6c3da3;
 }
 
-:root.blueneon {
-  --background-color: #001A33; 
-  --tab-background: #00203C; 
-  --tab-border: #00A3E0;
-  --text-color: #FFFFFF; 
-  --accent-color: #00A6FB; 
-}
-
-:root.sunset {
-  --background-color: #fce6cf;
-  --tab-background: #ffd9b3;
-  --tab-border: #e27d60;
-  --text-color: #2c3e50;
-  --accent-color: #ffb6b9;
-}
-
-:root.ocean {
-  --background-color: #003366;
-  --tab-background: #005cbf;
-  --tab-border: #0077cc;
-  --text-color: #ffffff;
-  --accent-color: #00a1ff;
-}
-
-:root.crimsonblaze {
-  --background-color: #2c0104;
-  --tab-background: #492727;
-  --tab-border: #854c4c;
-  --text-color: #ffffff;
-  --accent-color: #db0f0f;
-}
-
-:root.light {
-  --background-color: #eae7f5;
-  --tab-background: #f0ebfa;
-  --tab-border: rgba(126, 124, 248, 0.152);
-  --text-color: #1d1d1d;
-  --accent-color: #c3a9e3;
-}
-
-:root.amoled {
-  --background-color: #000000;
-  --tab-background: #000000;
-  --tab-border: #ffffff;
-  --text-color: #ffffff;
-  --accent-color: #f2f2f2;
-}
-:root.crimsonpurple {
-  --background-color: #2a0238;
-  --tab-background: #3d2749;
-  --tab-border: #734c85;
-  --text-color: #ffffff;
-  --accent-color: #583163;
-}
-
-
 body, html {
   margin: 0;
   padding: 0;
   height: 100%;
   background-color: var(--background-color);
-  font-family: Arial, sans-serif;
-  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
   display: flex;
 }
 
@@ -111,8 +54,28 @@ body, html {
   margin-top: 20px; 
   margin-bottom: 20px; 
   padding: 20px;
+  max-height: 75%;
+  width: 65vw;
+  overflow-y:scroll;
   color: var(--text-color);
-  transition: background-color 0.4s;
+  transition: all 0.4s;
+}
+
+#content::-webkit-scrollbar {
+  width: 12px;
+}
+
+#content::-webkit-scrollbar-track {
+  background: var(--tab-background);
+}
+
+#content::-webkit-scrollbar-thumb {
+  background-color: var(--accent-color);
+  border-radius: 10px;
+}
+
+#content::-webkit-scrollbar-thumb:hover {
+  background-color: lighten(var(--accent-color), 10%);
 }
 
 .menu-item:hover + #content {
@@ -146,6 +109,7 @@ body, html {
   border: 1px solid var(--tab-border);
   border-radius: 5px;
   color: var(--text-color);
+  font-family: 'Poppins', sans-serif;
   background-color: var(--tab-background);
 }
 
@@ -189,11 +153,13 @@ body, html {
   padding: 0;
 }
 
+
 .input-field select {
   width: 100%;
   padding: 5px;
   border: 1px solid var(--tab-border);
   border-radius: 5px;
+  font-family: 'Poppins', sans-serif;
   color: var(--text-color);
   background-color: var(--tab-background);
 }
@@ -201,6 +167,15 @@ body, html {
 .input-field select:focus {
   outline: none;
   border-color: var(--accent-color);
+}
+
+#themeSelector option{
+  padding: 5px 10px;
+  font-family: 'Poppins', sans-serif;
+}
+
+select option{
+  font-family: 'Poppins', sans-serif;
 }
 
 .box {
@@ -241,4 +216,50 @@ body, html {
 .online-text {
   font-size: 14px;
   color: var(--text-color);
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  border-radius: 20px;
+  transition: 0.4s;
+  width: 40px;
+  height: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  top: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.4s;
+}
+
+input:checked+.slider {
+  background-color: #2196F3;
+}
+
+input:checked+.slider:before {
+  transform: translateX(20px);
 }

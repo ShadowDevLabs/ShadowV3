@@ -1,8 +1,8 @@
 
 function changeTheme() {
-  const selectedOption = document.getElementById('themeSelector').value;
-  changetheme(selectedOption);
-  localStorage.setItem('theme', selectedOption);
+  const selectedTheme = document.getElementById('themeSelector').value;
+  changetheme(selectedTheme);
+  localStorage.setItem('theme', selectedTheme);
 }
 
 function changetheme(theme) {
@@ -24,6 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const theme = localStorage.getItem('theme');
   if (theme) {
       changetheme(theme);
-      document.getElementById('themeSelector').value = theme;
+      try{document.getElementById('themeSelector').value = theme;}catch(e){}
   }
 });

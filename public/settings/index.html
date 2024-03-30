@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,11 +9,14 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap">
   <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/settings.css">
+  <link rel="stylesheet" href="/css/themes.css">
+  <title>Settings</title>
   <script src="script.js"></script>
   <link rel="icon" href="icons/logo.png" type="image/x-icon">
   <script src="/assets/settings.js"></script>
 </head>
-<body onload="showContent('general')">
+
+<body onload="showContent('general');parent.updateOmni();parent.setTab();">
   <div id="sidebar">
     <div class="menu-item" onclick="showContent('general')">
       <i class="fas fa-cog menu-icon"></i>
@@ -65,15 +69,29 @@
         <div class="section-content">
           <p class="section-text">Choose between the following themes. This will change the appearance of the site.
           </p>
-          <select id="themeSelector" onchange="changeTheme()"  class="input-field">
+          <select id="themeSelector" onchange="changeTheme()" class="input-field">
             <option value="dark">Dark (Default)</option>
             <option value="light">Light</option>
             <option value="blueneon">Blue Neon</option>
-            <option value="sunset">Sunset</option>
+            <option value="sunset">Sun Set</option>
             <option value="crimsonblaze">Crimson Blaze</option>
-            <option value="crimsonpurple">Crimson Purple</option>
             <option value="amoled">Amoled</option>
-        </select>
+            <option value="oceanwave">Ocean Wave</option>
+            <option value="sunsetglow">Sunset Glow</option>
+            <option value="forestwhisper">Forest Whisper</option>
+            <option value="midnightshadow">Midnight Shadow</option>
+            <option value="tropicalrainforest">Tropical Rainforest</option>
+            <option value="oceanicdive">Oceanic Dive</option>
+            <option value="earthybrown">Earthy Brown</option>
+            <option value="arcticchill">Arctic Chill</option>
+            <option value="autumnspice">Autumn Spice</option>
+            <option value="berrybliss">Berry Bliss</option>
+            <option value="citrusburst">Citrus Burst</option>
+            <option value="deepsea">Deep Sea</option>
+            <option value="freshlime">Fresh Lime</option>
+            <option value="mysticpurple">Mystic Purple</option>
+            <option value="blurple">Blurple</option>
+          </select>
         </div>
       </div> <br><br>
       <!-- About:blank -->
@@ -84,37 +102,50 @@
           </p>
           <button class="icon-button"><i class="fas fa-rocket" onclick="abtblank()"></i> Launch</button>
         </div>
-      </div> 
+      </div>
+      <br><br>
+      <!--Toggle auto save/load tabs-->
+      <div class="settings-section">
+        <h2 class="section-title">Auto Save/Load Tabs</h2>
+        <div class="section-content">
+          <p class="section-text">Automatically reload tabs from older sessions, toggle auto saving and loading here.
+          </p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="toggleSwitch">
+            <label for="toggleSwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
     </div>
     <div id="search-content">
       <div class="content-title">Search</div>
       <!-- Engine -->
-        <div class="settings-section">
-            <h2 class="section-title">Search Engine</h2>
-            <div class="section-content">
-              <p class="section-text">Changing this will change the search engine used when searching.
-              </p>
-              <select id="searchEngineDropdown" class="input-field">
-                <option value="google" data-url="https://www.google.com/search?q=s">Google</option>
-                <option value="bing" data-url="https://www.bing.com/search?q=s">Bing</option>
-                <option value="yahoo" data-url="https://search.yahoo.com/search?p=s">Yahoo</option>
-                <option value="duckduckgo" data-url="https://duckduckgo.com/?q=s">DuckDuckGo</option>
-                <option value="brave" data-url="https://search.brave.com/search?q=s">Brave</option>
-                <option value="yandex" data-url="https://yandex.com/search/?text=s">Yandex</option>
-            </select>
-          </div> 
+      <div class="settings-section">
+        <h2 class="section-title">Search Engine</h2>
+        <div class="section-content">
+          <p class="section-text">Changing this will change the search engine used when searching.
+          </p>
+          <select id="searchEngineDropdown" class="input-field" onchange="updateCookies()">
+            <option value="google" data-url="https://www.google.com/search?q=s">Google</option>
+            <option value="bing" data-url="https://www.bing.com/search?q=s">Bing</option>
+            <option value="yahoo" data-url="https://search.yahoo.com/search?p=s">Yahoo</option>
+            <option value="duckduckgo" data-url="https://duckduckgo.com/?q=s">DuckDuckGo</option>
+            <option value="brave" data-url="https://search.brave.com/search?q=s">Brave</option>
+            <option value="yandex" data-url="https://yandex.com/search/?text=s">Yandex</option>
+          </select>
         </div>
+      </div><br><br>
       <!-- Proxy -->
       <div class="settings-section">
-          <h2 class="section-title">Proxy</h2>
-          <div class="section-content">
-            <p class="section-text">This is the proxy that is used when searching.
-            </p>
-            <select id="searchEngineDropdown" class="input-field">
-              <option value="ultraviolet">Ultraviolet</option>
-            </select>
-        </div> 
-      </div>   
+        <h2 class="section-title">Proxy</h2>
+        <div class="section-content">
+          <p class="section-text">This is the proxy that is used when searching.
+          </p>
+          <select id="proxyDropdown" class="input-field">
+            <option value="ultraviolet">Ultraviolet</option>
+          </select>
+        </div>
+      </div>
     </div>
     <div id="developer-content">
       <div class="content-title">Developer Tools</div>
@@ -122,65 +153,80 @@
       <div class="settings-section">
         <h2 class="section-title">Bare Server Switcher</h2>
         <div class="section-content">
-          <p class="section-text">Switch between bare servers. Some bare servers might be slower or faster based on your location.</p>
+          <p class="section-text">Switch between bare servers. Some bare servers might be slower or faster based on your
+            location.</p>
         </div>
-        <!-- Server 1 -->
-        <div class="box-container" style="display: flex;"> 
-          <div class="box">
-            <div class="box-header">
-              <h3>Bare Server 1</h3>
-            </div>
-            <div class="box-content">
-              <div class="status-container">
-                <p class="tag">Ping: 200ms</p> <br>
-                <div class="status">
-                  <div class="flashing-light"></div>
-                  <p class="online-text">Status: Online</p> <br> 
-                </div>
-              </div>
-              <br>
-              <button class="icon-button" id="bare" onclick="changeBare('/bare/')">Choose Bare</button>
-            </div>
+        <!-- Custom server -->
+        <div class="box">
+          <div class="box-header">
+            <h3>Custom server</h3>
           </div>
-          <!-- Server 2 -->
-          <div class="box">
-            <div class="box-header">
-              <h3>Bare Server 2</h3>
-            </div>
-            <div class="box-content">
-              <div class "status-container">
-                <p class="tag">Ping: 200ms</p> <br>
-                <div class="status">
-                  <div class="flashing-light"></div>
-                  <p class="online-text">Status: Online</p> <br> 
-                </div>
+          <div class="box-content">
+            <div class="status-container">
+              <p class="tag">Ping: 200ms</p> <br>
+              <div class="status">
+                <div class="flashing-light"></div>
+                <p class="online-text">Status: Online</p> <br>
               </div>
-              <br>
-              <button class="icon-button" id="bare" onclick="changeBare('https://use.astroid.wtf/bare/');">Choose Bare</button>
             </div>
+            <input placeholder="example.com/bare/" style="width:90%;" class="input-field" id="customBareInput" />
+            <br><br>
+            <button class="icon-button" id="bare"
+              onclick="customBare = document.getElementById('customBareInput').value; changeBare(customBare);">Choose
+              Bare</button>
           </div>
-          <!-- Custom server -->
-          <div class="box">
-            <div class="box-header">
-              <h3>Custom server</h3>
-            </div>
-            <div class="box-content">
-              <div class="status-container">
-                <p class="tag">Ping: 200ms</p> <br>
-                <div class="status">
-                  <div class="flashing-light"></div>
-                  <p class="online-text">Status: Online</p> <br> 
-                </div>
+        </div>
+      </div>
+      <!--Proxy-->
+      <div class="settings-section">
+        <h2 class="section-title">Proxy Server Switcher</h2>
+        <div class="section-content">
+          <p class="section-text">Choose a proxy server. Some servers may provide more privacy, but they may also effect
+            speeds.</p>
+        </div>
+        <!-- Custom server -->
+        <div class="box">
+          <div class="box-header">
+            <h3>Custom server</h3>
+          </div>
+          <div class="box-content">
+            <div class="status-container">
+              <p class="tag">Ping: 200ms</p> <br>
+              <div class="status">
+                <div class="flashing-light"></div>
+                <p class="online-text">Status: Online</p> <br>
               </div>
-              <input placeholder="example.com/bare/" style="width:90%;" class="input-field" id="customBareInput"/> <br><br>
-              <button class="icon-button" id="bare" onclick="customBare = document.getElementById('customBareInput').value; changeBare(customBare);">Choose Bare</button>
             </div>
+            <input placeholder="example.com/bare/" style="width:90%;" class="input-field" id="customBareInput" />
+            <br><br>
+            <button class="icon-button" id="bare"
+              onclick="customBare = document.getElementById('customBareInput').value; changeBare(customBare);">Choose
+              Bare</button>
+          </div>
+        </div>
+      </div>
+      <!--UA-->
+      <div class="settings-section">
+        <h2 class="section-title">User Agent Switcher</h2>
+        <div class="section-content">
+          <p class="section-text">Switch between different user agents. Some agents may cause issues.</p>
+        </div>
+        <div class="box">
+          <div class="box-header">
+            <h3>Custom Agent</h3>
+          </div>
+          <div class="box-content">
+            <input placeholder="" style="width:90%;" class="input-field" id="custom-ua" /> <br><br>
+            <button class="icon-button" id="ua"
+              onclick="customUA = document.getElementById('custom-ua').value; changeUA(customUA);">Choose Agent</button>
           </div>
         </div>
       </div>
     </div>
   </div>
+  </div>
 
+  <script src="https://cdn.rawgit.com/mozilla/localForage/master/dist/localforage.js"></script>
   <script>
     function showContent(contentId) {
       const contentSections = document.querySelectorAll('#content > div');
@@ -193,30 +239,43 @@
         selectedSection.style.display = 'block';
       }
     }
+
+    async function checkBare(i) {
+      let req = await fetch(i);
+      if (req.headers.get("Content-Type") === "application/json" && req.status == "200") {
+        console.log("Bare exists")
+        return true
+      } else {
+        console.log("Bare doesn't exist")
+        return false
+      }
+    }
+
+    function changeBare(i = "/bare/") {
+      if (checkBare(i)) {
+        localforage.setItem("bare", i).then(console.log(localforage.getItem("bare")));
+      } else {
+        document.getElementById("bare-error").style.display = "block"
+      }
+    }
   </script>
   <script>
-    function updateLocalStorage() {
-        var dropdown = document.getElementById("searchEngineDropdown");
-        var selectedOption = dropdown.options[dropdown.selectedIndex];
-        var dataUrl = selectedOption.getAttribute("data-url");
-        localStorage.setItem("searchEngineValue", dataUrl);
+    function updateCookies() {
+      var dropdown = document.getElementById("searchEngineDropdown");
+      var selectedOption = dropdown.options[dropdown.selectedIndex];
+      var dataUrl = selectedOption.getAttribute("data-url");
+      localStorage.setItem("searchEngineValue", dataUrl);
     }
 
     var storedSearchEngine = localStorage.getItem("searchEngineValue");
-    var dropdown = document.getElementById("searchEngineDropdown");
+    var searchEngineDropdown = document.getElementById("searchEngineDropdown");
 
-    for (var i = 0; i < dropdown.options.length; i++) {
-        if (dropdown.options[i].getAttribute("data-url") === storedSearchEngine) {
-            dropdown.selectedIndex = i;
-            break;
-        }
-    }
+    updateCookies();
+    searchEngineDropdown.addEventListener("change", updateCookies);
 
-    updateLocalStorage();
-
-    document.getElementById("searchEngineDropdown").addEventListener("change", updateLocalStorage);
-</script>
+  </script>
   <script src="/assets/themes.js"></script>
-  <script src="/assets/settings.js"></script>
+  <script src="/assets/options.js"></script>
 </body>
+
 </html>

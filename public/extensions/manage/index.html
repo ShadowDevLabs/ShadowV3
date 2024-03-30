@@ -28,29 +28,41 @@
   <div class="extensions">
     <h4>All Extensions</h4>
     <div class="extensions-list">
+      <!---->
       <div class="extension">
-        <img src="https://www.shutterstock.com/image-vector/ui-image-placeholder-wireframes-apps-260nw-1037719204.jpg">
+        <img class="__ext-img" src="https://www.shutterstock.com/image-vector/ui-image-placeholder-wireframes-apps-260nw-1037719204.jpg">
         <div class="extension-sidebyimg">
-          <h3>Extension Name</h3>
-          <p>Description</p>
+          <h3 class="__ext-name">Extension Name</h3>
+          <p class="__ext-desc">Description</p>
         </div>
         <div class="switch">
-          <input type="checkbox" class="switch" id="toggleSwitch">
+          <input type="checkbox" class="switch" class="toggleSwitch" id="toggleSwitch" onclick="update(this)">
           <label for="toggleSwitch" class="slider"></label>
-
         </div>
-
       </div>
+      <!---->
     </div>
   </div>
 </body>
 <script src="script.js"></script>
-</html>
-
 <script>
-  function toggleSwitch() {
-    var checkbox = document.getElementById("toggleSwitch");
-    checkbox.checked = !checkbox.checked;
+  let extLoader = new ExtensionsLoader()
+
+  function update(i) {
+    let x = document.getElementById(i.id).parentElement.parentElement.getAttribute("__ext-id")
+    extLoader.extensions[x].enabled = i.checked
+    localStorage.setItem("extensions", JSON.stringify(extLoader.extensions))
   }
 
+
+  onload = () => {
+    try {
+      parent.updateOmni();
+      parent.setTab();
+    } catch(e){}
+  }
 </script>
+</html>
+
+
+

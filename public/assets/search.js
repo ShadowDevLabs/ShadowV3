@@ -1,3 +1,5 @@
+//I really have no clue where this came from, I updated it a bit for shadow:// urls, but uh thanks whoever made it
+
 "use strict";
 
 /**
@@ -8,35 +10,31 @@
  */
 function search(input, template) {
   let url;
-  console.log(input)
 
+  //Local shadow:// urls
   try {
     if(input.includes("shadow://")) {
-    url = "/pages/"+input.replace("shadow://", "")+".html";
-    console.log(url)
+    url = "/pages/"+input.replace("shadow://","")+".html";
     return url
     }
   } catch(err) {
-    console.log(err);
   }
 
   try {
     url = new URL(input);
     if (url.hostname.includes(".")) {
-      return url.toString();
+      return "/uv/service/"+self.__uv$config.encodeUrl(url.toString());
     }
   } catch (err) {
-    console.log(err);
   }
 
   try {
-    url = new URL(`http://${input}`);
+    url = new URL(`https://${input}`);
     if (url.hostname.includes(".")) {
-      return url.toString();
+      return "/uv/service/"+self.__uv$config.encodeUrl(url.toString());
     }
-  } catch (err) {
-    console.log(err);
+  } catch (err) { 
   }
 
-  return template.replace("%s", encodeURIComponent(input));
+  return "/uv/service/"+self.__uv$config.encodeUrl(template.replace("%s", encodeURIComponent(input)));
 }

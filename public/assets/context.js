@@ -1,5 +1,5 @@
 var selectedText;
-var activeElement1;
+var activeElement;
 document.addEventListener("DOMContentLoaded", function() {
   var customMenu = document.getElementById("custom-menu");
   var body = document.getElementById("body");
@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function() {
   document.addEventListener("contextmenu", function(e) {
     e.preventDefault();
     selectedText = window.getSelection().toString();
-    activeElement1 = document.activeElement;
+    activeElement = document.activeElement;
     customMenu.style.left = e.clientX + "px";
     customMenu.style.top = e.clientY + "px";
     customMenu.style.display = "block";
@@ -28,12 +28,12 @@ function paste() {
 navigator.clipboard.readText()
 .then(function(text) {
 var pasteText = text;
-activeElement1.value = activeElement1.value + pasteText
+activeElement.value = activeElement.value + pasteText
 })
 .catch(function(error) {
 console.error("Failed to read text from clipboard: ", error);
 });
-activeElement1.focus();
+activeElement.focus();
 }
 
 
@@ -52,3 +52,14 @@ selection.removeAllRanges();
 selection.addRange(range);
 }
 }
+
+window.addEventListener("message", (e) => {
+  if(e.origin !== location.origin) return;
+  if(e.message === "click") {
+  document.getElementsByClassName("context").forEach(i => {
+    if((i.getAttribute("hidden") === false || i.className.includes("active"))) {
+      i.hidden
+    }
+  }); 
+}
+})
