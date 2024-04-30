@@ -166,7 +166,7 @@ body, html {
   border-radius: 50%;
   font-size: 18px;
   padding: 5px;
-  margin-right: 10px;
+  margin-right:5px;
   color: var(--text-color);
   transition: background-color 0.4s;
 }
@@ -491,5 +491,5 @@ input[type="checkbox"] {
 }
 
 span{
-  vertical-align: text-bottom;
+  vertical-align: text-top;
 }
