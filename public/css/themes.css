@@ -1,4 +1,4 @@
-:root. {
+:root {
     --background-color: #1c1c38;
     --tab-background: #262648;
     --tab-border: #4d4d86;
@@ -6,12 +6,20 @@
     --accent-color: #6c3da3;
 }
 
+:root.dark {
+    --background-color: #060611;
+    --tab-background: #0e0e1d;
+    --tab-border: #13133e;
+    --text-color: #9d53e6;
+    --accent-color: #402b55;
+}
+
 :root.light {
-    --background-color: #F0E8F9;
+    --background-color: #8486ed;
     --tab-background: #262648;
     --tab-border: #4d4d86;
-    --text-color: #333;
-    --accent-color: #8F6CAF;
+    --text-color: #ccc;
+    --accent-color: #231530;
 }
 
 :root.blueneon {
