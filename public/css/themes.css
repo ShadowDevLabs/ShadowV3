@@ -79,6 +79,15 @@
     --accent-color: #3eb991;
 }
 
+
+:root.citrusburst {
+    --background-color: #1f1f1f; 
+    --tab-background: #2a2a2a; 
+    --tab-border: #3b3b3b; 
+    --text-color: #ffffff; 
+    --accent-color: #ff9900; 
+}
+
 :root.midnightshadow {
     --background-color: #232946;
     --tab-background: #b8c1ec;
