@@ -9,9 +9,9 @@
 :root.dark {
     --background-color: #060611;
     --tab-background: #0e0e1d;
-    --tab-border: #13133e;
-    --text-color: #9d53e6;
-    --accent-color: #402b55;
+    --tab-border: #150d24;
+    --text-color: #ffffff;
+    --accent-color: #ba7df2;
 }
 
 :root.light {

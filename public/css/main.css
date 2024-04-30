@@ -58,15 +58,10 @@ h1 {
 
 .search-icon {
   margin: 15px 10px;
-  color: var(--tab-border);
-  transition: all 0.3s; 
+  color: var(--accent-color);
   cursor:pointer;
 }
 
-.search-icon:hover {
-  color: var(--accent-color);
-
-}
 
 .shortcuts {
   display: grid;
