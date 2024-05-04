@@ -2,13 +2,6 @@
   outline: none;
 }
 
-:root {
-  --background-color: #1c1c38;
-  --tab-background: #262648;
-  --tab-border: #4d4d86;
-  --text-color: #ffffff;
-  --accent-color: #6c3da3;
-}
 
 body, html {
   margin: 0;
@@ -173,7 +166,7 @@ body, html {
   border-radius: 50%;
   font-size: 18px;
   padding: 5px;
-  margin-right: 10px;
+  margin-right:5px;
   color: var(--text-color);
   transition: background-color 0.4s;
 }
@@ -497,5 +490,5 @@ input[type="checkbox"] {
 }
 
 span{
-  vertical-align: text-bottom;
+  vertical-align: text-top;
 }

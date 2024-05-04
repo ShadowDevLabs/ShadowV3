@@ -6,12 +6,20 @@
     --accent-color: #6c3da3;
 }
 
+:root.dark {
+    --background-color: #060611;
+    --tab-background: #0e0e1d;
+    --tab-border: #150d24;
+    --text-color: #ffffff;
+    --accent-color: #ba7df2;
+}
+
 :root.light {
-    --background-color: #F0E8F9;
+    --background-color: #8486ed;
     --tab-background: #262648;
     --tab-border: #4d4d86;
-    --text-color: #333;
-    --accent-color: #8F6CAF;
+    --text-color: #ccc;
+    --accent-color: #231530;
 }
 
 :root.blueneon {
@@ -69,6 +77,15 @@
     --tab-border: #b8c2cc;
     --text-color: #1f2d3d;
     --accent-color: #3eb991;
+}
+
+
+:root.citrusburst {
+    --background-color: #1f1f1f; 
+    --tab-background: #2a2a2a; 
+    --tab-border: #3b3b3b; 
+    --text-color: #ffffff; 
+    --accent-color: #ff9900; 
 }
 
 :root.midnightshadow {
