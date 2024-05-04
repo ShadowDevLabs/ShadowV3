@@ -23,34 +23,42 @@ Manifest layout:
 
 class Extensions {
     constructor() {
-      checkDev()
-      this.extensions = JSON.parse(localStorage.getItem("extensions")); 
+      (async function() {
+        this.extensions = JSON.parse(localStorage.getItem("extensions")); 
+        init(await checkDev())
+      })()    
     }
 
-    init() {
+    init(a) {
       this.extensions.forEach(i => {
-        this.load(i.constructor.name)
+        if(!a.includes(i)) {
+          this.load(i.constructor.name /* Extension ID*/)
+        } else {
+          console.log(`Extension with ID ${i.constructor.name} will not be loaded. User denied due to being a ${i.origin} extension`)
+        }
       })
     }
 
-    checkDev() {
+    async checkDev() {
       let devExts = [];
       this.extensions.forEach(i => {
         if(i.origin !== "store") {
           devExts.append(i.name);
         }
       });
-      if(devExts.length > 0) {
-        parent.devAlert(devExts);
+      if(devExts.length > 0 && await parent.devAlert(devExts)) {
+        return [];
       }
+      return devExts;
     }
     
     load(id) {
       const extension = this.get(id);
-      if(!extension || !extension.enabled) {
+      if(extension && extension.enabled) {
         switch(extension.features) {
             case menu-bar: 
                 parent.updateMenu(extension.features["menu-bar"]);
+                break;
             default:
                 break;
         }
@@ -59,22 +67,25 @@ class Extensions {
             document.addEventListener("fetch", (i) => {
               eval(extension.code)
             })
+            break;
           case run:
             eval(extension.code);
+            break;
           default:
             let tag = document.createElement("script");
             tag.innerHTML = extension.code;
             document.head.append(tag);
+            break;
         }
       }
     }
 
     get(id) {
       this.update();
-      return this.extensions || false;
+      return this.extensions[id] || false;
     }
 
     update() {
-      this.extensions = JSON.parse(localStorage.getItem("extensions"))[id];
+      this.extensions = JSON.parse(localStorage.getItem("extensions"));
     }
 }

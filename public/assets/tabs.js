@@ -19,20 +19,22 @@ var tabsArr = [];
 
 class Tab {
    constructor() {
+      setTransport();
       document.getElementById("uv-form").addEventListener("submit", async (e) => {
-         e.preventDefault();
+         e.preventDefault();;
          searchInput.blur()
          searchInput.value;
-         const url = searchInput.value
-         tabs.load(url) 
+         const url = searchInput.value;
+         tabs.load(url);
       });
-      this.fullUrl = ""
+      this.fullUrl = "";
       if(localStorage.getItem("saveTabs") && window.confirm("Session ended unexpectedly, do you want to reopen your tabs?")) this.loadAllTabs(); else this.createTab();
     };
    async load(src, i = activeTabIndex) {
       const iframe = tabsArr[i].iframe;
       const url = self.search(src, searchEngine.value);
       iframe.src = url;
+      updateHistory(src, i);
    };
    createTab(src = tabsArr.length === 0 ? "shadow://home" : "shadow://new") {
       //Functions to create all the elements used by the tab in the tab bar
@@ -98,17 +100,17 @@ class Tab {
         }
    }
    switchTab(i, e) {
-        try {
+   try {
       if (!e || (e.target != tabsArr[i].tab.querySelector(".close-tab-button"))) {
          try {
-            tabsArr[activeTabIndex].iframe.classList.remove("active")
-            tabsArr[activeTabIndex].tab.classList.remove("active")
+            tabsArr[activeTabIndex].iframe.classList.remove("active");
+            tabsArr[activeTabIndex].tab.classList.remove("active");
          } catch (err) {
-            console.log(`No active tab (${err})`)
+            console.log(`No active tab (${err})`);
          }
-         tabsArr[i].iframe.classList.add("active")
-         tabsArr[i].tab.classList.add("active")
-         activeTabIndex = i
+         tabsArr[i].iframe.classList.add("active");
+         tabsArr[i].tab.classList.add("active");
+         activeTabIndex = i;
       } else {
       }
         this.updateOmni();
@@ -119,9 +121,10 @@ class Tab {
       if(document.activeElement!=searchInput) {
       let currentSrc = this.getSrc();
       this.fullUrl = currentSrc;
+      //Will finish eventually, cool feature that shortens urls until you click on them kinda like how operagx does it
       // if(localStorage.getItem("shortenUrls")) {
       //   currentSrc = currentSrc.subString(0, currentSrc.lastIndexOf("?"));
-      //}
+      //} 
       searchInput.value = currentSrc;
       }
    };
@@ -132,40 +135,39 @@ class Tab {
       }
         switch (src.replace(location.href, "").replace(".html","").replace(/\//g, "")) {
             case "settings":
-                return "shadow://settings"
+                return "shadow://settings";
             case "home":
-                return "shadow://home"
+                return "shadow://home";
             case "new":
-                return "shadow://new"
+                return "shadow://new";
             case "extensions":
-                return "shadow://extensions"
+                return "shadow://extensions";
             case "extensionsmanage":
-                return "shadow://extensions/manage"
+                return "shadow://extensions/manage";
             default:
-                //console.log(src.replace(location.href, "").replace(".html","").replace(/\//g, ""))
-				return decode(src.replace(location.origin, "").replace("/uv/service/", ""));
+		   		return decode(src.replace(location.origin, "").replace("/uv/service/", ""));
         }
    };
    async setTab(i = activeTabIndex) {
       //Set the icon for the tab
       let iconUrl;
-      const src = this.getSrc(i)
+      const src = this.getSrc(i);
       if(src.startsWith("shadow://")) {
-        iconUrl = `/icons/pages/${this.getSrc(i).replace("shadow://","")}.html`
+        iconUrl = `/icons/pages/${this.getSrc(i).replace("shadow://","")}`;
       } else if(src === "about:blank") {
-          return
+          return;
       } else {
       try {
-         iconUrl = `https://www.google.com/s2/favicons?domain=${src}&sz=24`
+         iconUrl = `https://www.google.com/s2/favicons?domain=${src}&sz=24`;
       } catch(e){}
-      tabsArr[i].img.src = iconUrl
+      tabsArr[i].img.src = iconUrl;
       }
         //Set the title for a tab
-      let title = tabsArr[i].iframe.contentDocument.title
-      tabsArr[i].tab.querySelector(".tab-title").textContent = title
-   };
+      let title = tabsArr[i].iframe.contentDocument.title;
+      tabsArr[i].tab.querySelector(".tab-title").textContent = title;
+   }
    saveTabs() {
-      const openTabs = []
+      const openTabs = [];
       for (let i = 0; i < tabsArr.length; i++) {
          openTabs.push(this.getSrc(i));
       }
@@ -189,6 +191,19 @@ class Tab {
    };
    backward(i = activeTabIndex) {
       tabsArr[i].iframe.contentWindow.history.backward();
+   }
+   updateHistory(src, i) {
+      //To enable & disable we would just set it to "off"
+      let history = JSON.parse(localStorage.getItem("history"));
+      if(history !== "off") {
+         const obj = {
+            url: src,
+            time: Date.now,
+            title: this.getSrc(i)
+         }
+         history.push(obj);
+         localStorage.setItem("history", history);
+      }
    }
 }
 

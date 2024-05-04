@@ -35,6 +35,6 @@ function search(input, template) {
     }
   } catch (err) { 
   }
-
+  console.log(self.__uv$config.encodeUrl(template.replace("%s", encodeURIComponent(input))))
   return "/uv/service/"+self.__uv$config.encodeUrl(template.replace("%s", encodeURIComponent(input)));
 }

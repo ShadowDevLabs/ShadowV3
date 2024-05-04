@@ -127,12 +127,12 @@
           <p class="section-text">Changing this will change the search engine used when searching.
           </p>
           <select id="searchEngineDropdown" class="input-field" onchange="updateCookies()">
-            <option value="google" data-url="https://www.google.com/search?q=s">Google</option>
-            <option value="bing" data-url="https://www.bing.com/search?q=s">Bing</option>
-            <option value="yahoo" data-url="https://search.yahoo.com/search?p=s">Yahoo</option>
-            <option value="duckduckgo" data-url="https://duckduckgo.com/?q=s">DuckDuckGo</option>
-            <option value="brave" data-url="https://search.brave.com/search?q=s">Brave</option>
-            <option value="yandex" data-url="https://yandex.com/search/?text=s">Yandex</option>
+            <option value="google" data-url="https://www.google.com/search?q=%s">Google</option>
+            <option value="bing" data-url="https://www.bing.com/search?q=%s">Bing</option>
+            <option value="yahoo" data-url="https://search.yahoo.com/search?p=%s">Yahoo</option>
+            <option value="duckduckgo" data-url="https://duckduckgo.com/?q=%s">DuckDuckGo</option>
+            <option value="brave" data-url="https://search.brave.com/search?q=%s">Brave</option>
+            <option value="yandex" data-url="https://yandex.com/search/?text=%s">Yandex</option>
           </select>
         </div>
       </div><br><br>
@@ -144,6 +144,7 @@
           </p>
           <select id="proxyDropdown" class="input-field">
             <option value="ultraviolet">Ultraviolet</option>
+            <option value="dynamic">Dynamic</option>
           </select>
         </div>
       </div>
@@ -259,20 +260,18 @@
         document.getElementById("bare-error").style.display = "block"
       }
     }
-  </script>
-  <script>
-    function updateCookies() {
+
+    function updateEngine() {
       var dropdown = document.getElementById("searchEngineDropdown");
       var selectedOption = dropdown.options[dropdown.selectedIndex];
       var dataUrl = selectedOption.getAttribute("data-url");
-      localStorage.setItem("searchEngineValue", dataUrl);
+      localStorage.setItem("searchEngine", dataUrl);
     }
 
-    var storedSearchEngine = localStorage.getItem("searchEngineValue");
+    var storedSearchEngine = localStorage.getItem("searchEngine");
     var searchEngineDropdown = document.getElementById("searchEngineDropdown");
 
-    updateCookies();
-    searchEngineDropdown.addEventListener("change", updateCookies);
+    searchEngineDropdown.addEventListener("change", updateEngine);
 
   </script>
   <script src="/assets/themes.js"></script>

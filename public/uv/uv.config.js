@@ -1,7 +1,7 @@
 /*global Ultraviolet*/
 self.__uv$config = {
     prefix: "/uv/service/",
-    bare: "https://phantom.lol/bare/",
+    bare: "/bare/",
     encodeUrl: Ultraviolet.codec.xor.encode,
     decodeUrl: Ultraviolet.codec.xor.decode,
     handler: "/uv/uv.handler.js",
@@ -11,35 +11,7 @@ self.__uv$config = {
     sw: "/uv/uv.sw.js",
   };
   //NO TOUCHY NC
-var extLoaded;
-  
-  onload = init;
-  
-  function init() {
-    loadExtensions();
-    let tries;
-    try {
-      parent.updateOmni();
-      parent.setTab();
-    } catch (e) {
-      console.warn("Error with sending update request to omnibox, are you in an iframe?",);
-      console.log(e);
-      if (tries <= 2) setTimeout(init, 2500);
-      tries++;
-    }
-  }
-  
-  function loadExtensions() {
-    if (!extLoaded) {
-      try {
-        const extensionController = new Extensions()
-        
-        extLoaded = true;
-        console.log("Extensions loaded!")
-        console.log(tag)
-      } catch (e) {
-        console.warn("Error loading extensions: ",e)
-      }
-    }
-  }
-  
+
+// try {
+// if(!extLoaded) document.appendChild(document.createElement("script").src = "/assets/extensions-loader.js");
+// } catch(_) {}
