@@ -140,8 +140,10 @@
       </label>
     </div>
   </div>
-
-  <a id="billigerhost" class="powered-by-container" target="_blank">
+  <!--DEV STUFF-->
+  <button class="powered-by-container" style="right:0; top:0;" onclick="reset()">Reset</button>
+  <!--DEV STUFF-->
+  <a id="billigerhost" class="powered-by-container" style="left:0; bottom:0;"target="_blank">
     <img src="https://billing.billigerhost.com/templates/lagom2/assets/img/favicons/favicon.ico"
       alt="ServerDeploy Logo">
     <span class="powered-by-text"><span style="color: #ad271f;">Billiger</span>Host</span>
@@ -151,6 +153,7 @@
     <i class="fa-brands fa-discord"></i>
   </a>
   <!-- Scripts -->
+  <script src="/epoxy/index.js"></script>
   <script src="/assets/search.js"></script>
   <script src="/assets/themes.js"></script>
   <script src="/assets/options.js"></script>
@@ -161,7 +164,6 @@
   <script src="/uv/uv.config.js"></script>
   <script src="/assets/tabs.js" async></script>
   <script src="/assets/bookmarks.js" async></script>
-  <script src="/assets/localforage.js"></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
@@ -172,18 +174,29 @@
     }
   </script>
   <script>
+  if(!localStorage.getItem("searchEngine")) localStorage.setItem("searchEngine", "https://www.google.com/search?q=%s");
 
-  document.getElementById("uv-search-engine").value = localStorage.getItem("searchEngineValue");
+  document.getElementById("uv-search-engine").value = localStorage.getItem("searchEngine");
 
     function updtSearchEngine(value) {
       document.getElementById("uv-search-engine").value = value;
     }
+
     window.addEventListener("storage", function (event) {
       if (event.key === "searchEngineValue") {
         updtSearchEngine(event.newValue);
       }
     });
 
+    function reset() {
+      localStorage.clear();
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        for (const registration of registrations) {
+          registration.unregister();
+        } 
+      });
+      location.reload();
+    }
 
     function updateOmni() {
       tabs.updateOmni();
