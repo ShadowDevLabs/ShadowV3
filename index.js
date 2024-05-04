@@ -5,7 +5,6 @@ import * as cheerio from "cheerio"
 import { createServer } from "http";
 import { fileURLToPath } from "url";
 import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
-import { libcurl } from "@mercuryworkshop/libcurl-transport";
 import { baremuxPath } from "@mercuryworkshop/bare-mux";
 import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
 import { dynamicPath } from "@nebula-services/dynamic";
@@ -17,7 +16,6 @@ const server = createServer();
 app.use(compression());
 app.use(express.static(publicPath, { maxAge: 604800000 })); //1 week
 app.use("/epoxy/", express.static(epoxyPath));
-app.use("/libcurl/", express.static(epoxyPath));
 app.use("/baremux/", express.static(baremuxPath));
 app.use("/uv/", express.static(uvPath));
 app.use("/dynamic/", express.static(dynamicPath));
