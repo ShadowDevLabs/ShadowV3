@@ -155,6 +155,7 @@
   </a>
   <!-- Scripts -->
   <script src="/epoxy/index.js"></script>
+  <script src="/baremux/index.mjs"></script>
   <script src="/assets/search.js"></script>
   <script src="/assets/themes.js"></script>
   <script src="/assets/options.js"></script>
@@ -236,11 +237,8 @@
     function updateMenu(i) {
       const menu = document.getElementById("menu-dropdown");
       const item = menu.children[0];
-      console.log(item)
       const newElem = item.cloneNode();
-      console.log(newElem)
-      const a = newElem.children
-      console.log(a)
+      const a = newElem.children;
       a.innerHTML = `button data-add-tab onclick=\"${i.onclick}\"><i class=\"${i.iconClass}\"></i> ${i.label}</button>`;
       menu.appendChild(newElem);
     }

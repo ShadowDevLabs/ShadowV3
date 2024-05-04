@@ -19,7 +19,7 @@ var tabsArr = [];
 
 class Tab {
    constructor() {
-      setTransport();
+      this.setTransport();
       document.getElementById("uv-form").addEventListener("submit", async (e) => {
          e.preventDefault();;
          searchInput.blur()
@@ -34,7 +34,7 @@ class Tab {
       const iframe = tabsArr[i].iframe;
       const url = self.search(src, searchEngine.value);
       iframe.src = url;
-      updateHistory(src, i);
+      //this.updateHistory(src, i);
    };
    createTab(src = tabsArr.length === 0 ? "shadow://home" : "shadow://new") {
       //Functions to create all the elements used by the tab in the tab bar
@@ -194,7 +194,7 @@ class Tab {
    }
    updateHistory(src, i) {
       //To enable & disable we would just set it to "off"
-      let history = JSON.parse(localStorage.getItem("history"));
+      let history = JSON.parse(localStorage.getItem("history")) || [];
       if(history !== "off") {
          const obj = {
             url: src,
@@ -204,6 +204,9 @@ class Tab {
          history.push(obj);
          localStorage.setItem("history", history);
       }
+   }
+   setTransport(url = `wss://${location.host}/wisp/`) {
+    SetTransport("EpxMod.EpoxyClient", { wisp: url });
    }
 }
 
