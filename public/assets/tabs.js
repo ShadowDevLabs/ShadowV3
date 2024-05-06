@@ -203,8 +203,12 @@ class Tab {
          localStorage.setItem("history", history);
       }
    }
-   setTransport(url = `wss://${location.host}/wisp/`) {
-    SetTransport("EpxMod.EpoxyClient", { wisp: url });
+   setTransport(url = `wss://${location.host}/wisp/`, transport = "EpxMod.EpoxyClient") {
+      if(url.startsWith("ws")) {
+         SetTransport(transport, { wisp: url });
+      } else {
+         SetTransport("BareMod.BareClient", url);
+      }
    }
 }
 
