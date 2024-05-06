@@ -20,14 +20,12 @@ var tabsArr = [];
 class Tab {
    constructor() {
       this.setTransport();
-      document.getElementById("uv-form").addEventListener("submit", async (e) => {
-         e.preventDefault();;
-         searchInput.blur()
-         searchInput.value;
+      document.getElementById("uv-form").addEventListener("submit", (e) => {
+         e.preventDefault();
+         searchInput.blur();
          const url = searchInput.value;
          tabs.load(url);
       });
-      this.fullUrl = "";
       if(localStorage.getItem("saveTabs") && window.confirm("Session ended unexpectedly, do you want to reopen your tabs?")) this.loadAllTabs(); else this.createTab();
     };
    async load(src, i = activeTabIndex) {
@@ -120,7 +118,7 @@ class Tab {
    updateOmni() {
       if(document.activeElement!=searchInput) {
       let currentSrc = this.getSrc();
-      this.fullUrl = currentSrc;
+      let fullUrl = currentSrc;
       //Will finish eventually, cool feature that shortens urls until you click on them kinda like how operagx does it
       // if(localStorage.getItem("shortenUrls")) {
       //   currentSrc = currentSrc.subString(0, currentSrc.lastIndexOf("?"));

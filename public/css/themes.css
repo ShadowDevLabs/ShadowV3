@@ -1,17 +1,17 @@
 :root {
+    --background-color: #060611;
+    --tab-background: #0e0e1d;
+    --tab-border: #372754;
+    --text-color: #ffffff;
+    --accent-color: #ba7df2;
+}
+
+:root.original {
     --background-color: #1c1c38;
     --tab-background: #262648;
     --tab-border: #4d4d86;
     --text-color: #ffffff;
     --accent-color: #6c3da3;
-}
-
-:root.dark {
-    --background-color: #060611;
-    --tab-background: #0e0e1d;
-    --tab-border: #150d24;
-    --text-color: #ffffff;
-    --accent-color: #ba7df2;
 }
 
 :root.light {
