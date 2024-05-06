@@ -7,9 +7,11 @@ import { fileURLToPath } from "url";
 import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
 import { baremuxPath } from "@mercuryworkshop/bare-mux";
 import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
+import { createBareServer } from "@tomphttp/bare-server-node"
 import { dynamicPath } from "@nebula-services/dynamic";
 import { join } from "path";
 const publicPath = fileURLToPath(new URL("./public/", import.meta.url));
+const bare = createBareServer("/bare/")
 let port = 8080;
 const app = express();
 const server = createServer();
@@ -40,19 +42,25 @@ app.use((req, res) => {
 
 server.on("request", (req, res) => {
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  if (bare.shouldRoute(req)) {
+    bare.routeRequest(req, res);
+  } else {
   app(req, res);
+  }
 });
 
 server.on("upgrade", (req, socket, head) => {
-  if (req.url.endsWith("/wisp/"))
+  if (bare.shouldRoute(req)) {
+    bare.routeUpgrade(req, socket, head);
+  } else if (req.url.endsWith("/wisp/"))
     wisp.routeRequest(req, socket, head);
-  else
+  else 
     socket.end();
 });
 
 server.on("listening", () => {
   const address = server.address();;
-  console.log('\n\n\n\n\n\n\n\n\x1b[35m\x1b[2m\x1b[1m%s\x1b[0m\n', 'Shadow has started!\nSprinting on port ' + address.port);
+  console.log('\n\n\x1b[35m\x1b[2m\x1b[1m%s\x1b[0m\n', 'Shadow has started!\nSprinting on port ' + address.port);
   setTimeout(function(){console.log('\n')}, 750)
   setTimeout(function(){console.log('\n')}, 1000)
   setTimeout(function(){console.log(`

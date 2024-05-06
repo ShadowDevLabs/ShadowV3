@@ -20,19 +20,23 @@ var tabsArr = [];
 class Tab {
    constructor() {
       this.setTransport();
-      document.getElementById("uv-form").addEventListener("submit", async (e) => {
-         e.preventDefault();;
-         searchInput.blur()
-         searchInput.value;
+      document.getElementById("uv-form").addEventListener("submit", (e) => {
+         e.preventDefault();
+         searchInput.blur();
          const url = searchInput.value;
          tabs.load(url);
       });
-      this.fullUrl = "";
       if(localStorage.getItem("saveTabs") && window.confirm("Session ended unexpectedly, do you want to reopen your tabs?")) this.loadAllTabs(); else this.createTab();
+      this.backend = localStorage.getItem("backend") || "uv";
+      window.addEventListener("storage", (e) => {
+         if(e.key === "backend") {
+            this.backend = e.newValue;
+         }
+      })
     };
    async load(src, i = activeTabIndex) {
       const iframe = tabsArr[i].iframe;
-      const url = self.search(src, searchEngine.value);
+      const url = self.search(src, searchEngine.value, this.backend);
       iframe.src = url;
       //this.updateHistory(src, i);
    };
@@ -120,7 +124,7 @@ class Tab {
    updateOmni() {
       if(document.activeElement!=searchInput) {
       let currentSrc = this.getSrc();
-      this.fullUrl = currentSrc;
+      let fullUrl = currentSrc;
       //Will finish eventually, cool feature that shortens urls until you click on them kinda like how operagx does it
       // if(localStorage.getItem("shortenUrls")) {
       //   currentSrc = currentSrc.subString(0, currentSrc.lastIndexOf("?"));
@@ -205,8 +209,13 @@ class Tab {
          localStorage.setItem("history", history);
       }
    }
-   setTransport(url = `wss://${location.host}/wisp/`) {
-    SetTransport("EpxMod.EpoxyClient", { wisp: url });
+   setTransport(url, transport = localStorage.getItem("transport") || "EpxMod.EpoxyClient") {
+      url = url || localStorage.getItem("server") || `wss://${location.host}/wisp/`
+      if(url.startsWith("ws")) {
+         BareMux.SetTransport(transport, { wisp: url });
+      } else {
+         BareMux.SetTransport("BareMod.BareClient", url);
+      }
    }
 }
 

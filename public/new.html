@@ -73,7 +73,7 @@
 </div>
   <script>
     function updateSearchInput() {
-        var storedSearchEngine = localStorage.getItem("searchEngineValue");
+        var storedSearchEngine = localStorage.getItem("searchEngine");
         var searchInput = document.getElementById("uv-search-engine");
         searchInput.value = storedSearchEngine || 'https://www.google.com/search?q=%s';
     }
@@ -81,7 +81,7 @@
     updateSearchInput();
     
     window.addEventListener("storage", function (e) {
-        if (e.key === "searchEngineValue") {
+        if (e.key === "searchEngine") {
             updateSearchInput();
         }
     });
