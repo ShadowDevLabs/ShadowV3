@@ -215,6 +215,7 @@ class Tab {
          BareMux.SetTransport(transport, { wisp: url });
       } else {
          BareMux.SetTransport("BareMod.BareClient", url);
+
       }
    }
 }
