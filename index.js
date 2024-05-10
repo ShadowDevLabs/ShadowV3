@@ -70,6 +70,7 @@ server.on("upgrade", (req, socket, head) => {
 server.on("listening", () => {
   const address = server.address();;
   console.log('\n\n\n\x1b[35m\x1b[2m\x1b[1m%s\x1b[0m\n', `Shadow ${version} has started!\nSprinting on port ${address.port}`);
+
   setTimeout(function(){console.log('\n')}, 750)
   setTimeout(function(){console.log('\n')}, 1000)
   setTimeout(function(){console.log(`
