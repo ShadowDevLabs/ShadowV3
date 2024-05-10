@@ -10,6 +10,7 @@ import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
 import { createBareServer } from "@tomphttp/bare-server-node"
 import { dynamicPath } from "@nebula-services/dynamic";
 import { join } from "path";
+const version = process.env.npm_package_version
 const publicPath = fileURLToPath(new URL("./public/", import.meta.url));
 const bare = createBareServer("/bare/")
 let port = 8080;
@@ -22,6 +23,14 @@ app.use("/baremux/", express.static(baremuxPath));
 app.use("/uv/", express.static(uvPath));
 app.use("/dynamic/", express.static(dynamicPath));
 app.use("/privacy", express.static(publicPath + '/privacy.html'));
+
+app.get("/version", (req, res) => {
+  if(req.query.v && req.query.v != version) {
+    res.status(400).send(version);
+    return
+  }
+  res.status(200).send(version);
+})
 
 app.get("/search-api", async (req, res) => {
   const response = await fetch(`http://api.duckduckgo.com/ac?q=${req.query.term}&format=json`).then((i) => i.json());
@@ -60,12 +69,13 @@ server.on("upgrade", (req, socket, head) => {
 
 server.on("listening", () => {
   const address = server.address();;
-  console.log('\n\n\x1b[35m\x1b[2m\x1b[1m%s\x1b[0m\n', 'Shadow has started!\nSprinting on port ' + address.port);
+  console.log('\n\n\n\x1b[35m\x1b[2m\x1b[1m%s\x1b[0m\n', `Shadow ${version} has started!\nSprinting on port ${address.port}`);
+
   setTimeout(function(){console.log('\n')}, 750)
   setTimeout(function(){console.log('\n')}, 1000)
   setTimeout(function(){console.log(`
 ┌────────────┬─────────────┬────────────┐
-│ wisp       │ browser     │ api        │
+│ Wisp       │ Bare        │ API's      │
 ├────────────┼─────────────┼────────────┤
 │ \x1b[32mrunning   \x1b[0m │ \x1b[32mrunning    \x1b[0m │ \x1b[32mrunning    \x1b[0m│
 └────────────┴─────────────┴────────────┘

@@ -22,16 +22,16 @@ class ExtensionsLoader {
     load(ext) {
         let i = this.default.cloneNode(true);
         i.setAttribute("__ext-id", ext)
-        let a = i.getElementsByClassName("__ext-img")[0];
-        let b = i.getElementsByClassName("__ext-name")[0];
-        let c = i.getElementsByClassName("__ext-desc")[0];
+        let img = i.getElementsByClassName("__ext-img")[0];
+        let name = i.getElementsByClassName("__ext-name")[0];
+        let desc = i.getElementsByClassName("__ext-desc")[0];
         ext = this.extensions[ext]
-        if(ext.enabled) {
-            i.getElementsByClassName("switch")[1].checked = true
+        if(!ext.enabled) {
+            i.getElementsByClassName("switch")[1].checked = false
         }
-        a.src = ext.icon;
-        b.innerText = ext.name;
-        c.innerText = ext.description;
+        img.src = ext.icon;
+        name.innerText = ext.name;
+        desc.innerText = ext.description;
         let x = this.container.children.length
         i.setAttribute("num", x)
         i.getElementsByClassName("slider")[0].setAttribute("for", `toggleSwitch${x}`)
