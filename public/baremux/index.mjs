@@ -1,3 +1,5 @@
+import { v4 } from 'uuid';
+
 const maxRedirects = 20;
 
 // The user likely has overwritten all networking functions after importing bare-client
@@ -72,7 +74,7 @@ class RemoteTransport {
     }
     async meta() { }
     async request(remote, method, body, headers, signal) {
-        let id = crypto.randomUUID();
+        let id = v4();
         const clients = await self.clients.matchAll();
         if (clients.length < 1)
             throw new Error("no available clients");
@@ -96,7 +98,7 @@ class RemoteTransport {
 }
 
 //@ts-expect-error not installing node types for this one thing
-self.BCC_VERSION = "1.0.9";
+self.BCC_VERSION = "1.0.8";
 console.debug("BARE_MUX_VERSION: " + self.BCC_VERSION);
 function initTransport(name, config) {
     let cl = new ((0, eval)(name))(...config);
@@ -177,7 +179,7 @@ function validProtocol(protocol) {
 }
 
 // get the unhooked value
-Object.getOwnPropertyDescriptor(WebSocket.prototype, 'readyState').get;
+const getRealReadyState = Object.getOwnPropertyDescriptor(WebSocket.prototype, 'readyState').get;
 const wsProtocols = ['ws:', 'wss:'];
 const statusEmpty = [101, 204, 205, 304];
 const statusRedirect = [301, 302, 303, 307, 308];
@@ -273,7 +275,13 @@ class BareClient {
         // protocol is always an empty before connecting
         // updated when we receive the metadata
         // this value doesn't change when it's CLOSING or CLOSED etc
-        const getReadyState = () => fakeReadyState;
+        const getReadyState = () => {
+            const realReadyState = getRealReadyState.call(socket);
+            // readyState should only be faked when the real readyState is OPEN
+            return realReadyState === WebSocketFields.OPEN
+                ? fakeReadyState
+                : realReadyState;
+        };
         // we have to hook .readyState ourselves
         Object.defineProperty(socket, 'readyState', {
             get: getReadyState,
@@ -375,4 +383,5 @@ class BareClient {
     }
 }
 
+export { BareClient, SetSingletonTransport, SetTransport, WebSocketFields, BareClient as default, findSwitcher, maxRedirects, registerRemoteListener };
 //# sourceMappingURL=index.js.map

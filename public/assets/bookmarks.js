@@ -41,7 +41,7 @@ class BookmarksManager {
 
     showBookmarkContextMenu(event, title, url, index) {
         event.preventDefault()
-        //Rework code: very inefficient to make an entirely new element each right click, clutters and overlaps, easier way is to just use one and move it, then check the events target to get the bookmark info
+        //Rework code: very inefficient to make an entirely new element each right click, clutters and overlaps, easier way is to just use 1 and move it, then check the events target to get the bookmark info
         const contextMenu = document.createElement("div");
         contextMenu.className = "context-menu";
         contextMenu.innerHTML = `

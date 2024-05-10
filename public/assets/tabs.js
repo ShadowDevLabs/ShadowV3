@@ -27,10 +27,16 @@ class Tab {
          tabs.load(url);
       });
       if(localStorage.getItem("saveTabs") && window.confirm("Session ended unexpectedly, do you want to reopen your tabs?")) this.loadAllTabs(); else this.createTab();
+      this.backend = localStorage.getItem("backend") || "uv";
+      window.addEventListener("storage", (e) => {
+         if(e.key === "backend") {
+            this.backend = e.newValue;
+         }
+      })
     };
    async load(src, i = activeTabIndex) {
       const iframe = tabsArr[i].iframe;
-      const url = self.search(src, searchEngine.value);
+      const url = self.search(src, searchEngine.value, this.backend);
       iframe.src = url;
       //this.updateHistory(src, i);
    };
@@ -203,11 +209,13 @@ class Tab {
          localStorage.setItem("history", history);
       }
    }
-   setTransport(url = `wss://${location.host}/wisp/`, transport = "EpxMod.EpoxyClient") {
+   setTransport(url, transport = localStorage.getItem("transport") || "EpxMod.EpoxyClient") {
+      url = url || localStorage.getItem("server") || `wss://${location.host}/wisp/`
       if(url.startsWith("ws")) {
-         SetTransport(transport, { wisp: url });
+         BareMux.SetTransport(transport, { wisp: url });
       } else {
-         SetTransport("BareMod.BareClient", url);
+         BareMux.SetTransport("BareMod.BareClient", url);
+
       }
    }
 }

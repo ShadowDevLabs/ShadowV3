@@ -8,7 +8,7 @@
  * @param {string} template 
  * @returns {string}
  */
-function search(input, template) {
+function search(input, template, backend) {
   let url;
 
   //Local shadow:// urls
@@ -23,7 +23,7 @@ function search(input, template) {
   try {
     url = new URL(input);
     if (url.hostname.includes(".")) {
-      return "/uv/service/"+self.__uv$config.encodeUrl(url.toString());
+      return `/${backend}/service/`+self.__uv$config.encodeUrl(url.toString());
     }
   } catch (err) {
   }
@@ -31,10 +31,9 @@ function search(input, template) {
   try {
     url = new URL(`https://${input}`);
     if (url.hostname.includes(".")) {
-      return "/uv/service/"+self.__uv$config.encodeUrl(url.toString());
+      return `/${backend}/service/`+self.__uv$config.encodeUrl(url.toString());
     }
   } catch (err) { 
   }
-  console.log(self.__uv$config.encodeUrl(template.replace("%s", encodeURIComponent(input))))
-  return "/uv/service/"+self.__uv$config.encodeUrl(template.replace("%s", encodeURIComponent(input)));
+  return `/${backend}/service/`+self.__uv$config.encodeUrl(template.replace("%s", encodeURIComponent(input)));
 }
