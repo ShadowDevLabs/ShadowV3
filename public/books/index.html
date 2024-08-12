@@ -22,6 +22,22 @@
   <div class="gcontainer" id="gcontainer">
   </div>
 
+
+  <div class="gframe" style="display: none;">
+    <div class="nav">
+      <li onclick="showiframe();">
+        <i class="fa-solid fa-arrow-left"></i>
+      </li>
+      <li onclick="gameFullscreen(this);">
+        <i class="fa-solid fa-expand"></i>
+      </li>
+    </div>
+    <iframe src="" id="giframe"></iframe>
+  </div>
+
+
+
+
   <script>
     fetch('games.json')
       .then(response => response.json())
@@ -37,7 +53,9 @@
           const gameName = document.createElement('p');
           gameName.classList.add('game-name');
           gameName.textContent = game.name;
-
+          innerDiv.addEventListener('click', () => {
+            launch(`files/${game.root}/${game.file}`);
+          });
           innerDiv.appendChild(gameName);
           container.appendChild(innerDiv);
         });
@@ -51,7 +69,7 @@
             const gameName = gameElement.querySelector('.game-name');
             if (gameName && gameName.textContent.toLowerCase().includes(query)) {
               gameElement.style.display = 'flex';
-              gameElement.classList.remove('hidden'); 
+              gameElement.classList.remove('hidden');
             } else {
               gameElement.style.display = 'none';
               gameElement.classList.add('hidden');
@@ -62,6 +80,27 @@
       .catch(error => console.error('Error loading games:', error));
 
   </script>
+<script>
+  function launch(src) {
+    document.getElementById('giframe').src = src;
+    document.querySelector('.gframe').style.display = 'flex';
+    document.body.classList.add('no-scroll');
+  }
+
+  function showiframe() {
+    document.querySelector('.gframe').style.display = 'none';
+    document.getElementById('giframe').src = '';
+    document.body.classList.remove('no-scroll');  
+  }
+
+  function gameFullscreen(element) {
+    if (!document.fullscreenElement) {
+      element.closest('.gframe').requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }
+</script>
 </body>
 
 </html>
