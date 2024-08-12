@@ -34,22 +34,21 @@ h1 {
 
 .search-container {
   border: 2px solid var(--accent-color);
-  border-radius: 15px;
+  border-radius: 50px;
   padding: 0px 10px;
   box-shadow: 0 0 15px 3px var(--accent-color);
   margin-top: -2.5vw; 
   background-color: var(--tab-background);
   display: flex;
-  justify-content: center;
-  align-items: center;
   height: 60px;
+  align-items: center;
 }
 
 .search-container input {
   border: none;
   margin-right: 5px;
   outline: none;
-  width:25vw;
+  width:28vw;
   font-family: 'Poppins', sans-serif;
   font-size: 16px;
   color: var(--text-color);
@@ -107,7 +106,7 @@ h1 {
 }
 
 .add img{
-  background-color: var(--tab-background);
+  background-color: var(--accent-color);
 }
 
 .modal {

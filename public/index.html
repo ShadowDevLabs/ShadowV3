@@ -33,21 +33,25 @@
 
   <!-- Tabs Container -->
   <div id="tabs-container">
-    <button onclick="tabs.createTab();" id="add-tab" class="control-button" style="vertical-align: text-bottom;">
+    <button onclick="tabs.createTab();" id="add-tab" class="addtab-btn" style="vertical-align: text-bottom;">
       <span class="material-symbols-outlined">add</span>
     </button>
   </div>
 
   <!-- Header -->
   <div id="header">
-    <button id="back-button" class="control-button" style="margin-left:5px;"><span class="material-symbols-outlined">arrow_back</span></button>
-    <button id="forward-button" class="control-button"><span class="material-symbols-outlined">arrow_forward</span></button>
-    <button id="refresh-button" class="control-button"><span class="material-symbols-outlined">refresh</span></button>
+    <button id="back-button" class="control-button" style="margin-left:5px;" onclick="tabs.backward()">
+      <span class="material-symbols-outlined">arrow_back</span></button>
+    <button id="forward-button" class="control-button" onclick="tabs.forward()">
+      <span class="material-symbols-outlined">arrow_forward</span></button>
+    <button id="refresh-button" class="control-button"><span class="material-symbols-outlined" onclick="tabs.refresh()">refresh</span></button>
+   
     <form id="uv-form" class="inputcontainermain">
       <input type="text" id="search-bar" placeholder="Search or enter a URL" autocomplete="off">
       <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
     </form>
-    <div id="menu-button" class="menu-button" style="margin-left: 7px;"><span class="material-symbols-outlined">more_vert</span></div>
+    <div id="menu-button" class="menu-button" style="margin-left: 7px;"><span
+        class="material-symbols-outlined">more_vert</span></div>
   </div>
 
   <!-- Dropdown Menu -->
@@ -143,7 +147,7 @@
   <!--DEV STUFF-->
   <button class="powered-by-container" style="right:0; top:0;" onclick="reset()">Reset</button>
   <!--DEV STUFF-->
-  <a id="billigerhost" class="powered-by-container" style="left:0; bottom:0;"target="_blank">
+  <a id="billigerhost" class="powered-by-container" style="left:0; bottom:0;" target="_blank">
     <img src="https://billing.billigerhost.com/templates/lagom2/assets/img/favicons/favicon.ico"
       alt="ServerDeploy Logo">
     <span class="powered-by-text"><span style="color: #ad271f;">Billiger</span>Host</span>
@@ -176,27 +180,29 @@
     }
   </script>
   <script>
-  if(!localStorage.getItem("searchEngine")) localStorage.setItem("searchEngine", "https://www.google.com/search?q=%s");
+    if (!localStorage.getItem("searchEngine")) {
+      localStorage.setItem("searchEngine", "https://www.google.com/search?q=%s");
+    }
 
-  document.getElementById("uv-search-engine").value = localStorage.getItem("searchEngine");
-
+    document.getElementById("uv-search-engine").value = localStorage.getItem("searchEngine");
 
     function updtSearchEngine(value) {
       document.getElementById("uv-search-engine").value = value;
     }
 
-    window.addEventListener("storage", function (event) {
-      if (event.key === "searchEngineValue") {
+    window.addEventListener("storage", (event) => {
+      if (event.key === "searchEngine") {
         updtSearchEngine(event.newValue);
       }
     });
-
+  </script>
+  <script>
     function reset() {
       localStorage.clear();
       navigator.serviceWorker.getRegistrations().then(registrations => {
         for (const registration of registrations) {
           registration.unregister();
-        } 
+        }
       });
       location.reload();
     }

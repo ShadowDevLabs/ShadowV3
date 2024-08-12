@@ -188,13 +188,13 @@ class Tab {
       })
    };
    refresh(i = activeTabIndex) {
-      tabsArr[i].iframe.contentWindow.history.refresh();
-   };
+      tabsArr[i].iframe.contentWindow.location.reload();
+  }  
    forward(i = activeTabIndex) {
       tabsArr[i].iframe.contentWindow.history.forward();
    };
    backward(i = activeTabIndex) {
-      tabsArr[i].iframe.contentWindow.history.backward();
+      tabsArr[i].iframe.contentWindow.history.back();
    }
    updateHistory(src, i) {
       //To enable & disable we would just set it to "off"
