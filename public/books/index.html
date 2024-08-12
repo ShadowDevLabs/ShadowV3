@@ -46,18 +46,18 @@
         const container = document.getElementById('gcontainer');
 
         games.forEach(game => {
-          const innerDiv = document.createElement('div');
-          innerDiv.classList.add('g');
-          innerDiv.style.backgroundImage = `url(files/${game.root}/${game.img})`;
+          const gElement = document.createElement('div');
+          gElement.classList.add('g');
+          gElement.style.backgroundImage = `url(files/${game.root}/${game.img})`;
 
           const gameName = document.createElement('p');
           gameName.classList.add('game-name');
           gameName.textContent = game.name;
-          innerDiv.addEventListener('click', () => {
+          gElement.addEventListener('click', () => {
             launch(`files/${game.root}/${game.file}`);
           });
-          innerDiv.appendChild(gameName);
-          container.appendChild(innerDiv);
+          gElement.appendChild(gameName);
+          container.appendChild(gElement);
         });
 
         const searchBar = document.getElementById('search-bar');
