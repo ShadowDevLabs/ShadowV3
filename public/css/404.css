@@ -12,39 +12,3 @@ body {
   height: 100vh;
   overflow: hidden;
 }
-
-.container {
-  text-align: center;
-}
-
-.error-code {
-  font-size: 150px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  color: var(--accent-color);
-}
-
-.error-message {
-  font-size: 36px;
-  margin-bottom: 10px;
-}
-
-.description {
-  font-size: 18px;
-  margin-bottom: 30px;
-}
-
-.home-link {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: var(--tab-background);
-  color: var(--text-color);
-  text-decoration: none;
-  border-radius: 5px;
-  font-weight: bold;
-  transition: background-color 0.3s;
-}
-
-.home-link:hover {
-  background-color: var(--tab-border);
-}
