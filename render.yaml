@@ -1,0 +1,6 @@
+ services:
+  - type: web
+    name: learn-astrology
+    env: node
+    plan: free
+    startCommand: npm install && npm start
