@@ -107,12 +107,12 @@ function setCloak() {
     case "zoom":
       setTitle("Zoom");
       setFavicon("/icons/cloaks/Zoom.ico");
-      
+
       break;
     case "khan":
       setTitle("Khan Academy");
       setFavicon("/icons/cloaks/Khan Academy.ico");
-      
+
       break;
   }
 }
@@ -130,24 +130,24 @@ function resetTab() {
 }
 
 
-document.addEventListener('DOMContentLoaded', function() {
-  if(localStorage.getItem('tab')) {
-      updateTabItem();
+document.addEventListener('DOMContentLoaded', function () {
+  if (localStorage.getItem('tab')) {
+    updateTabItem();
   }
 
-  window.addEventListener('storage', function(event) {
-      if (event.key === 'tab') {
-          updateTabItem();
-      }
+  window.addEventListener('storage', function (event) {
+    if (event.key === 'tab') {
+      updateTabItem();
+    }
   });
 
   function updateTabItem() {
-      var tabItem = JSON.parse(localStorage.getItem('tab'));
-      document.title = tabItem.title;
-      var favicon = document.querySelector('link[rel="icon"]');
-      if (favicon) {
-          favicon.href = tabItem.icon;
-      }
+    var tabItem = JSON.parse(localStorage.getItem('tab'));
+    document.title = tabItem.title;
+    var favicon = document.querySelector('link[rel="icon"]');
+    if (favicon) {
+      favicon.href = tabItem.icon;
+    }
   }
 });
 

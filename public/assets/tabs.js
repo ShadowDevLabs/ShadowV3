@@ -178,7 +178,7 @@ class Tab {
       localStorage.setItem("activeTabs", JSON.stringify(openTabs));
    };
    loadAllTabs() {
-        tabsArr.forEach((tab, i) => {
+        tabsArr.forEach((_, i) => {
             console.log(i);
             this.closeTab(i);
         });
