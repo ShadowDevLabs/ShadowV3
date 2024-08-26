@@ -7,13 +7,13 @@
 # Features
 - 🗂️ **Tabs / Multi-Tasking**: Juggle multiple tasks like a pro. 
 - ⚙️ **Accessible Menu (3 Dots)**: All your essential tools, just a click away.
-- 🔄 **URL Input Memory**: Your favorite sites, ready when you are.
-- 🕵️ **Tab Cloaking**: Stay undercover with seamless privacy.
-- 📝 **About:Blank**: Clean starts, every time.
-- 🎨 **Customizable**: Make it yours with endless customization.
-- 🎮 **Games**: Play while you browse. Why not?
+- 🔄 **URL Input Memory**: Tabs now save the URL on the input bar.
+- 🕵️ **Tab Cloaking**: Stay hidden, Stay Safe!
+- 📝 **About:Blank**: Cloak yourself.
+- 🎨 **Customizable**: Make it your own with tons of customization.
+- 🎮 **Games**: Right in the Browser! No need to search them!
 - ✨ **Clean UI**: Sleek, simple, and super easy to navigate.
-- 🚀 **Fast Web Interface Proxy**: Lightning-fast speeds at your fingertips.
+- 🚀 **Fast Web Interface Proxy**: Lightning-fast speeds!
 
 ## Deployment
 <a href="https://render.com/deploy?repo=https://github.com/ShadowDevLabs/ShadowV3">
