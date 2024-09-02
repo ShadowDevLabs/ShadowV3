@@ -34,3 +34,6 @@
 - [NotPeak](https://github.com/NottPeak)｜Developer
 - [Ultraviolet](https://github.com/titaniumnetwork-dev/Ultraviolet)｜Proxy
 - [Dynamic](https://github.com/NebulaServices/Dynamic)｜Proxy
+
+# [Join the Discord](https://discord.gg/goshadow)
+
