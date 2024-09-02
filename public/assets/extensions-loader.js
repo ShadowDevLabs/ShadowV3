@@ -1,7 +1,7 @@
 var extLoaded;
-if(typeof window != null) {
+if (typeof window != null) {
   onload = init;
-  
+
   function init() {
     loadExtensions();
     let tries;
@@ -13,17 +13,17 @@ if(typeof window != null) {
       tries++;
     }
   }
-  
+
   function loadExtensions() {
     if (!extLoaded) {
       try {
-        const extensionController = new Extensions()
-        
+        const extensionController = new Extensions();
+
         extLoaded = true;
-        console.log("Extensions loaded!")
-        console.log(tag)
+        console.log("Extensions loaded!");
+        console.log(tag);
       } catch (e) {
-        console.warn("Error loading extensions: ",e)
+        console.warn("Error loading extensions: ", e);
       }
     }
   }

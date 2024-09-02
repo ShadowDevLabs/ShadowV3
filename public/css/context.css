@@ -7,19 +7,19 @@
 }
 
 :root.light {
-  --background-color: #F0E8F9;
+  --background-color: #f0e8f9;
   --tab-background: #262648;
   --tab-border: #4d4d86;
   --text-color: #333;
-  --accent-color: #8F6CAF;
+  --accent-color: #8f6caf;
 }
 
 :root.blueneon {
-  --background-color: #001A33; 
-  --tab-background: #00203C; 
-  --tab-border: #00A3E0;
-  --text-color: #FFFFFF; 
-  --accent-color: #00A6FB; 
+  --background-color: #001a33;
+  --tab-background: #00203c;
+  --tab-border: #00a3e0;
+  --text-color: #ffffff;
+  --accent-color: #00a6fb;
 }
 
 :root.sunset {
@@ -64,60 +64,60 @@
 :root.immortal {
   --background-color: #083344;
   --tab-background: #0a3b4f;
-  --tab-border: #0E7490;
+  --tab-border: #0e7490;
   --text-color: #ffffff;
-  --accent-color: #0891B2;
+  --accent-color: #0891b2;
 }
 
-  #custom-menu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: block;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 9999;
-  }
-  
-  #custom-menu ul {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    list-style: none;
-    padding: 0;
-  }
-  
-  #custom-menu li {
-    margin: 10px 0;
-  }
-  
-  #custom-menu li a {
-    color: var(--main-text-color);
-    text-decoration: none;
-    font-family: "Exo 2", sans-serif;
-  }
-  
-  #custom-menu li a i {
-    margin-right: 5px;
-  }
-  
-  #custom-menu li:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  #custom-menu li:hover a {
-    color: var(--main-text-color);
-  }
-  
-  #custom-menu li:focus {
-    outline: none;
-  }
-  
-  #custom-menu li:focus a {
-    color: var(--main-text-color);
-  }
+#custom-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+}
+
+#custom-menu ul {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  list-style: none;
+  padding: 0;
+}
+
+#custom-menu li {
+  margin: 10px 0;
+}
+
+#custom-menu li a {
+  color: var(--main-text-color);
+  text-decoration: none;
+  font-family: "Exo 2", sans-serif;
+}
+
+#custom-menu li a i {
+  margin-right: 5px;
+}
+
+#custom-menu li:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#custom-menu li:hover a {
+  color: var(--main-text-color);
+}
+
+#custom-menu li:focus {
+  outline: none;
+}
+
+#custom-menu li:focus a {
+  color: var(--main-text-color);
+}

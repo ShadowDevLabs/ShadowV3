@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/books.css">
-  <link rel="stylesheet" href="/css/themes.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/books.css" />
+  <link rel="stylesheet" href="/css/themes.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
     integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -17,13 +17,11 @@
 <body>
   <h1>Games</h1>
   <div class="search-container">
-    <input type="text" id="search-bar" placeholder="Search for a Game" autocomplete="off">
+    <input type="text" id="search-bar" placeholder="Search for a Game" autocomplete="off" />
   </div>
-  <div class="gcontainer" id="gcontainer">
-  </div>
+  <div class="gcontainer" id="gcontainer"></div>
 
-
-  <div class="gframe" style="display: none;">
+  <div class="gframe" style="display: none">
     <div class="nav">
       <li onclick="showiframe();">
         <i class="fa-solid fa-arrow-left"></i>
@@ -35,72 +33,78 @@
     <iframe src="" id="giframe"></iframe>
   </div>
 
-
-
-
   <script>
-    fetch('games.json')
-      .then(response => response.json())
-      .then(games => {
+    fetch("games.json")
+      .then((response) => response.json())
+      .then((games) => {
         games.sort((a, b) => a.name.localeCompare(b.name));
-        const container = document.getElementById('gcontainer');
+        const container = document.getElementById("gcontainer");
 
-        games.forEach(game => {
-          const gElement = document.createElement('div');
-          gElement.classList.add('g');
-          gElement.style.backgroundImage = `url(files/${game.root}/${game.img})`;
+        games.forEach((game) => {
+          const gElement = document.createElement("div");
+          gElement.classList.add("g");
 
-          const gameName = document.createElement('p');
-          gameName.classList.add('game-name');
+          const imgElement = document.createElement("img");
+         imgElement.src = `https://raw.githubusercontent.com/Nailington/3kh0-assets/fixy/${game.root}/${game.img}`;
+          //imgElement.src = `https://classroom40x.github.io/img/2048.png`;
+          imgElement.alt = game.name;
+          imgElement.classList.add("game-image");
+          imgElement.loading = "lazy"; 
+
+          const gameName = document.createElement("p");
+          gameName.classList.add("game-name");
           gameName.textContent = game.name;
-          gElement.addEventListener('click', () => {
+
+          gElement.addEventListener("click", () => {
             launch(`files/${game.root}/${game.file}`);
           });
+
+          gElement.appendChild(imgElement);
           gElement.appendChild(gameName);
           container.appendChild(gElement);
         });
 
-        const searchBar = document.getElementById('search-bar');
-        searchBar.addEventListener('input', () => {
+        const searchBar = document.getElementById("search-bar");
+        searchBar.addEventListener("input", () => {
           const query = searchBar.value.toLowerCase();
-          const gameElements = container.querySelectorAll('.g');
+          const gameElements = container.querySelectorAll(".g");
 
           gameElements.forEach((gameElement) => {
-            const gameName = gameElement.querySelector('.game-name');
+            const gameName = gameElement.querySelector(".game-name");
             if (gameName && gameName.textContent.toLowerCase().includes(query)) {
-              gameElement.style.display = 'flex';
-              gameElement.classList.remove('hidden');
+              gameElement.style.display = "flex";
+              gameElement.classList.remove("hidden");
             } else {
-              gameElement.style.display = 'none';
-              gameElement.classList.add('hidden');
+              gameElement.style.display = "none";
+              gameElement.classList.add("hidden");
             }
           });
         });
       })
-      .catch(error => console.error('Error loading games:', error));
+      .catch((error) => console.error("Error loading games:", error));
 
   </script>
-<script>
-  function launch(src) {
-    document.getElementById('giframe').src = src;
-    document.querySelector('.gframe').style.display = 'flex';
-    document.body.classList.add('no-scroll');
-  }
-
-  function showiframe() {
-    document.querySelector('.gframe').style.display = 'none';
-    document.getElementById('giframe').src = '';
-    document.body.classList.remove('no-scroll');  
-  }
-
-  function gameFullscreen(element) {
-    if (!document.fullscreenElement) {
-      element.closest('.gframe').requestFullscreen();
-    } else {
-      document.exitFullscreen();
+  <script>
+    function launch(src) {
+      document.getElementById("giframe").src = src;
+      document.querySelector(".gframe").style.display = "flex";
+      document.body.classList.add("no-scroll");
     }
-  }
-</script>
+
+    function showiframe() {
+      document.querySelector(".gframe").style.display = "none";
+      document.getElementById("giframe").src = "";
+      document.body.classList.remove("no-scroll");
+    }
+
+    function gameFullscreen(element) {
+      if (!document.fullscreenElement) {
+        element.closest(".gframe").requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+  </script>
 </body>
 
 </html>

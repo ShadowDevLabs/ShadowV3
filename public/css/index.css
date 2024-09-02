@@ -2,8 +2,8 @@
   outline: none;
 }
 
-
-body, html {
+body,
+html {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -19,13 +19,15 @@ body, html {
   transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
-  background: linear-gradient(45deg, var(--background-color), var(--tab-border));
+  background: linear-gradient(
+    45deg,
+    var(--background-color),
+    var(--tab-border)
+  );
   border-radius: 0;
   text-align: center;
   z-index: 9999;
 }
-
-
 
 .dot-container {
   display: flex;
@@ -58,7 +60,7 @@ body, html {
 
 .loading-text {
   font-size: 25px;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   color: var(--text-color);
   margin-top: 10px;
   position: absolute;
@@ -67,9 +69,9 @@ body, html {
   transform: translate(-50%, -50%);
 }
 
-
 @keyframes fadeIn {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.5;
   }
   50% {
@@ -78,7 +80,8 @@ body, html {
 }
 
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -94,11 +97,12 @@ body, html {
 }
 
 .tab {
+  flex: 1;
   display: flex;
-  align-items: center; 
-  max-width: 250px;
+  align-items: center;
+  max-width: 10%;
   padding: 8px 16px;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   background-color: var(--tab-background);
   color: var(--text-color);
   border: 1px solid var(--tab-border);
@@ -116,8 +120,8 @@ body, html {
   white-space: nowrap;
   overflow: hidden;
   align-items: center;
-  margin-left:5px;
-  align-self:center;
+  margin-left: 5px;
+  align-self: center;
   text-overflow: ellipsis;
 }
 
@@ -130,7 +134,7 @@ body, html {
   height: 25px;
   margin-right: 5px;
   align-items: center;
-  align-self:center;
+  align-self: center;
   padding: 0;
 }
 
@@ -149,20 +153,24 @@ body, html {
   background-color: rgba(0, 0, 0, 0.25);
 }
 
-.addtab-btn{
+.addtab-btn {
   background: none;
   border: none;
   cursor: pointer;
-  position: inherit;
   border-radius: 50%;
   font-size: 13px;
-  padding: 3px;
-  margin-right:5px;
+  padding: 8px;
+  margin-right: 5px;
   color: var(--text-color);
   transition: background-color 0.4s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-
+.addtab-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
 
 #header {
   background-color: var(--tab-background);
@@ -180,38 +188,38 @@ body, html {
   border-radius: 50%;
   font-size: 13px;
   padding: 5px;
-  margin-right:5px;
+  margin-right: 5px;
   color: var(--text-color);
   transition: background-color 0.4s;
 }
 
-.control-button:hover, .addtab-btn:hover {
-  background-color: rgba(255,255,255,0.1);
+.control-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-.control-button span{
-  font-size:20px;
+.control-button span {
+  font-size: 20px;
 }
 
-.menu-button{
-  padding:5px;
+.menu-button {
+  padding: 5px;
   border-radius: 50%;
-  color:var(--text-color);
-  margin-right:5px;
-  cursor:pointer;
+  color: var(--text-color);
+  margin-right: 5px;
+  cursor: pointer;
   transition: all ease 0.4s;
 }
 
-.menu-button:hover{
+.menu-button:hover {
   background-color: rgba(0, 0, 0, 0.25);
 }
 
 #search-bar {
   flex: 1;
   padding: 8px;
-  width:99%;
+  width: 99%;
   font-size: 16px;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   border: 1px solid var(--tab-border);
   border-radius: 20px;
   color: var(--text-color);
@@ -234,7 +242,7 @@ iframe {
 
 iframe.active {
   display: block;
-  animation: .1s fade-in ease-in 
+  animation: 0.1s fade-in ease-in;
 }
 
 @keyframes fade-in {
@@ -341,28 +349,28 @@ iframe.active {
 
 .dropdown-content {
   position: absolute;
-  background-color:var(--tab-background);
+  background-color: var(--tab-background);
   color: var(--text-color);
   width: 200px;
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   padding: 8px;
-  padding-top:0;
+  padding-top: 0;
   text-align: left;
-  right:5px;
+  right: 5px;
   z-index: 1;
 }
 
 .dropdown-content a {
   text-decoration: none;
-  color:var(--text-color);
+  color: var(--text-color);
   display: block;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   padding: 8px 0;
   transition: background-color 0.3s;
 }
 
-.dropdown-content button:hover{
+.dropdown-content button:hover {
   background-color: rgba(0, 0, 0, 0.2);
 }
 
@@ -371,14 +379,14 @@ iframe.active {
   color: var(--text-color);
   padding: 4px 8px;
   border: none;
-  width:100%;
+  width: 100%;
   cursor: pointer;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   border-radius: 5px;
 }
 
-.dropdown-content button i{
-  margin-right: 5px;  
+.dropdown-content button i {
+  margin-right: 5px;
 }
 
 .separator {
@@ -388,7 +396,8 @@ iframe.active {
 }
 
 @keyframes fadeIn {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.5;
   }
   50% {
@@ -397,7 +406,7 @@ iframe.active {
 }
 
 .inputcontainermain {
-  width:100%;
+  width: 100%;
 }
 
 .context-menu {
@@ -412,12 +421,12 @@ iframe.active {
 
 .context-menu .menu-item {
   list-style: none;
-  cursor: pointer; 
-  transition: background-color 0.3s; 
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .context-menu .menu-item:hover {
-  background-color: var(--tab-border); 
+  background-color: var(--tab-border);
   border-radius: 5px;
 }
 
@@ -425,13 +434,13 @@ iframe.active {
   outline: none;
   position: fixed;
   border-radius: 5px;
-  margin:7.5px;
+  margin: 7.5px;
   z-index: 9999;
-  cursor:pointer;
+  cursor: pointer;
   padding: 5px;
-  color:black;
+  color: black;
   text-decoration: none;
-  background-color: rgba(255, 255, 255, 0.7); 
+  background-color: rgba(255, 255, 255, 0.7);
   display: flex;
   align-items: center;
 }
@@ -445,15 +454,15 @@ iframe.active {
 .powered-by-text {
   font-size: 16px;
   font-weight: bold;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 .extensions_disclaimer {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   position: fixed;
   top: 50%;
   left: 50%;
-  color:var(--text-color);
+  color: var(--text-color);
   transform: translate(-50%, -50%);
   background-color: var(--background-color);
   padding: 20px;
@@ -468,14 +477,14 @@ iframe.active {
 
 .buttons {
   margin-top: 20px;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 .continue-button,
 .cancel-button {
   padding: 10px 20px;
   margin: 0 10px;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -507,6 +516,6 @@ input[type="checkbox"] {
   margin-right: 10px;
 }
 
-span{
+span {
   vertical-align: text-top;
 }

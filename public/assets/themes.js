@@ -1,8 +1,7 @@
-
 function changeTheme() {
-  const selectedTheme = document.getElementById('themeSelector').value;
+  const selectedTheme = document.getElementById("themeSelector").value;
   changetheme(selectedTheme);
-  localStorage.setItem('theme', selectedTheme);
+  localStorage.setItem("theme", selectedTheme);
 }
 
 function changetheme(theme) {
@@ -10,20 +9,21 @@ function changetheme(theme) {
   root.className = theme;
 }
 
-
-window.addEventListener('storage', function (e) {
-  if (e.key === 'theme') {
-      const newTheme = e.newValue;
-      if (newTheme) {
-          changetheme(newTheme);
-      }
+window.addEventListener("storage", function (e) {
+  if (e.key === "theme") {
+    const newTheme = e.newValue;
+    if (newTheme) {
+      changetheme(newTheme);
+    }
   }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-  const theme = localStorage.getItem('theme');
+document.addEventListener("DOMContentLoaded", () => {
+  const theme = localStorage.getItem("theme");
   if (theme) {
-      changetheme(theme);
-      try{document.getElementById('themeSelector').value = theme;}catch(e){}
+    changetheme(theme);
+    try {
+      document.getElementById("themeSelector").value = theme;
+    } catch (e) {}
   }
 });

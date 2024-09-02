@@ -1,177 +1,155 @@
 :root {
-    --background-color: #060611;
-    --tab-background: #0e0e1d;
-    --tab-border: #372754;
-    --text-color: #ffffff;
-    --accent-color: #ba7df2;
-}
-
-:root.original {
-    --background-color: #1c1c38;
-    --tab-background: #262648;
-    --tab-border: #4d4d86;
-    --text-color: #ffffff;
-    --accent-color: #6c3da3;
+  --background-color: #060611;
+  --tab-background: #0e0e1d;
+  --tab-border: #372754;
+  --text-color: #ffffff;
+  --accent-color: #ba7df2;
 }
 
 :root.light {
-    --background-color: #8486ed;
-    --tab-background: #262648;
-    --tab-border: #4d4d86;
-    --text-color: #ccc;
-    --accent-color: #231530;
+  --background-color: #1c1c38;
+  --tab-background: #262648;
+  --tab-border: #4d4d86;
+  --text-color: #ffffff;
+  --accent-color: #6c3da3;
 }
 
-:root.blueneon {
-    --background-color: #001A33;
-    --tab-background: #00203C;
-    --tab-border: #00A3E0;
-    --text-color: #FFFFFF;
-    --accent-color: #00A6FB;
+:root.noctura {
+  --background-color: #0b0b1a;
+  --tab-background: #0b0b1a;
+  --tab-border: #6161c7;
+  --text-color: #ccc;
+  --accent-color: #9fb2ff;
+}
+
+:root.sapphire {
+  --background-color: #010a13;
+  --tab-background: #010f1a;
+  --tab-border: #00b3ff; 
+  --text-color: #e0f7ff; 
+  --accent-color: #00d4ff; 
 }
 
 :root.sunset {
-    --background-color: #fce6cf;
-    --tab-background: #ffd9b3;
-    --tab-border: #e27d60;
-    --text-color: #2c3e50;
-    --accent-color: #ffb6b9;
+  --background-color: #2c061f;
+  --tab-background: #450920;
+  --tab-border: #d1421b;    
+  --text-color: #f0c3b0;
+  --accent-color: #ff784e;
 }
 
-:root.crimsonblaze {
-    --background-color: #2c0104;
-    --tab-background: #492727;
-    --tab-border: #854c4c;
-    --text-color: #ffffff;
-    --accent-color: #db0f0f;
+
+:root.ruby {
+  --background-color: #1a0002;
+  --tab-background: #240001;
+  --tab-border: #663838;
+  --text-color: #e6e6e6;
+  --accent-color: #b50909;
 }
 
 :root.amoled {
-    --background-color: #000000;
-    --tab-background: #000000;
-    --tab-border: #ffffff;
-    --text-color: #ffffff;
-    --accent-color: #f2f2f2;
+  --background-color: #000000;
+  --tab-background: #000000;
+  --tab-border: #ffffff;
+  --text-color: #ffffff;
+  --accent-color: #f2f2f2;
 }
 
-
-:root.oceanwave {
-    --background-color: #1e3a5f;
-    --tab-background: #2b5876;
-    --tab-border: #4e7c9b;
-    --text-color: #ffffff;
-    --accent-color: #21e6c1;
-}
-
-:root.sunsetglow {
-    --background-color: #ff9a8b;
-    --tab-background: #ff6a88;
-    --tab-border: #fe8c99;
-    --text-color: #2c2c2c;
-    --accent-color: #fcd1d1;
+:root.darkocean {
+  --background-color: #000d17;
+  --tab-background: #00192c;
+  --tab-border: #2e4f6a;
+  --text-color: #e0e0e0;
+  --accent-color: #1fc0b3;
 }
 
 :root.forestwhisper {
-    --background-color: #e6e9f0;
-    --tab-background: #d3dce6;
-    --tab-border: #b8c2cc;
-    --text-color: #1f2d3d;
-    --accent-color: #3eb991;
+  --background-color: #021402;
+  --tab-background: #0e2609;
+  --tab-border: #3a5f40;
+  --text-color: #d4e1d1;
+  --accent-color: #6bd175;
 }
 
 
-:root.citrusburst {
-    --background-color: #1f1f1f; 
-    --tab-background: #2a2a2a; 
-    --tab-border: #3b3b3b; 
-    --text-color: #ffffff; 
-    --accent-color: #ff9900; 
-}
 
 :root.midnightshadow {
-    --background-color: #232946;
-    --tab-background: #b8c1ec;
-    --tab-border: #eeeeee;
-    --text-color: #fffffe;
-    --accent-color: #eebbc3;
+  --background-color: #0d1021;
+  --tab-background: #191e3d;
+  --tab-border: #6f7ff1;
+  --text-color: #ffffff;
+  --accent-color: #eebbc3;
 }
 
-:root.tropicalrainforest {
-    --background-color: #1c3a2a;
-    --tab-background: #2e5e43;
-    --tab-border: #558c6a;
-    --text-color: #e6f4f1;
-    --accent-color: #45e2a3;
-}
 
 :root.oceanicdive {
-    --background-color: #012a36;
-    --tab-background: #024959;
-    --tab-border: #03738c;
-    --text-color: #d1e8e2;
-    --accent-color: #04a8c6;
+  --background-color: #012a36;
+  --tab-background: #024959;
+  --tab-border: #03738c;
+  --text-color: #d1e8e2;
+  --accent-color: #04a8c6;
 }
 
 :root.earthybrown {
-    --background-color: #3e2c1c;
-    --tab-background: #5e4634;
-    --tab-border: #8c6a55;
-    --text-color: #f4f1ee;
-    --accent-color: #c79a6b;
+  --background-color: #3e2c1c;
+  --tab-background: #5e4634;
+  --tab-border: #8c6a55;
+  --text-color: #f4f1ee;
+  --accent-color: #c79a6b;
 }
 
 :root.arcticchill {
-    --background-color: #1c2c3a;
-    --tab-background: #2e4c5e;
-    --tab-border: #557a8c;
-    --text-color: #e6f1f4;
-    --accent-color: #45aee2;
+  --background-color: #1c2c3a;
+  --tab-background: #2e4c5e;
+  --tab-border: #557a8c;
+  --text-color: #e6f1f4;
+  --accent-color: #45aee2;
 }
 
 :root.autumnspice {
-    --background-color: #3a271c;
-    --tab-background: #5e422f;
-    --tab-border: #8c6a59;
-    --text-color: #f6e6df;
-    --accent-color: #e28956;
+  --background-color: #3a271c;
+  --tab-background: #5e422f;
+  --tab-border: #8c6a59;
+  --text-color: #f6e6df;
+  --accent-color: #e28956;
 }
 
 :root.berrybliss {
-    --background-color: #3a1c2e;
-    --tab-background: #5e2e4c;
-    --tab-border: #8c557a;
-    --text-color: #f6e6f4;
-    --accent-color: #e24592;
+  --background-color: #3a1c2e;
+  --tab-background: #5e2e4c;
+  --tab-border: #8c557a;
+  --text-color: #f6e6f4;
+  --accent-color: #e24592;
 }
 
 :root.deepsea {
-    --background-color: #1c233a;
-    --tab-background: #2e355e;
-    --tab-border: #555a8c;
-    --text-color: #e6e6f4;
-    --accent-color: #4560e2;
+  --background-color: #1c233a;
+  --tab-background: #2e355e;
+  --tab-border: #555a8c;
+  --text-color: #e6e6f4;
+  --accent-color: #4560e2;
 }
 
 :root.freshlime {
-    --background-color: #2a3a1c;
-    --tab-background: #4c5e2e;
-    --tab-border: #7a8c55;
-    --text-color: #f1f4e6;
-    --accent-color: #aee245;
+  --background-color: #2a3a1c;
+  --tab-background: #4c5e2e;
+  --tab-border: #7a8c55;
+  --text-color: #f1f4e6;
+  --accent-color: #aee245;
 }
 
 :root.mysticpurple {
-    --background-color: #2c1c3a;
-    --tab-background: #4c2e5e;
-    --tab-border: #7a558c;
-    --text-color: #f1e6f4;
-    --accent-color: #c045e2;
+  --background-color: #2c1c3a;
+  --tab-background: #4c2e5e;
+  --tab-border: #7a558c;
+  --text-color: #f1e6f4;
+  --accent-color: #c045e2;
 }
 
 :root.blurple {
-    --background-color: #5865F2;
-    --tab-background: #5865F2;
-    --tab-border: #4E5D94;
-    --text-color: #FFFFFF;
-    --accent-color: #7289DA;
+  --background-color: #0e1131; 
+  --tab-background: #000720; 
+  --tab-border: #3c4b8c;     
+  --text-color: #ffffff;     
+  --accent-color: #7289da;    
 }

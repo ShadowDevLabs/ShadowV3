@@ -1,10 +1,10 @@
-
-body, html {
+body,
+html {
   margin: 0;
   padding: 0;
   height: 100%;
   background-color: var(--background-color);
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   display: flex;
 }
 
@@ -12,8 +12,8 @@ body, html {
   width: 250px;
   padding: 20px;
   border-right: 1px solid var(--tab-border);
-  margin-top: 20px; 
-  margin-bottom: 20px; 
+  margin-top: 20px;
+  margin-bottom: 20px;
   height: 85%;
   display: flex;
   flex-direction: column;
@@ -23,14 +23,14 @@ body, html {
   display: flex;
   align-items: center;
   padding: 10px;
-  border-radius:5px;
+  border-radius: 5px;
   cursor: pointer;
   color: var(--text-color);
   transition: background-color 0.2s;
 }
 
 .menu-item:hover {
-  background-color: rgba(0,0,0,0.25);
+  background-color: rgba(0, 0, 0, 0.25);
 }
 
 .menu-icon {
@@ -44,12 +44,12 @@ body, html {
 
 #content {
   flex: 1;
-  margin-top: 10px; 
-  margin-bottom: 20px; 
+  margin-top: 10px;
+  margin-bottom: 20px;
   padding: 20px;
   max-height: 85%;
   width: 65vw;
-  overflow-y:scroll;
+  overflow-y: scroll;
   color: var(--text-color);
   transition: all 0.4s;
 }
@@ -78,7 +78,7 @@ body, html {
 .content-title {
   font-size: 24px;
   font-weight: bold;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   margin-bottom: 20px;
 }
 
@@ -86,19 +86,17 @@ body, html {
   font-size: 20px;
   font-weight: bold;
   color: var(--accent-color);
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   margin-bottom: 15px;
 }
-
 
 .buttons {
   display: flex;
   justify-content: space-between;
 }
 
-button{
-  font-family: 'Poppins', sans-serif;
-
+button {
+  font-family: "Poppins", sans-serif;
 }
 
 .input-field {
@@ -107,7 +105,7 @@ button{
   border: 1px solid var(--tab-border);
   border-radius: 5px;
   color: var(--text-color);
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   background-color: var(--tab-background);
 }
 
@@ -122,7 +120,8 @@ button{
   margin-top: 10px;
 }
 
-.select-buttons .icon-button,  .icon-button {
+.select-buttons .icon-button,
+.icon-button {
   background: var(--accent-color);
   color: var(--text-color);
   border: none;
@@ -136,10 +135,9 @@ button{
 }
 
 .icon-button:hover {
-  background-color:var(--accent-color);
+  background-color: var(--accent-color);
   text-decoration: none;
 }
-
 
 .select-buttons button {
   background: none;
@@ -151,13 +149,12 @@ button{
   padding: 0;
 }
 
-
 .input-field select {
   width: 100%;
   padding: 5px;
   border: 1px solid var(--tab-border);
   border-radius: 5px;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   color: var(--text-color);
   background-color: var(--tab-background);
 }
@@ -167,13 +164,13 @@ button{
   border-color: var(--accent-color);
 }
 
-#themeSelector option{
+#themeSelector option {
   padding: 5px 10px;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
-select option{
-  font-family: 'Poppins', sans-serif;
+select option {
+  font-family: "Poppins", sans-serif;
 }
 
 .box {
@@ -181,7 +178,7 @@ select option{
   border: 1px solid var(--tab-border);
   border-radius: 5px;
   padding: 10px 20px;
-  font-family: 'Rubik', sans-serif;
+  font-family: "Rubik", sans-serif;
   margin: 0px 5px;
 }
 
@@ -200,13 +197,12 @@ select option{
   display: flex;
   align-items: center;
   margin-top: -40px;
-
 }
 
 .flashing-light {
   width: 10px;
   height: 10px;
-  background-color: #00ff00; 
+  background-color: #00ff00;
   border-radius: 50%;
   margin-right: 5px;
 }
@@ -254,10 +250,10 @@ select option{
   transition: 0.4s;
 }
 
-input:checked+.slider {
-  background-color: #2196F3;
+input:checked + .slider {
+  background-color: #2196f3;
 }
 
-input:checked+.slider:before {
+input:checked + .slider:before {
   transform: translateX(20px);
 }

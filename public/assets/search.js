@@ -5,7 +5,7 @@
 /**
  *
  * @param {string} input
- * @param {string} template 
+ * @param {string} template
  * @returns {string}
  */
 function search(input, template, backend) {
@@ -13,27 +13,33 @@ function search(input, template, backend) {
 
   //Local shadow:// urls
   try {
-    if(input.includes("shadow://")) {
-    url = "/pages/"+input.replace("shadow://","")+".html";
-    return url
+    if (input.includes("shadow://")) {
+      url = "/pages/" + input.replace("shadow://", "") + ".html";
+      return url;
     }
-  } catch(err) {
-  }
+  } catch (err) {}
 
   try {
     url = new URL(input);
     if (url.hostname.includes(".")) {
-      return `/${backend}/service/`+self.__uv$config.encodeUrl(url.toString());
+      return (
+        `/${backend}/service/` + self.__uv$config.encodeUrl(url.toString())
+      );
     }
-  } catch (err) {
-  }
+  } catch (err) {}
 
   try {
     url = new URL(`https://${input}`);
     if (url.hostname.includes(".")) {
-      return `/${backend}/service/`+self.__uv$config.encodeUrl(url.toString());
+      return (
+        `/${backend}/service/` + self.__uv$config.encodeUrl(url.toString())
+      );
     }
-  } catch (err) { 
-  }
-  return `/${backend}/service/`+self.__uv$config.encodeUrl(template.replace("%s", encodeURIComponent(input)));
+  } catch (err) {}
+  return (
+    `/${backend}/service/` +
+    self.__uv$config.encodeUrl(
+      template.replace("%s", encodeURIComponent(input)),
+    )
+  );
 }

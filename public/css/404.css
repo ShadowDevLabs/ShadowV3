@@ -7,7 +7,11 @@
 }
 
 body {
-  background: linear-gradient(135deg, var(--background-color), var(--tab-border));
+  background: linear-gradient(
+    135deg,
+    var(--background-color),
+    var(--tab-border)
+  );
   color: var(--text-color);
   font-family: "Poppins", sans-serif;
   display: flex;
@@ -40,7 +44,9 @@ a.btn {
   cursor: pointer;
   margin-top: 1rem;
   animation: fadeIn 4s ease-in-out;
-  transition: background-color 0.3s, transform 0.3s;
+  transition:
+    background-color 0.3s,
+    transform 0.3s;
 }
 
 a.btn:hover {
@@ -51,11 +57,11 @@ a.btn:hover {
 a.hyper-link {
   color: var(--accent-color);
   text-decoration: none;
-  cursor:pointer;
+  cursor: pointer;
 }
 
 a.hyper-link:hover {
- font-weight: bold;
+  font-weight: bold;
 }
 
 @keyframes fadeIn {
