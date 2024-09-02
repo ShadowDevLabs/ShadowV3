@@ -54,13 +54,16 @@ function abtblank() {
   const width = window.innerWidth;
   const height = window.innerHeight;
 
+
   let inFrame;
+
 
   try {
     inFrame = window !== top;
   } catch (e) {
     inFrame = true;
   }
+
 
   if (!inFrame && !navigator.userAgent.includes("Firefox")) {
     const popup = window.open(
@@ -85,6 +88,7 @@ function abtblank() {
       style.border = style.outline = "none";
       style.width = style.height = "100%";
 
+
       doc.head.appendChild(link);
       doc.body.appendChild(iframe);
       window.location.replace("https://google.com");
@@ -98,7 +102,9 @@ function iframeabtblank() {
   const width = window.innerWidth;
   const height = window.innerHeight;
 
+
   let inFrame;
+
 
   try {
     inFrame = window !== top;
@@ -106,8 +112,10 @@ function iframeabtblank() {
     inFrame = true;
   }
 
+
   if (!inFrame && !navigator.userAgent.includes("Firefox")) {
     const popup = window.open("about:blank", `width=${width},height=${height}`);
+
 
     if (!popup || popup.closed) {
       alert(
@@ -125,11 +133,13 @@ function iframeabtblank() {
       style.border = style.outline = "none";
       style.width = style.height = "100%";
 
+
       doc.head.appendChild(link);
       doc.body.appendChild(iframe);
       window.location.replace("https://google.com");
     }
   }
+}
 }
 
 function exit() {

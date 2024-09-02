@@ -1,6 +1,8 @@
 var extLoaded;
 if (typeof window != null) {
+if (typeof window != null) {
   onload = init;
+
 
   function init() {
     loadExtensions();
@@ -13,6 +15,7 @@ if (typeof window != null) {
       tries++;
     }
   }
+
 
   function loadExtensions() {
     if (!extLoaded) {

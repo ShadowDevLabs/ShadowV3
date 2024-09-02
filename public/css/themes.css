@@ -146,10 +146,3 @@
   --accent-color: #c045e2;
 }
 
-:root.blurple {
-  --background-color: #0e1131; 
-  --tab-background: #000720; 
-  --tab-border: #3c4b8c;     
-  --text-color: #ffffff;     
-  --accent-color: #7289da;    
-}

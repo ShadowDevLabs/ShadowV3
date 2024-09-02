@@ -86,7 +86,14 @@ class Extensions {
     this.update();
     return this.extensions[id] || false;
   }
+  get(id) {
+    this.update();
+    return this.extensions[id] || false;
+  }
 
+  update() {
+    this.extensions = JSON.parse(localStorage.getItem("extensions"));
+  }
   update() {
     this.extensions = JSON.parse(localStorage.getItem("extensions"));
   }
