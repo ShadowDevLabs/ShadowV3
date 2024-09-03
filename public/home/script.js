@@ -12,5 +12,6 @@ features[2].addEventListener("click", function () {
 });
 
 features[4].addEventListener("click", function () {
-  parent.createTab("https://now.gg/play/roblox-corporation/5349/roblox");
+  parent.createTab("https://newalgebra.com");
 });
+// ok wait why did we do it this way huh

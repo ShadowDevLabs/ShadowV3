@@ -52,6 +52,7 @@ class Tab {
     function createTabItems() {
       //Tab icon
       tab.img.className = "tab-icon";
+      tab.img.alt = "Tab Icon";
       // tab.img.onerror = `${(tab.img.style.display = "none")}`; //
       tab.tab.appendChild(tab.img);
       //Tab title
@@ -86,6 +87,7 @@ class Tab {
         e,
       ),
     );
+    tab.iframe.title = "Content Iframe"
     document.getElementById("iframes-container").appendChild(tab.iframe);
     document
       .getElementById("tabs-container")
