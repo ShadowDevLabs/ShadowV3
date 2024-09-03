@@ -104,7 +104,7 @@
             The button below opens the site as an about:blank, hiding it from
             your history.
           </p>
-          <button class="icon-button" onclick="abtblank()">
+          <button class="icon-button" onclick="aboutBlank()">
             <i class="fas fa-rocket"></i> Launch
           </button>
         </div>
@@ -199,9 +199,14 @@
   </div>
   </div>
 
-
-  <script src="https://cdn.rawgit.com/mozilla/localForage/master/dist/localforage.js"></script>
   <script>
+    function aboutBlank() {
+      if(parent !== window) {
+        parent.abtblank();
+      } else {
+        abtblank();
+      }
+    }
 
     function setWispUrl(url = document.getElementById('wispURL').value) {
       localStorage.setItem("server", `wss://${url.replace("/wisp", "").replace("https:", "").replace("http:", "").replace("/", "")}/wisp/`);
@@ -217,30 +222,6 @@
       const selectedSection = document.getElementById(contentId + "-content");
       if (selectedSection) {
         selectedSection.style.display = "block";
-      }
-    }
-
-    async function checkBare(i) {
-      let req = await fetch(i);
-      if (
-        req.headers.get("Content-Type") === "application/json" &&
-        req.status == "200"
-      ) {
-        console.log("Bare exists");
-        return true;
-      } else {
-        console.log("Bare doesn't exist");
-        return false;
-      }
-    }
-
-    function changeBare(i = "/bare/") {
-      if (checkBare(i)) {
-        localforage
-          .setItem("bare", i)
-          .then(console.log(localforage.getItem("bare")));
-      } else {
-        document.getElementById("bare-error").style.display = "block";
       }
     }
 
