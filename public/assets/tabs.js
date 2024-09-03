@@ -52,8 +52,14 @@ class Tab {
     function createTabItems() {
       //Tab icon
       tab.img.className = "tab-icon";
-      tab.img.alt = "Tab Icon";
-      // tab.img.onerror = `${(tab.img.style.display = "none")}`; //
+      tab.img.alt = "Favicon"
+      if (src.startsWith('shadow://')) {
+        let favicon = src.replace('shadow://', '');
+        favicon = `icons/pages/${favicon}.png`;
+        tab.img.src = favicon;
+    }
+    
+      //tab.img.onerror = `${(tab.img.style.display = "none")}`; //
       tab.tab.appendChild(tab.img);
       //Tab title
       const titleContainer = document.createElement("div");
@@ -171,6 +177,8 @@ class Tab {
         return "shadow://extensions";
       case "extensionsmanage":
         return "shadow://extensions/manage";
+      case "books":
+          return "shadow://games";
       default:
         return decode(
           src.replace(location.origin, "").replace("/uv/service/", ""),
