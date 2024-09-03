@@ -140,7 +140,7 @@ function iframeabtblank() {
     }
   }
 }
-}
+
 
 function exit() {
   if (window.confirm("Are you sure you want to close this tab?")) {

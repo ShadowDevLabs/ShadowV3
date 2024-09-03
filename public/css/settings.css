@@ -6,6 +6,7 @@ html {
   background-color: var(--background-color);
   font-family: "Poppins", sans-serif;
   display: flex;
+  overflow-x: hidden;
 }
 
 #sidebar {
@@ -59,7 +60,9 @@ html {
 }
 
 #content::-webkit-scrollbar-track {
-  background: var(--tab-background);
+  background: var(--background-color);
+  border-radius: 10px;
+
 }
 
 #content::-webkit-scrollbar-thumb {
@@ -117,7 +120,7 @@ button {
 .select-buttons {
   display: flex;
   align-items: center;
-  margin-top: 10px;
+  margin-top: 5px;
 }
 
 .select-buttons .icon-button,
@@ -179,7 +182,7 @@ select option {
   border-radius: 5px;
   padding: 10px 20px;
   font-family: "Rubik", sans-serif;
-  margin: 0px 5px;
+  margin: 0px;
 }
 
 .box-header {
@@ -256,4 +259,41 @@ input:checked + .slider {
 
 input:checked + .slider:before {
   transform: translateX(20px);
+}
+
+.notification {
+  background: none;
+  color: var(--accent-color);
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+.fade-in {
+  opacity: 1;
+}
+
+.fade-out {
+  opacity: 0;
+}
+
+@keyframes fade-in {
+  from {
+      opacity: 0;
+  }
+  to {
+      opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+      opacity: 1;
+  }
+  to {
+      opacity: 0;
+  }
 }

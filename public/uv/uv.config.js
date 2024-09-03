@@ -11,4 +11,9 @@ self.__uv$config = {
 };
 
 if (typeof window === "object" && self.constructor === Window) {
+  try {
+    parent.tabs.updateOmni();
+  } catch(e) {
+    console.log(`error in updating omnibox: ${e}`)
+  }
 }

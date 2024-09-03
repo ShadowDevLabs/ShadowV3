@@ -247,6 +247,7 @@ class Tab {
 }
 
 const tabs = new Tab();
+window.tabs = tabs;
 
 setInterval(function () {
   for (let i = 0; i < tabsArr.length; i++) {

@@ -1,311 +1,266 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <script src="/assets/themes.js"></script>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
-    />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Rubik&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="/css/settings.css" />
-    <link rel="stylesheet" href="/css/themes.css" />
-    <title>Settings</title>
-    <link rel="icon" href="icons/logo.png" type="image/x-icon" />
-    <script src="/assets/settings.js"></script>
-  </head>
 
-  <body onload="showContent('general');parent.updateOmni();parent.setTab();">
-    <div id="sidebar">
-      <div class="menu-item" onclick="showContent('general')">
-        <i class="fas fa-cog menu-icon"></i>
-        <span class="menu-label">General</span>
+<head>
+  <script src="/assets/themes.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/settings.css" />
+  <link rel="stylesheet" href="/css/themes.css" />
+  <title>Settings</title>
+  <link rel="icon" href="icons/logo.png" type="image/x-icon" />
+  <script src="/assets/settings.js"></script>
+</head>
+
+<body onload="showContent('general');parent.updateOmni();parent.setTab();">
+  <div id="sidebar">
+    <div class="menu-item" onclick="showContent('general')">
+      <i class="fas fa-cog menu-icon"></i>
+      <span class="menu-label">General</span>
+    </div>
+    <div class="menu-item" onclick="showContent('search')">
+      <i class="fas fa-search menu-icon"></i>
+      <span class="menu-label">Search</span>
+    </div>
+    <div class="menu-item" onclick="showContent('developer')">
+      <i class="fas fa-code menu-icon"></i>
+      <span class="menu-label">Developer</span>
+    </div>
+  </div>
+  <div id="content">
+    <div id="general-content">
+      <div class="content-title">General</div>
+      <!-- Tabs Cloak -->
+      <div class="settings-section">
+        <h2 class="section-title">Tab Cloak</h2>
+        <div class="section-content">
+          <div class="buttons">
+            <input id="title" class="input-field" placeholder="Title" onkeyup="setTitle(this.value)" />
+            <input id="icon" class="input-field" placeholder="Favicon" onkeyup="setFavicon(this.value.trim())" />
+          </div>
+          <p class="section-content">Ready Made Cloaks</p>
+          <div class="buttons">
+            <select name="Readymade Cloaks" id="premadecloaks" class="input-field" title="Cloaks">
+              <option value="search">Google Search</option>
+              <option value="drive">Google Drive</option>
+              <option value="youtube">YouTube</option>
+              <option value="gmail">Gmail</option>
+              <option value="calendar">Google Calendar</option>
+              <option value="meets">Google Meet</option>
+              <option value="classroom">Google Classroom</option>
+              <option value="canvas">Canvas</option>
+              <option value="zoom">Zoom</option>
+              <option value="khan">Khan Academy</option>
+            </select>
+            <div class="select-buttons">
+              <button class="icon-button" onclick="setCloak()">
+                <i class="fas fa-cogs"></i> Set
+              </button>
+              <button class="icon-button" onclick="resetTab()">
+                <i class="fas fa-undo-alt"></i> Reset
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="menu-item" onclick="showContent('search')">
-        <i class="fas fa-search menu-icon"></i>
-        <span class="menu-label">Search</span>
+      <!-- Themes -->
+      <br /><br />
+      <div class="settings-section">
+        <h2 class="section-title">Themes</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Choose between the following themes. This will change the
+            appearance of the site.
+          </p>
+          <select id="themeSelector" onchange="changeTheme()" class="input-field">
+            <option value="">Shadow (Dark)</option>
+            <option value="light">Shadow (Old)</option>
+            <option value="noctura">Noctura</option>
+            <option value="sapphire">Sapphire</option>
+            <option value="sunset">Sunset</option>
+            <option value="ruby">Ruby</option>
+            <option value="amoled">Amoled</option>
+            <option value="darkocean">Dark Ocean</option>
+            <option value="forestwhisper">Forest Whisper</option>
+            <option value="midnightshadow">Midnight Shadow</option>
+            <option value="autumnspice">Autumn Spice</option>
+            <option value="berrybliss">Berry Bliss</option>
+            <option value="deepsea">Deep Sea</option>
+            <option value="freshlime">Fresh Lime</option>
+            <option value="mysticpurple">Mystic Purple</option>
+          </select>
+        </div>
       </div>
-      <div class="menu-item" onclick="showContent('developer')">
-        <i class="fas fa-code menu-icon"></i>
-        <span class="menu-label">Developer</span>
+      <br /><br />
+      <!-- About:blank -->
+      <div class="settings-section">
+        <h2 class="section-title">About:Blank</h2>
+        <div class="section-content">
+          <p class="section-text">
+            The button below opens the site as an about:blank, hiding it from
+            your history.
+          </p>
+          <button class="icon-button" onclick="abtblank()">
+            <i class="fas fa-rocket"></i> Launch
+          </button>
+        </div>
+      </div>
+      <br /><br />
+      <!--Toggle auto save/load tabs-->
+      <div class="settings-section">
+        <h2 class="section-title">Auto Save/Load Tabs</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Automatically reload tabs from older sessions, toggle auto saving
+            and loading here.
+          </p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="toggleSwitch" />
+            <label for="toggleSwitch" class="slider"></label>
+          </div>
+        </div>
       </div>
     </div>
-    <div id="content">
-      <div id="general-content">
-        <div class="content-title">General</div>
-        <!-- Tabs Cloak -->
-        <div class="settings-section">
-          <h2 class="section-title">Tab Cloak</h2>
-          <div class="section-content">
-            <div class="buttons">
-              <input
-                id="title"
-                class="input-field"
-                placeholder="Title"
-                onkeyup="setTitle(this.value)"
-              />
-              <input
-                id="icon"
-                class="input-field"
-                placeholder="Favicon"
-                onkeyup="setFavicon(this.value.trim())"
-              />
-            </div>
-            <p class="section-content">Ready Made Cloaks</p>
-            <div class="buttons">
-              <select
-                name="Readymade Cloaks"
-                id="premadecloaks"
-                class="input-field"
-                title="Cloaks"
-              >
-                <option value="search">Google Search</option>
-                <option value="drive">Google Drive</option>
-                <option value="youtube">YouTube</option>
-                <option value="gmail">Gmail</option>
-                <option value="calendar">Google Calendar</option>
-                <option value="meets">Google Meet</option>
-                <option value="classroom">Google Classroom</option>
-                <option value="canvas">Canvas</option>
-                <option value="zoom">Zoom</option>
-                <option value="khan">Khan Academy</option>
-              </select>
-              <div class="select-buttons">
-                <button class="icon-button" onclick="setCloak()">
-                  <i class="fas fa-cogs"></i> Set
-                </button>
-                <button class="icon-button" onclick="resetTab()">
-                  <i class="fas fa-undo-alt"></i> Reset
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Themes -->
-        <br /><br />
-        <div class="settings-section">
-          <h2 class="section-title">Themes</h2>
-          <div class="section-content">
-            <p class="section-text">
-              Choose between the following themes. This will change the
-              appearance of the site.
-            </p>
-            <select
-              id="themeSelector"
-              onchange="changeTheme()"
-              class="input-field"
-            >
-              <option value="">Shadow (Dark)</option>
-              <option value="light">Shadow (Old)</option>
-              <option value="noctura">Noctura</option>
-              <option value="sapphire">Sapphire</option>
-              <option value="sunset">Sunset</option>
-              <option value="ruby">Ruby</option>
-              <option value="amoled">Amoled</option>
-              <option value="darkocean">Dark Ocean</option>
-              <option value="forestwhisper">Forest Whisper</option>
-              <option value="midnightshadow">Midnight Shadow</option>
-              <option value="autumnspice">Autumn Spice</option>
-              <option value="berrybliss">Berry Bliss</option>
-              <option value="deepsea">Deep Sea</option>
-              <option value="freshlime">Fresh Lime</option>
-              <option value="mysticpurple">Mystic Purple</option>
-            </select>
-          </div>
-        </div>
-        <br /><br />
-        <!-- About:blank -->
-        <div class="settings-section">
-          <h2 class="section-title">About:Blank</h2>
-          <div class="section-content">
-            <p class="section-text">
-              The button below opens the site as an about:blank, hiding it from
-              your history.
-            </p>
-            <button class="icon-button" onclick="abtblank()">
-              <i class="fas fa-rocket"></i> Launch
-            </button>
-          </div>
-        </div>
-        <br /><br />
-        <!--Toggle auto save/load tabs-->
-        <div class="settings-section">
-          <h2 class="section-title">Auto Save/Load Tabs</h2>
-          <div class="section-content">
-            <p class="section-text">
-              Automatically reload tabs from older sessions, toggle auto saving
-              and loading here.
-            </p>
-            <div class="switch">
-              <input type="checkbox" class="switch" id="toggleSwitch" />
-              <label for="toggleSwitch" class="slider"></label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div id="search-content">
-        <div class="content-title">Search</div>
-        <!-- Engine -->
-        <div class="settings-section">
-          <h2 class="section-title">Search Engine</h2>
-          <div class="section-content">
-            <p class="section-text">
-              Changing this will change the search engine used when searching.
-            </p>
-            <select
-              id="searchEngineDropdown"
-              class="input-field"
-              onchange="updateCookies()"
-            >
-              <option
-                value="google"
-                data-url="https://www.google.com/search?q=%s"
-              >
-                Google
-              </option>
-              <option value="bing" data-url="https://www.bing.com/search?q=%s">
-                Bing
-              </option>
-              <option
-                value="yahoo"
-                data-url="https://search.yahoo.com/search?p=%s"
-              >
-                Yahoo
-              </option>
-              <option
-                value="duckduckgo"
-                data-url="https://duckduckgo.com/?q=%s"
-              >
-                DuckDuckGo
-              </option>
-              <option
-                value="brave"
-                data-url="https://search.brave.com/search?q=%s"
-              >
-                Brave
-              </option>
-              <option
-                value="yandex"
-                data-url="https://yandex.com/search/?text=%s"
-              >
-                Yandex
-              </option>
-            </select>
-          </div>
-        </div>
-        <br /><br />
-        <!-- Proxy -->
-        <div class="settings-section">
-          <h2 class="section-title">Proxy</h2>
-          <div class="section-content">
-            <p class="section-text">
-              This is the proxy that is used when searching.
-            </p>
-            <select id="proxyDropdown" class="input-field">
-              <option value="ultraviolet">Ultraviolet</option>
-              <option value="dynamic">Dynamic</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div id="developer-content">
-        <div class="content-title">Developer Tools</div>
-        <p class="section-text">Coming Soon!</p>
-        <!--Hide 
+    <div id="search-content">
+      <div class="content-title">Search</div>
+      <!-- Engine -->
       <div class="settings-section">
-        <h2 class="section-title">Wisp Server Switcher</h2>
+        <h2 class="section-title">Search Engine</h2>
         <div class="section-content">
-          <p class="section-text">Switch between bare servers. Some bare servers might be slower or faster based on your
-            location.</p>
+          <p class="section-text">
+            Changing this will change the search engine used when searching.
+          </p>
+          <select id="searchEngineDropdown" class="input-field" onchange="updateCookies()">
+            <option value="google" data-url="https://www.google.com/search?q=%s">
+              Google
+            </option>
+            <option value="bing" data-url="https://www.bing.com/search?q=%s">
+              Bing
+            </option>
+            <option value="yahoo" data-url="https://search.yahoo.com/search?p=%s">
+              Yahoo
+            </option>
+            <option value="duckduckgo" data-url="https://duckduckgo.com/?q=%s">
+              DuckDuckGo
+            </option>
+            <option value="brave" data-url="https://search.brave.com/search?q=%s">
+              Brave
+            </option>
+            <option value="yandex" data-url="https://yandex.com/search/?text=%s">
+              Yandex
+            </option>
+          </select>
+        </div>
+      </div>
+      <br /><br />
+      <!-- Proxy -->
+      <div class="settings-section">
+        <h2 class="section-title">Proxy</h2>
+        <div class="section-content">
+          <p class="section-text">
+            This is the proxy that is used when searching.
+          </p>
+          <select id="proxyDropdown" class="input-field">
+            <option value="ultraviolet">Ultraviolet</option>
+            <option value="dynamic">Dynamic</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="developer-content">
+      <div class="content-title">Developer Tools</div>
+      <div class="settings-section">
+        <h2 class="section-title">Change WispURL</h2>
+        <div class="section-content">
+          <p class="section-text">Change the Wisp Server URL that's used when searching on Shadow. </p>
+          <input placeholder="Ex. phantom.lol" style="width:90%;" class="input-field" id="wispURL" /> <br><br>
+          <div class="flex-div" style="display:flex;">
+            <button class="icon-button" id="wispBtn" onclick="setWispUrl(); ShowNotification('Wisp URL changed.', 'wispnoti')"><i class="fa-solid fa-link"></i> Set Wisp URL</button>
+            <p class="notification" id="wispnoti"></p>
+          </div>
         </div>
       </div>
 
-      // UA
+      <!-- UA -
       <div class="settings-section">
-        <h2 class="section-title">User Agent Switcher</h2>
+        <h2 class="section-title">Custom User Agent</h2>
         <div class="section-content">
           <p class="section-text">Switch between different user agents. Some agents may cause issues.</p>
-        </div>
-        <div class="box">
-          <div class="box-header">
-            <h3>Custom Agent</h3>
-          </div>
-          <div class="box-content">
-            <input placeholder="" style="width:90%;" class="input-field" id="custom-ua" /> <br><br>
-            <button class="icon-button" id="ua"
-              onclick="customUA = document.getElementById('custom-ua').value; changeUA(customUA);">Choose Agent</button>
-          </div>
-        </div>
-      </div> -->
-      </div>
+          <input placeholder="" style="width:90%;" class="input-field" id="custom-ua" /> <br><br>
+          <button class="icon-button" id="ua"
+            onclick="customUA = document.getElementById('custom-ua').value; changeUA(customUA);">Choose Agent</button>
+        </div> -->
+
     </div>
+  </div>
+  </div>
 
-    <script src="https://cdn.rawgit.com/mozilla/localForage/master/dist/localforage.js"></script>
-    <script>
-      function showContent(contentId) {
-        const contentSections = document.querySelectorAll("#content > div");
-        contentSections.forEach((section) => {
-          section.style.display = "none";
-        });
 
-        const selectedSection = document.getElementById(contentId + "-content");
-        if (selectedSection) {
-          selectedSection.style.display = "block";
-        }
+  <script src="https://cdn.rawgit.com/mozilla/localForage/master/dist/localforage.js"></script>
+  <script>
+
+    function setWispUrl(url = document.getElementById('wispURL').value) {
+      localStorage.setItem("server", `wss://${url.replace("/wisp", "").replace("https:", "").replace("http:", "").replace("/", "")}/wisp/`);
+      parent.tabs.setTransport();
+    }
+
+    function showContent(contentId) {
+      const contentSections = document.querySelectorAll("#content > div");
+      contentSections.forEach((section) => {
+        section.style.display = "none";
+      });
+
+      const selectedSection = document.getElementById(contentId + "-content");
+      if (selectedSection) {
+        selectedSection.style.display = "block";
       }
+    }
 
-      async function checkBare(i) {
-        let req = await fetch(i);
-        if (
-          req.headers.get("Content-Type") === "application/json" &&
-          req.status == "200"
-        ) {
-          console.log("Bare exists");
-          return true;
-        } else {
-          console.log("Bare doesn't exist");
-          return false;
-        }
+    async function checkBare(i) {
+      let req = await fetch(i);
+      if (
+        req.headers.get("Content-Type") === "application/json" &&
+        req.status == "200"
+      ) {
+        console.log("Bare exists");
+        return true;
+      } else {
+        console.log("Bare doesn't exist");
+        return false;
       }
+    }
 
-      function changeBare(i = "/bare/") {
-        if (checkBare(i)) {
-          localforage
-            .setItem("bare", i)
-            .then(console.log(localforage.getItem("bare")));
-        } else {
-          document.getElementById("bare-error").style.display = "block";
-        }
+    function changeBare(i = "/bare/") {
+      if (checkBare(i)) {
+        localforage
+          .setItem("bare", i)
+          .then(console.log(localforage.getItem("bare")));
+      } else {
+        document.getElementById("bare-error").style.display = "block";
       }
+    }
 
-      function updateEngine() {
-        var dropdown = document.getElementById("searchEngineDropdown");
-        var selectedOption = dropdown.options[dropdown.selectedIndex];
-        var dataUrl = selectedOption.getAttribute("data-url");
-        localStorage.setItem("searchEngine", dataUrl);
-      }
+    function updateEngine() {
+      var dropdown = document.getElementById("searchEngineDropdown");
+      var selectedOption = dropdown.options[dropdown.selectedIndex];
+      var dataUrl = selectedOption.getAttribute("data-url");
+      localStorage.setItem("searchEngine", dataUrl);
+    }
 
-      var storedSearchEngine = localStorage.getItem("searchEngine");
-      var searchEngineDropdown = document.getElementById(
-        "searchEngineDropdown",
-      );
+    var storedSearchEngine = localStorage.getItem("searchEngine");
+    var searchEngineDropdown = document.getElementById(
+      "searchEngineDropdown",
+    );
 
-      searchEngineDropdown.addEventListener("change", updateEngine);
-    </script>
-    <script src="/assets/options.js"></script>
-    <script src="script.js"></script>
-  </body>
+    searchEngineDropdown.addEventListener("change", updateEngine);
+  </script>
+  <script src="/assets/options.js"></script>
+  <script src="/assets/notifications.js"></script
+  <script src="script.js"></script>
+</body>
+
 </html>
-

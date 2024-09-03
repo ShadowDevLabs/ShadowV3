@@ -30,4 +30,4 @@ if (typeof window != null) {
       }
     }
   }
-}
+}}
