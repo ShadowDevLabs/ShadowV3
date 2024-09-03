@@ -15,7 +15,7 @@ import { join } from "path";
 const version = process.env.npm_package_version;
 const publicPath = fileURLToPath(new URL("./public/", import.meta.url));
 const bare = createBareServer("/bare/");
-let port = 9090;
+let port = 8080;
 const app = express();
 const server = createServer();
 app.use(expressStaticGzip('./public/', {
