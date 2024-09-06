@@ -5,8 +5,7 @@
   <script src="/assets/themes.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" />
   <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/settings.css" />
@@ -21,6 +20,10 @@
     <div class="menu-item" onclick="showContent('general')">
       <i class="fas fa-cog menu-icon"></i>
       <span class="menu-label">General</span>
+    </div>
+    <div class="menu-item" onclick="showContent('themes')">
+      <i class="fa-solid fa-paintbrush menu-icon"></i>
+      <span class="menu-label">Themes</span>
     </div>
     <div class="menu-item" onclick="showContent('search')">
       <i class="fas fa-search menu-icon"></i>
@@ -67,34 +70,7 @@
           </div>
         </div>
       </div>
-      <!-- Themes -->
-      <br /><br />
-      <div class="settings-section">
-        <h2 class="section-title">Themes</h2>
-        <div class="section-content">
-          <p class="section-text">
-            Choose between the following themes. This will change the
-            appearance of the site.
-          </p>
-          <select id="themeSelector" onchange="changeTheme()" class="input-field">
-            <option value="">Shadow (Dark)</option>
-            <option value="light">Shadow (Old)</option>
-            <option value="noctura">Noctura</option>
-            <option value="sapphire">Sapphire</option>
-            <option value="sunset">Sunset</option>
-            <option value="ruby">Ruby</option>
-            <option value="amoled">Amoled</option>
-            <option value="darkocean">Dark Ocean</option>
-            <option value="forestwhisper">Forest Whisper</option>
-            <option value="midnightshadow">Midnight Shadow</option>
-            <option value="autumnspice">Autumn Spice</option>
-            <option value="berrybliss">Berry Bliss</option>
-            <option value="deepsea">Deep Sea</option>
-            <option value="freshlime">Fresh Lime</option>
-            <option value="mysticpurple">Mystic Purple</option>
-          </select>
-        </div>
-      </div>
+
       <br /><br />
       <!-- About:blank -->
       <div class="settings-section">
@@ -124,6 +100,118 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Themes -->
+    <div id="themes-content">
+      <div class="content-title">Themes</div>
+      <div class="settings-section"></div>
+        <h2 class="section-title">Themes</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Choose between the following themes. This will change the
+            appearance of the site.
+          </p>
+          <div class="themes-container" id="themes-container">
+              <!-- Theme Buttons Get Loaded here-->
+          </div>
+        </div>
+      </div>
+      
+    <div id="search-content">
+      <div class="content-title">Search</div>
+      <!-- Engine -->
+      <div class="settings-section">
+        <h2 class="section-title">Search Engine</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Changing this will change the search engine used when searching.
+          </p>
+          <select id="searchEngineDropdown" class="input-field" onchange="updateCookies()">
+            <option value="google" data-url="https://www.google.com/search?q=%s">
+              Google
+            </option>
+            <option value="bing" data-url="https://www.bing.com/search?q=%s">
+              Bing
+            </option>
+            <option value="yahoo" data-url="https://search.yahoo.com/search?p=%s">
+              Yahoo
+            </option>
+            <option value="duckduckgo" data-url="https://duckduckgo.com/?q=%s">
+              DuckDuckGo
+            </option>
+            <option value="brave" data-url="https://search.brave.com/search?q=%s">
+              Brave
+            </option>
+            <option value="yandex" data-url="https://yandex.com/search/?text=%s">
+              Yandex
+            </option>
+          </select>
+        </div>
+      </div>
+      <br /><br />
+      <!-- Proxy -->
+      <!-- <div class="settings-section">
+        <h2 class="section-title">Proxy</h2>
+        <div class="section-content">
+          <p class="section-text">
+            This is the proxy that is used when searching.
+          </p>
+          <select id="proxyDropdown" class="input-field">
+            <option value="ultraviolet">Ultraviolet</option>
+            <option value="dynamic">Dynamic</option>
+          </select>
+        </div>
+      </div> -->
+    </div>
+
+
+
+    <div id="search-content">
+      <div class="content-title">Search</div>
+      <!-- Engine -->
+      <div class="settings-section">
+        <h2 class="section-title">Search Engine</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Changing this will change the search engine used when searching.
+          </p>
+          <select id="searchEngineDropdown" class="input-field" onchange="updateCookies()">
+            <option value="google" data-url="https://www.google.com/search?q=%s">
+              Google
+            </option>
+            <option value="bing" data-url="https://www.bing.com/search?q=%s">
+              Bing
+            </option>
+            <option value="yahoo" data-url="https://search.yahoo.com/search?p=%s">
+              Yahoo
+            </option>
+            <option value="duckduckgo" data-url="https://duckduckgo.com/?q=%s">
+              DuckDuckGo
+            </option>
+            <option value="brave" data-url="https://search.brave.com/search?q=%s">
+              Brave
+            </option>
+            <option value="yandex" data-url="https://yandex.com/search/?text=%s">
+              Yandex
+            </option>
+          </select>
+        </div>
+      </div>
+      <br /><br />
+      <!-- Proxy -->
+      <!-- <div class="settings-section">
+        <h2 class="section-title">Proxy</h2>
+        <div class="section-content">
+          <p class="section-text">
+            This is the proxy that is used when searching.
+          </p>
+          <select id="proxyDropdown" class="input-field">
+            <option value="ultraviolet">Ultraviolet</option>
+            <option value="dynamic">Dynamic</option>
+          </select>
+        </div>
+      </div> -->
     </div>
     <div id="search-content">
       <div class="content-title">Search</div>
@@ -240,7 +328,7 @@
     searchEngineDropdown.addEventListener("change", updateEngine);
   </script>
   <script src="/assets/options.js"></script>
-  <script src="/assets/notifications.js"></script
+  <script src="/assets/notifications.js"></script>
   <script src="script.js"></script>
 </body>
 

@@ -1,0 +1,167 @@
+[
+    {
+        "name": "Shadow (Dark)",
+        "value": "",
+        "css": {
+            "background-color": "#060611",
+            "tab-background": "#0e0e1d",
+            "tab-border": "#372754",
+            "text-color": "#ffffff",
+            "accent-color": "#ba7df2"
+        }
+    },
+    {
+        "name": "Shadow (Old)",
+        "value": "light",
+        "css": {
+            "background-color": "#1c1c38",
+            "tab-background": "#262648",
+            "tab-border": "#4d4d86",
+            "text-color": "#ffffff",
+            "accent-color": "#6c3da3"
+        }
+    },
+    {
+        "name": "Noctura",
+        "value": "noctura",
+        "css": {
+            "background-color": "#0b0b1a",
+            "tab-background": "#0b0b1a",
+            "tab-border": "#6161c7",
+            "text-color": "#ccc",
+            "accent-color": "#9fb2ff"
+        }
+    },
+    {
+        "name": "Sapphire",
+        "value": "sapphire",
+        "css": {
+            "background-color": "#010a13",
+            "tab-background": "#010f1a",
+            "tab-border": "#00b3ff",
+            "text-color": "#e0f7ff",
+            "accent-color": "#00d4ff"
+        }
+    },
+    {
+        "name": "Sunset",
+        "value": "sunset",
+        "css": {
+            "background-color": "#2c061f",
+            "tab-background": "#450920",
+            "tab-border": "#d1421b",
+            "text-color": "#f0c3b0",
+            "accent-color": "#ff784e"
+        }
+    },
+    {
+        "name": "Ruby",
+        "value": "ruby",
+        "css": {
+            "background-color": "#1a0002",
+            "tab-background": "#240001",
+            "tab-border": "#663838",
+            "text-color": "#e6e6e6",
+            "accent-color": "#b50909"
+        }
+    },
+    {
+        "name": "Amoled",
+        "value": "amoled",
+        "css": {
+            "background-color": "#000000",
+            "tab-background": "#000000",
+            "tab-border": "#ffffff",
+            "text-color": "#ffffff",
+            "accent-color": "#f2f2f2"
+        }
+    },
+    {
+        "name": "Dark Ocean",
+        "value": "darkocean",
+        "css": {
+            "background-color": "#000d17",
+            "tab-background": "#00192c",
+            "tab-border": "#2e4f6a",
+            "text-color": "#e0e0e0",
+            "accent-color": "#1fc0b3"
+        }
+    },
+    {
+        "name": "Forest Whisper",
+        "value": "forestwhisper",
+        "css": {
+            "background-color": "#021402",
+            "tab-background": "#0e2609",
+            "tab-border": "#3a5f40",
+            "text-color": "#d4e1d1",
+            "accent-color": "#6bd175"
+        }
+    },
+    {
+        "name": "Midnight Shadow",
+        "value": "midnightshadow",
+        "css": {
+            "background-color": "#0d1021",
+            "tab-background": "#191e3d",
+            "tab-border": "#6f7ff1",
+            "text-color": "#ffffff",
+            "accent-color": "#eebbc3"
+        }
+    },
+    {
+        "name": "Autumn Spice",
+        "value": "autumnspice",
+        "css": {
+            "background-color": "#3a271c",
+            "tab-background": "#5e422f",
+            "tab-border": "#8c6a59",
+            "text-color": "#f6e6df",
+            "accent-color": "#e28956"
+        }
+    },
+    {
+        "name": "Berry Bliss",
+        "value": "berrybliss",
+        "css": {
+            "background-color": "#3a1c2e",
+            "tab-background": "#5e2e4c",
+            "tab-border": "#8c557a",
+            "text-color": "#f6e6f4",
+            "accent-color": "#e24592"
+        }
+    },
+    {
+        "name": "Deep Sea",
+        "value": "deepsea",
+        "css": {
+            "background-color": "#1c233a",
+            "tab-background": "#2e355e",
+            "tab-border": "#555a8c",
+            "text-color": "#e6e6f4",
+            "accent-color": "#4560e2"
+        }
+    },
+    {
+        "name": "Fresh Lime",
+        "value": "freshlime",
+        "css": {
+            "background-color": "#2a3a1c",
+            "tab-background": "#4c5e2e",
+            "tab-border": "#7a8c55",
+            "text-color": "#f1f4e6",
+            "accent-color": "#aee245"
+        }
+    },
+    {
+        "name": "Mystic Purple",
+        "value": "mysticpurple",
+        "css": {
+            "background-color": "#2c1c3a",
+            "tab-background": "#4c2e5e",
+            "tab-border": "#7a558c",
+            "text-color": "#f1e6f4",
+            "accent-color": "#c045e2"
+        }
+    }
+]

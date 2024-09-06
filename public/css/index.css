@@ -381,7 +381,8 @@ iframe.active {
   color: var(--text-color);
   padding: 4px 8px;
   border: none;
-  width: 100%;
+  width: 200px;
+  text-align: left;
   cursor: pointer;
   font-family: "Poppins", sans-serif;
   border-radius: 5px;

@@ -1,3 +1,31 @@
+fetch('themes.json')
+    .then(response => response.json())
+    .then(themes => {
+        const themesContainer = document.getElementById('themes-container');
+
+        themes.forEach(theme => {
+            const themeDiv = document.createElement('div');
+            themeDiv.classList.add('theme');
+            themeDiv.onclick = () => {
+                changeTheme(theme.value);
+            };
+
+            const colorDiv = document.createElement('div');
+            colorDiv.classList.add('color');
+            colorDiv.style.background = `linear-gradient(135deg, ${theme.css['background-color']}, ${theme.css['tab-background']}, ${theme.css['tab-border']}, ${theme.css['accent-color']})`;
+
+            themeDiv.style.backgroundColor = theme.css['tab-background'];
+            themeDiv.style.color = theme.css['text-color'];
+            themeDiv.style.borderColor = theme.css['tab-border'];
+
+            themeDiv.appendChild(colorDiv);
+            themeDiv.appendChild(document.createTextNode(theme.name));
+
+            themesContainer.appendChild(themeDiv);
+        });
+    })
+    .catch(error => console.error('Error loading themes:', error));
+
 function abtblank() {
   const url = window.location.href;
   const width = window.innerWidth;

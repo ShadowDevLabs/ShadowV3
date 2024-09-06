@@ -1,5 +1,4 @@
-function changeTheme() {
-  const selectedTheme = document.getElementById("themeSelector").value;
+function changeTheme(selectedTheme) {
   changetheme(selectedTheme);
   localStorage.setItem("theme", selectedTheme);
 }
