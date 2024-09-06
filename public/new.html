@@ -1,134 +1,112 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <script src="/assets/themes.js"></script>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/css/main.css" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Rubik&display=swap"
-      rel="stylesheet"
-    />
-    <title>New Tab</title>
-    <link rel="stylesheet" href="/css/themes.css" />
-    <script src="/assets/themes.js"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
-    />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      href="icons/logo.png"
-    />
-  </head>
-  <body>
-    <div class="container">
-      <h1>Shadow</h1>
-      <div class="search-container">
-        <p class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></p>
-        <form id="uv-form" class="inputcontainermain">
-          <input
-            type="text"
-            id="uv-address"
-            placeholder="Search or enter a URL"
-          />
-          <input
-            id="uv-search-engine"
-            value="https://www.google.com/search?q=%s"
-            type="hidden"
-          />
-        </form>
-      </div>
-      <div class="shortcuts">
-        <a class="shortcut add">
-          <img
-            alt="AddShortcut" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Plus_symbol.svg/1707px-Plus_symbol.svg.png"
-          />
-          <p>Add shortcut</p>
-        </a>
-      </div>
-    </div>
-    <div id="modal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Add a Shortcut</h2>
-        <form id="shortcut-form">
-          <label for="shortcut-name">Name:</label>
-          <input type="text" id="shortcut-name" name="name" />
-          <label for="shortcut-url">URL:</label>
-          <input type="text" id="shortcut-url" name="url" />
-          <button type="button" id="add-shortcut">Add</button>
-        </form>
-      </div>
-    </div>
-    <div id="edit-shortcut-modal" class="modal">
-      <div class="modal-content">
-        <span class="close" id="closeedit">&times;</span>
-        <h2>Edit Shortcut</h2>
-        <form id="edit-shortcut-form">
-          <label for="edit-shortcut-name">Name:</label>
-          <input type="text" id="edit-shortcut-name" required />
-          <label for="edit-shortcut-url">URL:</label>
-          <input type="text" id="edit-shortcut-url" required />
-          <button type="button" id="edit-shortcut">Save</button>
-        </form>
-      </div>
-    </div>
-    <div id="shortcut-context-menu" class="context-menu">
-      <li id="edit-context-menu-option">
-        <i class="fa-regular fa-pen-to-square"></i> Edit
-      </li>
-      <li id="delete-context-menu-option">
-        <i class="fa-solid fa-trash"></i> Delete
-      </li>
-    </div>
-    <div class="desc left-margin">
-      <p id="uv-error"></p>
-      <pre id="uv-error-code"></pre>
-    </div>
-    <script>
-      function updateSearchInput() {
-        var storedSearchEngine = localStorage.getItem("searchEngine");
-        var searchInput = document.getElementById("uv-search-engine");
-        searchInput.value =
-          storedSearchEngine || "https://www.google.com/search?q=%s";
-      }
 
-      updateSearchInput();
+<head>
+  <script src="/assets/themes.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Rubik&display=swap" rel="stylesheet" />
+  <title>New Tab</title>
+  <link rel="stylesheet" href="/css/themes.css" />
+  <script src="/assets/themes.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" />
+  <link rel="icon" type="image/png" href="icons/logo.png" />
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NCTSG4T1B6"></script>
+  <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-NCTSG4T1B6');</script>
+</head>
 
-      window.addEventListener("storage", function (e) {
-        if (e.key === "searchEngine") {
-          updateSearchInput();
-        }
-      });
-    </script>
-    <script src="/assets/main.js"></script>
-    <script src="/uv/uv.bundle.js"></script>
-    <script src="/uv/uv.config.js"></script>
-    <script src="/uv/uv.sw.js"></script>
-    <script src="/uv/uv.config.js"></script>
-    <script src="/assets/search.js"></script>
-    <script>
-      try {
-        parent.updateOmni();
-        parent.setTab();
-      } catch (e) {
-        //Silence errors if opened on its own
+<body>
+  <div class="container">
+    <h1>Shadow</h1>
+    <div class="search-container">
+      <p class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></p>
+      <form id="uv-form" class="inputcontainermain">
+        <input type="text" id="uv-address" placeholder="Search or enter a URL" />
+        <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
+      </form>
+    </div>
+    <div class="shortcuts">
+      <a class="shortcut add">
+        <img alt="AddShortcut"
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Plus_symbol.svg/1707px-Plus_symbol.svg.png" />
+        <p>Add shortcut</p>
+      </a>
+    </div>
+  </div>
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Add a Shortcut</h2>
+      <form id="shortcut-form">
+        <label for="shortcut-name">Name:</label>
+        <input type="text" id="shortcut-name" name="name" />
+        <label for="shortcut-url">URL:</label>
+        <input type="text" id="shortcut-url" name="url" />
+        <button type="button" id="add-shortcut">Add</button>
+      </form>
+    </div>
+  </div>
+  <div id="edit-shortcut-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeedit">&times;</span>
+      <h2>Edit Shortcut</h2>
+      <form id="edit-shortcut-form">
+        <label for="edit-shortcut-name">Name:</label>
+        <input type="text" id="edit-shortcut-name" required />
+        <label for="edit-shortcut-url">URL:</label>
+        <input type="text" id="edit-shortcut-url" required />
+        <button type="button" id="edit-shortcut">Save</button>
+      </form>
+    </div>
+  </div>
+  <div id="shortcut-context-menu" class="context-menu">
+    <li id="edit-context-menu-option">
+      <i class="fa-regular fa-pen-to-square"></i> Edit
+    </li>
+    <li id="delete-context-menu-option">
+      <i class="fa-solid fa-trash"></i> Delete
+    </li>
+  </div>
+  <div class="desc left-margin">
+    <p id="uv-error"></p>
+    <pre id="uv-error-code"></pre>
+  </div>
+  <script>
+    function updateSearchInput() {
+      var storedSearchEngine = localStorage.getItem("searchEngine");
+      var searchInput = document.getElementById("uv-search-engine");
+      searchInput.value =
+        storedSearchEngine || "https://www.google.com/search?q=%s";
+    }
+
+    updateSearchInput();
+
+    window.addEventListener("storage", function (e) {
+      if (e.key === "searchEngine") {
+        updateSearchInput();
       }
-    </script>
-  </body>
+    });
+  </script>
+  <script src="/assets/main.js"></script>
+  <script src="/uv/uv.bundle.js"></script>
+  <script src="/uv/uv.config.js"></script>
+  <script src="/uv/uv.sw.js"></script>
+  <script src="/uv/uv.config.js"></script>
+  <script src="/assets/search.js"></script>
+  <script>
+    try {
+      parent.updateOmni();
+      parent.setTab();
+    } catch (e) {
+      //Silence errors if opened on its own
+    }
+  </script>
+</body>
+
 </html>

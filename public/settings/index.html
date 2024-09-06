@@ -14,6 +14,9 @@
   <title>Settings</title>
   <link rel="icon" href="icons/logo.png" type="image/x-icon" />
   <script src="/assets/settings.js"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NCTSG4T1B6"></script>
+  <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-NCTSG4T1B6');</script>
 </head>
 
 <body onload="showContent('general');parent.updateOmni();parent.setTab();">
@@ -179,7 +182,9 @@
           <p class="section-text">Change the Wisp Server URL that's used when searching on Shadow. </p>
           <input placeholder="Ex. phantom.lol" style="width:90%;" class="input-field" id="wispURL" /> <br><br>
           <div class="flex-div" style="display:flex;">
-            <button class="icon-button" id="wispBtn" onclick="setWispUrl(); ShowNotification('Wisp URL changed.', 'wispnoti')"><i class="fa-solid fa-link"></i> Set Wisp URL</button>
+            <button class="icon-button" id="wispBtn"
+              onclick="setWispUrl(); ShowNotification('Wisp URL changed.', 'wispnoti')"><i class="fa-solid fa-link"></i>
+              Set Wisp URL</button>
             <p class="notification" id="wispnoti"></p>
           </div>
         </div>
@@ -201,7 +206,7 @@
 
   <script>
     function aboutBlank() {
-      if(parent !== window) {
+      if (parent !== window) {
         parent.abtblank();
       } else {
         abtblank();
