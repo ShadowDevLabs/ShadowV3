@@ -44,10 +44,11 @@ app.get("/version", (req, res) => {
 
 app.get("/search-api", async (req, res) => {
   const response = await fetch(
-    `http://api.duckduckgo.com/ac?q=${req.query.term}&format=json`,
+    `http://api.duckduckgo.com/ac?q=${req.query.query}&format=json`
   ).then((i) => i.json());
   res.send(response);
 });
+
 
 app.get("/user-agents", async (req, res) => {
   let text = await fetch("https://useragents.me/");
