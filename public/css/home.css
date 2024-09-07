@@ -125,3 +125,24 @@ h1 {
   opacity: 1;
   transition: opacity 0.3s ease-in-out;
 }
+
+footer {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  text-align: center;
+  padding: 5px;
+  height:20px;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+  font-family: 'Poppins', sans-serif;
+}
+
+footer p {
+  margin-top: 5px;
+  opacity: 0.8;
+  font-style: italic;
+  font-size: 12px;
+  cursor:pointer;
+  color: var(--accent-color);
+}
