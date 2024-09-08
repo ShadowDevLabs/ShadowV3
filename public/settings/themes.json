@@ -1,7 +1,7 @@
 [
     {
         "name": "Shadow (Dark)",
-        "value": "",
+        "value": "dark",
         "css": {
             "background-color": "#060611",
             "tab-background": "#0e0e1d",
