@@ -314,17 +314,20 @@ input:checked + .slider:before {
   background-color: var(--tab-background);
   color: var(--text-color);
   padding: 10px 20px;
-  width:250px;
+  width: 250px;
   border-radius: 8px;
   border: 1px solid var(--tab-border);
   cursor: pointer;
   font-family: 'Poppins', sans-serif;
   font-size: 16px;
-  transition: background-color 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  transform: scale(1);
 }
 
 .theme:hover {
   background-color: var(--accent-color);
+  transform: scale(1.05);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
 }
 
 .color {
@@ -333,8 +336,12 @@ input:checked + .slider:before {
   border-radius: 50%;
   background: linear-gradient(135deg, var(--background-color), var(--tab-background), var(--tab-border), var(--accent-color));
   margin-right: 12px;
+  transition: transform 0.3s ease;
 }
 
+.theme:hover .color {
+  transform: rotate(360deg);
+}
 
 @media (max-width: 768px) {
   body{
