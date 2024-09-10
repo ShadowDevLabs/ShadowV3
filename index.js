@@ -15,7 +15,7 @@ import { join } from "path";
 const version = process.env.npm_package_version;
 const publicPath = fileURLToPath(new URL("./public/", import.meta.url));
 const bare = createBareServer("/bare/");
-let port = 9090;
+let port = 8080;
 const app = express();
 const server = createServer();
 app.use(express.static(publicPath, { maxAge: 604800000 })); //1 week
@@ -38,10 +38,11 @@ app.get("/version", (req, res) => {
 
 app.get("/search-api", async (req, res) => {
   const response = await fetch(
-    `http://api.duckduckgo.com/ac?q=${req.query.term}&format=json`,
+    `http://api.duckduckgo.com/ac?q=${req.query.query}&format=json`
   ).then((i) => i.json());
   res.send(response);
 });
+
 
 app.get("/user-agents", async (req, res) => {
   let text = await fetch("https://useragents.me/");

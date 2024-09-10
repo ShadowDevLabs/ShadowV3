@@ -1,7 +1,7 @@
 [
     {
         "name": "Shadow (Dark)",
-        "value": "",
+        "value": "dark",
         "css": {
             "background-color": "#060611",
             "tab-background": "#0e0e1d",
@@ -162,6 +162,17 @@
             "tab-border": "#7a558c",
             "text-color": "#f1e6f4",
             "accent-color": "#c045e2"
+        }
+    },
+    {
+        "name": "Midnight Sparkle",
+        "value": "midnightsparkle",
+        "css": {
+            "background-color": "#000000",
+            "tab-background": "#1c1c2f",
+            "tab-border": "#4f4f70",
+            "text-color": "#f0f0f0",
+            "accent-color": "#d1caff"
         }
     }
 ]

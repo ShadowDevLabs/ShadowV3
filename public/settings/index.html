@@ -268,11 +268,17 @@
         <h2 class="section-title">Change WispURL</h2>
         <div class="section-content">
           <p class="section-text">Change the Wisp Server URL that's used when searching on Shadow. </p>
-          <input placeholder="Ex. phantom.lol" style="width:90%;" class="input-field" id="wispURL" /> <br><br>
+          <select id="wispSelection" onchange="wispURLOption()" class="input-field">
+            <option value="default">Default</option>
+            <option value="custom">Custom</option>
+          </select> <br><br>
+          
+          <input placeholder="Ex. phantom.lol" style="width:90%; display:none;" class="input-field" id="wispURL" /> <br>
+          
           <div class="flex-div" style="display:flex;">
-            <button class="icon-button" id="wispBtn"
-              onclick="setWispUrl(); ShowNotification('Wisp URL changed.', 'wispnoti')"><i class="fa-solid fa-link"></i>
-              Set Wisp URL</button>
+            <button class="icon-button" id="wispBtn" onclick="setWispUrl(); ShowNotification('Wisp URL changed.', 'wispnoti')">
+              <i class="fa-solid fa-link"></i> Set Wisp URL
+            </button>
             <p class="notification" id="wispnoti"></p>
           </div>
         </div>

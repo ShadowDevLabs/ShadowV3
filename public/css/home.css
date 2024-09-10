@@ -37,7 +37,28 @@ h1 {
   font-size: 36px;
   padding-bottom: 0;
   color: var(--accent-color);
-  animation: moveup 1.2s ease-out;
+  animation: moveup 1.2s ease-out, glow 1.5s infinite alternate;
+  text-shadow: 0 0 10px var(--accent-color);
+  background: linear-gradient(45deg, var(--accent-color), #ffffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: transform 0.3s ease, color 0.3s ease, text-shadow 0.3s ease;
+  cursor:pointer;
+}
+
+h1:hover {
+  color: var(--text-color);
+  text-shadow: 0 0 20px var(--accent-color), 0 0 30px var(--accent-color);
+  transform: scale(1.05);
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 10px var(--accent-color);
+  }
+  to {
+    text-shadow: 0 0 20px var(--accent-color);
+  }
 }
 
 .subtitle {
@@ -124,4 +145,25 @@ h1 {
   font-size: 14px;
   opacity: 1;
   transition: opacity 0.3s ease-in-out;
+}
+
+footer {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  text-align: center;
+  padding: 5px;
+  height:20px;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+  font-family: 'Poppins', sans-serif;
+}
+
+footer p {
+  margin-top: 5px;
+  opacity: 0.8;
+  font-style: italic;
+  font-size: 12px;
+  cursor:pointer;
+  color: var(--accent-color);
 }

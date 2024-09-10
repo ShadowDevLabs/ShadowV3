@@ -26,6 +26,7 @@ fetch('themes.json')
     })
     .catch(error => console.error('Error loading themes:', error));
 
+
 function abtblank() {
   const url = window.location.href;
   const width = window.innerWidth;
@@ -62,5 +63,17 @@ function abtblank() {
       doc.body.appendChild(iframe);
       window.location.replace("https://google.com");
     }
+  }
+}
+
+
+function wispURLOption() {
+  const wispSelection = document.getElementById('wispSelection');
+  const customWispURL = document.getElementById('wispURL');
+  
+  if (wispSelection.value === 'custom') {
+    customWispURL.style.display = 'block';
+  } else {
+    customWispURL.style.display = 'none';
   }
 }

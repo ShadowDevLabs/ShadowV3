@@ -146,3 +146,10 @@
   --accent-color: #c045e2;
 }
 
+:root.midnightsparkle {
+  --background-color: #000000; 
+  --tab-background: #1c1c2f; 
+  --tab-border: #4f4f70;  
+  --text-color: #f0f0f0;   
+  --accent-color: #d1caff;   
+}
