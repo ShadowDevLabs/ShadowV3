@@ -6,12 +6,7 @@ const errorCode = document.getElementById("uv-error-code");
 const decode = (i) => {
   return self.__uv$config.decodeUrl(i);
 };
-const encode = (i) => {
-  return self.__uv$config.encodeUrl(i);
-};
 const searchInput = document.getElementById("search-bar");
-const tabsContainer = document.getElementById("tabs-container");
-const iframesContainer = document.getElementById("iframes-container");
 const searchEngine = document.getElementById("uv-search-engine");
 const addTabButton = document.getElementById("add-tab");
 var activeTabIndex = -1;
@@ -19,6 +14,7 @@ var tabsArr = [];
 
 class Tab {
   constructor() {
+    this.connection = new BareMux.BareMuxConnection("/baremux/worker.js");
     document.getElementById("uv-form").addEventListener("submit", (e) => {
       e.preventDefault();
       searchInput.blur();
@@ -243,15 +239,17 @@ class Tab {
     }
   }
   setTransport(
-    url,
-    transport = localStorage.getItem("transport") || "EpxMod.EpoxyClient",
+    url = `wss://${location.host}/wisp/`,
+    transport = localStorage.getItem("transport") || "/epoxy/index.mjs",
   ) {
     url =
       url || localStorage.getItem("server") || `wss://${location.host}/wisp/`;
     if (url.startsWith("ws")) {
-      BareMux.SetTransport(transport, { wisp: url });
+      this.connection.setTransport(transport, [{ wisp: url }]);
+      localStorage.setItem("server", url);
+      localStorage.setItem("transport", transport);
     } else {
-      BareMux.SetTransport("BareMod.BareClient", url);
+      this.connection.setTransport("/baremod/index.mjs", [url]);
     }
   }
 }

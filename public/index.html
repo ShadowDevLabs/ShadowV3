@@ -219,9 +219,7 @@
     <i class="fa-brands fa-discord"></i>
   </a>
   <!-- Scripts -->
-  <script src="/epoxy/index.js"></script>
-  <script src="/bareTransport.js"></script>
-  <script src="/baremux/bare.js"></script>
+  <script src="/baremux/index.js"></script>
   <script src="/assets/search.js"></script>
   <script src="/assets/themes.js"></script>
   <script src="/assets/options.js"></script>
@@ -233,15 +231,7 @@
   <scirpt src="/assets/panic.js"></scirpt>
   <script src="/assets/tabs.js" async></script>
   <script src="/assets/bookmarks.js" async></script>
-  <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("/sw.js", {
-          scope: "/"
-        });
-      });
-    }
-  </script>
+
   <script>
     if (!localStorage.getItem("searchEngine")) {
       localStorage.setItem(

@@ -1,34 +1,28 @@
-import compression from "compression";
 import express from "express";
 import wisp from "wisp-server-node";
 import * as cheerio from "cheerio";
-import expressStaticGzip from "express-static-gzip";
 import { createServer } from "http";
 import { fileURLToPath } from "url";
 import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
-import { baremuxPath } from "@mercuryworkshop/bare-mux";
+import { libcurlPath } from "@mercuryworkshop/libcurl-transport";
+import { bareModulePath } from "@mercuryworkshop/bare-as-module3"
+import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
 import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
-import { createBareServer } from "@tomphttp/bare-server-node";
+import { createBareServer } from "@nebula-services/bare-server-node";
 import { dynamicPath } from "@nebula-services/dynamic";
 // import { path as gamesPath } from "3hk0-static";
 import { join } from "path";
 const version = process.env.npm_package_version;
 const publicPath = fileURLToPath(new URL("./public/", import.meta.url));
 const bare = createBareServer("/bare/");
-let port = 3000;
+let port = 9090;
 const app = express();
 const server = createServer();
-app.use(expressStaticGzip('./public/', {
-  enableBrotli: true,
-  customCompressions: [{
-      encodingName: 'deflate',
-      fileExtension: 'zz'
-  }],
-  orderPreference: ['br']
-}));
 app.use(express.static(publicPath, { maxAge: 604800000 })); //1 week
 // app.use("/books/files/", express.static(gamesPath))
 app.use("/epoxy/", express.static(epoxyPath));
+app.use("/libcurl/", express.static(libcurlPath));
+app.use("/baremod/", express.static(bareModulePath));
 app.use("/baremux/", express.static(baremuxPath));
 app.use("/uv/", express.static(uvPath));
 app.use("/dynamic/", express.static(dynamicPath));
