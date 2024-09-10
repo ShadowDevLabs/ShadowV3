@@ -239,7 +239,7 @@ class Tab {
     }
   }
   setTransport(
-    url = `wss://${location.host}/wisp/`,
+    url = localStorage.getItem("server") || `wss://${location.host}/wisp/`,
     transport = localStorage.getItem("transport") || "/epoxy/index.mjs",
   ) {
     url =
@@ -249,7 +249,9 @@ class Tab {
       localStorage.setItem("server", url);
       localStorage.setItem("transport", transport);
     } else {
-      this.connection.setTransport("/baremod/index.mjs", [url]);
+      this.connection.setTransport(transport, [url]);
+      localStorage.setItem("server", url);
+      localStorage.setItem("transport", transport);
     }
   }
 }
