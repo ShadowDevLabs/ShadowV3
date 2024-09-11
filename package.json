@@ -9,6 +9,7 @@
   },
   "scripts": {
     "start": "node index.js",
+    "dev": "node index.js 9090",
     "shadow": "node index.js",
     "pretty": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json,html,css}\""
   },

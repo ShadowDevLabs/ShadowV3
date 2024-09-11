@@ -70,10 +70,14 @@ function abtblank() {
 function wispURLOption() {
   const wispSelection = document.getElementById('wispSelection');
   const customWispURL = document.getElementById('wispURL');
+  const setWispUrlBtn = document.getElementById('wispBtn');
   
   if (wispSelection.value === 'custom') {
     customWispURL.style.display = 'block';
+    setWispUrlBtn.style.display = 'flex';
   } else {
     customWispURL.style.display = 'none';
+    setWispUrlBtn.style.display = 'none';
+    setWispUrl(`wss://${location.host}/wisp/`);
   }
 }

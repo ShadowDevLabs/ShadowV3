@@ -5,7 +5,10 @@
   <script src="/assets/themes.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" />
   <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/settings.css" />
@@ -109,18 +112,18 @@
     <div id="themes-content">
       <div class="content-title">Themes</div>
       <div class="settings-section"></div>
-        <h2 class="section-title">Themes</h2>
-        <div class="section-content">
-          <p class="section-text">
-            Choose between the following themes. This will change the
-            appearance of the site.
-          </p>
-          <div class="themes-container" id="themes-container">
-              <!-- Theme Buttons Get Loaded here-->
-          </div>
+      <h2 class="section-title">Themes</h2>
+      <div class="section-content">
+        <p class="section-text">
+          Choose between the following themes. This will change the
+          appearance of the site.
+        </p>
+        <div class="themes-container" id="themes-container">
+          <!-- Theme Buttons Get Loaded here-->
         </div>
       </div>
-      
+    </div>
+
     <div id="search-content">
       <div class="content-title">Search</div>
       <!-- Engine -->
@@ -159,7 +162,7 @@
         <div class="section-content">
           <p class="section-text">
             This is the proxy that is used when searching.
-          </p>
+          </p>  
           <select id="proxyDropdown" class="input-field">
             <option value="ultraviolet">Ultraviolet</option>
             <option value="dynamic">Dynamic</option>
@@ -265,18 +268,26 @@
     <div id="developer-content">
       <div class="content-title">Developer Tools</div>
       <div class="settings-section">
-        <h2 class="section-title">Change WispURL</h2>
+        <h2 class="section-title">Change Transport</h2>
         <div class="section-content">
-          <p class="section-text">Change the Wisp Server URL that's used when searching on Shadow. </p>
+          <p class="section-text">Change the transport and Wisp/Bare Server URL that's used when searching on Shadow.
+          </p>
           <select id="wispSelection" onchange="wispURLOption()" class="input-field">
-            <option value="default">Default</option>
-            <option value="custom">Custom</option>
-          </select> <br><br>
-          
-          <input placeholder="Ex. phantom.lol" style="width:90%; display:none;" class="input-field" id="wispURL" /> <br>
-          
-          <div class="flex-div" style="display:flex;">
-            <button class="icon-button" id="wispBtn" onclick="setWispUrl(); ShowNotification('Wisp URL changed.', 'wispnoti')">
+            <option value="default">Default Server</option>
+            <option value="custom">Custom Server</option>
+          </select>
+
+          <select id="transportSelection" onchange="changeTransport()" class="input-field">
+            <option value="/epoxy/index.mjs">Epoxy</option>
+            <option value="/libcurl/index.mjs">Libcurl</option>
+            <option value="/baremod/index.mjs">Baremod</option>
+          </select>
+          <br><br>
+
+          <input value="phantom.lol" style="width:90%; display:none;" class="input-field" id="wispURL" /> <br>
+
+          <div class="flex-div" style="display:none;" id="wispBtn">
+            <button class="icon-button" onclick="setWispUrl(); ShowNotification('Wisp URL changed.', 'wispnoti')">
               <i class="fa-solid fa-link"></i> Set Wisp URL
             </button>
             <p class="notification" id="wispnoti"></p>
@@ -307,8 +318,18 @@
       }
     }
 
+    function changeTransport(transport = document.getElementById("transportSelection").value) {
+      localStorage.setItem("transport", transport);
+      setWispUrl();
+      parent.tabs.setTransport();
+    }
+
     function setWispUrl(url = document.getElementById('wispURL').value) {
-      localStorage.setItem("server", `wss://${url.replace("/wisp", "").replace("https:", "").replace("http:", "").replace("/", "")}/wisp/`);
+      if (document.getElementById("transportSelection").value != "/baremod/index.mjs") {
+        localStorage.setItem("server", `wss://${url.replace("/wisp", "").replace("/bare", "").replace("https:", "").replace("http:", "").replace("/", "")}/wisp/`);
+      } else {
+        localStorage.setItem("server", `https://${url.replace("/wisp", "").replace("/bare", "").replace("https:", "").replace("http:", "").replace("/", "")}/bare/`);
+      }
       parent.tabs.setTransport();
     }
 
