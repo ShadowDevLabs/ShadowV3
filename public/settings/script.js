@@ -1,30 +1,32 @@
+setOptions();
+
 fetch('themes.json')
-    .then(response => response.json())
-    .then(themes => {
-        const themesContainer = document.getElementById('themes-container');
+  .then(response => response.json())
+  .then(themes => {
+    const themesContainer = document.getElementById('themes-container');
 
-        themes.forEach(theme => {
-            const themeDiv = document.createElement('div');
-            themeDiv.classList.add('theme');
-            themeDiv.onclick = () => {
-                changeTheme(theme.value);
-            };
+    themes.forEach(theme => {
+      const themeDiv = document.createElement('div');
+      themeDiv.classList.add('theme');
+      themeDiv.onclick = () => {
+        changeTheme(theme.value);
+      };
 
-            const colorDiv = document.createElement('div');
-            colorDiv.classList.add('color');
-            colorDiv.style.background = `linear-gradient(135deg, ${theme.css['background-color']}, ${theme.css['tab-background']}, ${theme.css['tab-border']}, ${theme.css['accent-color']})`;
+      const colorDiv = document.createElement('div');
+      colorDiv.classList.add('color');
+      colorDiv.style.background = `linear-gradient(135deg, ${theme.css['background-color']}, ${theme.css['tab-background']}, ${theme.css['tab-border']}, ${theme.css['accent-color']})`;
 
-            themeDiv.style.backgroundColor = theme.css['tab-background'];
-            themeDiv.style.color = theme.css['text-color'];
-            themeDiv.style.borderColor = theme.css['tab-border'];
+      themeDiv.style.backgroundColor = theme.css['tab-background'];
+      themeDiv.style.color = theme.css['text-color'];
+      themeDiv.style.borderColor = theme.css['tab-border'];
 
-            themeDiv.appendChild(colorDiv);
-            themeDiv.appendChild(document.createTextNode(theme.name));
+      themeDiv.appendChild(colorDiv);
+      themeDiv.appendChild(document.createTextNode(theme.name));
 
-            themesContainer.appendChild(themeDiv);
-        });
-    })
-    .catch(error => console.error('Error loading themes:', error));
+      themesContainer.appendChild(themeDiv);
+    });
+  })
+  .catch(error => console.error('Error loading themes:', error));
 
 
 function abtblank() {
@@ -71,7 +73,7 @@ function wispURLOption() {
   const wispSelection = document.getElementById('wispSelection');
   const customWispURL = document.getElementById('wispURL');
   const setWispUrlBtn = document.getElementById('wispBtn');
-  
+
   if (wispSelection.value === 'custom') {
     customWispURL.style.display = 'block';
     setWispUrlBtn.style.display = 'flex';
@@ -80,4 +82,8 @@ function wispURLOption() {
     setWispUrlBtn.style.display = 'none';
     setWispUrl(`wss://${location.host}/wisp/`);
   }
+}
+
+function setOptions() {
+  document.getElementById("autoBlankSwitch").checked = JSON.parse(localStorage.getItem('autoBlank'));
 }

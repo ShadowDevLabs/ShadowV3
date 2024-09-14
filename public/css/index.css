@@ -19,11 +19,9 @@ html {
   transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    45deg,
-    var(--background-color),
-    var(--tab-border)
-  );
+  background: linear-gradient(45deg,
+      var(--background-color),
+      var(--tab-border));
   border-radius: 0;
   text-align: center;
   z-index: 9999;
@@ -64,27 +62,31 @@ html {
   color: var(--text-color);
   margin-top: 10px;
   position: absolute;
-  width:100%;
+  width: 100%;
   top: 47%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
 
 @keyframes fadeIn {
+
   0%,
   100% {
     opacity: 0.5;
   }
+
   50% {
     opacity: 1;
   }
 }
 
 @keyframes bounce {
+
   0%,
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -206,7 +208,7 @@ html {
   padding: 5px;
   border-radius: 50%;
   color: var(--text-color);
-  margin-right:5px;
+  margin-right: 5px;
   cursor: pointer;
   transition: all ease 0.4s;
 }
@@ -221,7 +223,7 @@ html {
   width: 98.35%;
   font-size: 16px;
   font-family: "Roboto", sans-serif;
-  margin-right:10px;
+  margin-right: 10px;
   border: 1px solid var(--tab-border);
   border-radius: 20px;
   color: var(--text-color);
@@ -290,6 +292,7 @@ iframe.active {
 .fas.fa-ellipsis-h {
   transform: rotate(90deg);
 }
+
 #menu-container {
   position: absolute;
   right: 15px;
@@ -399,10 +402,12 @@ iframe.active {
 }
 
 @keyframes fadeIn {
+
   0%,
   100% {
     opacity: 0.5;
   }
+
   50% {
     opacity: 1;
   }
@@ -521,4 +526,14 @@ input[type="checkbox"] {
 
 span {
   vertical-align: text-top;
+}
+
+svg.icons>path {
+  fill: var(--text-color);
+}
+
+.icons {
+  vertical-align: text-top;
+  stroke-width: 20px;
+  stroke: var(--text-color);
 }

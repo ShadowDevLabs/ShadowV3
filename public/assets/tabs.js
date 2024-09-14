@@ -53,8 +53,8 @@ class Tab {
         let favicon = src.replace('shadow://', '');
         favicon = `icons/pages/${favicon}.png`;
         tab.img.src = favicon;
-    }
-    
+      }
+
       //tab.img.onerror = `${(tab.img.style.display = "none")}`; //
       tab.tab.appendChild(tab.img);
       //Tab title
@@ -161,7 +161,7 @@ class Tab {
       return "about:blank";
     }
     switch (
-      src.replace(location.href, "").replace(".html", "").replace(/\//g, "")
+    src.replace(location.href, "").replace(".html", "").replace(/\//g, "")
     ) {
       case "settings":
         return "shadow://settings";
@@ -174,7 +174,7 @@ class Tab {
       case "extensionsmanage":
         return "shadow://extensions/manage";
       case "books":
-          return "shadow://games";
+        return "shadow://games";
       default:
         return decode(
           src.replace(location.origin, "").replace("/uv/service/", ""),
@@ -192,7 +192,7 @@ class Tab {
     } else {
       try {
         iconUrl = `https://www.google.com/s2/favicons?domain=${src}&sz=24`;
-      } catch (e) {}
+      } catch (e) { }
       tabsArr[i].img.src = iconUrl;
     }
     //Set the title for a tab

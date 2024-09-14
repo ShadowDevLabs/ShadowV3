@@ -92,17 +92,32 @@
         </div>
       </div>
       <br /><br />
+      <div class="settings-section">
+        <h2 class="section-title">Auto Blank</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Enable automatic about:blank cloaking. This can help prevent the site from showing up in your search
+            history, and hides the site from some blockers.
+          </p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="autoBlankSwitch"
+              onclick="setAutoBlank();" />
+            <label for="autoBlankSwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
+      <br /><br />
       <!--Toggle auto save/load tabs-->
       <div class="settings-section">
         <h2 class="section-title">Auto Save/Load Tabs</h2>
         <div class="section-content">
           <p class="section-text">
             Automatically reload tabs from older sessions, toggle auto saving
-            and loading here.
+            and loading here. TEMPORARILY DISABLED
           </p>
           <div class="switch">
-            <input type="checkbox" class="switch" id="toggleSwitch" />
-            <label for="toggleSwitch" class="slider"></label>
+            <!-- <input type="checkbox" class="switch" id="toggleSwitch" /> -->
+            <label for="toggleSwitch" class="slider" style="cursor:not-allowed;"></label>
           </div>
         </div>
       </div>
@@ -310,6 +325,10 @@
   </div>
 
   <script>
+    function setAutoBlank() {
+      localStorage.setItem("autoBlank", (!(JSON.parse(localStorage.getItem("autoBlank")) || false)).toString())
+    }
+
     function aboutBlank() {
       if (parent !== window) {
         parent.abtblank();
