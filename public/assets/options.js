@@ -2,6 +2,7 @@ const menuButton = document.getElementById("menu-button");
 const dropdown = document.getElementById("menu-dropdown");
 let isDropdownVisible = false;
 const menuButtons = dropdown.querySelectorAll("button[data-add-tab]");
+const iframesContainer = document.getElementById("iframes-container");
 
 menuButtons.forEach((button) => {
   button.addEventListener("click", () => {
