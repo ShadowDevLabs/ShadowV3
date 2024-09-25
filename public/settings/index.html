@@ -344,10 +344,13 @@
     }
 
     function setWispUrl(url = document.getElementById('wispURL').value) {
+      
       if (document.getElementById("transportSelection").value != "/baremod/index.mjs") {
-        localStorage.setItem("server", `wss://${url.replace("/wisp", "").replace("/bare", "").replace("https:", "").replace("http:", "").replace("/", "")}/wisp/`);
+        const wsUrl = checkWispUrl(url);
+        localStorage.setItem("server", wsUrl);
       } else {
-        localStorage.setItem("server", `https://${url.replace("/wisp", "").replace("/bare", "").replace("https:", "").replace("http:", "").replace("/", "")}/bare/`);
+        const bareUrl = checkBareServer(url);
+        localStorage.setItem("server", bareUrl);
       }
       parent.tabs.setTransport();
     }

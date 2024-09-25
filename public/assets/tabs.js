@@ -1,19 +1,16 @@
-localStorage.setItem("shortenUrls", true);
+import { HistoryHelper } from "/assets/history-helper.js";
+import { SettingsManager } from "/assets/settings_manager.js";
 
-const error = document.getElementById("uv-error");
-const errorCode = document.getElementById("uv-error-code");
-
-const decode = (i) => {
-  return self.__uv$config.decodeUrl(i);
-};
 const searchInput = document.getElementById("search-bar");
 const searchEngine = document.getElementById("uv-search-engine");
 const addTabButton = document.getElementById("add-tab");
-var activeTabIndex = -1;
-var tabsArr = [];
 
 class Tab {
   constructor() {
+    this.activeTabIndex = -1
+    this.tabsArr = [];
+    this.history = new HistoryHelper();
+    this.settings = new SettingsManager();
     this.connection = new BareMux.BareMuxConnection("/baremux/worker.js");
     document.getElementById("uv-form").addEventListener("submit", (e) => {
       e.preventDefault();
@@ -21,29 +18,49 @@ class Tab {
       const url = searchInput.value;
       tabs.load(url);
     });
+    this.decode = (i) => {
+      return self.__uv$config.decodeUrl(i);
+    };
+    window.addEventListener("settings", (e) => {
+      if (e.key === "backend") {
+        this.backend = e.newValue;
+      }
+    });
+    this.defaults = [{ "key": "shortenUrls", "value": true }, { "key": "shortenUrls", "value": true }]
+    this.setDefaults();
+    this.init();
+  }
+
+  async init() {
+    this.backend = await this.settings.get("backend") || "uv";
     if (
-      localStorage.getItem("saveTabs") &&
+      await this.settings.get("saveTabs") &&
       window.confirm(
         "Session ended unexpectedly, do you want to reopen your tabs?",
       )
     )
       this.loadAllTabs();
     else this.createTab();
-    this.backend = localStorage.getItem("backend") || "uv";
-    window.addEventListener("storage", (e) => {
-      if (e.key === "backend") {
-        this.backend = e.newValue;
-      }
+  }
+
+  async setDefaults(...arr) {
+    arr = arr ?? this.defaults
+    arr.forEach(async i => {
+      console.log(i)
+      let key = await this.settings.get(i.key)
+      if (key)
+        await this.settings.set(i.key, i.value);
     });
   }
-  async load(src, i = activeTabIndex) {
-    const iframe = tabsArr[i].iframe;
+
+  async load(src, i = this.activeTabIndex) {
+    const iframe = this.tabsArr[i].iframe;
     this.setTransport();
     const url = self.search(src, searchEngine.value, this.backend);
     iframe.src = url;
-    //this.updateHistory(src, i);
+    this.updateHistory(src, i);
   }
-  createTab(src = tabsArr.length === 0 ? "shadow://home" : "shadow://new") {
+  createTab(src = this.tabsArr.length === 0 ? "shadow://home" : "shadow://new") {
     //Functions to create all the elements used by the tab in the tab bar
     function createTabItems() {
       //Tab icon
@@ -66,7 +83,7 @@ class Tab {
       closeBtn.className = "close-tab-button";
       closeBtn.innerHTML = "&#x2715;";
       closeBtn.addEventListener("click", (e) =>
-        tabs.closeTab(tabsArr.findIndex((obj) => obj.tab === tab.tab)),
+        tabs.closeTab(this.tabsArr.findIndex((obj) => obj.tab === tab.tab)),
       );
       tab.tab.appendChild(closeBtn);
     }
@@ -79,13 +96,13 @@ class Tab {
       src: src,
     };
     //Add it to the array so that we can easily access each tab and all its elementes later
-    tabsArr.push(tab);
+    this.tabsArr.push(tab);
     //Setup the tab in the tab bar
     tab.tab.classList.add("tab");
     createTabItems();
     tab.tab.addEventListener("click", (e) =>
       this.switchTab(
-        tabsArr.findIndex((obj) => obj.tab === tab.tab),
+        this.tabsArr.findIndex((obj) => obj.tab === tab.tab),
         e,
       ),
     );
@@ -94,48 +111,48 @@ class Tab {
     document
       .getElementById("tabs-container")
       .insertBefore(tab.tab, addTabButton);
-    this.switchTab(tabsArr.findIndex((obj) => obj.tab === tab.tab));
+    this.switchTab(this.tabsArr.findIndex((obj) => obj.tab === tab.tab));
     this.load(tab.src);
-    activeTabIndex = tabsArr.length - 1;
+    this.activeTabIndex = this.tabsArr.length - 1;
   }
   closeTab(i, force = false) {
-    const isActive = activeTabIndex === i;
+    const isActive = this.activeTabIndex === i;
     if (isActive) {
       //Delete elements
-      tabsArr[i].iframe.remove();
-      tabsArr[i].tab.remove();
+      this.tabsArr[i].iframe.remove();
+      this.tabsArr[i].tab.remove();
       //Remove obj from array
-      tabsArr.splice(i, 1);
-      if (tabsArr.length <= 0 && !force) {
+      this.tabsArr.splice(i, 1);
+      if (this.tabsArr.length <= 0 && !force) {
         this.createTab();
       }
       const closest = i != 0 ? i - 1 : 0; //If the active tab is NOT the first one, go down one in the tab list. If it is, leave it at 0 for the next tab.
       this.switchTab(closest);
-      activeTabIndex = closest;
+      this.activeTabIndex = closest;
     } else {
       //Delete elements
-      tabsArr[i].iframe.remove();
-      tabsArr[i].tab.remove();
+      this.tabsArr[i].iframe.remove();
+      this.tabsArr[i].tab.remove();
       //Set new active tab index if the tab moves
-      if (tabsArr.length - 1 === activeTabIndex) {
-        activeTabIndex -= 1;
+      if (this.tabsArr.length - 1 === this.activeTabIndex) {
+        this.activeTabIndex -= 1;
       }
       //Remove obj from array
-      tabsArr.splice(i, 1);
+      this.tabsArr.splice(i, 1);
     }
   }
   switchTab(i, e) {
     try {
-      if (!e || e.target != tabsArr[i].tab.querySelector(".close-tab-button")) {
+      if (!e || e.target != this.tabsArr[i].tab.querySelector(".close-tab-button")) {
         try {
-          tabsArr[activeTabIndex].iframe.classList.remove("active");
-          tabsArr[activeTabIndex].tab.classList.remove("active");
+          this.tabsArr[this.activeTabIndex].iframe.classList.remove("active");
+          this.tabsArr[this.activeTabIndex].tab.classList.remove("active");
         } catch (err) {
           console.log(`No active tab (${err})`);
         }
-        tabsArr[i].iframe.classList.add("active");
-        tabsArr[i].tab.classList.add("active");
-        activeTabIndex = i;
+        this.tabsArr[i].iframe.classList.add("active");
+        this.tabsArr[i].tab.classList.add("active");
+        this.activeTabIndex = i;
       } else {
       }
       this.updateOmni();
@@ -149,14 +166,14 @@ class Tab {
       let currentSrc = this.getSrc();
       let fullUrl = currentSrc;
       //Will finish eventually, cool feature that shortens urls until you click on them kinda like how operagx does it
-      // if(localStorage.getItem("shortenUrls")) {
+      // if(this.await this.settings.get("shortenUrls")) {
       //   currentSrc = currentSrc.subString(0, currentSrc.lastIndexOf("?"));
       //}
       searchInput.value = currentSrc;
     }
   }
-  getSrc(i = activeTabIndex) {
-    const src = tabsArr[i].iframe.contentDocument.location.href;
+  getSrc(i = this.activeTabIndex) {
+    const src = this.tabsArr[i].iframe.contentDocument.location.href;
     if (src === "about:blank") {
       return "about:blank";
     }
@@ -176,12 +193,12 @@ class Tab {
       case "books":
         return "shadow://games";
       default:
-        return decode(
+        return this.decode(
           src.replace(location.origin, "").replace("/uv/service/", ""),
         );
     }
   }
-  async setTab(i = activeTabIndex) {
+  async setTab(i = this.activeTabIndex) {
     //Set the icon for the tab
     let iconUrl;
     const src = this.getSrc(i);
@@ -193,65 +210,61 @@ class Tab {
       try {
         iconUrl = `https://www.google.com/s2/favicons?domain=${src}&sz=24`;
       } catch (e) { }
-      tabsArr[i].img.src = iconUrl;
+      this.tabsArr[i].img.src = iconUrl;
     }
     //Set the title for a tab
-    let title = tabsArr[i].iframe.contentDocument.title;
-    tabsArr[i].tab.querySelector(".tab-title").textContent = title;
+    let title = this.tabsArr[i].iframe.contentDocument.title;
+    this.tabsArr[i].tab.querySelector(".tab-title").textContent = title;
   }
-  saveTabs() {
+  async saveTabs() {
     const openTabs = [];
-    for (let i = 0; i < tabsArr.length; i++) {
+    for (let i = 0; i < this.tabsArr.length; i++) {
       openTabs.push(this.getSrc(i));
     }
-    localStorage.setItem("activeTabs", JSON.stringify(openTabs));
+    await this.settings.set("activeTabs", JSON.stringify(openTabs));
   }
-  loadAllTabs() {
-    tabsArr.forEach((tab, i) => {
+  async loadAllTabs() {
+    this.tabsArr.forEach((tab, i) => {
       console.log(i);
       this.closeTab(i);
     });
 
-    JSON.parse(localStorage.getItem("activeTabs")).forEach((i) => {
+    JSON.parse(await this.settings.get("activeTabs")).forEach((i) => {
       this.createTab(i);
     });
   }
-  refresh(i = activeTabIndex) {
-    tabsArr[i].iframe.contentWindow.location.reload();
+  refresh(i = this.activeTabIndex) {
+    this.tabsArr[i].iframe.contentWindow.location.reload();
   }
-  forward(i = activeTabIndex) {
-    tabsArr[i].iframe.contentWindow.history.forward();
+  forward(i = this.activeTabIndex) {
+    this.tabsArr[i].iframe.contentWindow.history.forward();
   }
-  backward(i = activeTabIndex) {
-    tabsArr[i].iframe.contentWindow.history.back();
+  backward(i = this.activeTabIndex) {
+    this.tabsArr[i].iframe.contentWindow.history.back();
   }
-  updateHistory(src, i) {
-    //To enable & disable we would just set it to "off"
-    let history = JSON.parse(localStorage.getItem("history")) || [];
-    if (history !== "off") {
+  async updateHistory(src, i) {
+    if (await this.settings.get("historyEnabled")) {
+      let history = JSON.parse(await this.history.get()) ?? [];
       const obj = {
         url: src,
         time: Date.now,
         title: this.getSrc(i),
       };
       history.push(obj);
-      localStorage.setItem("history", history);
+      await this.history.add(history);
     }
   }
-  setTransport(
-    url = localStorage.getItem("server") || `wss://${location.host}/wisp/`,
-    transport = localStorage.getItem("transport") || "/epoxy/index.mjs",
-  ) {
-    url =
-      url || localStorage.getItem("server") || `wss://${location.host}/wisp/`;
+  async setTransport(url, transport,) {
+    url = url ?? (await this.settings.get("server") || `wss://${location.host}/wisp/`);
+    transport = transport ?? (await this.settings.get("transport") || "/epoxy/index.mjs");
     if (url.startsWith("ws")) {
       this.connection.setTransport(transport, [{ wisp: url }]);
-      localStorage.setItem("server", url);
-      localStorage.setItem("transport", transport);
+      await this.settings.set("server", url);
+      await this.settings.set("transport", transport);
     } else {
       this.connection.setTransport(transport, [url]);
-      localStorage.setItem("server", url);
-      localStorage.setItem("transport", transport);
+      await this.settings.set("server", url);
+      await this.settings.set("transport", transport);
     }
   }
 }
@@ -260,12 +273,15 @@ const tabs = new Tab();
 window.tabs = tabs;
 
 setInterval(function () {
-  for (let i = 0; i < tabsArr.length; i++) {
+  for (let i = 0; i < tabs.tabsArr.length; i++) {
     tabs.setTab(i);
   }
 }, 5000);
-onbeforeunload = (i) => {
-  if (localStorage.getItem("saveTabs")) {
+
+onbeforeunload = async (e) => {
+  e.preventDefault();
+  if (await tabs.settings.get("saveTabs")) {
     tabs.saveTabs();
   }
-};
+  window.onbeforeunload = null;
+}; 

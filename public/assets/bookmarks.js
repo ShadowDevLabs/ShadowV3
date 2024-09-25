@@ -1,7 +1,6 @@
 class BookmarksManager {
   constructor() {
     this.container = document.getElementById("bookmarks-container");
-    window.addEventListener("beforeunload", this.save.bind(this));
     window.addEventListener("load", this.load.bind(this));
   }
 
@@ -27,6 +26,7 @@ class BookmarksManager {
     );
 
     this.container.appendChild(bookmark);
+    this.save();
   }
 
   save() {

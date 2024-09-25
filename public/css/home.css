@@ -36,7 +36,8 @@ header {
 h1 {
   font-size: 36px;
   padding-bottom: 0;
-  color: var(--accent-color);
+  fill: var(--accent-color);
+  color : var(--accent-color);
   animation: moveup 1.2s ease-out, glow 1.5s infinite alternate;
   text-shadow: 0 0 10px var(--accent-color);
   background: linear-gradient(45deg, var(--accent-color), #ffffff);
@@ -106,7 +107,7 @@ h1:hover {
 .social-icon {
   font-size: 24px;
   margin: 0 10px;
-  color: var(--accent-color);
+  fill: var(--accent-color);
   text-decoration: none;
   position: relative;
   transition: color 0.3s ease, transform 0.3s ease;

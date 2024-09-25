@@ -80,7 +80,7 @@ nav a:active {
   outline: none;
 }
 
-.search-input:focus + .search-icon,
+.search-input:focus+.search-icon,
 .search-container:focus-within {
   box-shadow: 0 0 5px rgba(52, 152, 219, 0.7);
 }
@@ -92,8 +92,7 @@ nav a:active {
 }
 
 .hero-section {
-  background: url("https://ssl.gstatic.com/chrome/webstore/images/promo/marquee_blue_patterned.png")
-    center/cover no-repeat;
+  background: url("https://ssl.gstatic.com/chrome/webstore/images/promo/marquee_blue_patterned.png") center/cover no-repeat;
   /* Updated background property */
   color: #000;
   width: 80vw;
