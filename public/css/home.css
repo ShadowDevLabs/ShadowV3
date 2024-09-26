@@ -7,10 +7,11 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height:85vh;
+  height: 85vh;
   align-items: center;
   overflow-x: hidden;
-  overflow-y:hidden;
+  overflow-y: hidden;
+  animation: fadein 1.2s ease-in-out; 
 }
 
 .blob-bg {
@@ -23,11 +24,13 @@ body {
   border-radius: 50%;
   z-index: -1;
   filter: blur(100px);
+  animation: blobLoadAnimation 15s ease-in-out infinite alternate; 
 }
 
 header {
   text-align: center;
   margin-bottom: 0px;
+  animation: slideDown 1.5s ease-out; 
 }
 
 h1 {
@@ -35,6 +38,14 @@ h1 {
   color: var(--accent-color);
   text-shadow: 0 0 10px var(--accent-color);
   margin-bottom: -15px;
+  animation: fadein 2s ease-in-out;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+  cursor:pointer;
+}
+
+h1:hover {
+  color: var(--accent-color); 
+  text-shadow: 0 0 15px var(--tab-border), 0 0 30px var(--accent-color); 
 }
 
 p {
@@ -42,16 +53,18 @@ p {
   font-weight: 300;
   margin: 0;
   background: linear-gradient(135deg, var(--text-color), var(--accent-color));
-  -webkit-background-clip: text; 
+  -webkit-background-clip: text;
   background-clip: text;
   font-style: italic;
   color: transparent;
+  animation: slideLeft 2s ease-in-out; 
 }
 
 .buttons {
   display: flex;
   justify-content: center;
   margin-top: 15px;
+  animation: slideUp 1.7s ease-out; 
 }
 
 .getStarted {
@@ -61,20 +74,20 @@ p {
   text-transform: capitalize;
   font-weight: bold;
   color: var(--text-color);
-  cursor:pointer;
+  cursor: pointer;
   background-color: transparent;
   border: 2px solid var(--accent-color);
   border-radius: 50px;
   text-decoration: none;
-  transition: 0.5s ease-in-out;
+  transition: 1s ease-in-out;
 }
 
 .getStarted:hover {
   background-color: var(--background-color);
   color: var(--text-color);
-  transition: 0.1s ease-in-out;
+  transition: 0.3s ease-in-out;
+  transform: scale(1.05);
 }
-
 
 .features {
   display: flex;
@@ -82,6 +95,7 @@ p {
   gap: 20px;
   margin-top: 20px;
   margin-bottom: 30px;
+  animation: slideRight 2s ease-in-out; 
 }
 
 .feature {
@@ -126,6 +140,7 @@ p {
   display: flex;
   justify-content: center;
   margin-top: 20px;
+  animation: fadein 2.5s ease-in-out; 
 }
 
 .social-icon {
@@ -146,14 +161,41 @@ footer {
   font-size: 10px;
   bottom: 0;
   color: var(--accent-color);
+  animation: fadein 3s ease-in-out; 
 }
 
-footer p{
+footer p {
   font-size: 12px;
 }
 
-/* Animations */
+/* LOADING FADE & SLIDE ANIMATIONS */
 @keyframes fadein {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideLeft {
+  from { transform: translateX(-100px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideRight {
+  from { transform: translateX(100px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes blobLoadAnimation {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(20px, -20px) scale(1.05); }
+  100% { transform: translate(0, 0) scale(1); }
 }
