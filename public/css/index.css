@@ -14,59 +14,43 @@ html {
 
 #loading-screen {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(45deg,
-      var(--background-color),
-      var(--tab-border));
-  border-radius: 0;
-  text-align: center;
-  z-index: 9999;
-}
-
-.dot-container {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  margin-top: 20px;
-  position: absolute;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  align-items: center;
+  background-color: rgba(6, 6, 17, 0.97);
+  z-index: 9999; 
 }
 
-.loading-dots {
-  font-size: 30px;
-  color: var(--text-color);
-  margin: 0 5px;
-  z-index: 9999;
-  top: 50%;
-  left: 50%;
-  animation: bounce 1s infinite;
+.cell-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.loading-dots:nth-child(2) {
-  animation-delay: 0.2s;
+.loading-cell {
+  width: 20px;
+  height: 20px;
+  background-color: var(--tab-border);
+  transition: background-color 0.3s, transform 0.3s;
 }
 
-.loading-dots:nth-child(3) {
-  animation-delay: 0.4s;
+.loading-cell.loaded {
+  background-color: var(--accent-color);
+  transform: scale(1.2);
 }
 
 .loading-text {
-  font-size: 25px;
-  font-family: "Poppins", sans-serif;
+  font-size: 16px;
   color: var(--text-color);
-  margin-top: 10px;
-  position: absolute;
-  width: 100%;
-  top: 47%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
+
 
 @keyframes fadeIn {
 
