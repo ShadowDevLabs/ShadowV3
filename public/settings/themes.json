@@ -174,5 +174,16 @@
             "text-color": "#f0f0f0",
             "accent-color": "#d1caff"
         }
+    },
+    {
+        "name": "Hacker",
+        "value": "hacker",
+        "css": {
+            "background-color": "#000000",
+            "tab-background": "#1a1a1a",
+            "tab-border": "#00ff00d6",
+            "text-color": "#ffffff",
+            "accent-color": "#00e676"
+        }
     }
 ]
