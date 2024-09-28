@@ -39,14 +39,30 @@ h1 {
   text-shadow: 0 0 10px var(--accent-color);
   margin-bottom: -15px;
   animation: fadein 2s ease-in-out;
-  transition: color 0.3s ease, text-shadow 0.3s ease;
-  cursor:pointer;
+  transition: filter 0.3s ease;
+  cursor: pointer;
+  display: flex; 
+  align-items: center;
+  filter: drop-shadow(0 0 10px var(--accent-color)); 
+}
+
+h1 svg {
+  width: 1em;
+  height: 1em;
+  margin-right: 10px;
+  fill: var(--accent-color);
+  transition: fill 0.3s ease, filter 0.3s ease;
 }
 
 h1:hover {
-  color: var(--accent-color); 
-  text-shadow: 0 0 15px var(--tab-border), 0 0 30px var(--accent-color); 
+  filter: drop-shadow(0 0 15px var(--tab-border)) drop-shadow(0 0 30px var(--accent-color));
 }
+
+h1:hover svg {
+  fill: var(--accent-color); 
+}
+
+
 
 p {
   font-size: 24px;
