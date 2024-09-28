@@ -14,7 +14,7 @@ html {
 
 .container {
   align-items: center;
-  margin: 5% auto;
+  margin: 8% auto;
   width: fit-content;
   justify-content: center;
   height: 100vh;
@@ -22,14 +22,16 @@ html {
 }
 
 h1 {
-  font-size: 75px;
+  font-size: 90px;
   text-transform: capitalize;
   text-align: center;
   font-weight: bold;
-  background: linear-gradient(45deg, var(--accent-color), var(--tab-border));
+  background: linear-gradient(45deg, var(--tab-border), var(--accent-color), var(--tab-background));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  margin-top: 0;
+  animation: fadeIn 0.6s ease forwards;
 }
 
 .search-container {
@@ -37,18 +39,19 @@ h1 {
   border-radius: 50px;
   padding: 0px 10px;
   box-shadow: 0 0 15px 3px var(--accent-color);
-  margin-top: -2.5vw;
+  margin-top: -3vw;
   background-color: var(--tab-background);
   display: flex;
-  height: 60px;
+  height: 50px;
   align-items: center;
+  animation: fadeIn 0.8s ease forwards;
 }
 
 .search-container input {
   border: none;
   margin-right: 5px;
   outline: none;
-  width: 28vw;
+  width: 31vw;
   font-family: "Poppins", sans-serif;
   font-size: 16px;
   color: var(--text-color);
@@ -60,14 +63,15 @@ h1 {
   color: var(--accent-color);
   cursor: pointer;
 }
-
 .shortcuts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 10px;
-  justify-content: center;
+  justify-content: start;
+  width: 36vw;
   align-items: center;
   margin-top: 30px;
+  animation: scaleIn 0.8s ease forwards;
 }
 
 .shortcut {
@@ -231,4 +235,25 @@ h1 {
   bottom: 15%;
   left: 50%;
   transform: translateX(-50%);
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.5);
+  }
+  to {
+    transform: scale(1);
+  }
 }

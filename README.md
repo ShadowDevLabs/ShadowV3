@@ -4,16 +4,22 @@
 
 ---
 
-# Features
-- 🗂️ **Tabs / Multi-Tasking**: Juggle multiple tasks like a pro. 
-- ⚙️ **Accessible Menu (3 Dots)**: All your essential tools, just a click away.
-- 🔄 **URL Input Memory**: Tabs now save the URL on the input bar.
-- 🕵️ **Tab Cloaking**: Stay hidden, Stay Safe!
-- 📝 **About:Blank**: Cloak yourself.
-- 🎨 **Customizable**: Make it your own with tons of customization.
-- 🎮 **Games**: Right in the Browser! No need to search them!
-- ✨ **Clean UI**: Sleek, simple, and super easy to navigate.
-- 🚀 **Fast Web Interface Proxy**: Lightning-fast speeds!
+# Changes
+- 🔄 Added Proxy Switcher with Dynamic (Scramjet Coming Soon)
+- 📈 Update UV to v3, uses eproxy/baremux.
+- 🔧 Improved tabs.js, more optimized, better handling.
+- 💻 Rewrote tabs.js code from scratch for optimizations.
+- 🌐 Favicon Updates when a new URL is pressed.
+- ⏳ Neat Loading Screen
+- 🚀 Improved Load Times. Overall Site & Proxy
+- 🎨 New Look. The user interface has been completely redone
+- 🗂️ Shortcuts on New Tab Page
+- 📚 Overhauled on Themes, Bookmarks, and all scripts.
+- 🌈 Added tons of new & working themes.
+- 🎮 Games have been added. The games are hosted files, not proxied.
+- 📋 Easy & Accessible Menu to access pages
+- 🔗 Added direct page access. Ex: shadow://settings shadow://new
+- 🔄 WispURL Change
 
 ## Deployment
 <a href="https://render.com/deploy?repo=https://github.com/ShadowDevLabs/ShadowV3">

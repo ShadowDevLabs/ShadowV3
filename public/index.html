@@ -40,13 +40,16 @@
 <body>
   <!-- Loading Screen -->
   <div id="loading-screen">
-    <div class="dot-container">
-      <i class="loading-dots"><i class="fa-solid fa-circle"></i></i>
-      <i class="loading-dots"><i class="fa-solid fa-circle"></i></i>
-      <i class="loading-dots"><i class="fa-solid fa-circle"></i></i>
+    <div class="cell-container">
+      <div class="loading-cell"></div>
+      <div class="loading-cell"></div>
+      <div class="loading-cell"></div>
+      <div class="loading-cell"></div>
+      <div class="loading-cell"></div>
     </div>
     <p class="loading-text">Loading Shadow Browser</p>
   </div>
+
 
   <!-- Tabs Container -->
   <div id="tabs-container">
@@ -86,6 +89,8 @@
           d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
       </svg>
     </div>
+
+  
   </div>
 
   <!-- Dropdown Menu -->
@@ -348,11 +353,25 @@
     }
   </script>
   <script>
-    window.addEventListener("load", function () {
-      setTimeout(function () {
-        const loadingScreen = document.getElementById("loading-screen");
-        loadingScreen.style.display = "none";
-      }, 750);
+    document.addEventListener('DOMContentLoaded', () => {
+      const loadingCells = document.querySelectorAll('.loading-cell');
+      const loadingScreen = document.getElementById('loading-screen');
+      const mainContent = document.querySelector('.main-content');
+
+      let currentIndex = 0;
+      const interval = setInterval(() => {
+        if (currentIndex < loadingCells.length) {
+          loadingCells[currentIndex].classList.add('loaded');
+          currentIndex++;
+        } else {
+          clearInterval(interval);
+          stopLoad();
+        }
+      }, 150); 
+
+      function stopLoad() {
+        loadingScreen.style.display = 'none';
+      }
     });
 
 
