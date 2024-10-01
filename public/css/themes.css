@@ -6,6 +6,14 @@
   --accent-color: #ba7df2;
 }
 
+:root.custom {
+  --background-color: #060611;
+  --tab-background: #0e0e1d;
+  --tab-border: #372754;
+  --text-color: #ffffff;
+  --accent-color: #ba7df2;
+}
+
 :root.light {
   --background-color: #1c1c38;
   --tab-background: #262648;
