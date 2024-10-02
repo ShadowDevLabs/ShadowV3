@@ -138,8 +138,8 @@ import { SettingsManager } from "./settings_manager.js";
       updateTabItem();
     }
 
-    window.addEventListener("storage", function (event) {
-      if (event.key === "tab") {
+    window.addEventListener("settings", function (event) {
+      if (event.detail.key === "tab") {
         updateTabItem();
       }
     });

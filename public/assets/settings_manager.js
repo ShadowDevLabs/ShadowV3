@@ -41,7 +41,7 @@ export class SettingsManager {
     async set(key, value) {
       try {
         const db = await this.dbPromise;
-        const oldValue = await this.get(key); // Retrieve old value before setting
+        const oldValue = await this.get(key);
         return new Promise((resolve, reject) => {
           const transaction = db.transaction([this.storeName], "readwrite");
           const store = transaction.objectStore(this.storeName);
@@ -49,9 +49,10 @@ export class SettingsManager {
           request.onsuccess = () => {
             resolve();
             const event = new CustomEvent("settings", {
+              bubbles: true,
               detail: {
                 key: key,
-                value: value,
+                newValue: value,  // Updated here
                 oldValue: oldValue,
                 database: this.dbName,
                 success: true,
@@ -67,6 +68,7 @@ export class SettingsManager {
         console.error("Error setting value:", error);
       }
     }
+    
 
     async get(key) {
       try {

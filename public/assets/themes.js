@@ -2,8 +2,9 @@ import { SettingsManager } from "./settings_manager.js";
 
 const settings = new SettingsManager();
 
-async function changeTheme(selectedTheme) {
-  changetheme(selectedTheme);
+export async function changeTheme(selectedTheme) {
+  setTheme(selectedTheme);
+  if(parent !== window) parent.changeTheme(selectedTheme);
   await settings.set("theme", selectedTheme);
 }
 
@@ -19,7 +20,7 @@ function clearRootVars(variableKeys) {
   variableKeys.forEach(key => root.style.removeProperty(key));
 }
 
-function changetheme(theme) {
+export async function setTheme(theme) {
   const root = document.documentElement;
 
   const cssVariables = {
@@ -31,7 +32,7 @@ function changetheme(theme) {
   };
 
   if (theme === "custom") {
-    const customTheme = JSON.parse(localStorage.getItem("custom"));
+    const customTheme = JSON.parse(await settings.get("custom"));
     root.className = "custom";
     cssVariables['--background-color'] = customTheme.backgroundColor;
     cssVariables['--tab-background'] = customTheme.tabBackground;
@@ -46,20 +47,12 @@ function changetheme(theme) {
   setRootVars(cssVariables);
 }
 
-window.addEventListener("storage", function (e) {
-  if (e.key === "theme") {
-    changetheme(e.newValue);
-  } else if (e.key === "custom") {
-    if (localStorage.getItem("theme") === "custom") {
-      changetheme("custom");
-    }
-  }
-});
+
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const theme =  await settings.get("theme");
+  const theme = await settings.get("theme");
   if (theme) {
-    changetheme(theme);
+    setTheme(theme);
     const themeSelector = document.getElementById("themeSelector");
     if (themeSelector) {
       themeSelector.value = theme;
@@ -98,13 +91,13 @@ function genTheme(baseColor) {
     accentColor: shadeColor(baseColor, 30),
   };
 
-  console.log(JSON.stringify(themeVariables, null, 2)); 
+  console.log(JSON.stringify(themeVariables, null, 2));
   return themeVariables;
 }
 
-function applyCustomTheme(){
+export async function applyCustomTheme() {
   const color = document.getElementById('themeColorPicker').value;
   const themeVars = genTheme(color);
-  localStorage.setItem("custom", JSON.stringify(themeVars, null, 2));
+  await settings.set("custom", JSON.stringify(themeVars, null, 2));
   changeTheme("custom");
 }

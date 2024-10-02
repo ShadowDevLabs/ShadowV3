@@ -255,7 +255,9 @@
   <script src="/assets/bookmarks.js" type="module"></script>
   <script type="module" async>
     import { SettingsManager } from "/assets/settings_manager.js"
+    import { changeTheme } from "/assets/themes.js"
 
+    window.changeTheme = changeTheme;
     window.settings = new SettingsManager();
     window.settings.default(
       "searchEngine",
@@ -270,14 +272,13 @@
       document.getElementById("uv-search-engine").value = value;
     }
 
-    window.addEventListener("storage", (event) => {
-      if (event.key === "searchEngine") {
-        updtSearchEngine(event.newValue);
+    window.addEventListener("settings", (event) => {
+      if (event.detail.key === "searchEngine") {
+        updtSearchEngine(event.detail.newValue);
       }
     });
   </script>
   <script>
-
     function reset() {
       tabs.settings.clear();
       navigator.serviceWorker.getRegistrations().then((registrations) => {

@@ -76,17 +76,20 @@
     <p id="uv-error"></p>
     <pre id="uv-error-code"></pre>
   </div>
-  <script src="/assets/settings_manager.js"></script>
-  <script>
+  <script type="module">
+    import { SettingsManager } from "/assets/settings_manager.js";
+  
+    window.settings = new SettingsManager(); 
     async function updateSearchInput() {
-      const settings = new SettingsManager(); 
-      var storedSearchEngine = await settings.get("searchEngine");
+      var storedSearchEngine = await window.settings.get("searchEngine");
       var searchInput = document.getElementById("uv-search-engine");
       searchInput.value =
         storedSearchEngine || "https://www.google.com/search?q=%s";
     }
 
     updateSearchInput();
+  </script>
+  <script>
 
     window.addEventListener("storage", function (e) {
       if (e.key === "searchEngine") {
