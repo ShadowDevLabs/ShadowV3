@@ -25,7 +25,6 @@ class Tab {
     };
     window.addEventListener("settings", (e) => {
       const detail = e.detail;
-      console.log(`Caught settings change event with key: ${detail.key} changed from ${detail.oldValue} to ${detail.value}`)
       if (detail.key === "backend") {
         this.backend = detail.newValue;
       } 
