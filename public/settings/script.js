@@ -66,7 +66,6 @@ function abtblank() {
   }
 }
 
-
 async function wispURLOption() {
   const wispSelection = document.getElementById('wispSelection');
   const customWispURL = document.getElementById('wispURL');

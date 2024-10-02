@@ -125,8 +125,10 @@
     <!-- Themes -->
     <div id="themes-content">
       <div class="content-title">Themes</div>
-      <div class="settings-section"></div>
-      <h2 class="section-title">Themes</h2>
+
+      <!-- Premade -->
+      <div class="settings-section">
+      <h2 class="section-title">Pre-Made Themes</h2>
       <div class="section-content">
         <p class="section-text">
           Choose between the following themes. This will change the
@@ -136,6 +138,21 @@
           <!-- Theme Buttons Get Loaded here-->
         </div>
       </div>
+      </div>
+
+      <!-- Custom -->
+      <div class="settings-section">
+        <h2 class="section-title">Pre-Made Themes</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Create your own theme with the custom theme maker! Enter a base color, and we'll generate a theme for you!</p>
+          <input type="color" id="themeColorPicker" name="themeColorPicker" value="#"> <br><br>
+          <button class="icon-button" onclick="applyCustomTheme()" >
+            <i class="fa-brands fa-codepen fa-lg"></i> Apply Theme
+          </button>
+        </div>
+      </div>
+
     </div>
 
     <div id="search-content">

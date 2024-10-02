@@ -261,6 +261,32 @@ input:checked + .slider:before {
   transform: translateX(20px);
 }
 
+
+input[type="color"] {
+  background-color: var(--tab-background);
+  border: 2px solid var(--tab-border);
+  color: var(--text-color);
+  padding: 2px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 90px;
+  height: 40px;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border-radius: 3px;
+}
+
+input[type="color"]::-moz-color-swatch {
+  border: none;
+}
+
 .notification {
   background: none;
   color: var(--accent-color);

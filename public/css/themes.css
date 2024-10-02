@@ -6,6 +6,14 @@
   --accent-color: #ba7df2;
 }
 
+:root.custom {
+  --background-color: #060611;
+  --tab-background: #0e0e1d;
+  --tab-border: #372754;
+  --text-color: #ffffff;
+  --accent-color: #ba7df2;
+}
+
 :root.light {
   --background-color: #1c1c38;
   --tab-background: #262648;
@@ -152,4 +160,12 @@
   --tab-border: #4f4f70;  
   --text-color: #f0f0f0;   
   --accent-color: #d1caff;   
+}
+
+:root.hacker {
+  --background-color: #000000;
+  --tab-background: #1a1a1a; 
+  --tab-border: #00ff00d6; 
+  --text-color: #ffffff;
+  --accent-color: #00e676;
 }

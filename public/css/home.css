@@ -37,14 +37,14 @@ h1 {
   font-size: 100px;
   fill: var(--accent-color);
   color : var(--accent-color);
-  text-shadow: 0 0 10px var(--accent-color);
+  text-shadow: 0 0 5px var(--accent-color); 
   margin-bottom: -15px;
   animation: fadein 2s ease-in-out;
   transition: filter 0.3s ease;
   cursor: pointer;
   display: flex; 
   align-items: center;
-  filter: drop-shadow(0 0 10px var(--accent-color)); 
+  filter: drop-shadow(0 0 5px var(--accent-color));
 }
 
 h1 svg {
