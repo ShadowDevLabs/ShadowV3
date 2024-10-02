@@ -1,5 +1,3 @@
-setOptions();
-
 fetch('themes.json')
   .then(response => response.json())
   .then(themes => {
@@ -69,21 +67,19 @@ function abtblank() {
 }
 
 
-function wispURLOption() {
+async function wispURLOption() {
   const wispSelection = document.getElementById('wispSelection');
   const customWispURL = document.getElementById('wispURL');
   const setWispUrlBtn = document.getElementById('wispBtn');
 
   if (wispSelection.value === 'custom') {
+    customWispURL.value = await window.settings.get("server");
     customWispURL.style.display = 'block';
     setWispUrlBtn.style.display = 'flex';
   } else {
     customWispURL.style.display = 'none';
     setWispUrlBtn.style.display = 'none';
-    setWispUrl(`wss://${location.host}/wisp/`);
+    if(await window.settings.get("transport") === "/baremod/index.mjs") await window.settings.set("server", `https://${location.host}/bare/`); 
+    else await window.settings.set("server", `wss://${location.host}/wisp/`);
   }
-}
-
-function setOptions() {
-  document.getElementById("autoBlankSwitch").checked = JSON.parse(localStorage.getItem('autoBlank'));
 }

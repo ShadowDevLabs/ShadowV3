@@ -10,7 +10,7 @@ extension = {
 
 class ExtensionsLoader {
   constructor() {
-    this.extensions = JSON.parse(localStorage.getItem("extensions"));
+    this.extensions = async () => { return await settings.get("extensions") };
     this.container = document.getElementsByClassName("extensions-list")[0];
     this.default = document.getElementsByClassName("extension")[0];
     Object.keys(this.extensions).forEach((i) => {

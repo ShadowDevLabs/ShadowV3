@@ -21,10 +21,13 @@ Manifest layout:
 
 */
 
+import { SettingsManager } from "./settings_manager.js";
+
 class Extensions {
   constructor() {
+    this.settings = new SettingsManager();
     (async function () {
-      this.extensions = JSON.parse(localStorage.getItem("extensions"));
+      this.extensions = await this.settings.get("extensions");
       init(await checkDev());
     })();
   }
@@ -91,10 +94,7 @@ class Extensions {
     return this.extensions[id] || false;
   }
 
-  update() {
-    this.extensions = JSON.parse(localStorage.getItem("extensions"));
-  }
-  update() {
-    this.extensions = JSON.parse(localStorage.getItem("extensions"));
+  async update() {
+    this.extensions = await this.settings.get("extensions");
   }
 }

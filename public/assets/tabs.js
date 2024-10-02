@@ -2,11 +2,13 @@ import { HistoryHelper } from "/assets/history-helper.js";
 import { SettingsManager } from "/assets/settings_manager.js";
 
 const searchInput = document.getElementById("search-bar");
-const searchEngine = document.getElementById("uv-search-engine");
 const addTabButton = document.getElementById("add-tab");
 
 class Tab {
   constructor() {
+    window.onerror = (e) => {
+      window.errorLogger.newError(e);
+    }
     this.activeTabIndex = -1
     this.tabsArr = [];
     this.history = new HistoryHelper();
@@ -22,16 +24,29 @@ class Tab {
       return self.__uv$config.decodeUrl(i);
     };
     window.addEventListener("settings", (e) => {
-      if (e.key === "backend") {
-        this.backend = e.newValue;
+      const detail = e.detail;
+      console.log(`Caught settings change event with key: ${detail.key} changed from ${detail.oldValue} to ${detail.value}`)
+      if (detail.key === "backend") {
+        this.backend = detail.newValue;
+      } 
+      if(detail.key === "searchEngine") {
+        this.searchEngine = detail.newValue;
       }
     });
-    this.defaults = [{ "key": "shortenUrls", "value": true }, { "key": "shortenUrls", "value": true }]
+    this.defaults = [{ "key": "shortenUrls", "value": true }, { "key": "searchEngine", "value": "https://www.google.com/search?q=%s" }]
     this.setDefaults();
     this.init();
   }
 
+  async setDefaults(...arr) {
+    arr = arr ?? this.defaults
+    arr.forEach(async i => {
+      this.settings.default(arr[i].key, arr[i].value)
+    });
+  }
+
   async init() {
+    this.searchEngine = await this.settings.get("searchEngine");
     this.backend = await this.settings.get("backend") || "uv";
     if (
       await this.settings.get("saveTabs") &&
@@ -43,23 +58,19 @@ class Tab {
     else this.createTab();
   }
 
-  async setDefaults(...arr) {
-    arr = arr ?? this.defaults
-    arr.forEach(async i => {
-      console.log(i)
-      let key = await this.settings.get(i.key)
-      if (key)
-        await this.settings.set(i.key, i.value);
-    });
+  async updateSearchEngine() {
+    this.searchEngine = await this.settings.get("searchEngine");
   }
+
 
   async load(src, i = this.activeTabIndex) {
     const iframe = this.tabsArr[i].iframe;
     this.setTransport();
-    const url = self.search(src, searchEngine.value, this.backend);
+    const url = self.search(src, this.searchEngine, this.backend);
     iframe.src = url;
     this.updateHistory(src, i);
   }
+
   createTab(src = this.tabsArr.length === 0 ? "shadow://home" : "shadow://new") {
     //Functions to create all the elements used by the tab in the tab bar
     function createTabItems() {
@@ -254,7 +265,7 @@ class Tab {
       await this.history.add(history);
     }
   }
-  async setTransport(url, transport,) {
+  async setTransport(url, transport) {
     url = url ?? (await this.settings.get("server") || `wss://${location.host}/wisp/`);
     transport = transport ?? (await this.settings.get("transport") || "/epoxy/index.mjs");
     if (url.startsWith("ws")) {
@@ -278,10 +289,8 @@ setInterval(function () {
   }
 }, 5000);
 
-onbeforeunload = async (e) => {
-  e.preventDefault();
-  if (await tabs.settings.get("saveTabs")) {
+document.onvisibilitychange = async (e) => {
+  if (await tabs.settings.get("saveTabs") && document.visibilityState === "hidden") {
     tabs.saveTabs();
   }
-  window.onbeforeunload = null;
 }; 

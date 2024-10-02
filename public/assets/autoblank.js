@@ -1,4 +1,7 @@
-if (JSON.parse(localStorage.getItem("autoBlank"))) abtblank();
+import { SettingsManager } from "./settings_manager.js";
+const settings = new SettingsManager();
+
+if (await settings.get("autoBlank")) abtblank();
 
 function abtblank() {
     const url = location.href;

@@ -1,7 +1,8 @@
 const menuButton = document.getElementById("menu-button");
 const dropdown = document.getElementById("menu-dropdown");
 let isDropdownVisible = false;
-const menuButtons = dropdown.querySelectorAll("button[data-add-tab]");
+let menuButtons = [];
+try { menuButtons = dropdown.querySelectorAll("button[data-add-tab]"); } catch (_) { };
 const iframesContainer = document.getElementById("iframes-container");
 
 menuButtons.forEach((button) => {
@@ -33,7 +34,7 @@ function closeMenu(event) {
   }
 }
 
-menuButton.addEventListener("click", toggleDropdown);
+try { menuButton.addEventListener("click", toggleDropdown); } catch (_) { }
 
 // Menu Buttons
 

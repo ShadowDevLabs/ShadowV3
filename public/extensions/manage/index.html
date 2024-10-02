@@ -49,15 +49,16 @@
   </div>
 </body>
 <script src="script.js"></script>
+<script src="/assets/settings_manager.js"></script>
 <script>
-  let extLoader = new ExtensionsLoader();
-
-  function update(i) {
+  const extLoader = new ExtensionsLoader();
+  const settings = new SettingsManager();
+  async function update(i) {
     let x = document
       .getElementById(i.id)
       .parentElement.parentElement.getAttribute("__ext-id");
     extLoader.extensions[x].enabled = i.checked;
-    localStorage.setItem("extensions", JSON.stringify(extLoader.extensions));
+    await settings.set("extensions", extLoader.extensions);
   }
 
   onload = () => {

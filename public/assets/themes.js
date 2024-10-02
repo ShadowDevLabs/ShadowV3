@@ -1,6 +1,10 @@
-function changeTheme(selectedTheme) {
+import { SettingsManager } from "./settings_manager.js";
+
+const settings = new SettingsManager();
+
+async function changeTheme(selectedTheme) {
   changetheme(selectedTheme);
-  localStorage.setItem("theme", selectedTheme);
+  await settings.set("theme", selectedTheme);
 }
 
 function changetheme(theme) {
@@ -17,8 +21,8 @@ window.addEventListener("storage", function (e) {
   }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  const theme = localStorage.getItem("theme");
+document.addEventListener("DOMContentLoaded", async () => {
+  const theme =  await settings.get("theme");
   if (theme) {
     changetheme(theme);
     try {

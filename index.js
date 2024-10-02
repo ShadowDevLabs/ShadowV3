@@ -1,4 +1,5 @@
 import express from "express";
+import basicAuth from "express-basic-auth"
 import wisp from "wisp-server-node";
 import * as cheerio from "cheerio";
 import { createServer } from "http";

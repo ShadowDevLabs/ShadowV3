@@ -1,5 +1,9 @@
-function clear() {
-  localStorage.removeItem("extensions");
+import { SettingsManager } from "../assets/settings_manager.js";
+
+const settings = new SettingsManager();
+
+async function clear() {
+  await settings.get.removeItem("extensions");
 }
 
 function makeExtensionObj(
@@ -28,13 +32,13 @@ function generateId(length) {
   return result;
 }
 
-function addExtension(id = generateId(32), extObj = makeExtensionObj()) {
-  let extensions = JSON.parse(localStorage.getItem("extensions") || "{}");
+async function addExtension(id = generateId(32), extObj = makeExtensionObj()) {
+  let extensions =  await settings.get("extensions") || "{}";
   console.log(`Adding extension with ID ${id}`);
   extensions[id] = extObj;
   console.log("New extensions Obj is:");
   console.log(extensions);
-  localStorage.setItem("extensions", JSON.stringify(extensions));
+  await settings.set("extensions", extensions);
 }
 
 let save = addExtension();

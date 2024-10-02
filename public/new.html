@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-  <script src="/assets/themes.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="/css/main.css" />
@@ -10,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Rubik&display=swap" rel="stylesheet" />
   <title>New Tab</title>
   <link rel="stylesheet" href="/css/themes.css" />
-  <script src="/assets/themes.js"></script>
+  <script src="/assets/themes.js" type="module"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -77,9 +76,11 @@
     <p id="uv-error"></p>
     <pre id="uv-error-code"></pre>
   </div>
+  <script src="/assets/settings_manager.js"></script>
   <script>
-    function updateSearchInput() {
-      var storedSearchEngine = localStorage.getItem("searchEngine");
+    async function updateSearchInput() {
+      const settings = new SettingsManager(); 
+      var storedSearchEngine = await settings.get("searchEngine");
       var searchInput = document.getElementById("uv-search-engine");
       searchInput.value =
         storedSearchEngine || "https://www.google.com/search?q=%s";

@@ -29,6 +29,15 @@ export class SettingsManager {
       });
     }
 
+    async default(key, value) {
+      if(await this.get(key) === undefined) {
+        this.set(key, value);
+        return "set";
+      } else {
+        return "preset";
+      }
+    }
+
     async set(key, value) {
       try {
         const db = await this.dbPromise;

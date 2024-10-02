@@ -1,30 +1,84 @@
-import { WispWebSocket } from "./wispclient";
+import { WispWebSocket } from "./wispclient.js";
 
-export function checkWispUrl(url) {
-    if(url.startsWith("wss://") && _checkWispUrl(url)) return url;
-    if(url.startsWith("https") && _checkWispUrl(url.replace("https://", "wss://"))) return url.replace("https://", "wss://");
-    if(url.startsWith("http") && _checkWispUrl(url.replace("http://", "ws://"))) return url.replace("http://", "ws://");
-    if(_checkWispUrl("wss://"+url)) return "wss://"+url;
-    if(_checkWispUrl("wss://"+url+"/wisp/")) return "wss://"+url+"/wisp/";
-    if(url.startsWith("wss://") && _checkWispUrl(url+"/wisp/")) return url+"wisp";
-    if(url.startsWith("https") && _checkWispUrl(url.replace("https://", "wss://")+"/wisp/")) return url.replace("https://", "wss://");
-    if(url.startsWith("http") && _checkWispUrl(url.replace("http://", "ws://")+"/wisp/")) return url.replace("http://", "ws://");
-}
+String.prototype.delete = function (snippet) {
+    return this.replace(new RegExp(snippet, 'g'), '');
+};
 
-function _checkWispUrl(url) {
-    const ws = new WispWebSocket(url);
-    ws.addEventListener("open", () => {
-        ws.close();
-        return true
-    });
-    ws.close();
-    return false
-}
+export async function checkWispUrl(url) {
+    //ISTG DONT ASK THIS IS THE BEST I CAN DO :SOB:
+    if(checkWispServer(url)) return url;
 
-async function _checkBareUrl(url) {
-    const res = await fetch(url).response.json();
-    if(res.project.name.includes("bare")) {
-        return true;
+    url = `wss://${url.delete("https://").delete("http://").delete("ws://").delete("wss://").delete("/wisp/").delete("/wisp").delete("/bare/").delete("/bare").delete("/")}/wisp/`
+    if (await checkWispServer(url)) {
+        return url
     }
-    return false
+
+    return `wss://${location.origin}/wisp/`
+}
+
+export async function checkBareUrl(url) {
+    //ISTG DONT ASK THIS IS THE BEST I CAN DO :SOB:
+    if(checkBareServer(url)) return url;
+
+    url = `https://${url.delete("https://").delete("http://").delete("ws://").delete("wss://").delete("/wisp/").delete("/wisp").delete("/bare").delete("/bare/").delete("/")}/bare/`
+    if (await checkBareServer(url)) {
+        return url
+    }
+
+    return `wss://${location.origin}/wisp/`
+}
+
+export async function checkWispServer(url) {
+    console.log("Checking url: " + url);
+    const ws = new WispWebSocket(url);
+
+    return new Promise((resolve) => {
+        ws.addEventListener("open", () => {
+            ws.close(); // Close the WebSocket once opened
+            resolve(true); // Resolve promise as successful
+        });
+
+        ws.addEventListener("error", () => {
+            console.error(`WebSocket connection failed for: ${url}`);
+            resolve(false); // Resolve promise as unsuccessful on error
+        });
+
+        ws.addEventListener("close", (event) => {
+            if (event.code !== 1000) { // 1000 is normal closure
+                console.warn(`WebSocket closed unexpectedly: ${event.reason}`);
+            }
+        });
+
+        // Timeout to handle cases where the connection never opens
+        const timeout = setTimeout(() => {
+            ws.close(); // Close WebSocket if not opened
+            resolve(false); // Resolve as unsuccessful
+        }, 500); // Wait 5 seconds for a connection
+
+        ws.addEventListener("close", () => {
+            clearTimeout(timeout); // Clear timeout on closure
+        });
+    });
+}
+
+
+async function checkBareServer(url) {
+    console.log("Checking url: " + url);
+    const headers = new Headers({
+        "x-bare-url": "https://www.google.com",
+        "X-Bare-Headers": JSON.stringify({
+            Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
+        })
+    });
+
+    try {
+        const res = await fetch(url, { headers });
+        console.log(res);
+        const status = res.headers.get("X-Bare-Status"); // Use get() to retrieve header value
+        if (status === "200" || status === "302") return true;
+    } catch (error) {
+        console.error("Fetch error:", error);
+    }
+
+    return false;
 }

@@ -1,10 +1,16 @@
+import { SettingsManager } from "./settings_manager.js";
+
 class ExtensionDownloader extends Extensions {
+  constructor() {
+    this.settings = new SettingsManager();
+  }
+
   async download(id) {
     const i = await fetch(`${location.host}/v1/extensions/ext?${id}`);
-    if (i.status != "404") {
-      let exts = localStorage.getItem("extensions");
+    if (i.status !== 404) {
+      let exts = this.settings.get("extensions");
       exts[i.constructor.name] = JSON.parse(i[info]);
-      localStorage.setItem("extensions", exts);
+      this.settings.set("extensions", exts);
       return true;
     } else {
       console.log("Extension ID not found");

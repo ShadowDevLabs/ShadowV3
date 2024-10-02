@@ -1,5 +1,8 @@
+import { SettingsManager } from "./settings_manager.js";
+
 class BookmarksManager {
   constructor() {
+    this.settings = new SettingsManager();
     this.container = document.getElementById("bookmarks-container");
     window.addEventListener("load", this.load.bind(this));
   }
@@ -29,17 +32,17 @@ class BookmarksManager {
     this.save();
   }
 
-  save() {
+  async save() {
     const bookmarks = Array.from(this.container.children).map((bookmark) => ({
       title: bookmark.getAttribute("data-title"),
       url: bookmark.getAttribute("data-url"),
     }));
 
-    localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+    await this.settings.set("bookmarks", bookmarks);
   }
 
-  load() {
-    const storedBookmarks = localStorage.getItem("bookmarks");
+  async load() {
+    const storedBookmarks = await this.settings.get("bookmarks");
     if (storedBookmarks) {
       const bookmarks = JSON.parse(storedBookmarks);
       bookmarks.forEach((bookmark) =>

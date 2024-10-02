@@ -25,7 +25,7 @@ shortcutName.addEventListener("keypress", (e) => {
   if (e.key == "Enter") addShortcutClicked();
 });
 addShortcut.addEventListener("click", addShortcutClicked);
-function addShortcutClicked() {
+async function addShortcutClicked() {
   if (shortcutsContainer.querySelectorAll(".shortcut").length >= maxShortcuts) {
     alert(
       "You've reached the maximum number of shortcuts (10). Please delete some shortcuts to add new ones.",
@@ -46,15 +46,15 @@ function addShortcutClicked() {
       `;
     newShortcut.setAttribute("data-url", url);
     shortcutsContainer.insertBefore(newShortcut, addShortcutButton);
-    const shortcuts = JSON.parse(localStorage.getItem("shortcuts")) || [];
+    const shortcuts = await settings.get("shortcuts") || [];
     shortcuts.push({ name, url });
-    localStorage.setItem("shortcuts", JSON.stringify(shortcuts));
+    await settings.set("shortcuts", shortcuts);
     modal.style.display = "none";
     shortcutForm.reset();
   }
 }
-function loadShortcuts() {
-  const shortcuts = JSON.parse(localStorage.getItem("shortcuts")) || [];
+async function loadShortcuts() {
+  const shortcuts = await settings.get("shortcuts") || [];
   shortcuts.slice(0, maxShortcuts).forEach((shortcut) => {
     const { name, url } = shortcut;
     const newShortcut = document.createElement("a");
@@ -108,13 +108,13 @@ document
     editUrlInput.addEventListener("keypress", (e) => {
       if (e.key == "Enter") edited();
     });
-    function edited() {
+    async function edited() {
       selectedShortcut.querySelector("p").textContent = editNameInput.value;
       const newURL = editUrlInput.value;
       selectedShortcut.setAttribute("data-url", newURL);
       const newImgSrc = `https://www.google.com/s2/favicons?domain=${newURL}&sz=64`;
       selectedShortcut.querySelector("img").src = newImgSrc;
-      const shortcuts = JSON.parse(localStorage.getItem("shortcuts")) || [];
+      const shortcuts = await settings.get("shortcuts") || [];
       const selectedShortcutIndex = shortcuts.findIndex(
         (shortcut) => shortcut.name === name,
       );
@@ -123,7 +123,7 @@ document
           name: editNameInput.value,
           url: newURL,
         };
-        localStorage.setItem("shortcuts", JSON.stringify(shortcuts));
+        await settings.set("shortcuts", shortcuts);
       }
       editModal.style.display = "none";
     }
@@ -134,16 +134,16 @@ document.getElementById("closeedit").addEventListener("click", () => {
 });
 document
   .getElementById("delete-context-menu-option")
-  .addEventListener("click", () => {
+  .addEventListener("click", async () => {
     contextMenu.style.display = "none";
     if (selectedShortcut !== addShortcutButton) {
       selectedShortcut.remove();
       const name = selectedShortcut.querySelector("p").textContent;
-      const shortcuts = JSON.parse(localStorage.getItem("shortcuts")) || [];
+      const shortcuts = await settings.get("shortcuts") || [];
       const updatedShortcuts = shortcuts.filter(
         (shortcut) => shortcut.name !== name,
       );
-      localStorage.setItem("shortcuts", JSON.stringify(updatedShortcuts));
+      await settings.set("shortcuts", updatedShortcuts);
     }
   });
 

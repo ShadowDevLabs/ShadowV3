@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <script src="/assets/themes.js"></script>
+  <script src="/assets/themes.js" type="module"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
@@ -14,14 +14,14 @@
   <link rel="stylesheet" href="/css/settings.css" />
   <link rel="stylesheet" href="/css/themes.css" />
   <title>Settings</title>
-  <link rel="icon" href="icons/logo.png" type="image/x-icon" />
-  <script src="/assets/settings.js"></script>
+  <link rel="icon" href="/icons/logo.png" type="image/x-icon" />
+  <script src="/assets/settings.js" type="module"></script>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-NCTSG4T1B6"></script>
   <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-NCTSG4T1B6');</script>
 </head>
 
-<body onload="showContent('general');parent.updateOmni();parent.setTab();">
+<body onload="try {showContent('general'); parent.updateOmni(); parent.setTab();} catch(_){}">
   <div id="sidebar">
     <div class="menu-item" onclick="showContent('general')">
       <i class="fas fa-cog menu-icon"></i>
@@ -100,8 +100,7 @@
             history, and hides the site from some blockers.
           </p>
           <div class="switch">
-            <input type="checkbox" class="switch" id="autoBlankSwitch"
-              onclick="setAutoBlank();" />
+            <input type="checkbox" class="switch" id="autoBlankSwitch" onclick="setAutoBlank();" />
             <label for="autoBlankSwitch" class="slider"></label>
           </div>
         </div>
@@ -148,7 +147,7 @@
           <p class="section-text">
             Changing this will change the search engine used when searching.
           </p>
-          <select id="searchEngineDropdown" class="input-field" onchange="updateCookies()">
+          <select id="searchEngineDropdown" class="input-field">
             <option value="google" data-url="https://www.google.com/search?q=%s">
               Google
             </option>
@@ -187,99 +186,6 @@
     </div>
 
 
-
-    <div id="search-content">
-      <div class="content-title">Search</div>
-      <!-- Engine -->
-      <div class="settings-section">
-        <h2 class="section-title">Search Engine</h2>
-        <div class="section-content">
-          <p class="section-text">
-            Changing this will change the search engine used when searching.
-          </p>
-          <select id="searchEngineDropdown" class="input-field" onchange="updateCookies()">
-            <option value="google" data-url="https://www.google.com/search?q=%s">
-              Google
-            </option>
-            <option value="bing" data-url="https://www.bing.com/search?q=%s">
-              Bing
-            </option>
-            <option value="yahoo" data-url="https://search.yahoo.com/search?p=%s">
-              Yahoo
-            </option>
-            <option value="duckduckgo" data-url="https://duckduckgo.com/?q=%s">
-              DuckDuckGo
-            </option>
-            <option value="brave" data-url="https://search.brave.com/search?q=%s">
-              Brave
-            </option>
-            <option value="yandex" data-url="https://yandex.com/search/?text=%s">
-              Yandex
-            </option>
-          </select>
-        </div>
-      </div>
-      <br /><br />
-      <!-- Proxy -->
-      <!-- <div class="settings-section">
-        <h2 class="section-title">Proxy</h2>
-        <div class="section-content">
-          <p class="section-text">
-            This is the proxy that is used when searching.
-          </p>
-          <select id="proxyDropdown" class="input-field">
-            <option value="ultraviolet">Ultraviolet</option>
-            <option value="dynamic">Dynamic</option>
-          </select>
-        </div>
-      </div> -->
-    </div>
-    <div id="search-content">
-      <div class="content-title">Search</div>
-      <!-- Engine -->
-      <div class="settings-section">
-        <h2 class="section-title">Search Engine</h2>
-        <div class="section-content">
-          <p class="section-text">
-            Changing this will change the search engine used when searching.
-          </p>
-          <select id="searchEngineDropdown" class="input-field" onchange="updateCookies()">
-            <option value="google" data-url="https://www.google.com/search?q=%s">
-              Google
-            </option>
-            <option value="bing" data-url="https://www.bing.com/search?q=%s">
-              Bing
-            </option>
-            <option value="yahoo" data-url="https://search.yahoo.com/search?p=%s">
-              Yahoo
-            </option>
-            <option value="duckduckgo" data-url="https://duckduckgo.com/?q=%s">
-              DuckDuckGo
-            </option>
-            <option value="brave" data-url="https://search.brave.com/search?q=%s">
-              Brave
-            </option>
-            <option value="yandex" data-url="https://yandex.com/search/?text=%s">
-              Yandex
-            </option>
-          </select>
-        </div>
-      </div>
-      <br /><br />
-      <!-- Proxy -->
-      <!-- <div class="settings-section">
-        <h2 class="section-title">Proxy</h2>
-        <div class="section-content">
-          <p class="section-text">
-            This is the proxy that is used when searching.
-          </p>
-          <select id="proxyDropdown" class="input-field">
-            <option value="ultraviolet">Ultraviolet</option>
-            <option value="dynamic">Dynamic</option>
-          </select>
-        </div>
-      </div> -->
-    </div>
     <div id="developer-content">
       <div class="content-title">Developer Tools</div>
       <div class="settings-section">
@@ -302,7 +208,7 @@
           <input value="phantom.lol" style="width:90%; display:none;" class="input-field" id="wispURL" /> <br>
 
           <div class="flex-div" style="display:none;" id="wispBtn">
-            <button class="icon-button" onclick="setWispUrl(); ShowNotification('Wisp URL changed.', 'wispnoti')">
+            <button class="icon-button" onclick="window.setUrl(); ShowNotification('Wisp URL changed.', 'wispnoti')">
               <i class="fa-solid fa-link"></i> Set Wisp URL
             </button>
             <p class="notification" id="wispnoti"></p>
@@ -323,10 +229,44 @@
     </div>
   </div>
   </div>
+  <script type="module">
+    import { SettingsManager } from "/assets/settings_manager.js"
+    import { checkWispUrl, checkBareUrl } from "/assets/wispchecker.js"
 
-  <script>
-    function setAutoBlank() {
-      localStorage.setItem("autoBlank", (!(JSON.parse(localStorage.getItem("autoBlank")) || false)).toString())
+    window.settings = new SettingsManager();
+    document.getElementById("autoBlankSwitch").checked = await window.settings.get('autoBlank');
+    document.getElementById("transportSelection").value = await window.settings.get('transport');
+
+    const urlToValueMap = {
+      "https://www.google.com/search?q=%s": "google",
+      "https://www.bing.com/search?q=%s": "bing",
+      "https://search.yahoo.com/search?p=%s": "yahoo",
+      "https://duckduckgo.com/?q=%s": "duckduckgo",
+      "https://search.brave.com/search?q=%s": "brave",
+      "https://yandex.com/search/?text=%s": "yandex"
+    };
+    document.getElementById("searchEngineDropdown").value = urlToValueMap[await window.settings.get('searchEngine')];
+
+    if (!(await window.settings.get("server")).includes(location.host))
+      document.getElementById("wispSelection").value = 'custom';
+      wispURLOption();
+
+    window.setUrl = async function (url = document.getElementById('wispURL').value) {
+      if (document.getElementById("transportSelection").value !== "/baremod/index.mjs") {
+        const wsUrl = await checkWispUrl(url);
+        console.log(wsUrl);
+        await window.settings.set("server", wsUrl);
+      } else {
+        const bareUrl = await checkBareUrl(url);
+        await window.settings.set("server", bareUrl);
+      }
+      parent.tabs.setTransport();
+    }
+  </script>
+
+  <script defer>
+    async function setAutoBlank() {
+      await window.settings.default("autoBlank", false);
     }
 
     function aboutBlank() {
@@ -337,21 +277,9 @@
       }
     }
 
-    function changeTransport(transport = document.getElementById("transportSelection").value) {
-      localStorage.setItem("transport", transport);
-      setWispUrl();
-      parent.tabs.setTransport();
-    }
-
-    function setWispUrl(url = document.getElementById('wispURL').value) {
-      
-      if (document.getElementById("transportSelection").value != "/baremod/index.mjs") {
-        const wsUrl = checkWispUrl(url);
-        localStorage.setItem("server", wsUrl);
-      } else {
-        const bareUrl = checkBareServer(url);
-        localStorage.setItem("server", bareUrl);
-      }
+    async function changeTransport(transport = document.getElementById("transportSelection").value) {
+      await window.settings.set("transport", transport);
+      window.setUrl();
       parent.tabs.setTransport();
     }
 
@@ -367,14 +295,14 @@
       }
     }
 
-    function updateEngine() {
+    async function updateEngine() {
       var dropdown = document.getElementById("searchEngineDropdown");
       var selectedOption = dropdown.options[dropdown.selectedIndex];
       var dataUrl = selectedOption.getAttribute("data-url");
-      localStorage.setItem("searchEngine", dataUrl);
+      await window.settings.set("searchEngine", dataUrl);
+      if(parent) parent.tabs.updateSearchEngine();
     }
 
-    var storedSearchEngine = localStorage.getItem("searchEngine");
     var searchEngineDropdown = document.getElementById(
       "searchEngineDropdown",
     );
