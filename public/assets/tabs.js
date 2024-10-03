@@ -93,7 +93,7 @@ class Tab {
       closeBtn.className = "close-tab-button";
       closeBtn.innerHTML = "&#x2715;";
       closeBtn.addEventListener("click", (e) =>
-        tabs.closeTab(this.tabsArr.findIndex((obj) => obj.tab === tab.tab)),
+        tabs.closeTab(tabs.tabsArr.findIndex((obj) => obj.tab === tab.tab)),
       );
       tab.tab.appendChild(closeBtn);
     }
