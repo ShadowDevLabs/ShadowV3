@@ -6,6 +6,7 @@ export async function changeTheme(selectedTheme) {
   setTheme(selectedTheme);
   if(parent !== window) parent.changeTheme(selectedTheme);
   await settings.set("theme", selectedTheme);
+  localStorage.setItem("theme", selectedTheme);
 }
 
 function setRootVars(variables) {
@@ -47,6 +48,15 @@ export async function setTheme(theme) {
   setRootVars(cssVariables);
 }
 
+window.addEventListener("storage", function (e) {
+  if (e.key === "theme") {
+    setTheme(e.newValue);
+  } else if (e.key === "custom") {
+    if (localStorage.getItem("theme") === "custom") {
+      setTheme("custom");
+    }
+  }
+});
 
 
 document.addEventListener("DOMContentLoaded", async () => {
