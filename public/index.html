@@ -23,7 +23,7 @@
   <script src="/assets/settings.js" type="module"></script>
   <script src="/assets/debugger.js"></script>
   <script>
-    const dewasper = new Dewasper();
+    window.dewasper = new Dewasper();
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("/sw.js", {
