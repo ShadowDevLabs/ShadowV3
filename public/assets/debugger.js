@@ -11,7 +11,7 @@ class Dewasper {
             line,
             column,
             time: new Date().toLocaleString(),
-            stack: error ? error.stack : null // Optional stack trace
+            stack: error ? error.stack : null
         };
         this.errors.push(errorObject);
     }    
