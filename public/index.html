@@ -126,6 +126,15 @@
     <table>
       <tr>
         <td>
+          <button data-add-tab onclick='tabs.toggleDevTools()'>
+            <i class="fas fa-code"></i> Devtools
+          </button>
+        </td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td>
           <button data-add-tab onclick='tabs.createTab("shadow:/\/games")'>
             <i class="fa-solid fa-play"></i> Games
           </button>
@@ -184,8 +193,8 @@
     <table>
       <tr>
         <td>
-          <button data-add-tab onclick="exit()">
-            <i class="fa-solid fa-circle-xmark"></i> Exit
+          <button data-add-tab onclick="navigator.clipboard.writeText(dewasper.dump());">
+            <i class="fa-solid fa-bug"></i> Dump Debug Info
           </button>
         </td>
       </tr>

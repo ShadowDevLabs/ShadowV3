@@ -8,19 +8,39 @@ self.__uv$config = {
   bundle: "/uv/uv.bundle.js",
   config: "/uv/uv.config.js",
   sw: "/uv/uv.sw.js",
-  inject: [
-    {
-      host: /\\*/,
-      injectTo: "head",
-      html: "<script src='/assets/extensions-loader.js'></script>"
-    }
-  ]
 };
 
+self.__shadow = {
+  erudaState: false,
+  eruda: null
+}
+
+self.addEventListener("message", (e) => {
+  if (e.data === "__shadow$toggleEruda") {
+    if (__shadow.eruda._devTools && !__shadow.eruda._devTools._isShow) { 
+      __shadow.erudaState = true;
+      __shadow.eruda.show();
+    } else if (__shadow.erudaState) {
+      __shadow.erudaState = false;
+      __shadow.eruda.destroy();
+    } else {
+      __shadow.erudaState = true;
+      __shadow.eruda.init();
+      __shadow.eruda.show();
+    }
+  }
+})
+
 if (typeof window === "object" && self.constructor === Window) {
+  const script = document.createElement("script");
+  script.src = "https://cdn.jsdelivr.net/npm/eruda";
+  script.onload = () => {
+    self.__shadow.eruda = eruda
+  }
+  document.head.append(script);
   try {
     parent.tabs.updateOmni();
-  } catch(e) {
+  } catch (e) {
     console.log(`error in updating omnibox: ${e}`)
   }
 }

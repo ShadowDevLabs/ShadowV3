@@ -6,9 +6,6 @@ const addTabButton = document.getElementById("add-tab");
 
 class Tab {
   constructor() {
-    window.onerror = (e) => {
-      window.errorLogger.newError(e);
-    }
     this.activeTabIndex = -1
     this.tabsArr = [];
     this.history = new HistoryHelper();
@@ -27,8 +24,8 @@ class Tab {
       const detail = e.detail;
       if (detail.key === "backend") {
         this.backend = detail.newValue;
-      } 
-      if(detail.key === "searchEngine") {
+      }
+      if (detail.key === "searchEngine") {
         this.searchEngine = detail.newValue;
       }
     });
@@ -125,6 +122,7 @@ class Tab {
     this.load(tab.src);
     this.activeTabIndex = this.tabsArr.length - 1;
   }
+
   closeTab(i, force = false) {
     const isActive = this.activeTabIndex === i;
     if (isActive) {
@@ -151,6 +149,7 @@ class Tab {
       this.tabsArr.splice(i, 1);
     }
   }
+
   switchTab(i, e) {
     try {
       if (!e || e.target != this.tabsArr[i].tab.querySelector(".close-tab-button")) {
@@ -171,6 +170,7 @@ class Tab {
       /*Silence goofy errors*/
     }
   }
+
   updateOmni() {
     if (document.activeElement != searchInput) {
       let currentSrc = this.getSrc();
@@ -182,6 +182,7 @@ class Tab {
       searchInput.value = currentSrc;
     }
   }
+
   getSrc(i = this.activeTabIndex) {
     const src = this.tabsArr[i].iframe.contentDocument.location.href;
     if (src === "about:blank") {
@@ -208,6 +209,7 @@ class Tab {
         );
     }
   }
+
   async setTab(i = this.activeTabIndex) {
     //Set the icon for the tab
     let iconUrl;
@@ -226,6 +228,7 @@ class Tab {
     let title = this.tabsArr[i].iframe.contentDocument.title;
     this.tabsArr[i].tab.querySelector(".tab-title").textContent = title;
   }
+
   async saveTabs() {
     const openTabs = [];
     for (let i = 0; i < this.tabsArr.length; i++) {
@@ -233,6 +236,7 @@ class Tab {
     }
     await this.settings.set("activeTabs", JSON.stringify(openTabs));
   }
+
   async loadAllTabs() {
     this.tabsArr.forEach((tab, i) => {
       console.log(i);
@@ -243,15 +247,19 @@ class Tab {
       this.createTab(i);
     });
   }
+
   refresh(i = this.activeTabIndex) {
     this.tabsArr[i].iframe.contentWindow.location.reload();
   }
+
   forward(i = this.activeTabIndex) {
     this.tabsArr[i].iframe.contentWindow.history.forward();
   }
+
   backward(i = this.activeTabIndex) {
     this.tabsArr[i].iframe.contentWindow.history.back();
   }
+
   async updateHistory(src, i) {
     if (await this.settings.get("historyEnabled")) {
       let history = JSON.parse(await this.history.get()) ?? [];
@@ -264,6 +272,11 @@ class Tab {
       await this.history.add(history);
     }
   }
+
+  toggleDevTools() {
+    this.tabsArr[this.activeTabIndex].iframe.contentWindow.postMessage("__shadow$toggleEruda");
+  }
+
   async setTransport(url, transport) {
     url = url ?? (await this.settings.get("server") || `wss://${location.host}/wisp/`);
     transport = transport ?? (await this.settings.get("transport") || "/epoxy/index.mjs");
