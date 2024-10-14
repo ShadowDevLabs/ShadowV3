@@ -128,16 +128,16 @@
 
       <!-- Premade -->
       <div class="settings-section">
-      <h2 class="section-title">Pre-Made Themes</h2>
-      <div class="section-content">
-        <p class="section-text">
-          Choose between the following themes. This will change the
-          appearance of the site.
-        </p>
-        <div class="themes-container" id="themes-container">
-          <!-- Theme Buttons Get Loaded here-->
+        <h2 class="section-title">Pre-Made Themes</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Choose between the following themes. This will change the
+            appearance of the site.
+          </p>
+          <div class="themes-container" id="themes-container">
+            <!-- Theme Buttons Get Loaded here-->
+          </div>
         </div>
-      </div>
       </div>
 
       <!-- Custom -->
@@ -145,9 +145,10 @@
         <h2 class="section-title">Pre-Made Themes</h2>
         <div class="section-content">
           <p class="section-text">
-            Create your own theme with the custom theme maker! Enter a base color, and we'll generate a theme for you!</p>
+            Create your own theme with the custom theme maker! Enter a base color, and we'll generate a theme for you!
+          </p>
           <input type="color" id="themeColorPicker" name="themeColorPicker" value="#"> <br><br>
-          <button class="icon-button" onclick="applyCustomTheme()" >
+          <button class="icon-button" onclick="applyCustomTheme()">
             <i class="fa-brands fa-codepen fa-lg"></i> Apply Theme
           </button>
         </div>
@@ -234,114 +235,124 @@
         </div>
       </div>
 
+      <!-- User Agent -->
+      <div class="settings-section">
+        <h2 class="section-title">Custom User Agent</h2>
+        <div class="section-content">
+          <p class="section-text">Switch between different user agents. Some agents may cause issues.</p>
+          <input placeholder="" style="width:90%;" class="input-field" id="customUserAgent" /> <br><br>
+          <button class="icon-button" id="ua"
+            onclick="customUA = document.getElementById('customUserAgent').value; setUA(customUA);">Choose Agent</button>
+        </div>
+      </div> <br>
+
       <!-- Dump Dev Tools - -->
       <div class="settings-section">
         <h2 class="section-title">Dump Error Logs</h2>
         <div class="section-content">
           <p class="section-text">Access all the errror logs. (Debugging Tool)</p>
-          <button class="icon-button"
-            onclick="navigator.clipboard.writeText(parent.dewasper.dump());"><i class="fa-solid fa-download"></i> Dump</button>
+          <button class="icon-button" onclick="navigator.clipboard.writeText(parent.dewasper.dump());"><i
+              class="fa-solid fa-download"></i> Dump</button>
         </div>
 
-      <!-- UA -
-      <div class="settings-section">
-        <h2 class="section-title">Custom User Agent</h2>
-        <div class="section-content">
-          <p class="section-text">Switch between different user agents. Some agents may cause issues.</p>
-          <input placeholder="" style="width:90%;" class="input-field" id="custom-ua" /> <br><br>
-          <button class="icon-button" id="ua"
-            onclick="customUA = document.getElementById('custom-ua').value; changeUA(customUA);">Choose Agent</button>
-        </div> -->
-
+      </div>
     </div>
-  </div>
-  </div>
-  <script type="module">
-    import { SettingsManager } from "/assets/settings_manager.js"
-    import { checkWispUrl, checkBareUrl } from "/assets/wispchecker.js"
-    import { changeTheme as _changeTheme, applyCustomTheme as _applyCustomTheme } from "/assets/themes.js"
+    <script type="module">
+      import { SettingsManager } from "/assets/settings_manager.js"
+      import { checkWispUrl, checkBareUrl } from "/assets/wispchecker.js"
+      import { changeTheme as _changeTheme, applyCustomTheme as _applyCustomTheme } from "/assets/themes.js"
 
-    window.changeTheme = _changeTheme;
-    window.applyCustomTheme = _applyCustomTheme;
-    window.settings = new SettingsManager();
-    document.getElementById("autoBlankSwitch").checked = await window.settings.get('autoBlank');
-    document.getElementById("transportSelection").value = await window.settings.get('transport');
+      window.changeTheme = _changeTheme;
+      window.applyCustomTheme = _applyCustomTheme;
+      window.settings = new SettingsManager();
+      document.getElementById("autoBlankSwitch").checked = await window.settings.get('autoBlank');
+      document.getElementById("transportSelection").value = await window.settings.get('transport');
+      document.getElementById("customUserAgent").value = await window.settings.get('user-agent') || navigator.userAgent;
 
-    const urlToValueMap = {
-      "https://www.google.com/search?q=%s": "google",
-      "https://www.bing.com/search?q=%s": "bing",
-      "https://search.yahoo.com/search?p=%s": "yahoo",
-      "https://duckduckgo.com/?q=%s": "duckduckgo",
-      "https://search.brave.com/search?q=%s": "brave",
-      "https://yandex.com/search/?text=%s": "yandex"
-    };
-    document.getElementById("searchEngineDropdown").value = urlToValueMap[await window.settings.get('searchEngine')];
+      const urlToValueMap = {
+        "https://www.google.com/search?q=%s": "google",
+        "https://www.bing.com/search?q=%s": "bing",
+        "https://search.yahoo.com/search?p=%s": "yahoo",
+        "https://duckduckgo.com/?q=%s": "duckduckgo",
+        "https://search.brave.com/search?q=%s": "brave",
+        "https://yandex.com/search/?text=%s": "yandex"
+      };
+      document.getElementById("searchEngineDropdown").value = urlToValueMap[await window.settings.get('searchEngine')];
 
-    if (!(await window.settings.get("server")).includes(location.host))
-      document.getElementById("wispSelection").value = 'custom';
+      if (!(await window.settings.get("server")).includes(location.host))
+        document.getElementById("wispSelection").value = 'custom';
       wispURLOption();
 
-    window.setUrl = async function (url = document.getElementById('wispURL').value) {
-      if (document.getElementById("transportSelection").value !== "/baremod/index.mjs") {
-        const wsUrl = await checkWispUrl(url);
-        console.log(wsUrl);
-        await window.settings.set("server", wsUrl);
-      } else {
-        const bareUrl = await checkBareUrl(url);
-        await window.settings.set("server", bareUrl);
+      window.setUA = async function (agent) {
+        agent = agent || navigator.userAgent;
+        await window.settings.set("user-agent", agent);
+        navigator.serviceWorker.register("/sw.js", {
+          scope: "/"
+        });
+        document.getElementById("customUserAgent").value = await window.settings.get("user-agent");
       }
-      parent.tabs.setTransport();
-    }
-  </script>
 
-  <script defer>
-    async function setAutoBlank() {
-      await window.settings.default ("autoBlank", false);
-    }
-
-    function aboutBlank() {
-      if (parent !== window) {
-        parent.abtblank();
-      } else {
-        abtblank();
+      window.setUrl = async function (url = document.getElementById('wispURL').value) {
+        if (document.getElementById("transportSelection").value !== "/baremod/index.mjs") {
+          const wsUrl = await checkWispUrl(url);
+          console.log(wsUrl);
+          await window.settings.set("server", wsUrl);
+        } else {
+          const bareUrl = await checkBareUrl(url);
+          await window.settings.set("server", bareUrl);
+        }
+        parent.tabs.setTransport();
       }
-    }
+    </script>
 
-    async function changeTransport(transport = document.getElementById("transportSelection").value) {
-      await window.settings.set("transport", transport);
-      window.setUrl();
-      parent.tabs.setTransport();
-    }
-
-    function showContent(contentId) {
-      const contentSections = document.querySelectorAll("#content > div");
-      contentSections.forEach((section) => {
-        section.style.display = "none";
-      });
-
-      const selectedSection = document.getElementById(contentId + "-content");
-      if (selectedSection) {
-        selectedSection.style.display = "block";
+    <script defer>
+      async function setAutoBlank() {
+        await window.settings.toggle("autoBlank")
       }
-    }
 
-    async function updateEngine() {
-      var dropdown = document.getElementById("searchEngineDropdown");
-      var selectedOption = dropdown.options[dropdown.selectedIndex];
-      var dataUrl = selectedOption.getAttribute("data-url");
-      await window.settings.set("searchEngine", dataUrl);
-      if(parent) parent.tabs.updateSearchEngine();
-    }
+      function aboutBlank() {
+        if (parent !== window) {
+          parent.abtblank();
+        } else {
+          abtblank();
+        }
+      }
 
-    var searchEngineDropdown = document.getElementById(
-      "searchEngineDropdown",
-    );
+      async function changeTransport(transport = document.getElementById("transportSelection").value) {
+        await window.settings.set("transport", transport);
+        window.setUrl();
+        parent.tabs.setTransport();
+      }
 
-    searchEngineDropdown.addEventListener("change", updateEngine);
-  </script>
-  <script src="/assets/options.js"></script>
-  <script src="/assets/notifications.js"></script>
-  <script src="script.js"></script>
+      function showContent(contentId) {
+        const contentSections = document.querySelectorAll("#content > div");
+        contentSections.forEach((section) => {
+          section.style.display = "none";
+        });
+
+        const selectedSection = document.getElementById(contentId + "-content");
+        if (selectedSection) {
+          selectedSection.style.display = "block";
+        }
+      }
+
+      async function updateEngine() {
+        var dropdown = document.getElementById("searchEngineDropdown");
+        var selectedOption = dropdown.options[dropdown.selectedIndex];
+        var dataUrl = selectedOption.getAttribute("data-url");
+        await window.settings.set("searchEngine", dataUrl);
+        if (parent) parent.tabs.updateSearchEngine();
+      }
+
+      var searchEngineDropdown = document.getElementById(
+        "searchEngineDropdown",
+      );
+
+      searchEngineDropdown.addEventListener("change", updateEngine);
+    </script>
+    <script src="/assets/options.js"></script>
+    <script src="/assets/notifications.js"></script>
+    <script src="script.js"></script>
 </body>
 
 </html>
