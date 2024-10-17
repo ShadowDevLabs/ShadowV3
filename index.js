@@ -19,7 +19,6 @@ const publicPath = fileURLToPath(new URL("./public/", import.meta.url));
 const bare = createBareServer("/bare/");
 const app = express();
 const server = createServer();
-console.log(users);
 if(Object.keys(users).length > 0) app.use(basicAuth({ users, challenge: true }));
 app.use(express.static(publicPath, { maxAge: 604800000 })); //1 week
 // app.use("/books/files/", express.static(gamesPath))
