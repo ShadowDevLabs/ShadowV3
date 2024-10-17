@@ -13,12 +13,14 @@ import { createBareServer } from "@nebula-services/bare-server-node";
 import { dynamicPath } from "@nebula-services/dynamic";
 // import { path as gamesPath } from "3hk0-static";
 import { join } from "path";
+import { users, port} from "./config.js";
 const version = process.env.npm_package_version;
 const publicPath = fileURLToPath(new URL("./public/", import.meta.url));
 const bare = createBareServer("/bare/");
-let port = process.argv[2] || 8080;
 const app = express();
 const server = createServer();
+console.log(users);
+if(Object.keys(users).length > 0) app.use(basicAuth({ users, challenge: true }));
 app.use(express.static(publicPath, { maxAge: 604800000 })); //1 week
 // app.use("/books/files/", express.static(gamesPath))
 app.use("/epoxy/", express.static(epoxyPath));
@@ -99,4 +101,4 @@ server.on("listening", () => {
   }, 1500);
 });
 
-server.listen(port);
+server.listen(process.argv[2] || port);
