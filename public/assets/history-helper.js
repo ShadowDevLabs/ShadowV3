@@ -9,7 +9,6 @@ export class HistoryHelper {
     initDB() {
       return new Promise((resolve, reject) => {
         const request = indexedDB.open(this.dbName, 1);
-
         request.onupgradeneeded = (e) => {
           const db = e.target.result;
           if (!db.objectStoreNames.contains(this.storeName)) {
@@ -29,10 +28,34 @@ export class HistoryHelper {
       });
     }
 
+    async getOpen() {
+
+    }
+
+    async setOpen(arr) {
+      try {
+        const db = await this.dbPromise;
+        const oldValue = await this.get(key);
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction([this.storeName], "readwrite");
+          const store = transaction.objectStore(this.storeName);
+          const request = store.put(value, key);
+          request.onsuccess = () => {
+            resolve();
+          };
+          request.onerror = (e) => {
+            reject(e.target.error);
+          };
+        });
+      } catch (error) {
+        console.error("Error setting value:", error);
+      }
+    }
+
     async add(key, value) {
       try {
         const db = await this.dbPromise;
-        const oldValue = await this.get(key); // Retrieve old value before setting
+        const oldValue = await this.get(key);
         return new Promise((resolve, reject) => {
           const transaction = db.transaction([this.storeName], "readwrite");
           const store = transaction.objectStore(this.storeName);

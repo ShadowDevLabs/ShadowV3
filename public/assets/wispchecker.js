@@ -74,7 +74,7 @@ async function checkBareServer(url) {
     try {
         const res = await fetch(url, { headers });
         console.log(res);
-        const status = res.headers.get("X-Bare-Status"); // Use get() to retrieve header value
+        const status = res.headers.get("X-Bare-Status");
         if (status === "200" || status === "302") return true;
     } catch (error) {
         console.error("Fetch error:", error);

@@ -40,6 +40,7 @@ if (typeof window === "object" && self.constructor === Window) {
   document.head.append(script);
   try {
     parent.tabs.updateOmni();
+    parent.tabs.setTab();
   } catch (e) {
     console.log(`error in updating omnibox: ${e}`)
   }

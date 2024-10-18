@@ -8,6 +8,7 @@ class Tab {
   constructor() {
     this.activeTabIndex = -1
     this.tabsArr = [];
+    this.brokenSites = {};
     this.history = new HistoryHelper();
     this.settings = new SettingsManager();
     this.connection = new BareMux.BareMuxConnection("/baremux/worker.js");
@@ -29,28 +30,25 @@ class Tab {
         this.searchEngine = detail.newValue;
       }
     });
-    this.defaults = [{ "key": "shortenUrls", "value": true }, { "key": "searchEngine", "value": "https://www.google.com/search?q=%s" }]
+    this.defaults = [{ "key": "search-suggestions-engine", "value": "duckduckgo" }, { "key": "shortenUrls", "value": true }, { "key": "searchEngine", "value": "https://www.google.com/search?q=%s" }]
     this.setDefaults();
     this.init();
+    this.getSuggestions = async (query) => await fetch(`/api/search-api?query=${query}`, { headers: { engine: await this.settings.get("search-suggestions-engine") } }).then(response => { return response.json() });
   }
 
-  async setDefaults(...arr) {
-    arr = arr ?? this.defaults
+  async setDefaults() {
+    const arr = this.defaults;
+    console.log(arr);
     arr.forEach(async i => {
-      this.settings.default(arr[i].key, arr[i].value)
+      console.log(`Setting ${i.key} as ${i.value}`)
+      this.settings.default(i.key, i.value)
     });
   }
 
   async init() {
     this.searchEngine = await this.settings.get("searchEngine");
     this.backend = await this.settings.get("backend") || "uv";
-    if (
-      await this.settings.get("saveTabs") &&
-      window.confirm(
-        "Session ended unexpectedly, do you want to reopen your tabs?",
-      )
-    )
-      this.loadAllTabs();
+    if (await this.settings.get("save-tabs") && window.confirm("Session ended unexpectedly, do you want to reopen your tabs?")) this.loadAllTabs();
     else this.createTab();
   }
 
@@ -65,6 +63,7 @@ class Tab {
     const url = self.search(src, this.searchEngine, this.backend);
     iframe.src = url;
     this.updateHistory(src, i);
+    this.checkSite(src);
   }
 
   createTab(src = this.tabsArr.length === 0 ? "shadow://home" : "shadow://new") {
@@ -74,12 +73,11 @@ class Tab {
       tab.img.className = "tab-icon";
       tab.img.alt = "Favicon"
       if (src.startsWith('shadow://')) {
-        let favicon = src.replace('shadow://', '');
-        favicon = `icons/pages/${favicon}.png`;
+        const favicon = `/icons/pages/${src.replace('shadow://', '')}.png`;
         tab.img.src = favicon;
       }
 
-      //tab.img.onerror = `${(tab.img.style.display = "none")}`; //
+      tab.img.onerror = `${(tab.img.style.display = "none;")}`;
       tab.tab.appendChild(tab.img);
       //Tab title
       const titleContainer = document.createElement("div");
@@ -203,6 +201,8 @@ class Tab {
         return "shadow://extensions/manage";
       case "books":
         return "shadow://games";
+      case "history":
+        return "shadow://history";
       default:
         return this.decode(
           src.replace(location.origin, "").replace("/uv/service/", ""),
@@ -212,21 +212,17 @@ class Tab {
 
   async setTab(i = this.activeTabIndex) {
     //Set the icon for the tab
-    let iconUrl;
     const src = this.getSrc(i);
+    if (this.tabsArr[i].img.style.display == "none;") this.tabsArr[i].img.style.display = "block;";
     if (src.startsWith("shadow://")) {
-      iconUrl = `/icons/pages/${this.getSrc(i).replace("shadow://", "")}`;
+      this.tabsArr[i].img.src = `/icons/pages/${this.getSrc(i).replace("shadow://", "")}.png`;
     } else if (src === "about:blank") {
       return;
     } else {
-      try {
-        iconUrl = `https://www.google.com/s2/favicons?domain=${src}&sz=24`;
-      } catch (e) { }
-      this.tabsArr[i].img.src = iconUrl;
+      this.tabsArr[i].img.src = `https://www.google.com/s2/favicons?domain=${src}&sz=24`;
     }
     //Set the title for a tab
-    let title = this.tabsArr[i].iframe.contentDocument.title;
-    this.tabsArr[i].tab.querySelector(".tab-title").textContent = title;
+    this.tabsArr[i].tab.querySelector(".tab-title").textContent = this.tabsArr[i].iframe.contentDocument.title;
   }
 
   async saveTabs() {
@@ -260,8 +256,13 @@ class Tab {
     this.tabsArr[i].iframe.contentWindow.history.back();
   }
 
+  async checkSite(url) {
+    if (this.brokenSites.lastUpdated > Date.now + 300000 /*5 minutes*/)
+      fetch(`/api/broken-site`).then((res) => { this.brokenSites = res.json(); });
+  }
+
   async updateHistory(src, i) {
-    if (await this.settings.get("historyEnabled")) {
+    if (await this.settings.get("history-enabled")) {
       let history = JSON.parse(await this.history.get()) ?? [];
       const obj = {
         url: src,
@@ -290,6 +291,7 @@ class Tab {
       await this.settings.set("transport", transport);
     }
   }
+
 }
 
 const tabs = new Tab();
