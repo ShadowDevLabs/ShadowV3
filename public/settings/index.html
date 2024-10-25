@@ -105,18 +105,33 @@
           </div>
         </div>
       </div>
-      <br /><br />
+      <br />
       <!--Toggle auto save/load tabs-->
       <div class="settings-section">
         <h2 class="section-title">Auto Save/Load Tabs</h2>
         <div class="section-content">
           <p class="section-text">
             Automatically reload tabs from older sessions, toggle auto saving
-            and loading here. TEMPORARILY DISABLED
+            and loading here.
           </p>
           <div class="switch">
-            <!-- <input type="checkbox" class="switch" id="toggleSwitch" /> -->
-            <label for="toggleSwitch" class="slider" style="cursor:not-allowed;"></label>
+            <input type="checkbox" class="switch" id="saveTabsSwitch" onclick="setSaveTabs();" />
+            <label for="saveTabsSwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
+      <br />
+      <!-- Close Protection -->
+      <div class="settings-section">
+        <h2 class="section-title">Close Protection</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Prevent extensions and teachers from closing tabs! Will present a confirmation popup whenever an attempt to
+            close the page occurs.
+          </p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="closeProtSwitch" onclick="toggleCloseProt()" />
+            <label for="closeProtSwitch" class="slider"></label>
           </div>
         </div>
       </div>
@@ -242,7 +257,8 @@
           <p class="section-text">Switch between different user agents. Some agents may cause issues.</p>
           <input placeholder="" style="width:90%;" class="input-field" id="customUserAgent" /> <br><br>
           <button class="icon-button" id="ua"
-            onclick="customUA = document.getElementById('customUserAgent').value; setUA(customUA);">Choose Agent</button>
+            onclick="customUA = document.getElementById('customUserAgent').value; setUA(customUA);">Choose
+            Agent</button>
         </div>
       </div> <br>
 
@@ -261,11 +277,15 @@
       import { SettingsManager } from "/assets/settings_manager.js"
       import { checkWispUrl, checkBareUrl } from "/assets/wispchecker.js"
       import { changeTheme as _changeTheme, applyCustomTheme as _applyCustomTheme } from "/assets/themes.js"
+      import { HistoryHelper } from "/assets/history-helper.js"
 
       window.changeTheme = _changeTheme;
       window.applyCustomTheme = _applyCustomTheme;
       window.settings = new SettingsManager();
-      document.getElementById("autoBlankSwitch").checked = await window.settings.get('autoBlank');
+      window.historyHelper = new HistoryHelper();
+      document.getElementById("autoBlankSwitch").checked = await window.settings.get('auto-blank');
+      document.getElementById("saveTabsSwitch").checked = await window.settings.get("save-tabs");
+      document.getElementById("closeProtSwitch").checked = await window.settings.get('close-protection');
       document.getElementById("transportSelection").value = await window.settings.get('transport');
       document.getElementById("customUserAgent").value = await window.settings.get('user-agent') || navigator.userAgent;
 
@@ -306,8 +326,19 @@
     </script>
 
     <script defer>
+      async function toggleCloseProt() {
+        await window.settings.toggle("close-protection");
+      }
+
       async function setAutoBlank() {
-        await window.settings.toggle("autoBlank")
+        await window.settings.toggle("auto-blank");
+      }
+
+      async function setSaveTabs() {
+        await window.settings.toggle("save-tabs")
+        if (!await window.settings.get("save-tabs")) {
+          await window.historyHelper.clear("open-tabs");
+        }
       }
 
       function aboutBlank() {
@@ -340,7 +371,7 @@
         var dropdown = document.getElementById("searchEngineDropdown");
         var selectedOption = dropdown.options[dropdown.selectedIndex];
         var dataUrl = selectedOption.getAttribute("data-url");
-        await window.settings.set("searchEngine", dataUrl);
+        await window.settings.set("search-engine", dataUrl);
         if (parent) parent.tabs.updateSearchEngine();
       }
 

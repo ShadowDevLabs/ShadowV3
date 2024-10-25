@@ -1,7 +1,7 @@
 import { SettingsManager } from "./settings_manager.js";
 const settings = new SettingsManager();
 
-if (await settings.get("autoBlank")) abtblank();
+if (await settings.get("auto-blank")) abtblank();
 
 function abtblank() {
     const url = location.href;

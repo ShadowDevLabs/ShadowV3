@@ -2,6 +2,11 @@ import { SettingsManager } from "./settings_manager.js";
 
 (async function () {
   const settings = new SettingsManager();
+  
+  if(await settings.get("close-protection")) {
+    top.onbeforeunload = function(e) { e.preventDefault(); console.log("Closing attempted"); /* Prevent automatic tab closing */};
+  }
+  
   var tab = await settings.get("tab");
   if (tab) {
     try {

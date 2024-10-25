@@ -99,7 +99,7 @@ function abtblank() {
 }
 
 function iframeabtblank() {
-  const iframe = iframesContainer.children[activeTabIndex];
+  const iframe = iframesContainer.children[tabs.activeTabIndex];
   const url = iframe.src;
   const width = window.innerWidth;
   const height = window.innerHeight;

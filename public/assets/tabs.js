@@ -8,7 +8,7 @@ class Tab {
   constructor() {
     this.activeTabIndex = -1
     this.tabsArr = [];
-    this.brokenSites = {};
+    this.brokenSites = fetch('/api/broken-site').then(res => res.json());
     this.history = new HistoryHelper();
     this.settings = new SettingsManager();
     this.connection = new BareMux.BareMuxConnection("/baremux/worker.js");
@@ -26,44 +26,53 @@ class Tab {
       if (detail.key === "backend") {
         this.backend = detail.newValue;
       }
-      if (detail.key === "searchEngine") {
+      if (detail.key === "search-engine") {
         this.searchEngine = detail.newValue;
       }
     });
-    this.defaults = [{ "key": "search-suggestions-engine", "value": "duckduckgo" }, { "key": "shortenUrls", "value": true }, { "key": "searchEngine", "value": "https://www.google.com/search?q=%s" }]
+    this.defaults = [{ "key": "save-tabs", "value": true }, { "key": "search-suggestions-engine", "value": "duckduckgo" }, { "key": "shortenUrls", "value": true }, { "key": "search-engine", "value": "https://www.google.com/search?q=%s" }]
     this.setDefaults();
+    this.setTransport();
     this.init();
     this.getSuggestions = async (query) => await fetch(`/api/search-api?query=${query}`, { headers: { engine: await this.settings.get("search-suggestions-engine") } }).then(response => { return response.json() });
   }
 
   async setDefaults() {
     const arr = this.defaults;
-    console.log(arr);
     arr.forEach(async i => {
-      console.log(`Setting ${i.key} as ${i.value}`)
       this.settings.default(i.key, i.value)
     });
   }
 
   async init() {
-    this.searchEngine = await this.settings.get("searchEngine");
+    this.searchEngine = await this.settings.get("search-engine");
     this.backend = await this.settings.get("backend") || "uv";
-    if (await this.settings.get("save-tabs") && window.confirm("Session ended unexpectedly, do you want to reopen your tabs?")) this.loadAllTabs();
+    const open = await this.history.getOpen()
+    if (await this.settings.get("save-tabs") && open && open.length > 0) {
+      this.loadAllTabs();
+      console.log("Trying to load tabs");
+    }
     else this.createTab();
   }
 
   async updateSearchEngine() {
-    this.searchEngine = await this.settings.get("searchEngine");
+    this.searchEngine = await this.settings.get("search-engine");
   }
 
 
   async load(src, i = this.activeTabIndex) {
     const iframe = this.tabsArr[i].iframe;
     this.setTransport();
-    const url = self.search(src, this.searchEngine, this.backend);
+    const broken = await this.checkSite(src);
+    let url = self.search(src, this.searchEngine, this.backend);
+    if (broken && await this.brokenDisclaimer(broken)) {
+      url = broken;
+    }
     iframe.src = url;
     this.updateHistory(src, i);
-    this.checkSite(src);
+
+    this.saveTabs();
+    console.log("Saved tabs");
   }
 
   createTab(src = this.tabsArr.length === 0 ? "shadow://home" : "shadow://new") {
@@ -146,6 +155,7 @@ class Tab {
       //Remove obj from array
       this.tabsArr.splice(i, 1);
     }
+    this.saveTabs();
   }
 
   switchTab(i, e) {
@@ -226,22 +236,30 @@ class Tab {
   }
 
   async saveTabs() {
-    const openTabs = [];
+    let openTabs = [];
     for (let i = 0; i < this.tabsArr.length; i++) {
       openTabs.push(this.getSrc(i));
-    }
-    await this.settings.set("activeTabs", JSON.stringify(openTabs));
+    };
+    this.history.setOpen(openTabs);
   }
 
   async loadAllTabs() {
-    this.tabsArr.forEach((tab, i) => {
+    console.log(await this.history.getOpen());
+    (await this.history.getOpen()).forEach((i) => {
       console.log(i);
-      this.closeTab(i);
-    });
-
-    JSON.parse(await this.settings.get("activeTabs")).forEach((i) => {
       this.createTab(i);
     });
+    this.history.clear("open-tabs");
+  }
+
+  async brokenDisclaimer(url = "error") {
+    const disclaimer = document.querySelector('.disclaimer');
+
+    document.querySelector('.overlay').style.display = 'block';
+    disclaimer.children[0].innerText = disclaimer.children[0].innerText.replace("{site}", url);
+    disclaimer.style.display = 'block';
+    disclaimer.children[2].onclick = () => resolve(true);
+    disclaimer.children[3].onclick = () => resolve(false);
   }
 
   refresh(i = this.activeTabIndex) {
@@ -257,20 +275,26 @@ class Tab {
   }
 
   async checkSite(url) {
-    if (this.brokenSites.lastUpdated > Date.now + 300000 /*5 minutes*/)
+    if (await this.brokenSites.lastUpdated <= Date.now - 300000 /*5 minutes*/) {
       fetch(`/api/broken-site`).then((res) => { this.brokenSites = res.json(); });
+    }
+
+    if (this.brokenSites.hasOwnProperty(url)) {
+      return this.brokenSites[url];
+    } else {
+      return false;
+    }
   }
 
   async updateHistory(src, i) {
     if (await this.settings.get("history-enabled")) {
-      let history = JSON.parse(await this.history.get()) ?? [];
       const obj = {
         url: src,
         time: Date.now,
         title: this.getSrc(i),
+        icon: this.tabsArr[i].icon
       };
-      history.push(obj);
-      await this.history.add(history);
+      await this.history.add(obj);
     }
   }
 
@@ -302,9 +326,3 @@ setInterval(function () {
     tabs.setTab(i);
   }
 }, 5000);
-
-document.onvisibilitychange = async (e) => {
-  if (await tabs.settings.get("saveTabs") && document.visibilityState === "hidden") {
-    tabs.saveTabs();
-  }
-}; 
