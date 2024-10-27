@@ -6,6 +6,15 @@
   --accent-color: #ba7df2;
 }
 
+:root.halloweene {
+  --background-color: #0b0b0f; 
+  --tab-background: #0c0c0c; 
+  --tab-border: #ff6f00; 
+  --text-color: #ffd1b3; 
+  --accent-color: #ffb300; 
+}
+
+
 :root.custom {
   --background-color: #060611;
   --tab-background: #0e0e1d;

@@ -8,6 +8,7 @@
 
   <!-- Meta Tags-->
   <meta name="title" content="ShadowV3" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Tabbed, Multi-Featured, and Advanced. Quiet, Fast, Hidden." />
   <meta name="theme-color" content="#141433">
   <script src="/assets/autoblank.js" type="module"></script>
@@ -85,11 +86,17 @@
       <input type="text" id="search-bar" placeholder="Search or enter a URL" autocomplete="off" />
       <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
     </form>
+
     <div id="menu-button" class="menu-button" style="margin-left: 7px"><svg xmlns="http://www.w3.org/2000/svg"
         height="24px" viewBox="0 -960 960 960" width="24px" class="icons">
         <path
           d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
       </svg>
+    </div>
+  </div>
+  <div class="input-wrapper">
+    <div id="suggestions" class="suggestions hidden">
+      <!-- Suggestion items here -->
     </div>
   </div>
 
@@ -267,6 +274,7 @@
   <script src="/assets/search.js"></script>
   <script src="/assets/themes.js" type="module"></script>
   <script src="/assets/options.js"></script>
+  <script src="/assets/search-suggestions.js"></script>
   <script src="/assets/search.js"></script>
   <script src="/uv/uv.bundle.js"></script>
   <script src="/uv/uv.config.js"></script>
