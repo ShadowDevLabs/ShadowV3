@@ -1,15 +1,14 @@
-class SettingsManager {
+class HistoryHelper {
   constructor(user, dbName) {
-    this.user = user || "shadow";
-    this.dbName = dbName || "settingsDB";
-    this.storeName = `${this.user}-settings` || "fluid-settings";
+    this.user = user ?? "shadow";
+    this.dbName = dbName ?? "history";
+    this.storeName = `${this.user}-history`;
     this.dbPromise = this.initDB();
   }
 
   initDB() {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, 1);
-
       request.onupgradeneeded = (e) => {
         const db = e.target.result;
         if (!db.objectStoreNames.contains(this.storeName)) {
@@ -29,27 +28,21 @@ class SettingsManager {
     });
   }
 
-  async default(key, value) {
-    if (await this.get(key) === undefined) {
-      this.set(key, value);
-      return "set";
-    } else {
-      return "preset";
-    }
+  async getOpen() {
+    return await this.get("open-tabs");
   }
 
-  async toggle(key) {
-    const initialVal = await this.get(key);
-    if (typeof initialVal === "boolean" || typeof initialVal === "undefined") {
-      await this.set(key, !initialVal);
-      return "Toggled";
-    } else {
-      return new TypeError(`Value at ${key} is not a boolean`);
-    }
+  async setOpen(arr) {
+    await this.add([...arr], "open-tabs");
   }
 
-  async set(key, value) {
+  async add(value, key) {
     try {
+      if (!key) {
+        value = await this.get();
+        value.push(value);
+        key = "history-array";
+      }
       const db = await this.dbPromise;
       const oldValue = await this.get(key);
       return new Promise((resolve, reject) => {
@@ -58,15 +51,14 @@ class SettingsManager {
         const request = store.put(value, key);
         request.onsuccess = () => {
           resolve();
-          const event = new CustomEvent("settings", {
-            bubbles: true,
+          const event = new CustomEvent("historyupdate", {
             detail: {
               key: key,
-              newValue: value,  // Updated here
+              value: value,
               oldValue: oldValue,
               database: this.dbName,
               success: true,
-            }
+            },
           });
           self.dispatchEvent(event);
         };
@@ -79,13 +71,14 @@ class SettingsManager {
     }
   }
 
-
-  async get(key) {
+  async get(key = "history-array") {
     try {
       const db = await this.dbPromise;
+
       return new Promise((resolve, reject) => {
-        const transaction = db.transaction([this.storeName]);
+        const transaction = db.transaction([this.storeName], "readonly");
         const store = transaction.objectStore(this.storeName);
+
         const request = store.get(key);
         request.onsuccess = (e) => {
           resolve(e.target.result);
@@ -93,7 +86,8 @@ class SettingsManager {
         request.onerror = (e) => {
           reject(e.target.error);
         };
-      });
+      }
+      );
     } catch (error) {
       console.error("Error getting value:", error);
     }
@@ -118,17 +112,31 @@ class SettingsManager {
     }
   }
 
-  async clear() {
+  async clear(key) {
     try {
       const db = await this.dbPromise;
       return new Promise((resolve, reject) => {
         const transaction = db.transaction([this.storeName], "readwrite");
         const store = transaction.objectStore(this.storeName);
-        const request = store.clear();
-        request.onsuccess = () => {
+
+        const getAllKeysRequest = store.getAllKeys();
+        getAllKeysRequest.onsuccess = (e) => {
+          let keysToDelete;
+          const allKeys = e.target.result;
+          if (!key) {
+            keysToDelete = allKeys.filter(i => i !== "open-tabs");
+          } else {
+            keysToDelete = allKeys.filter(i => i === key)
+          }
+          localStorage.setItem("deleting", JSON.stringify(keysToDelete))
+          keysToDelete.forEach(key => {
+            store.delete(key);
+          });
+
           resolve();
         };
-        request.onerror = (e) => {
+
+        getAllKeysRequest.onerror = (e) => {
           reject(e.target.error);
         };
       });
@@ -138,4 +146,4 @@ class SettingsManager {
   }
 }
 
-export { SettingsManager };
+export { HistoryHelper };

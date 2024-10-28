@@ -117,7 +117,7 @@ class BookmarksManager {
   newBookmark() {
     const iframesContainer = document.getElementById("iframes-container");
     const iframe = iframesContainer.children[activeTabIndex];
-    this.addBookmark(iframe.contentWindow.document.title, tabs.getSrc());
+    this.addBookmark(iframe.contentWindow.document.title, tabs.parseUrl());
   }
 }
 

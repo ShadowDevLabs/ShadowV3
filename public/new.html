@@ -81,7 +81,7 @@
   
     window.settings = new SettingsManager(); 
     async function updateSearchInput() {
-      var storedSearchEngine = await window.settings.get("searchEngine");
+      var storedSearchEngine = await window.settings.get("search-engine");
       var searchInput = document.getElementById("uv-search-engine");
       searchInput.value =
         storedSearchEngine || "https://www.google.com/search?q=%s";
@@ -92,7 +92,7 @@
   <script>
 
     window.addEventListener("storage", function (e) {
-      if (e.key === "searchEngine") {
+      if (e.key === "search-engine") {
         updateSearchInput();
       }
     });

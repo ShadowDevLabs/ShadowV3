@@ -534,7 +534,7 @@ svg.icons>path {
   stroke: var(--text-color);
 }
 
-.disclamer {
+.disclaimer {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -551,7 +551,7 @@ svg.icons>path {
   font-family: 'Poppins', sans-serif;
 }
 
-.disclamer h3 {
+.disclaimer h3 {
   font-size: 1.5em;
   color: var(--accent-color);
   margin-bottom: 15px;
@@ -559,7 +559,7 @@ svg.icons>path {
   text-transform: uppercase;
 }
 
-.disclamer button {
+.disclaimer button {
   background-color: var(--accent-color);
   color: var(--text-color);
   border: none;
@@ -571,7 +571,7 @@ svg.icons>path {
   transition: background-color 0.3s ease;
 }
 
-.disclamer button:hover {
+.disclaimer button:hover {
   background-color: var(--tab-border);
 }
 

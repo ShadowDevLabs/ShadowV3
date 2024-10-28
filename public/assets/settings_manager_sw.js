@@ -70,7 +70,7 @@ class SettingsManager {
                 success: true,
               }
             });
-            window.dispatchEvent(event);
+            self.dispatchEvent(event);
           };
           request.onerror = (e) => {
             reject(e.target.error);

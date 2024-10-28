@@ -102,8 +102,8 @@
 
 
   <!-- Warning for Broken Site -->
-  <div id="disclamerSite" class="disclamer" style="display: none;">
-    <h3>Disclamer</h3>
+  <div id="disclaimerSite" class="disclaimer" style="display: none;">
+    <h3>Disclaimer</h3>
     <p>You're attempting to reach a broken site, would you like to be redirected to <span id="siteRedirect">{site}</span>?</p>
     <button onclick="">Yes</button>
     <button onclick="">No</button>
@@ -281,7 +281,7 @@
   <script src="/uv/uv.sw.js"></script>
   <script src="/uv/uv.config.js"></script>
   <scirpt src="/assets/panic.js"></scirpt>
-  <script src="/assets/tabs.js" type="module"></script>
+  <script src="/assets/tabs.js" type="module" defer></script>
   <script src="/assets/bookmarks.js" type="module"></script>
   <script type="module" async>
     import { SettingsManager } from "/assets/settings_manager.js"
@@ -290,11 +290,11 @@
     window.changeTheme = changeTheme;
     window.settings = new SettingsManager();
     window.settings.default(
-      "searchEngine",
+      "search-engine",
       "https://www.google.com/search?q=%s",
     );
     document.getElementById("uv-search-engine").value =
-      await window.settings.get("searchEngine");
+      await window.settings.get("search-engine");
   </script>
 
   <script>
@@ -303,7 +303,7 @@
     }
 
     window.addEventListener("settings", (event) => {
-      if (event.detail.key === "searchEngine") {
+      if (event.detail.key === "search-engine") {
         updtSearchEngine(event.detail.newValue);
       }
     });
@@ -397,7 +397,6 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const loadingCells = document.querySelectorAll('.loading-cell');
-      const loadingScreen = document.getElementById('loading-screen');
       const mainContent = document.querySelector('.main-content');
 
       let currentIndex = 0;
@@ -407,12 +406,11 @@
           currentIndex++;
         } else {
           clearInterval(interval);
-          stopLoad();
         }
       }, 150);
 
-      function stopLoad() {
-        loadingScreen.style.display = 'none';
+      self.stopLoad = function() {
+        document.getElementById('loading-screen').style.display = 'none';
       }
     });
 

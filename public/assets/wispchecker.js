@@ -5,23 +5,10 @@ String.prototype.delete = function (snippet) {
 };
 
 export async function checkWispUrl(url) {
-    //ISTG DONT ASK THIS IS THE BEST I CAN DO :SOB:
     if(checkWispServer(url)) return url;
 
-    url = `wss://${url.delete("https://").delete("http://").delete("ws://").delete("wss://").delete("/wisp/").delete("/wisp").delete("/bare/").delete("/bare").delete("/")}/wisp/`
+    url = `wss://${url.delete("https://").delete("http://").delete("ws://").delete("wss://").delete("/wisp/").delete("/wisp").delete("/")}/wisp/`
     if (await checkWispServer(url)) {
-        return url
-    }
-
-    return `wss://${location.origin}/wisp/`
-}
-
-export async function checkBareUrl(url) {
-    //ISTG DONT ASK THIS IS THE BEST I CAN DO :SOB:
-    if(checkBareServer(url)) return url;
-
-    url = `https://${url.delete("https://").delete("http://").delete("ws://").delete("wss://").delete("/wisp/").delete("/wisp").delete("/bare").delete("/bare/").delete("/")}/bare/`
-    if (await checkBareServer(url)) {
         return url
     }
 
@@ -59,26 +46,4 @@ export async function checkWispServer(url) {
             clearTimeout(timeout); // Clear timeout on closure
         });
     });
-}
-
-
-async function checkBareServer(url) {
-    console.log("Checking url: " + url);
-    const headers = new Headers({
-        "x-bare-url": "https://www.google.com",
-        "X-Bare-Headers": JSON.stringify({
-            Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
-        })
-    });
-
-    try {
-        const res = await fetch(url, { headers });
-        console.log(res);
-        const status = res.headers.get("X-Bare-Status"); // Use get() to retrieve header value
-        if (status === "200" || status === "302") return true;
-    } catch (error) {
-        console.error("Fetch error:", error);
-    }
-
-    return false;
 }
