@@ -2,11 +2,11 @@ import { SettingsManager } from "./settings_manager.js";
 
 (async function () {
   const settings = new SettingsManager();
-  
-  if(await settings.get("close-protection")) {
-    top.onbeforeunload = function(e) { e.preventDefault(); console.log("Closing attempted"); /* Prevent automatic tab closing */};
+
+  if (await settings.get("close-protection")) {
+    top.onbeforeunload = function (e) { e.preventDefault(); return true; /* Prevent automatic tab closing */ };
   }
-  
+
   var tab = await settings.get("tab");
   if (tab) {
     try {
@@ -30,7 +30,7 @@ import { SettingsManager } from "./settings_manager.js";
     icon: "/icons/logo.png",
   };
 
-  async function setTitle(title = "") {
+  self.setTitle = async function (title = "") {
     if (title) {
       document.title = title;
     } else {
@@ -54,7 +54,7 @@ import { SettingsManager } from "./settings_manager.js";
     await settings.set("tab", tabData);
   }
 
-  async function setFavicon(icon) {
+  self.setFavicon = async function (icon) {
     if (icon) {
       document.querySelector("link[rel='icon']").href = icon;
     } else {
@@ -78,7 +78,7 @@ import { SettingsManager } from "./settings_manager.js";
     await settings.set("tab", tabData);
   }
 
-  function setCloak() {
+  self.setCloak = function () {
     var cloak = document.getElementById("premadecloaks").value;
     switch (cloak) {
       case "search":
@@ -126,7 +126,7 @@ import { SettingsManager } from "./settings_manager.js";
     }
   }
 
-  async function resetTab() {
+  self.resetTab = async function () {
     document.title = settingsDefaultTab.title;
     document.querySelector("link[rel='icon']").href = settingsDefaultTab.icon;
     document.getElementById("title").value = "";
@@ -150,7 +150,7 @@ import { SettingsManager } from "./settings_manager.js";
     });
 
     async function updateTabItem() {
-      var tabItem =  await settings.get("tab");
+      var tabItem = await settings.get("tab");
       document.title = tabItem.title;
       var favicon = document.querySelector('link[rel="icon"]');
       if (favicon) {

@@ -1,4 +1,4 @@
-import { HistoryHelper } from "/assets/history-helper.js";
+import { HistoryHelper } from "/assets/history_helper.js";
 import { SettingsManager } from "/assets/settings_manager.js";
 
 const searchInput = document.getElementById("search-bar");
@@ -21,6 +21,9 @@ class Tab {
     this.decode = (i) => {
       return self.__uv$config.decodeUrl(i);
     };
+    this.encode = (i) => {
+      return self.__uv$config.encodeUrl(i);
+    }
     window.addEventListener("settings", (e) => {
       const detail = e.detail;
       if (detail.key === "backend") {
@@ -49,10 +52,10 @@ class Tab {
     this.backend = await this.settings.get("backend") || "uv";
     const open = await this.history.getOpen()
     if (await this.settings.get("save-tabs") && open && open.length > 0) {
-      this.loadAllTabs();
-      console.log("Trying to load tabs");
+      await this.loadAllTabs();
     }
-    else this.createTab();
+    else await this.createTab();
+    self.stopLoad();
   }
 
   async updateSearchEngine() {
@@ -61,59 +64,32 @@ class Tab {
 
 
   async load(src, i = this.activeTabIndex) {
-    const iframe = this.tabsArr[i].iframe;
-    this.setTransport();
+    await this.setTransport();
+    src = self.search(src, this.searchEngine, this.backend);
     const broken = await this.checkSite(src);
-    let url = self.search(src, this.searchEngine, this.backend);
     if (broken && await this.brokenDisclaimer(broken)) {
       url = broken;
     }
-    iframe.src = url;
+    this.tabsArr[i].iframe.src = src;
+    this.tabsArr[i].src = src
     this.updateHistory(src, i);
-
     this.saveTabs();
-    console.log("Saved tabs");
+    return true;
   }
 
-  createTab(src = this.tabsArr.length === 0 ? "shadow://home" : "shadow://new") {
-    //Functions to create all the elements used by the tab in the tab bar
-    function createTabItems() {
-      //Tab icon
-      tab.img.className = "tab-icon";
-      tab.img.alt = "Favicon"
-      if (src.startsWith('shadow://')) {
-        const favicon = `/icons/pages/${src.replace('shadow://', '')}.png`;
-        tab.img.src = favicon;
-      }
-
-      tab.img.onerror = `${(tab.img.style.display = "none;")}`;
-      tab.tab.appendChild(tab.img);
-      //Tab title
-      const titleContainer = document.createElement("div");
-      titleContainer.className = "tab-title";
-      tab.tab.appendChild(titleContainer);
-      //Close button
-      const closeBtn = document.createElement("span");
-      closeBtn.className = "close-tab-button";
-      closeBtn.innerHTML = "&#x2715;";
-      closeBtn.addEventListener("click", (e) =>
-        tabs.closeTab(tabs.tabsArr.findIndex((obj) => obj.tab === tab.tab)),
-      );
-      tab.tab.appendChild(closeBtn);
-    }
-
+  async createTab(src = this.tabsArr.length === 0 ? "shadow://home" : "shadow://new") {
     //Create a tab object to be put in the array
-    let tab = {
+    const tab = {
       tab: document.createElement("div"),
       iframe: document.createElement("iframe"),
       img: document.createElement("img"),
-      src: src,
+      src: this.parseUrl(false, src),
     };
     //Add it to the array so that we can easily access each tab and all its elementes later
     this.tabsArr.push(tab);
     //Setup the tab in the tab bar
     tab.tab.classList.add("tab");
-    createTabItems();
+    this.createTabItems(tab);
     tab.tab.addEventListener("click", (e) =>
       this.switchTab(
         this.tabsArr.findIndex((obj) => obj.tab === tab.tab),
@@ -126,8 +102,35 @@ class Tab {
       .getElementById("tabs-container")
       .insertBefore(tab.tab, addTabButton);
     this.switchTab(this.tabsArr.findIndex((obj) => obj.tab === tab.tab));
-    this.load(tab.src);
+    await this.load(tab.src);
     this.activeTabIndex = this.tabsArr.length - 1;
+    return true;
+  }
+
+  //Functions to create all the elements used by the tab in the tab bar
+  createTabItems(tab) {
+    //Tab icon
+    tab.img.className = "tab-icon";
+    tab.img.alt = "Favicon"
+    if (tab.src.startsWith('shadow://')) {
+      const favicon = `/icons/pages/${tab.src.replace('shadow://', '')}.png`;
+      tab.img.src = favicon;
+    }
+
+    tab.img.onerror = `${(tab.img.style.display = "none;")}`;
+    tab.tab.appendChild(tab.img);
+    //Tab title
+    const titleContainer = document.createElement("div");
+    titleContainer.className = "tab-title";
+    tab.tab.appendChild(titleContainer);
+    //Close button
+    const closeBtn = document.createElement("span");
+    closeBtn.className = "close-tab-button";
+    closeBtn.innerHTML = "&#x2715;";
+    closeBtn.addEventListener("click", (e) =>
+      tabs.closeTab(tabs.tabsArr.findIndex((obj) => obj === tab)),
+    );
+    tab.tab.appendChild(closeBtn);
   }
 
   closeTab(i, force = false) {
@@ -177,11 +180,12 @@ class Tab {
     } catch (e) {
       /*Silence goofy errors*/
     }
+    this.saveTabs();
   }
 
   updateOmni() {
     if (document.activeElement != searchInput) {
-      let currentSrc = this.getSrc();
+      let currentSrc = this.parseUrl();
       let fullUrl = currentSrc;
       //Will finish eventually, cool feature that shortens urls until you click on them kinda like how operagx does it
       // if(this.await this.settings.get("shortenUrls")) {
@@ -191,13 +195,13 @@ class Tab {
     }
   }
 
-  getSrc(i = this.activeTabIndex) {
-    const src = this.tabsArr[i].iframe.contentDocument.location.href;
-    if (src === "about:blank") {
-      return "about:blank";
-    }
+  parseUrl(i = this.activeTabIndex, src) {
+    src = src || this.tabsArr[i].iframe.contentDocument.location.href;
+    if (src === "about:blank") return src;
+
+    if (src.startsWith("shadow://")) return src;
     switch (
-    src.replace(location.href, "").replace(".html", "").replace(/\//g, "")
+    src.replace(location.href, "").replace(".html", "").replace("/pages/", "").replace(/\//g, "")
     ) {
       case "settings":
         return "shadow://settings";
@@ -222,10 +226,10 @@ class Tab {
 
   async setTab(i = this.activeTabIndex) {
     //Set the icon for the tab
-    const src = this.getSrc(i);
+    const src = this.parseUrl(i);
     if (this.tabsArr[i].img.style.display == "none;") this.tabsArr[i].img.style.display = "block;";
     if (src.startsWith("shadow://")) {
-      this.tabsArr[i].img.src = `/icons/pages/${this.getSrc(i).replace("shadow://", "")}.png`;
+      this.tabsArr[i].img.src = `/icons/pages/${this.parseUrl(i).replace("shadow://", "")}.png`;
     } else if (src === "about:blank") {
       return;
     } else {
@@ -233,23 +237,31 @@ class Tab {
     }
     //Set the title for a tab
     this.tabsArr[i].tab.querySelector(".tab-title").textContent = this.tabsArr[i].iframe.contentDocument.title;
+    return new Promise(resolve => { this.tabsArr[i].img.onload = () => resolve(true) });
   }
 
   async saveTabs() {
-    let openTabs = [];
-    for (let i = 0; i < this.tabsArr.length; i++) {
-      openTabs.push(this.getSrc(i));
-    };
-    this.history.setOpen(openTabs);
+    const tabSrc = this.tabsArr.map(tab => {
+      if (tab.src.startsWith('/pages/')) return this.parseUrl(false, tab.src);
+      return tab.src;
+    });
+    (await navigator.serviceWorker.getRegistration()).active.postMessage({
+      reason: "save-open-tabs", data: [...tabSrc, this.activeTabIndex]
+    });
   }
 
   async loadAllTabs() {
-    console.log(await this.history.getOpen());
-    (await this.history.getOpen()).forEach((i) => {
-      console.log(i);
-      this.createTab(i);
-    });
+    await fetch("/uv/service/hvtrs8%2F-ezaopne%2Ccmm"); //DO NOT REMOVE, HOLDS THIS ENTIRE BUGGY AH FEATURE TOGETHER
+    const openTabs = await this.history.getOpen();
+    for (let i = 0; i < openTabs.length - 1; i++) {
+      await this.createTab(openTabs[i]);
+    }
+    this.switchTab(openTabs[openTabs.length - 1]);
     this.history.clear("open-tabs");
+    for (let i = 0; i < tabs.tabsArr.length; i++) {
+      await tabs.setTab(i);
+    }
+    return true;
   }
 
   async brokenDisclaimer(url = "error") {
@@ -258,8 +270,10 @@ class Tab {
     document.querySelector('.overlay').style.display = 'block';
     disclaimer.children[0].innerText = disclaimer.children[0].innerText.replace("{site}", url);
     disclaimer.style.display = 'block';
-    disclaimer.children[2].onclick = () => resolve(true);
-    disclaimer.children[3].onclick = () => resolve(false);
+    return new Promise((resolve) => {
+      disclaimer.children[2].onclick = () => resolve(true);
+      disclaimer.children[3].onclick = () => resolve(false);
+    });
   }
 
   refresh(i = this.activeTabIndex) {
@@ -275,6 +289,7 @@ class Tab {
   }
 
   async checkSite(url) {
+    return false
     if (await this.brokenSites.lastUpdated <= Date.now - 300000 /*5 minutes*/) {
       fetch(`/api/broken-site`).then((res) => { this.brokenSites = res.json(); });
     }
@@ -287,11 +302,11 @@ class Tab {
   }
 
   async updateHistory(src, i) {
-    if (await this.settings.get("history-enabled")) {
+    if (await this.settings.get("history")) {
       const obj = {
         url: src,
         time: Date.now,
-        title: this.getSrc(i),
+        title: this.parseUrl(i),
         icon: this.tabsArr[i].icon
       };
       await this.history.add(obj);
@@ -305,15 +320,10 @@ class Tab {
   async setTransport(url, transport) {
     url = url ?? (await this.settings.get("server") || `wss://${location.host}/wisp/`);
     transport = transport ?? (await this.settings.get("transport") || "/epoxy/index.mjs");
-    if (url.startsWith("ws")) {
-      this.connection.setTransport(transport, [{ wisp: url }]);
-      await this.settings.set("server", url);
-      await this.settings.set("transport", transport);
-    } else {
-      this.connection.setTransport(transport, [url]);
-      await this.settings.set("server", url);
-      await this.settings.set("transport", transport);
-    }
+    await this.connection.setTransport(transport, [{ wisp: url }]);
+    this.settings.set("server", url);
+    this.settings.set("transport", transport);
+    return true;
   }
 
 }

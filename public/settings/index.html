@@ -121,6 +121,19 @@
         </div>
       </div>
       <br />
+      <div class="settings-section">
+        <h2 class="section-title">History</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Save your history! History is accessibly at <span style="cursor: pointer; color: var(--accent-color);" onclick="top.tabs.createTab('shadow:/\/history')">shadow://history</span>
+          </p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="historySwitch" onclick="toggleHistory();" />
+            <label for="historySwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
+      <br />
       <!-- Close Protection -->
       <div class="settings-section">
         <h2 class="section-title">Close Protection</h2>
@@ -225,7 +238,7 @@
       <div class="settings-section">
         <h2 class="section-title">Change Transport</h2>
         <div class="section-content">
-          <p class="section-text">Change the transport and Wisp/Bare Server URL that's used when searching on Shadow.
+          <p class="section-text">Change the transport and Wisp Server URL that's used when searching on Shadow.
           </p>
           <select id="wispSelection" onchange="wispURLOption()" class="input-field">
             <option value="default">Default Server</option>
@@ -235,11 +248,11 @@
           <select id="transportSelection" onchange="changeTransport()" class="input-field">
             <option value="/epoxy/index.mjs">Epoxy</option>
             <option value="/libcurl/index.mjs">Libcurl</option>
-            <option value="/baremod/index.mjs">Baremod</option>
           </select>
-          <br><br>
+          <br>
 
-          <input value="phantom.lol" style="width:90%; display:none;" class="input-field" id="wispURL" /> <br>
+          <input value="phantom.lol" style="width:90%; display:none; margin-top: 2.5vh;" class="input-field"
+            id="wispURL" /> <br>
 
           <div class="flex-div" style="display:none;" id="wispBtn">
             <button class="icon-button" onclick="window.setUrl(); ShowNotification('Wisp URL changed.', 'wispnoti')">
@@ -275,15 +288,16 @@
     </div>
     <script type="module">
       import { SettingsManager } from "/assets/settings_manager.js"
-      import { checkWispUrl, checkBareUrl } from "/assets/wispchecker.js"
+      import { checkWispUrl } from "/assets/wispchecker.js"
       import { changeTheme as _changeTheme, applyCustomTheme as _applyCustomTheme } from "/assets/themes.js"
-      import { HistoryHelper } from "/assets/history-helper.js"
+      import { HistoryHelper } from "/assets/history_helper.js"
 
       window.changeTheme = _changeTheme;
       window.applyCustomTheme = _applyCustomTheme;
       window.settings = new SettingsManager();
       window.historyHelper = new HistoryHelper();
       document.getElementById("autoBlankSwitch").checked = await window.settings.get('auto-blank');
+      document.getElementById("historySwitch").checked = await window.settings.get('history');
       document.getElementById("saveTabsSwitch").checked = await window.settings.get("save-tabs");
       document.getElementById("closeProtSwitch").checked = await window.settings.get('close-protection');
       document.getElementById("transportSelection").value = await window.settings.get('transport');
@@ -297,11 +311,12 @@
         "https://search.brave.com/search?q=%s": "brave",
         "https://yandex.com/search/?text=%s": "yandex"
       };
-      document.getElementById("searchEngineDropdown").value = urlToValueMap[await window.settings.get('searchEngine')];
+      document.getElementById("searchEngineDropdown").value = urlToValueMap[await window.settings.get('search-engine')];
 
-      if (!(await window.settings.get("server")).includes(location.host))
+      if (!(await window.settings.get("server")).startsWith(`wss://${location.host}`)) {
         document.getElementById("wispSelection").value = 'custom';
-      wispURLOption();
+        wispURLOption();
+      }
 
       window.setUA = async function (agent) {
         agent = agent || navigator.userAgent;
@@ -313,14 +328,8 @@
       }
 
       window.setUrl = async function (url = document.getElementById('wispURL').value) {
-        if (document.getElementById("transportSelection").value !== "/baremod/index.mjs") {
-          const wsUrl = await checkWispUrl(url);
-          console.log(wsUrl);
-          await window.settings.set("server", wsUrl);
-        } else {
-          const bareUrl = await checkBareUrl(url);
-          await window.settings.set("server", bareUrl);
-        }
+        const wsUrl = await checkWispUrl(url);
+        await window.settings.set("server", wsUrl);
         parent.tabs.setTransport();
       }
     </script>
@@ -328,6 +337,17 @@
     <script defer>
       async function toggleCloseProt() {
         await window.settings.toggle("close-protection");
+        if (!await window.settings.get("close-protection")) {
+          top.onbeforeunload = null;
+          console.log("Disabling close setting");
+        } else {
+          top.onbeforeunload = function (e) { e.preventDefault(); return true; /* Prevent automatic tab closing */ };
+          console.log("Enabling close setting");
+        }
+      }
+
+      async function setHistory() {
+        await window.settings.toggle("history")
       }
 
       async function setAutoBlank() {

@@ -78,7 +78,7 @@ async function wispURLOption() {
   } else {
     customWispURL.style.display = 'none';
     setWispUrlBtn.style.display = 'none';
-    if(await window.settings.get("transport") === "/baremod/index.mjs") await window.settings.set("server", `https://${location.host}/bare/`); 
-    else await window.settings.set("server", `wss://${location.host}/wisp/`);
+    await window.settings.set("server", `wss://${location.host}/wisp/`);
+    top.tabs.setTransport();
   }
 }

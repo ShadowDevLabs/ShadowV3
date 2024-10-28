@@ -273,7 +273,7 @@
   <script src="/uv/uv.sw.js"></script>
   <script src="/uv/uv.config.js"></script>
   <scirpt src="/assets/panic.js"></scirpt>
-  <script src="/assets/tabs.js" type="module"></script>
+  <script src="/assets/tabs.js" type="module" defer></script>
   <script src="/assets/bookmarks.js" type="module"></script>
   <script type="module" async>
     import { SettingsManager } from "/assets/settings_manager.js"
@@ -389,7 +389,6 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const loadingCells = document.querySelectorAll('.loading-cell');
-      const loadingScreen = document.getElementById('loading-screen');
       const mainContent = document.querySelector('.main-content');
 
       let currentIndex = 0;
@@ -399,12 +398,11 @@
           currentIndex++;
         } else {
           clearInterval(interval);
-          stopLoad();
         }
       }, 150);
 
-      function stopLoad() {
-        loadingScreen.style.display = 'none';
+      self.stopLoad = function() {
+        document.getElementById('loading-screen').style.display = 'none';
       }
     });
 

@@ -1,4 +1,4 @@
-export class HistoryHelper {
+class HistoryHelper {
   constructor(user, dbName) {
     this.user = user ?? "shadow";
     this.dbName = dbName ?? "history";
@@ -43,7 +43,6 @@ export class HistoryHelper {
         value.push(value);
         key = "history-array";
       }
-      console.log(`Setting key '${key}' and value '${value}'`);
       const db = await this.dbPromise;
       const oldValue = await this.get(key);
       return new Promise((resolve, reject) => {
@@ -61,7 +60,7 @@ export class HistoryHelper {
               success: true,
             },
           });
-          window.dispatchEvent(event);
+          self.dispatchEvent(event);
         };
         request.onerror = (e) => {
           reject(e.target.error);
@@ -146,3 +145,5 @@ export class HistoryHelper {
     }
   }
 }
+
+export { HistoryHelper };
