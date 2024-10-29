@@ -4,7 +4,7 @@ const settings = new SettingsManager();
 
 export async function changeTheme(selectedTheme) {
   setTheme(selectedTheme);
-  if(parent !== window) parent.changeTheme(selectedTheme);
+  if (parent !== window) parent.changeTheme(selectedTheme);
   await settings.set("theme", selectedTheme);
   localStorage.setItem("theme", selectedTheme);
 }
@@ -58,9 +58,8 @@ window.addEventListener("storage", function (e) {
   }
 });
 
-
 document.addEventListener("DOMContentLoaded", async () => {
-  const theme = await settings.get("theme");
+  const theme = localStorage.getItem("theme") || await settings.get("theme");
   if (theme) {
     setTheme(theme);
     const themeSelector = document.getElementById("themeSelector");
@@ -69,8 +68,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 });
-
-// CUSTOM THEMES:
 
 function shadeColor(color, percent) {
   let R = parseInt(color.substring(1, 3), 16);
@@ -101,7 +98,6 @@ function genTheme(baseColor) {
     accentColor: shadeColor(baseColor, 30),
   };
 
-  console.log(JSON.stringify(themeVariables, null, 2));
   return themeVariables;
 }
 
