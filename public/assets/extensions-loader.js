@@ -23,8 +23,8 @@
 //         const extensionController = new Extensions();
 
 //         extLoaded = true;
-//         console.log("Extensions loaded!");
-//         console.log(tag);
+//         console.log("[EXT] Extensions loaded!");
+//         console.log("[EXT] "+tag);
 //       } catch (e) {
 //         console.warn("Error loading extensions: ", e);
 //       }

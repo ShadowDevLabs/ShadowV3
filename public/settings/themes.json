@@ -11,6 +11,17 @@
         }
     },
     {
+        "name": "Halloween",
+        "value": "halloween",
+        "css": {
+            "background-color": "#1a1a1a",
+            "tab-background": "#ff7f00",
+            "tab-border": "#ffcc00",
+            "text-color": "#ffffff",
+            "accent-color": "#ff3d00"
+        }
+    },
+    {
         "name": "Shadow (Old)",
         "value": "light",
         "css": {
@@ -184,6 +195,17 @@
             "tab-border": "#00ff00d6",
             "text-color": "#ffffff",
             "accent-color": "#00e676"
+        }
+    },
+    {
+        "name": "Immortal",
+        "value": "immortal",
+        "css": {
+            "background-color": "#010d16",
+            "tab-background": "#021621",
+            "tab-border": "#0369a1",
+            "text-color": "#e0f2fe",
+            "accent-color": "#38bdf8"
         }
     }
 ]

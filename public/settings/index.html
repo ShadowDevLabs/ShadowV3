@@ -339,10 +339,8 @@
         await window.settings.toggle("close-protection");
         if (!await window.settings.get("close-protection")) {
           top.onbeforeunload = null;
-          console.log("Disabling close setting");
         } else {
           top.onbeforeunload = function (e) { e.preventDefault(); return true; /* Prevent automatic tab closing */ };
-          console.log("Enabling close setting");
         }
       }
 

@@ -234,7 +234,7 @@ select option {
   top: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: var(--tab-border);
   border-radius: 20px;
   transition: 0.4s;
   width: 40px;
@@ -248,19 +248,18 @@ select option {
   width: 16px;
   left: 2px;
   top: 2px;
-  background-color: white;
+  background-color: var(--text-color);
   border-radius: 50%;
   transition: 0.4s;
 }
 
 input:checked + .slider {
-  background-color: #2196f3;
+  background-color: var(--accent-color);
 }
 
 input:checked + .slider:before {
   transform: translateX(20px);
 }
-
 
 input[type="color"] {
   background-color: var(--tab-background);

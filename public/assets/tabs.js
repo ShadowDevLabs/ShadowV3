@@ -72,7 +72,8 @@ class Tab {
     }
     this.tabsArr[i].iframe.src = src;
     this.tabsArr[i].src = src
-    this.updateHistory(src, i);
+    let { src: url, title, icon } = this.getTabInfo(i);
+    this.updateHistory(url, title, icon);
     this.saveTabs();
     return true;
   }
@@ -168,7 +169,7 @@ class Tab {
           this.tabsArr[this.activeTabIndex].iframe.classList.remove("active");
           this.tabsArr[this.activeTabIndex].tab.classList.remove("active");
         } catch (err) {
-          console.log(`No active tab (${err})`);
+          console.log(`[TABS] No active tab (${err})`);
         }
         this.tabsArr[i].iframe.classList.add("active");
         this.tabsArr[i].tab.classList.add("active");
@@ -224,19 +225,35 @@ class Tab {
     }
   }
 
-  async setTab(i = this.activeTabIndex) {
-    //Set the icon for the tab
+  getTabInfo(i = this.activeTabIndex) {
     const src = this.parseUrl(i);
-    if (this.tabsArr[i].img.style.display == "none;") this.tabsArr[i].img.style.display = "block;";
+    let icon;
     if (src.startsWith("shadow://")) {
-      this.tabsArr[i].img.src = `/icons/pages/${this.parseUrl(i).replace("shadow://", "")}.png`;
-    } else if (src === "about:blank") {
-      return;
+      icon = `/icons/pages/${this.parseUrl(i).replace("shadow://", "")}.png`;
     } else {
-      this.tabsArr[i].img.src = `https://www.google.com/s2/favicons?domain=${src}&sz=24`;
+      icon = `https://www.google.com/s2/favicons?domain=${src}&sz=24`;
     }
+    const title = this.tabsArr[i].iframe.contentDocument.title;
+
+    const obj = {
+      title,
+      icon,
+      src
+    }
+    return obj;
+  }
+
+  async setTab(i = this.activeTabIndex) {
+    const { title, icon } = this.getTabInfo(i);
+
+    //Set the icon for the tab
+    this.tabsArr[i].img.src = icon
+    if (this.tabsArr[i].img.style.display == "none;") this.tabsArr[i].img.style.display = "block;";
+
     //Set the title for a tab
-    this.tabsArr[i].tab.querySelector(".tab-title").textContent = this.tabsArr[i].iframe.contentDocument.title;
+    this.tabsArr[i].tab.querySelector(".tab-title").textContent = title;
+
+    //Allow functions to wait for the image to load before proceeding
     return new Promise(resolve => { this.tabsArr[i].img.onload = () => resolve(true) });
   }
 
@@ -245,9 +262,13 @@ class Tab {
       if (tab.src.startsWith('/pages/')) return this.parseUrl(false, tab.src);
       return tab.src;
     });
-    (await navigator.serviceWorker.getRegistration()).active.postMessage({
-      reason: "save-open-tabs", data: [...tabSrc, this.activeTabIndex]
-    });
+    try {
+      (await navigator.serviceWorker.getRegistration()).active.postMessage({
+        reason: "save-open-tabs", data: [...tabSrc, this.activeTabIndex]
+      });
+    } catch (e) {
+      console.log(`[ATL] Issue with sending request to service worker: ${e}`)
+    }
   }
 
   async loadAllTabs() {
@@ -301,13 +322,13 @@ class Tab {
     }
   }
 
-  async updateHistory(src, i) {
+  async updateHistory(src, title, icon) {
     if (await this.settings.get("history")) {
       const obj = {
         url: src,
-        time: Date.now,
-        title: this.parseUrl(i),
-        icon: this.tabsArr[i].icon
+        time: Date.now(),
+        title,
+        icon
       };
       await this.history.add(obj);
     }

@@ -38,7 +38,7 @@ class Extensions {
         this.load(i.constructor.name /* Extension ID*/);
       } else {
         console.log(
-          `Extension with ID ${i.constructor.name} will not be loaded. User denied due to being a ${i.origin} extension`,
+          `[EXT] Extension with ID ${i.constructor.name} will not be loaded. User denied due to being a ${i.origin} extension`,
         );
       }
     });

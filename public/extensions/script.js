@@ -34,10 +34,10 @@ function generateId(length) {
 
 async function addExtension(id = generateId(32), extObj = makeExtensionObj()) {
   let extensions =  await settings.get("extensions") || "{}";
-  console.log(`Adding extension with ID ${id}`);
+  console.log(`[EXT] Adding extension with ID ${id}`);
   extensions[id] = extObj;
-  console.log("New extensions Obj is:");
-  console.log(extensions);
+  console.log("[EXT] New extensions Obj is:");
+  console.log("[EXT]"+extensions);
   await settings.set("extensions", extensions);
 }
 
@@ -45,7 +45,7 @@ let save = addExtension();
 
 function exportExtension() {
   let extString = btoa(JSON.stringify(makeExtensionObj()));
-  console.log(extString);
+  console.log("[EXT]"+extString);
   navigator.clipboard.writeText(extString);
 }
 

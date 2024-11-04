@@ -6,7 +6,7 @@
   --accent-color: #ba7df2;
 }
 
-:root.halloweene {
+:root.halloween {
   --background-color: #0b0b0f; 
   --tab-background: #0c0c0c; 
   --tab-border: #ff6f00; 
@@ -14,6 +14,14 @@
   --accent-color: #ffb300; 
 }
 
+
+:root.dark{
+  --background-color: #060611;
+  --tab-background: #0e0e1d;
+  --tab-border: #372754;
+  --text-color: #ffffff;
+  --accent-color: #ba7df2;
+}
 
 :root.custom {
   --background-color: #060611;
@@ -177,4 +185,12 @@
   --tab-border: #00ff00d6; 
   --text-color: #ffffff;
   --accent-color: #00e676;
+}
+
+:root.immortal{
+  --background-color: #010d16;   
+  --tab-background: #021621;    
+  --tab-border: #0369a1;         
+  --text-color: #e0f2fe;       
+  --accent-color: #38bdf8;     
 }

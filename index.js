@@ -52,7 +52,6 @@ app.get("/api/search-api", async (req, res) => {
       response = await fetch(
         `http://suggestqueries.google.com/complete/search?client=firefox&q=${query}`
       ).then((i) => i.json());
-      console.log(response[1])
       results = response[1];
       break;
 

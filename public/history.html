@@ -5,152 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>History Page</title>
+  <link rel="stylesheet" href="/css/themes.css" />
+  <script src="/assets/themes.js" type="module"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --background-color: #060611;
-      --tab-background: #0e0e1d;
-      --tab-border: #372754;
-      --text-color: #ffffff;
-      --accent-color: #ba7df2;
-    }
-
-    body {
-      background-color: var(--background-color);
-      font-family: 'Poppins', sans-serif;
-      color: var(--text-color);
-      margin: 0;
-      padding: 0;
-    }
-
-    .container {
-      width: 90%;
-      margin: 20px auto;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .header h1 {
-      font-size: 24px;
-    }
-
-    .searchBar {
-      width: 200px;
-      padding: 12px;
-      border-radius: 4px;
-      background-color: var(--tab-background);
-      color: var(--text-color);
-      font-family: 'Poppins', sans-serif;
-      border: 1px solid var(--tab-border);
-      transition: background-color 0.3s;
-    }
-
-    .searchBar:focus {
-      outline: none;
-      border-color: var(--accent-color);
-    }
-
-    .day-section {
-      margin-bottom: 20px;
-    }
-
-    .day-section h2 {
-      margin-bottom: 10px;
-      font-size: 18px;
-      color: var(--accent-color);
-    }
-
-    .history-list {
-      background-color: var(--tab-background);
-      border-radius: 8px;
-      padding: 10px;
-      border: 1px solid var(--tab-border);
-    }
-
-    .history-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px;
-      border-bottom: 1px solid var(--tab-border);
-    }
-
-    .history-item:last-child {
-      border-bottom: none;
-    }
-
-    .history-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .favicon {
-      width: 20px;
-      height: 20px;
-    }
-
-    .history-time {
-      font-size: 14px;
-      color: #999;
-    }
-
-    .history-title {
-      color: var(--text-color);
-      font-size: 16px;
-    }
-
-    .history-actions {
-      display: flex;
-      align-items: center;
-    }
-
-    .history-actions input[type="checkbox"] {
-      appearance: none;
-      width: 18px;
-      height: 18px;
-      border: 2px solid var(--accent-color);
-      border-radius: 4px;
-      cursor: pointer;
-      margin-right: 10px;
-      transition: background-color 0.3s;
-    }
-
-    .history-actions input[type="checkbox"]:checked {
-      background-color: var(--accent-color);
-      border: none;
-    }
-
-    .deleteBtn {
-      display: none;
-      background-color: var(--tab-border);
-      color: white;
-      font-family: 'Poppins', sans-serif;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-bottom: 20px;
-    }
-
-    .deleteBtn.show {
-      display: inline-block;
-    }
-
-    ::-webkit-scrollbar {
-      width: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background-color: var(--accent-color);
-      border-radius: 10px;
-    }
-  </style>
+  <link rel="icon" href="/pages/history.ico" type="image/x-icon" />
+  <link href="/css/history.css" rel="stylesheet">
 </head>
 
 <body>
@@ -180,9 +39,8 @@
       let text;
       if (!await self.settings.get("history")) text = "Enable your history to begin!";
       else text = "Start by searching something!";
-      const savedHistory = self.history_helper.get();
-      const historyData = savedHistory.length > 0 ? savedHistory : [{ time: text, title: "Nothings here yet!", link: "http://example.com", date: new Date() }];
-
+      const savedHistory = await self.history_helper.get();
+      const historyData = savedHistory.length > 0 ? savedHistory : [{ time: text, title: "Nothings here yet!", url: "http://example.com", icon: "https://google.com/favicon.ico" }];
       const historyEntries = document.getElementById('historyEntries');
       const deleteBtn = document.getElementById('deleteBtn');
       let selectedItems = [];
@@ -191,6 +49,7 @@
         const today = new Date();
         const yesterday = new Date(today);
         yesterday.setDate(today.getDate() - 1);
+        if(typeof date === "number") date = new Date(date);
 
         if (date.toDateString() === today.toDateString()) {
           return "Today";
@@ -201,15 +60,11 @@
         }
       }
 
-      function createFaviconUrl(link) {
-        return `https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${link}&size=128`;
-      }
-
       function renderHistory() {
         const groupedData = {};
 
         historyData.forEach(item => {
-          const dateKey = formatDate(new Date(item.date));
+          const dateKey = formatDate(new Date());
           if (!groupedData[dateKey]) {
             groupedData[dateKey] = [];
           }
@@ -230,14 +85,14 @@
 
             historyItem.innerHTML = `
                         <div class="history-info">
-                            <img src="${createFaviconUrl(item.link)}" class="favicon" alt="favicon">
+                            <img src="${item.icon}" class="favicon" alt="favicon">
                             <div>
                                 <div class="history-title">${item.title}</div>
                                 <div class="history-time">${item.time}</div>
                             </div>
                         </div>
                         <div class="history-actions">
-                            <input type="checkbox" class="select-item" data-link="${item.link}">
+                            <input type="checkbox" class="select-item" data-link="${item.url}">
                         </div>
                     `;
 
@@ -265,22 +120,22 @@
           });
         });
       }
-    
 
-    deleteBtn.addEventListener('click', () => {
-      // Filter out the deleted items from history
-      const remainingHistory = historyData.filter(item => !selectedItems.includes(item.link));
-      selectedItems = [];
 
-      // Clear the content and re-render the updated history
-      historyEntries.innerHTML = '';
-      deleteBtn.classList.remove('show');
+      deleteBtn.addEventListener('click', () => {
+        // Filter out the deleted items from history
+        const remainingHistory = historyData.filter(item => !selectedItems.includes(item.link));
+        selectedItems = [];
+
+        // Clear the content and re-render the updated history
+        historyEntries.innerHTML = '';
+        deleteBtn.classList.remove('show');
+        renderHistory();
+      });
+
+      // Initial render
       renderHistory();
-    });
-
-    // Initial render
-    renderHistory();
-  }
+    }
   </script>
 </body>
 

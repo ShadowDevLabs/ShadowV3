@@ -35,13 +35,13 @@ if (typeof window === "object" && self.constructor === Window) {
   const script = document.createElement("script");
   script.src = "https://cdn.jsdelivr.net/npm/eruda";
   script.onload = () => {
-    self.__shadow.eruda = eruda
+    self.__shadow.eruda = eruda;
   }
   document.head.append(script);
   try {
     parent.tabs.updateOmni();
     parent.tabs.setTab();
   } catch (e) {
-    console.log(`error in updating omnibox: ${e}`)
+    console.log(`[LOAD] Error in updating omnibox: ${e}`)
   }
 }

@@ -33,16 +33,17 @@ class HistoryHelper {
   }
 
   async setOpen(arr) {
-    await this.add([...arr], "open-tabs");
+    await this.set([...arr], "open-tabs");
   }
 
-  async add(value, key) {
+  async add(obj) {
+    let arr = await this.get() ?? [];
+    arr.unshift(obj);
+    this.set(arr);
+  }
+
+  async set(value, key = "history-array") {
     try {
-      if (!key) {
-        value = await this.get();
-        value.push(value);
-        key = "history-array";
-      }
       const db = await this.dbPromise;
       const oldValue = await this.get(key);
       return new Promise((resolve, reject) => {

@@ -16,7 +16,7 @@ export async function checkWispUrl(url) {
 }
 
 export async function checkWispServer(url) {
-    console.log("Checking url: " + url);
+    console.log("[WISP] Checking url: " + url);
     const ws = new WispWebSocket(url);
 
     return new Promise((resolve) => {

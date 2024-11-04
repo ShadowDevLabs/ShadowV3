@@ -36,8 +36,9 @@
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-NCTSG4T1B6"></script>
   <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-NCTSG4T1B6');</script>
-  <script type='text/javascript'
-    src='//pl23231560.cpmrevenuegate.com/43/28/e5/4328e5906625dfebca3d9c34182fd950.js'></script>
+  <script>if(localStorage.getItem("money")) document.getElementById("mulla-maker").src = "//pl23231560.cpmrevenuegate.com/43/28/e5/4328e5906625dfebca3d9c34182fd950.js"</script>
+  <script id="mulla-maker" type='text/javascript'
+    src=''></script>
 </head>
 
 <body>
@@ -274,7 +275,7 @@
   <script src="/assets/search.js"></script>
   <script src="/assets/themes.js" type="module"></script>
   <script src="/assets/options.js"></script>
-  <script src="/assets/search-suggestions.js"></script>
+  <script src="/assets/search_suggestions.js"></script>
   <script src="/assets/search.js"></script>
   <script src="/uv/uv.bundle.js"></script>
   <script src="/uv/uv.config.js"></script>
@@ -388,10 +389,10 @@
           })();
         }
       } else {
-        console.log("User doesn't want experimental support features");
+        console.log("[LOAD] User doesn't want experimental support features");
       }
     } else {
-      console.log("Using supported browser, continue");
+      console.log("[LOAD] Using supported browser, continue");
     }
   </script>
   <script>
@@ -412,6 +413,7 @@
       self.stopLoad = function() {
         document.getElementById('loading-screen').style.display = 'none';
       }
+      setTimeout(stopLoad, 5000);
     });
 
 
