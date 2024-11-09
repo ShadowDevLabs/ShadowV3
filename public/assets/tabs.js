@@ -300,9 +300,10 @@ class Tab {
     }
     this.switchTab(openTabs[openTabs.length - 1]);
     this.history.clear("open-tabs");
-    for (let i = 0; i < tabs.tabsArr.length; i++) {
-      await tabs.setTab(i);
+    for (let i = 0; i < tabs.tabsArr.length - 1; i++) {
+      this.setTab(i);
     }
+    await this.setTab(this.tabsArr.length - 1);
     return true;
   }
 
