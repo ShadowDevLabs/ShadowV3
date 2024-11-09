@@ -206,7 +206,7 @@ html {
   width: 100%;
 }
 
-#search-bar {
+#__shadow-search-bar {
   flex: 1;
   padding: 8px;
   width: 98.35%;
@@ -220,7 +220,7 @@ html {
   transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
 }
 
-#search-bar:focus {
+#__shadow-search-bar:focus {
   border-color: var(--accent-color);
   outline: none;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);

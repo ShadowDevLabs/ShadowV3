@@ -36,11 +36,11 @@ app.get("/api/broken-site", async (req, res) => {
   res.status(200).send(await brokenSites());
 })
 
-app.get("/api/search-api", async (req, res) => {
+app.get("/api/search-suggestions", async (req, res) => {
   let response;
   let results = [];
   const query = req.query.query;
-  switch (req.headers.engine) {
+  switch (req.headers.engine ?? "google") {
     case "duckduckgo":
       response = await fetch(
         `http://api.duckduckgo.com/ac?q=${query}&format=json`
@@ -63,7 +63,7 @@ app.get("/api/search-api", async (req, res) => {
       break;
 
     default:
-      res.status(400).send('Unsupported search engine');
+      res.status(400).send('How?');
       return;
   }
 

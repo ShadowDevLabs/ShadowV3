@@ -1,12 +1,12 @@
 import { HistoryHelper } from "/assets/history_helper.js";
 import { SettingsManager } from "/assets/settings_manager.js";
 
-const searchInput = document.getElementById("search-bar");
+const searchInput = document.getElementById("__shadow-search-bar");
 const addTabButton = document.getElementById("add-tab");
 
 class Tab {
   constructor() {
-    this.activeTabIndex = -1
+    this.activeTabIndex = -1;
     this.tabsArr = [];
     this.brokenSites = fetch('/api/broken-site').then(res => res.json());
     this.history = new HistoryHelper();
@@ -23,7 +23,7 @@ class Tab {
     };
     this.encode = (i) => {
       return self.__uv$config.encodeUrl(i);
-    }
+    };
     window.addEventListener("settings", (e) => {
       const detail = e.detail;
       if (detail.key === "backend") {
@@ -33,11 +33,12 @@ class Tab {
         this.searchEngine = detail.newValue;
       }
     });
-    this.defaults = [{ "key": "save-tabs", "value": true }, { "key": "search-suggestions-engine", "value": "duckduckgo" }, { "key": "shortenUrls", "value": true }, { "key": "search-engine", "value": "https://www.google.com/search?q=%s" }]
+    this.defaults = [{ "key": "history", "value": true }, { "key": "save-tabs", "value": true }, { "key": "search-suggestions-engine", "value": "google" }, { "key": "shortenUrls", "value": true }, { "key": "search-engine", "value": "https://www.google.com/search?q=%s" }];
     this.setDefaults();
     this.setTransport();
     this.init();
-    this.getSuggestions = async (query) => await fetch(`/api/search-api?query=${query}`, { headers: { engine: await this.settings.get("search-suggestions-engine") } }).then(response => { return response.json() });
+    this.getSuggestions = async (query) => await fetch(`/api/search-suggestions?query=${query}`, { headers: { engine: await this.settings.get("search-suggestions-engine") } }).then(response => { return response.json() });
+    this.hideSuggestions = () => document.getElementById("suggestions").classList.add("hidden");
   }
 
   async setDefaults() {
@@ -69,11 +70,10 @@ class Tab {
     const broken = await this.checkSite(src);
     if (broken && await this.brokenDisclaimer(broken)) {
       url = broken;
-    }
+    };
     this.tabsArr[i].iframe.src = src;
-    this.tabsArr[i].src = src
-    let { src: url, title, icon } = this.getTabInfo(i);
-    this.updateHistory(url, title, icon);
+    this.tabsArr[i].src = src;
+    this.hideSuggestions();
     this.saveTabs();
     return true;
   }
@@ -225,6 +225,25 @@ class Tab {
     }
   }
 
+  async displaySearchSuggestions(value = searchInput.value) {
+    if (value.startsWith("shadow://")) return;
+    const suggestions = (await this.getSuggestions(value));
+    suggestions.length = suggestions.length > 5 ? 5 : suggestions.length;
+    const suggestionsContainer = document.getElementById('suggestions');
+    suggestionsContainer.classList.remove("hidden");
+    if (suggestions.length < 5) {
+      for (let i = suggestions.length; i < 5; i++) {
+        suggestionsContainer.children[i].classList.add("hidden");
+      }
+    }
+    suggestions.forEach((text, i) => {
+      const elem = suggestionsContainer.children[i];
+      elem.classList.remove("hidden");
+      elem.innerText = text;
+      elem.dataset.url = text;
+    });
+  }
+
   getTabInfo(i = this.activeTabIndex) {
     const src = this.parseUrl(i);
     let icon;
@@ -272,7 +291,9 @@ class Tab {
   }
 
   async loadAllTabs() {
-    await fetch("/uv/service/hvtrs8%2F-ezaopne%2Ccmm"); //DO NOT REMOVE, HOLDS THIS ENTIRE BUGGY AH FEATURE TOGETHER
+    try {
+      await fetch("/uv/service/hvtrs8%2F-ezaopne%2Ccmm"); //DO NOT REMOVE, HOLDS THIS ENTIRE BUGGY AH FEATURE TOGETHER
+    } catch (_) { }
     const openTabs = await this.history.getOpen();
     for (let i = 0; i < openTabs.length - 1; i++) {
       await this.createTab(openTabs[i]);
@@ -287,13 +308,13 @@ class Tab {
 
   async brokenDisclaimer(url = "error") {
     const disclaimer = document.querySelector('.disclaimer');
-
-    document.querySelector('.overlay').style.display = 'block';
-    disclaimer.children[0].innerText = disclaimer.children[0].innerText.replace("{site}", url);
+    const popup = document.querySelector('.overlay');
+    popup.style.display = 'block';
+    disclaimer.children[1].innerText = disclaimer.children[1].innerText.replace("{site}", url);
     disclaimer.style.display = 'block';
     return new Promise((resolve) => {
-      disclaimer.children[2].onclick = () => resolve(true);
-      disclaimer.children[3].onclick = () => resolve(false);
+      disclaimer.children[2].onclick = () => { resolve(true); popup.style.display = "none"; disclaimer.style.display = 'none'; }
+      disclaimer.children[3].onclick = () => { resolve(false); popup.style.display = "none"; disclaimer.style.display = 'none'; }
     });
   }
 
@@ -310,7 +331,6 @@ class Tab {
   }
 
   async checkSite(url) {
-    return false
     if (await this.brokenSites.lastUpdated <= Date.now - 300000 /*5 minutes*/) {
       fetch(`/api/broken-site`).then((res) => { this.brokenSites = res.json(); });
     }
@@ -351,6 +371,11 @@ class Tab {
 
 const tabs = new Tab();
 window.tabs = tabs;
+
+searchInput.onkeydown = (e) => { if (e.key !== "Enter") tabs.displaySearchSuggestions(e.key.length > 1 ? (e.key === "Backspace" ? searchInput.value.slice(0, -1) : searchInput.value) : searchInput.value + e.key); };
+searchInput.onfocus = () => { if (searchInput.value != "") tabs.displaySearchSuggestions(); };
+document.onclick = (e) => { if (e.target !== searchInput) tabs.hideSuggestions(); };
+window.onmessage = (message) => { if (message.data === "hide-suggestions")  tabs.hideSuggestions(); };
 
 setInterval(function () {
   for (let i = 0; i < tabs.tabsArr.length; i++) {

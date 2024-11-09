@@ -84,7 +84,7 @@
     </button>
 
     <form id="uv-form" class="inputcontainermain">
-      <input type="text" id="search-bar" placeholder="Search or enter a URL" autocomplete="off" />
+      <input type="text" id="__shadow-search-bar" placeholder="Search or enter a URL" autocomplete="off" />
       <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
     </form>
 
@@ -97,7 +97,11 @@
   </div>
   <div class="input-wrapper">
     <div id="suggestions" class="suggestions hidden">
-      <!-- Suggestion items here -->
+      <div class="suggestion-item" onclick='tabs.load(this.dataset.url); tabs.hideSuggestions()'></div>
+      <div class="suggestion-item" onclick='tabs.load(this.dataset.url); tabs.hideSuggestions()'></div>
+      <div class="suggestion-item" onclick='tabs.load(this.dataset.url); tabs.hideSuggestions()'></div>
+      <div class="suggestion-item" onclick='tabs.load(this.dataset.url); tabs.hideSuggestions()'></div>
+      <div class="suggestion-item" onclick='tabs.load(this.dataset.url); tabs.hideSuggestions()'></div>
     </div>
   </div>
 
@@ -275,7 +279,6 @@
   <script src="/assets/search.js"></script>
   <script src="/assets/themes.js" type="module"></script>
   <script src="/assets/options.js"></script>
-  <script src="/assets/search_suggestions.js"></script>
   <script src="/assets/search.js"></script>
   <script src="/uv/uv.bundle.js"></script>
   <script src="/uv/uv.config.js"></script>
@@ -418,7 +421,7 @@
 
 
 
-    document.getElementById("search-bar").addEventListener("focus", (e) => {
+    document.getElementById("__shadow-search-bar").addEventListener("focus", (e) => {
       e.target.select();
     });
 

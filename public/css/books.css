@@ -69,7 +69,7 @@ h1 {
   margin-top: 2%;
 }
 
-#search-bar {
+#__shadow-search-bar {
   padding: 10px;
   border: 2px solid var(--tab-border);
   border-radius: 5px;
@@ -81,12 +81,12 @@ h1 {
   width: 25vw;
 }
 
-#search-bar::placeholder {
+#__shadow-search-bar::placeholder {
   color: var(--text-color);
   opacity: 0.7;
 }
 
-#search-bar:focus {
+#__shadow-search-bar:focus {
   outline: none;
   border-color: var(--accent-color);
 }

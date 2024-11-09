@@ -125,7 +125,8 @@
         <h2 class="section-title">History</h2>
         <div class="section-content">
           <p class="section-text">
-            Save your history! History is accessibly at <span style="cursor: pointer; color: var(--accent-color);" onclick="top.tabs.createTab('shadow:/\/history')">shadow://history</span>
+            Save your history! History is accessibly at <span style="cursor: pointer; color: var(--accent-color);"
+              onclick="top.tabs.createTab('shadow:/\/history')">shadow://history</span>
           </p>
           <div class="switch">
             <input type="checkbox" class="switch" id="historySwitch" onclick="toggleHistory();" />
@@ -175,7 +176,7 @@
           <p class="section-text">
             Create your own theme with the custom theme maker! Enter a base color, and we'll generate a theme for you!
           </p>
-          <input type="color" id="themeColorPicker" name="themeColorPicker" value="#"> <br><br>
+          <input type="color" id="themeColorPicker" name="themeColorPicker" value="#000000"> <br><br>
           <button class="icon-button" onclick="applyCustomTheme()">
             <i class="fa-brands fa-codepen fa-lg"></i> Apply Theme
           </button>
@@ -215,7 +216,27 @@
           </select>
         </div>
       </div>
-      <br /><br />
+      <br /><!-- Engine -->
+      <div class="settings-section">
+        <h2 class="section-title">Suggestions Engine</h2>
+        <div class="section-content">
+          <p class="section-text">
+            The engine used for getting search suggestions
+          </p>
+          <select id="searchSuggestionsDropdown" class="input-field">
+            <option value="google" data-engine="google">
+              Google
+            </option>
+            <option value="duckduckgo" data-engine="duckduckgo">
+              DuckDuckGo
+            </option>
+            <option value="yandex" data-engine="yandex">
+              Yandex
+            </option>
+          </select>
+        </div>
+      </div>
+      <br />
       <!-- Proxy -->
       <!-- <div class="settings-section">
         <h2 class="section-title">Proxy</h2>
@@ -302,7 +323,7 @@
       document.getElementById("closeProtSwitch").checked = await window.settings.get('close-protection');
       document.getElementById("transportSelection").value = await window.settings.get('transport');
       document.getElementById("customUserAgent").value = await window.settings.get('user-agent') || navigator.userAgent;
-
+      document.getElementById("searchSuggestionsDropdown").value = await window.settings.get('search-suggestions-engine');
       const urlToValueMap = {
         "https://www.google.com/search?q=%s": "google",
         "https://www.bing.com/search?q=%s": "bing",
@@ -344,7 +365,7 @@
         }
       }
 
-      async function setHistory() {
+      async function toggleHistory() {
         await window.settings.toggle("history")
       }
 
@@ -393,11 +414,21 @@
         if (parent) parent.tabs.updateSearchEngine();
       }
 
-      var searchEngineDropdown = document.getElementById(
+      document.getElementById(
         "searchEngineDropdown",
-      );
+      ).addEventListener("change", updateEngine);
 
-      searchEngineDropdown.addEventListener("change", updateEngine);
+      async function updateSuggestions() {
+        var dropdown = document.getElementById("searchSuggestionsDropdown");
+        var selectedOption = dropdown.options[dropdown.selectedIndex];
+        var dataUrl = selectedOption.getAttribute("data-engine");
+        await window.settings.set("search-suggestions-engine", dataUrl);
+      }
+
+
+      document.getElementById(
+        "searchSuggestionsDropdown",
+      ).addEventListener("change", updateSuggestions);
     </script>
     <script src="/assets/options.js"></script>
     <script src="/assets/notifications.js"></script>

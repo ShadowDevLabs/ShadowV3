@@ -19,7 +19,7 @@
 <body>
   <h1>Games</h1>
   <div class="search-container">
-    <input type="text" id="search-bar" placeholder="Search for a Game" autocomplete="off" />
+    <input type="text" id="__shadow-search-bar" placeholder="Search for a Game" autocomplete="off" />
   </div>
   <div class="gcontainer" id="gcontainer"></div>
 
@@ -65,7 +65,7 @@
           container.appendChild(gElement);
         });
 
-        const searchBar = document.getElementById("search-bar");
+        const searchBar = document.getElementById("__shadow-search-bar");
         searchBar.addEventListener("input", () => {
           const query = searchBar.value.toLowerCase();
           const gameElements = container.querySelectorAll(".g");
