@@ -118,7 +118,7 @@
   }
 
   .deleteBtn {
-    display: none;
+    display: inline-block;
     background-color: var(--tab-border);
     color: white;
     font-family: 'Poppins', sans-serif;
@@ -127,10 +127,6 @@
     border-radius: 4px;
     cursor: pointer;
     margin-bottom: 20px;
-  }
-
-  .deleteBtn.show {
-    display: inline-block;
   }
 
   ::-webkit-scrollbar {

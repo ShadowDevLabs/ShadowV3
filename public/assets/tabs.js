@@ -292,7 +292,7 @@ class Tab {
 
   async loadAllTabs() {
     try {
-      await fetch("/uv/service/hvtrs8%2F-ezaopne%2Ccmm"); //DO NOT REMOVE, HOLDS THIS ENTIRE BUGGY AH FEATURE TOGETHER
+      await fetch("/uv/service/hvtrs8%2F-ezaopne%2Ccmm"); //DO NOT REMOVE, HOLDS THIS ENTIRE BUGGY AH FEATURE TOGETHER (doesnt even fix sometimes)
     } catch (_) { }
     const openTabs = await this.history.getOpen();
     for (let i = 0; i < openTabs.length - 1; i++) {
@@ -303,6 +303,7 @@ class Tab {
     for (let i = 0; i < tabs.tabsArr.length - 1; i++) {
       this.setTab(i);
     }
+    //Only await the last tab to load, provides the effect of all the tabs being loaded by the time loading screen goes away while loading all the tabs in parallel
     await this.setTab(this.tabsArr.length - 1);
     return true;
   }
