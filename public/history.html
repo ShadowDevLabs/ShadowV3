@@ -17,10 +17,10 @@
   <div class="container">
     <div class="header">
       <h1>History</h1>
+      <button class="deleteBtn" id="deleteBtn" onclick="history_helper.clear(); location.reload();">Clear History</button>
       <input type="text" class="searchBar" placeholder="Search History">
     </div>
 
-    <button class="deleteBtn" id="deleteBtn" onclick="history_helper.clear(); location.reload();">Clear History</button>
 
     <div id="historyEntries"></div>
   </div>
