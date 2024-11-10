@@ -26,18 +26,28 @@ class Tab {
     };
     window.addEventListener("settings", (e) => {
       const detail = e.detail;
-      if (detail.key === "backend") {
-        this.backend = detail.newValue;
-      }
-      if (detail.key === "search-engine") {
-        this.searchEngine = detail.newValue;
+      switch (detail.key) {
+        case "backend":
+          this.backend = detail.newValue;
+          break;
+        case "search-engine":
+          this.searchEngine = detail.newValue;
+          break;
+        case "search-suggestions":
+          this.searchSuggestions = detail.newValue;
+          break;
+        case "search-suggestions-engine":
+          this.searchSuggestionsEngine = detail.newValue;
+          break
+        default:
+          break;
       }
     });
-    this.defaults = [{ "key": "history", "value": true }, { "key": "save-tabs", "value": true }, { "key": "search-suggestions-engine", "value": "google" }, { "key": "shortenUrls", "value": true }, { "key": "search-engine", "value": "https://www.google.com/search?q=%s" }];
+    this.defaults = [{ "key": "search-suggestions", "value": true }, { "key": "history", "value": true }, { "key": "save-tabs", "value": true }, { "key": "search-suggestions-engine", "value": "google" }, { "key": "shortenUrls", "value": true }, { "key": "search-engine", "value": "https://www.google.com/search?q=%s" }];
     this.setDefaults();
     this.setTransport();
     this.init();
-    this.getSuggestions = async (query) => await fetch(`/api/search-suggestions?query=${query}`, { headers: { engine: await this.settings.get("search-suggestions-engine") } }).then(response => { return response.json() });
+    this.getSuggestions = async (query) => await fetch(`/api/search-suggestions?query=${query}`, { headers: { engine: this.searchSuggestionsEngine } }).then(response => { return response.json() });
     this.hideSuggestions = () => document.getElementById("suggestions").classList.add("hidden");
   }
 
@@ -49,6 +59,8 @@ class Tab {
   }
 
   async init() {
+    this.searchSuggestionsEngine = await this.settings.get("search-suggestions-engine")
+    this.searchSuggestions = await this.settings.get("search-suggestions")
     this.searchEngine = await this.settings.get("search-engine");
     this.backend = await this.settings.get("backend") || "uv";
     const open = await this.history.getOpen()
@@ -66,7 +78,7 @@ class Tab {
 
   async load(src, i = this.activeTabIndex) {
     await this.setTransport();
-    src = self.search(src, this.searchEngine, this.backend);
+    src = self.search(src.trim(), this.searchEngine, this.backend);
     const broken = await this.checkSite(src);
     if (broken && await this.brokenDisclaimer(broken)) {
       url = broken;
@@ -226,22 +238,25 @@ class Tab {
   }
 
   async displaySearchSuggestions(value = searchInput.value) {
-    if (value.startsWith("shadow://")) return;
-    const suggestions = (await this.getSuggestions(value));
-    suggestions.length = suggestions.length > 5 ? 5 : suggestions.length;
-    const suggestionsContainer = document.getElementById('suggestions');
-    suggestionsContainer.classList.remove("hidden");
-    if (suggestions.length < 5) {
-      for (let i = suggestions.length; i < 5; i++) {
-        suggestionsContainer.children[i].classList.add("hidden");
+    if (this.searchSuggestions && !value.startsWith("shadow://")) {
+      const suggestions = (await this.getSuggestions(value));
+      suggestions.length = suggestions.length > 5 ? 5 : suggestions.length;
+      const suggestionsContainer = document.getElementById('suggestions');
+      suggestionsContainer.classList.remove("hidden");
+      if (suggestions.length < 5) {
+        for (let i = suggestions.length; i < 5; i++) {
+          suggestionsContainer.children[i].classList.add("hidden");
+        }
       }
+      suggestions.forEach((text, i) => {
+        const elem = suggestionsContainer.children[i];
+        elem.classList.remove("hidden");
+        elem.innerText = text;
+        elem.dataset.url = text;
+      });
+    } else if (value.startsWith("shadow://")) {
+      document.getElementById('suggestions').classList.add("hidden");
     }
-    suggestions.forEach((text, i) => {
-      const elem = suggestionsContainer.children[i];
-      elem.classList.remove("hidden");
-      elem.innerText = text;
-      elem.dataset.url = text;
-    });
   }
 
   getTabInfo(i = this.activeTabIndex) {
@@ -377,7 +392,7 @@ window.tabs = tabs;
 searchInput.onkeydown = (e) => { if (e.key !== "Enter") tabs.displaySearchSuggestions(e.key.length > 1 ? (e.key === "Backspace" ? searchInput.value.slice(0, -1) : searchInput.value) : searchInput.value + e.key); };
 searchInput.onfocus = () => { if (searchInput.value != "") tabs.displaySearchSuggestions(); };
 document.onclick = (e) => { if (e.target !== searchInput) tabs.hideSuggestions(); };
-window.onmessage = (message) => { if (message.data === "hide-suggestions")  tabs.hideSuggestions(); };
+window.onmessage = (message) => { if (message.data === "hide-suggestions") tabs.hideSuggestions(); };
 
 setInterval(function () {
   for (let i = 0; i < tabs.tabsArr.length; i++) {

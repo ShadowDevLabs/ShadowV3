@@ -48,6 +48,7 @@ function add(obj) {
 function createItem(obj) {
     const item = document.createElement('div');
     item.classList.add('history-item');
+    item.onclick = () => parent.tabs.load(obj.url);
     item.innerHTML = `
         <div class="history-info">
             <img src="${obj.icon}" class="favicon" alt="favicon">

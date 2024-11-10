@@ -16,6 +16,7 @@
   <title>Settings</title>
   <link rel="icon" href="/icons/logo.png" type="image/x-icon" />
   <script src="/assets/settings.js" type="module"></script>
+  <script src="/uv/uv.config.js"></script>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-NCTSG4T1B6"></script>
   <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-NCTSG4T1B6');</script>
@@ -216,7 +217,8 @@
           </select>
         </div>
       </div>
-      <br /><!-- Engine -->
+      <br />
+      <!-- Suggestions Engine -->
       <div class="settings-section">
         <h2 class="section-title">Suggestions Engine</h2>
         <div class="section-content">
@@ -234,6 +236,20 @@
               Yandex
             </option>
           </select>
+        </div>
+      </div>
+      <br />
+      <!-- Suggestions Engine -->
+      <div class="settings-section">
+        <h2 class="section-title">Search Suggestions</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Enable search suggestions while searching
+          </p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="searchSuggestionsSwitch" onclick="toggleSearchSuggestions()" />
+            <label for="searchSuggestionsSwitch" class="slider"></label>
+          </div>
         </div>
       </div>
       <br />
@@ -321,6 +337,7 @@
       document.getElementById("historySwitch").checked = await window.settings.get('history');
       document.getElementById("saveTabsSwitch").checked = await window.settings.get("save-tabs");
       document.getElementById("closeProtSwitch").checked = await window.settings.get('close-protection');
+      document.getElementById("searchSuggestionsSwitch").checked = await window.settings.get('search-suggestions');
       document.getElementById("transportSelection").value = await window.settings.get('transport');
       document.getElementById("customUserAgent").value = await window.settings.get('user-agent') || navigator.userAgent;
       document.getElementById("searchSuggestionsDropdown").value = await window.settings.get('search-suggestions-engine');
@@ -356,6 +373,11 @@
     </script>
 
     <script defer>
+      async function toggleSearchSuggestions() {
+        await window.settings.toggle("search-suggestions");
+        parent.tabs.searchSuggestions = await window.settings.get("search-suggestions");
+      }
+
       async function toggleCloseProt() {
         await window.settings.toggle("close-protection");
         if (!await window.settings.get("close-protection")) {
