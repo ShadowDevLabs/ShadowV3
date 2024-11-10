@@ -77,15 +77,16 @@ class Tab {
 
 
   async load(src, i = this.activeTabIndex) {
-    await this.setTransport();
-    src = self.search(src.trim(), this.searchEngine, this.backend);
+    this.hideSuggestions();
+    console.log("Told to load site " + src)
     const broken = await this.checkSite(src);
     if (broken && await this.brokenDisclaimer(broken)) {
-      url = broken;
+      src = broken;
     };
+    await this.setTransport();
+    src = self.search(src.trim(), this.searchEngine, this.backend);
     this.tabsArr[i].iframe.src = src;
     this.tabsArr[i].src = src;
-    this.hideSuggestions();
     this.saveTabs();
     return true;
   }
@@ -348,12 +349,14 @@ class Tab {
   }
 
   async checkSite(url) {
+    url = /^https:\/\//i.test(url) ? url : `https://${url}`;
+    console.log("Checking url: " + url)
     if (await this.brokenSites.lastUpdated <= Date.now - 300000 /*5 minutes*/) {
       fetch(`/api/broken-site`).then((res) => { this.brokenSites = res.json(); });
     }
 
-    if (this.brokenSites.hasOwnProperty(url)) {
-      return this.brokenSites[url];
+    if ((await this.brokenSites).hasOwnProperty(url)) {
+      return (await this.brokenSites)[url];
     } else {
       return false;
     }
@@ -378,7 +381,7 @@ class Tab {
   async setTransport(url, transport) {
     url = url ?? (await this.settings.get("server") || `wss://${location.host}/wisp/`);
     transport = transport ?? (await this.settings.get("transport") || "/epoxy/index.mjs");
-    if(transport.includes("baremod")) transport = "/epoxy/index.mjs";
+    if (transport.includes("baremod")) transport = "/epoxy/index.mjs";
     await this.connection.setTransport(transport, [{ wisp: url }]);
     this.settings.set("server", url);
     this.settings.set("transport", transport);
