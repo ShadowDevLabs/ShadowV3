@@ -378,6 +378,7 @@ class Tab {
   async setTransport(url, transport) {
     url = url ?? (await this.settings.get("server") || `wss://${location.host}/wisp/`);
     transport = transport ?? (await this.settings.get("transport") || "/epoxy/index.mjs");
+    if(transport.includes("baremod")) transport = "/epoxy/index.mjs";
     await this.connection.setTransport(transport, [{ wisp: url }]);
     this.settings.set("server", url);
     this.settings.set("transport", transport);
