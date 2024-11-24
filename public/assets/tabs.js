@@ -78,7 +78,6 @@ class Tab {
 
   async load(src, i = this.activeTabIndex) {
     this.hideSuggestions();
-    console.log("Told to load site " + src)
     const broken = await this.checkSite(src);
     if (broken && await this.brokenDisclaimer(broken)) {
       src = broken;
@@ -176,11 +175,11 @@ class Tab {
   }
 
   switchTab(i, e) {
+    //I gave up commenting my code, good luck!
     try {
       if (!e || e.target != this.tabsArr[i].tab.querySelector(".close-tab-button")) {
         try {
-          this.tabsArr[this.activeTabIndex].iframe.classList.remove("active");
-          this.tabsArr[this.activeTabIndex].tab.classList.remove("active");
+          document.querySelectorAll('.active').forEach(elem => elem.classList.remove('active'));
         } catch (err) {
           console.log(`[TABS] No active tab (${err})`);
         }
@@ -350,7 +349,6 @@ class Tab {
 
   async checkSite(url) {
     url = /^https:\/\//i.test(url) ? url : `https://${url}`;
-    console.log("Checking url: " + url)
     if (await this.brokenSites.lastUpdated <= Date.now - 300000 /*5 minutes*/) {
       fetch(`/api/broken-site`).then((res) => { this.brokenSites = res.json(); });
     }
