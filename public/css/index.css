@@ -390,9 +390,15 @@ iframe.active {
   border-radius: 5px;
 }
 
-.dropdown-content button i {
-  margin-right: 5px;
+.menu-icons {
+  fill: var(--text-color);
+  width: 20px;
+  height: 20px;
+  margin-left: -4px;
+  margin-right: 1px;
+  vertical-align: middle;
 }
+
 
 .separator {
   border-top: 1px solid grey;
