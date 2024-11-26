@@ -193,13 +193,13 @@ html {
   padding: 5px;
   border-radius: 50%;
   color: var(--text-color);
-  margin-right: 5px;
+  margin-right: 15px;
   cursor: pointer;
   transition: all ease 0.4s;
 }
 
 .menu-button:hover {
-  background-color: rgba(0, 0, 0, 0.25);
+  background-color: rgba(0, 0, 0, 0.9);
 }
 
 .inputcontainermain {
@@ -359,9 +359,9 @@ iframe.active {
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   padding: 8px;
-  padding-top: 0;
+  padding-top: 10px;
   text-align: left;
-  right: 5px;
+  right: 15px;
   z-index: 9999;
 }
 
@@ -596,7 +596,7 @@ svg.icons>path {
 .input-wrapper {
   position: relative;
   margin-top: -5px;
-  width: calc(100vw - 165px);
+  width: calc(100vw - 175px);
 }
 
 .suggestions {
