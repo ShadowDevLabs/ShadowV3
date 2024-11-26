@@ -81,11 +81,24 @@ p {
   display: flex;
   justify-content: center;
   margin-top: 15px;
+  vertical-align: middle;
   animation: slideUp 1.7s ease-out; 
 }
 
+.buttons svg {
+  width: 20px;
+  height: 20px;
+  fill: var(--text-color);
+  stroke: var(--text-color); 
+  stroke-width: 5;
+}
+
+
 .getStarted {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px; 
   padding: 10px 30px;
   font-size: 20px;
   text-transform: capitalize;

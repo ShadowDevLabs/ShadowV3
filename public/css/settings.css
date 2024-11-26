@@ -39,6 +39,13 @@ html {
   margin-right: 10px;
 }
 
+.sidebar-icons {
+  width:32px;
+  margin-right: 10px;
+  height:32px;
+  fill:var(--text-color);
+}
+
 .menu-label {
   font-size: 18px;
 }
@@ -129,6 +136,7 @@ button {
   color: var(--text-color);
   border: none;
   text-decoration: none;
+  display: flex;
   border-radius: 5px;
   padding: 5px 10px;
   margin-right: 10px;
@@ -140,6 +148,13 @@ button {
 .icon-button:hover {
   background-color: var(--accent-color);
   text-decoration: none;
+}
+
+.icon-button svg{
+  fill:var(--text-color);
+  width:20px;
+  margin-right: 0px;
+  height:20px;
 }
 
 .select-buttons button {

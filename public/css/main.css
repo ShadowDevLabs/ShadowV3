@@ -63,6 +63,12 @@ h1 {
   color: var(--accent-color);
   cursor: pointer;
 }
+
+.search-icon svg {
+  fill: var(--accent-color);
+}
+
+
 .shortcuts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
@@ -218,10 +224,21 @@ h1 {
   list-style-type: none;
   list-style: none;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px; 
 }
 
 .context-menu li:hover {
   background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+}
+
+svg {
+  width: 20px;
+  height: 20px;
+  vertical-align: text-top;
+  fill: var(--text-color);
 }
 
 .sponsor {
