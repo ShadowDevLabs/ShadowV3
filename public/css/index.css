@@ -230,7 +230,6 @@ html {
   height: calc(100% - 92px);
   overflow: hidden;
   display: flex;
-  z-index: 1;
   position: relative;
   flex-direction: column;
 }
@@ -240,7 +239,6 @@ iframe {
   display: none;
   width: 100%;
   border: none;
-  z-index: 1;
 }
 
 iframe.active {
