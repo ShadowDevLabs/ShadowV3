@@ -193,13 +193,13 @@ html {
   padding: 5px;
   border-radius: 50%;
   color: var(--text-color);
-  margin-right: 5px;
+  margin-right: 15px;
   cursor: pointer;
   transition: all ease 0.4s;
 }
 
 .menu-button:hover {
-  background-color: rgba(0, 0, 0, 0.25);
+  background-color: rgba(0, 0, 0, 0.9);
 }
 
 .inputcontainermain {
@@ -230,7 +230,6 @@ html {
   height: calc(100% - 92px);
   overflow: hidden;
   display: flex;
-  z-index: 1;
   position: relative;
   flex-direction: column;
 }
@@ -240,7 +239,6 @@ iframe {
   display: none;
   width: 100%;
   border: none;
-  z-index: 1;
 }
 
 iframe.active {
@@ -359,9 +357,9 @@ iframe.active {
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   padding: 8px;
-  padding-top: 0;
+  padding-top: 10px;
   text-align: left;
-  right: 5px;
+  right: 15px;
   z-index: 9999;
 }
 
@@ -390,9 +388,15 @@ iframe.active {
   border-radius: 5px;
 }
 
-.dropdown-content button i {
-  margin-right: 5px;
+.menu-icons {
+  fill: var(--text-color);
+  width: 20px;
+  height: 20px;
+  margin-left: -4px;
+  margin-right: 1px;
+  vertical-align: middle;
 }
+
 
 .separator {
   border-top: 1px solid grey;
@@ -590,7 +594,7 @@ svg.icons>path {
 .input-wrapper {
   position: relative;
   margin-top: -5px;
-  width: calc(100vw - 165px);
+  width: calc(100vw - 175px);
 }
 
 .suggestions {

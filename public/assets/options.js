@@ -39,7 +39,7 @@ try { menuButton.addEventListener("click", toggleDropdown); } catch (_) { }
 // Menu Buttons
 
 function iframefullscreen() {
-  const iframe = iframesContainer.children[activeTabIndex];
+  const iframe = iframesContainer.children[tabs.activeTabIndex];
   if (iframe.requestFullscreen) {
     iframe.requestFullscreen();
   } else if (iframe.mozRequestFullScreen) {

@@ -8,16 +8,16 @@ import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
 import { libcurlPath } from "@mercuryworkshop/libcurl-transport";
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
 import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
-// import { path as gamesPath } from "3hk0-static";
 import { join } from "path";
 import { users, port, brokenSites } from "./config.js";
+import https from "https";
 const version = process.env.npm_package_version;
 const publicPath = fileURLToPath(new URL("./public/", import.meta.url));
 const app = express();
 const server = createServer();
 if (Object.keys(users).length > 0) app.use(basicAuth({ users, challenge: true }));
 app.use(express.static(publicPath, { maxAge: 604800000 })); //1 week
-// app.use("/books/files/", express.static(gamesPath))
+app.use('/books/files', (req, res) => https.request(`https://phantom.lol${req.originalUrl}`, { method: req.method, headers: req.headers }, proxyRes => proxyRes.pipe(res)).end());
 app.use("/epoxy/", express.static(epoxyPath));
 app.use("/libcurl/", express.static(libcurlPath));
 app.use("/baremux/", express.static(baremuxPath));
