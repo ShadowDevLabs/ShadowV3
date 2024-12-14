@@ -8,7 +8,7 @@ class Tab {
   constructor() {
     this.activeTabIndex = -1;
     this.tabsArr = [];
-    this.brokenSites = fetch('/api/broken-site').then(res => res.json());
+    this.brokenSites = fetch('/v1/api/broken-sites').then(res => res.json());
     this.history = new HistoryHelper();
     this.settings = new SettingsManager();
     this.connection = new BareMux.BareMuxConnection("/baremux/worker.js");
@@ -47,7 +47,7 @@ class Tab {
     this.setDefaults();
     this.setTransport();
     this.init();
-    this.getSuggestions = async (query) => await fetch(`/api/search-suggestions?query=${query}`, { headers: { engine: this.searchSuggestionsEngine } }).then(response => { return response.json() });
+    this.getSuggestions = async (query) => await fetch(`/v1/api/search-suggestions?query=${query}`, { headers: { engine: this.searchSuggestionsEngine } }).then(response => { return response.json() });
     this.hideSuggestions = () => document.getElementById("suggestions").classList.add("hidden");
   }
 
@@ -209,7 +209,7 @@ class Tab {
   }
 
   parseUrl(i = this.activeTabIndex, src) {
-    src = src || this.tabsArr[i].iframe.contentDocument.location.href;
+    src = src || this.tabsArr[i].iframe.contentDocument.location.pathname;
     if (src === "about:blank") return src;
 
     if (src.startsWith("shadow://")) return src;
@@ -226,13 +226,16 @@ class Tab {
         return "shadow://extensions";
       case "extensionsmanage":
         return "shadow://extensions/manage";
+      case "games":
       case "books":
         return "shadow://games";
       case "history":
         return "shadow://history";
+      case "privacy":
+        return "shadow://privacy"
       default:
         return this.decode(
-          src.replace(location.origin, "").replace("/uv/service/", ""),
+          src.replace(location.origin, "").replace("/uv/service/", "")
         );
     }
   }
@@ -263,7 +266,7 @@ class Tab {
     const src = this.parseUrl(i);
     let icon;
     if (src.startsWith("shadow://")) {
-      icon = `/icons/pages/${this.parseUrl(i).replace("shadow://", "")}.png`;
+      icon = `/icons/pages/${src.replace("shadow://", "")}.png`;
     } else {
       icon = `https://www.google.com/s2/favicons?domain=${src}&sz=24`;
     }
@@ -293,8 +296,9 @@ class Tab {
 
   async saveTabs() {
     const tabSrc = this.tabsArr.map(tab => {
-      if (tab.src.startsWith('/pages/')) return this.parseUrl(false, tab.src);
-      return tab.src;
+      const src = tab.src
+      console.log(src + (src.startsWith("/pages/")) ? this.parseUrl(false, src) : src)
+      return (src.startsWith("/pages/")) ? this.parseUrl(false, src) : src;
     });
     try {
       (await navigator.serviceWorker.getRegistration()).active.postMessage({
@@ -350,7 +354,7 @@ class Tab {
   async checkSite(url) {
     url = /^https:\/\//i.test(url) ? url : `https://${url}`;
     if (await this.brokenSites.lastUpdated <= Date.now - 300000 /*5 minutes*/) {
-      fetch(`/api/broken-site`).then((res) => { this.brokenSites = res.json(); });
+      fetch(`/v1/api/broken-sites`).then((res) => { this.brokenSites = res.json(); });
     }
 
     if ((await this.brokenSites).hasOwnProperty(url)) {
