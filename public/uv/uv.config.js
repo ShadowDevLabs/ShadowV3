@@ -10,6 +10,10 @@ self.__uv$config = {
   sw: "/uv/uv.sw.js",
 };
 
+self._open = self.open;
+self.open = (url, title, _) => {parent.tabs.createTab(url, title); console.warn(`Replaced open correctly and opening new tab with src ${url}`)}
+
+
 self.__shadow = {
   erudaState: false,
   eruda: null

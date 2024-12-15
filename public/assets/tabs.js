@@ -49,6 +49,20 @@ class Tab {
     this.init();
     this.getSuggestions = async (query) => await fetch(`/v1/api/search-suggestions?query=${query}`, { headers: { engine: this.searchSuggestionsEngine } }).then(response => { return response.json() });
     this.hideSuggestions = () => document.getElementById("suggestions").classList.add("hidden");
+    this.getPrefix = () => {
+      switch (this.backend) {
+        // case "legacy_uv":
+        //   return __legacy_uv$config.prefix;
+        //   break;
+        // case "scramjet":
+        //   return __scramjet$config.prefix;
+        //   break;
+        case "uv":
+        default:
+          return __uv$config.prefix
+          break;
+      }
+    }
   }
 
   async setDefaults() {
@@ -90,10 +104,11 @@ class Tab {
     return true;
   }
 
-  async createTab(src = this.tabsArr.length === 0 ? "shadow://home" : "shadow://new") {
+  async createTab(src = this.tabsArr.length === 0 ? "shadow://home" : "shadow://new", title) {
     //Create a tab object to be put in the array
     const tab = {
       tab: document.createElement("div"),
+      title: title || null, //Optional
       iframe: document.createElement("iframe"),
       img: document.createElement("img"),
       src: this.parseUrl(false, src),
@@ -235,7 +250,7 @@ class Tab {
         return "shadow://privacy"
       default:
         return this.decode(
-          src.replace(location.origin, "").replace("/uv/service/", "")
+          src.replace(location.origin, "").replace(this.getPrefix(), "")
         );
     }
   }
@@ -270,7 +285,7 @@ class Tab {
     } else {
       icon = `https://www.google.com/s2/favicons?domain=${src}&sz=24`;
     }
-    const title = this.tabsArr[i].iframe.contentDocument.title;
+    const title = this.tabsArr[this.activeTabIndex].title || this.tabsArr[i].iframe.contentDocument.title;
 
     const obj = {
       title,
@@ -319,7 +334,7 @@ class Tab {
     }
     this.switchTab(openTabs[openTabs.length - 1]);
     this.history.clear("open-tabs");
-    for (let i = 0; i < tabs.tabsArr.length - 1; i++) {
+    for (let i = 0; i < this.tabsArr.length - 1; i++) {
       this.setTab(i);
     }
     //Only await the last tab to load, provides the effect of all the tabs being loaded by the time loading screen goes away while loading all the tabs in parallel
