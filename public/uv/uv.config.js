@@ -10,9 +10,10 @@ self.__uv$config = {
   sw: "/uv/uv.sw.js",
 };
 
-self._open = self.open;
-self.open = (url, title, _) => {parent.tabs.createTab(url, title); console.warn(`Replaced open correctly and opening new tab with src ${url}`)}
-
+if (self.top !== self) {
+  self._open = self.open;
+  self.open = (url, title, _) => { parent.tabs.createTab(url, title); console.warn(`Replaced open correctly and opening new tab with src ${url}`) }
+}
 
 self.__shadow = {
   erudaState: false,
@@ -43,7 +44,7 @@ self.onload = () => {
       self.__shadow.eruda = eruda;
     }
     document.head.append(script);
-    document.onclick = (e) => { if(e.target.id !== "__shadow-search-bar") parent.postMessage("hide-suggestions"); }
+    document.onclick = (e) => { if (e.target.id !== "__shadow-search-bar") parent.postMessage("hide-suggestions"); }
     try {
       parent.updateOmni();
       parent.setTab();
