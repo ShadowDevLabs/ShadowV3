@@ -70,7 +70,9 @@ async function sendMsg() {
         loadingMsg.innerHTML = marked(aiMsg);
         loadingMsg.classList.remove('loading');
         loadingMsg.classList.add('show');
-
+        loadingMsg.addEventListener("click", () => {
+            navigator.clipboard.writeText(aiMsg);
+        });
         chatHistory.push({ role: aiValue, content: aiMsg });
 
         if (chatHistory.length > chatHistoryLimit) chatHistory.shift();

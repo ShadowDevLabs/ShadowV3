@@ -19,7 +19,7 @@ body {
     align-items: center;
     width: 90%;
     max-width: 1200px;
-    margin: 30px 0 10px;
+    margin-bottom: 10px;
     flex-wrap: wrap;
 }
 
