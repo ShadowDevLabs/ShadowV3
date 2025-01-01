@@ -248,6 +248,8 @@ class Tab {
         return "shadow://history";
       case "privacy":
         return "shadow://privacy"
+      case "ai":
+        return "shadow://ai"
       default:
         return this.decode(
           src.replace(location.origin, "").replace(this.getPrefix(), "")

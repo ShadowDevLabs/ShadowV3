@@ -2,6 +2,9 @@ import express from "express";
 import basicAuth from "express-basic-auth"
 import wisp from "wisp-server-node";
 import http from "http"
+import csrf from 'csurf';
+import cookieParser from 'cookie-parser';
+import axios from "axios"
 import * as cheerio from "cheerio";
 import { createServer } from "http";
 import { fileURLToPath } from "url";
@@ -11,6 +14,9 @@ import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
 import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
 import { join } from "path";
 import { users, port, brokenSites } from "./config.js";
+import dotenv from 'dotenv';
+dotenv.config();
+
 const version = process.env.npm_package_version;
 const publicPath = fileURLToPath(new URL("./public/", import.meta.url));
 const app = express();
@@ -18,14 +24,14 @@ const server = createServer();
 if (Object.keys(users).length > 0) app.use(basicAuth({ users, challenge: true }));
 app.use(express.static(publicPath, { maxAge: 604800000 })); //1 week
 app.use('/books/files/', (req, res) => {
-  const sourceUrl = `http://phantom.lol/books/files${req.url}`;
-  http.get(sourceUrl, (sourceResponse) => {
-    res.writeHead(sourceResponse.statusCode, sourceResponse.headers);
-    sourceResponse.pipe(res);
-  }).on('error', (err) => {
-    res.statusCode = 500;
-    res.end(`Error fetching file: ${err.message}`);
-  });
+    const sourceUrl = `http://phantom.lol/books/files${req.url}`;
+    http.get(sourceUrl, (sourceResponse) => {
+        res.writeHead(sourceResponse.statusCode, sourceResponse.headers);
+        sourceResponse.pipe(res);
+    }).on('error', (err) => {
+        res.statusCode = 500;
+        res.end(`Error fetching file: ${err.message}`);
+    });
 });
 app.use("/epoxy/", express.static(epoxyPath));
 app.use("/libcurl/", express.static(libcurlPath));
@@ -77,6 +83,54 @@ app.get("/v1/api/search-suggestions", async (req, res) => {
     }
 
     res.send(results);
+});
+
+
+// AI STUFF
+
+app.use(cookieParser()); 
+app.use(express.json());
+const csrfProtector = csrf({
+    cookie: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',  
+        sameSite: 'Strict'
+    }
+});
+app.get('/csrf-token', csrfProtector, (req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
+});
+
+
+app.post('/ask', csrfProtector, async (req, res) => {
+    const { messages } = req.body;
+    const temperature = req.body.temperature || 0.7;
+    const max_tokens = req.body.max_tokens || 256;
+
+    if (!messages || !Array.isArray(messages)) {
+        return res.status(400).json({ error: 'msgs need to be in an array format.' });
+    }
+
+    try {
+        const postData = {
+            model: 'shuttle-3-mini',
+            messages: messages,
+            temperature: temperature,
+            max_tokens: max_tokens
+        };
+
+        const response = await axios.post('https://api.shuttleai.com/v1/chat/completions', postData, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.SHUTTLEAI_API_KEY}`
+            }
+        });
+
+        res.json(response.data.choices[0].message.content);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to Retrive Request' });
+    }
 });
 
 
