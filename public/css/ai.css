@@ -26,21 +26,18 @@ body {
 .header h1 {
     font-size: 2.5rem;
     background: linear-gradient(90deg, var(--accent-color), var(--text-color));
+    background-size: 200% 100%;
+    background-position: 0% 50%;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    transition: background 0.5s ease, transform 0.3s ease, opacity 0.3s ease;
+    transition: background-position 0.7s ease;
     cursor: pointer;
 }
 
 .header h1:hover {
-    background: linear-gradient(90deg, var(--text-color), var(--accent-color));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    opacity: 0.9;
+    background-position: 250% 50%;
 }
-
 
 .header p a {
     color: var(--accent-color);

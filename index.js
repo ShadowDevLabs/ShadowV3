@@ -1,11 +1,10 @@
 import express from "express";
 import basicAuth from "express-basic-auth"
 import wisp from "wisp-server-node";
-import http from "http"
-import csrf from 'csurf';
+import http from "http";
 import cookieParser from 'cookie-parser';
-import axios from "axios"
 import * as cheerio from "cheerio";
+import { doubleCsrf } from "csrf-csrf";
 import { createServer } from "http";
 import { fileURLToPath } from "url";
 import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
@@ -90,19 +89,40 @@ app.get("/v1/api/search-suggestions", async (req, res) => {
 
 app.use(cookieParser()); 
 app.use(express.json());
-const csrfProtector = csrf({
-    cookie: {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',  
-        sameSite: 'Strict'
-    }
-});
-app.get('/csrf-token', csrfProtector, (req, res) => {
-    res.json({ csrfToken: req.csrfToken() });
+
+// Create the CSRF protector with secure options
+const { generateToken, validateRequest } = doubleCsrf({
+  getSecret: () => "your-secret-key", // Use a strong secret key, ideally from environment variables
+  cookieName: "x-csrf-token",
+  cookieOptions: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: "strict"
+  },
+  size: 64, // Token length
+  getTokenFromRequest: (req) => req.headers["x-csrf-token"]
 });
 
+// Middleware to protect routes
+const csrfProtection = (req, res, next) => {
+  try {
+    validateRequest(req, res);
+    next();
+  } catch (error) {
+    res.status(403).json({
+      error: "Invalid CSRF token",
+      message: error.message
+    });
+  }
+};
 
-app.post('/ask', csrfProtector, async (req, res) => {
+// Route to get CSRF token
+app.get('/csrf-token', (req, res) => {
+  res.json({ token: generateToken(req, res) });
+});
+
+// Protected route example
+app.post('/ask', csrfProtection, async (req, res) => {
     const { messages } = req.body;
     const temperature = req.body.temperature || 0.7;
     const max_tokens = req.body.max_tokens || 256;
@@ -112,27 +132,27 @@ app.post('/ask', csrfProtector, async (req, res) => {
     }
 
     try {
-        const postData = {
-            model: 'shuttle-3-mini',
-            messages: messages,
-            temperature: temperature,
-            max_tokens: max_tokens
-        };
-
-        const response = await axios.post('https://api.shuttleai.com/v1/chat/completions', postData, {
+        const response = await fetch('https://api.shuttleai.com/v1/chat/completions', {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${process.env.SHUTTLEAI_API_KEY}`
-            }
+            },
+            body: JSON.stringify({
+                model: 'shuttle-3-mini',
+                messages: messages,
+                temperature: temperature,
+                max_tokens: max_tokens
+            })
         });
 
-        res.json(response.data.choices[0].message.content);
+        const data = await response.json();
+        res.json(data.choices[0].message.content);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Failed to Retrive Request' });
+        res.status(500).json({ error: 'Failed to Retrieve Request' });
     }
 });
-
 
 app.get("/v1/api/user-agents", async (req, res) => {
     let text = await fetch("https://useragents.me/");
