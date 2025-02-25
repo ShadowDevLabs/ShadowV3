@@ -54,7 +54,7 @@
           const t = new Typewriter(document.getElementById('typewriter'), { loop: true, delay: 75 });
           function next() {
             const randomIndex = Math.floor(Math.random() * quotes.length);
-            t.typeString(quotes[randomIndex]).pauseFor(1250).deleteAll().start();
+            t.typeString(quotes[randomIndex]).pauseFor(5550).deleteAll().start();
             setTimeout(next, 1000);
           }
           next();
