@@ -1,16 +1,34 @@
 * {
   font-family: "Poppins", sans-serif;
-}
-
-body,
+}body,
 html {
   margin: 0;
   padding: 0;
   height: 100%;
-  background-color: var(--background-color);
-  font-family: "Poppins", sans-serif;
+  background-color: var(--tab-background);
   overflow: hidden;
 }
+
+.bg-dots {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(var(--accent-color) 8%, transparent 10%) 0px 0px / 25px 25px;
+  opacity: 0.2;
+  animation: dotsMove 6s linear infinite;
+  mask-image: radial-gradient(circle, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
+}
+
+@keyframes dotsMove {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -40px -40px;
+  }
+}
+
 
 .container {
   align-items: center;
@@ -33,39 +51,59 @@ h1 {
   margin-top: 0;
   animation: fadeIn 0.6s ease forwards;
 }
-
 .search-container {
-  border: 2px solid var(--accent-color);
-  border-radius: 50px;
-  padding: 0px 10px;
-  box-shadow: 0 0 15px 3px var(--accent-color);
-  margin-top: -3vw;
-  background-color: var(--tab-background);
   display: flex;
-  height: 50px;
   align-items: center;
-  animation: fadeIn 0.8s ease forwards;
+  justify-content: space-between;
+  height: 50px;
+  width: 35vw;
+  padding: 0 15px;
+  background: linear-gradient(145deg, var(--tab-background), #0a0a14);
+  border-radius: 50px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  margin-top: -3vw;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+}
+
+.search-container:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  transform: translateY(-5px);
 }
 
 .search-container input {
   border: none;
-  margin-right: 5px;
   outline: none;
-  width: 31vw;
+  width: 34vw;
   font-family: "Poppins", sans-serif;
   font-size: 16px;
   color: var(--text-color);
+  background: transparent;
+  padding: 10px 15px;
+  transition: all 0.3s ease;
+}
+
+.search-container input:focus {
   background-color: var(--tab-background);
+  box-shadow: 0 0 5px var(--accent-color);
 }
 
 .search-icon {
-  margin: 15px 10px;
   color: var(--accent-color);
   cursor: pointer;
+  transition: color 0.3s ease;
+  position: absolute;
+  right: 20px;
+}
+
+.search-icon:hover {
+  color: var(--tab-border);
 }
 
 .search-icon svg {
   fill: var(--accent-color);
+  width: 20px;
+  height: 20px;
 }
 
 
