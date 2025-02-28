@@ -5,7 +5,7 @@ html {
   margin: 0;
   padding: 0;
   height: 100%;
-  background-color: var(--tab-background);
+  background-color: var(--background-color);
   overflow: hidden;
 }
 
@@ -36,7 +36,6 @@ html {
   width: fit-content;
   justify-content: center;
   height: 100vh;
-  background-color: var(--background-color);
 }
 
 h1 {
@@ -83,10 +82,12 @@ h1 {
   transition: all 0.3s ease;
 }
 
-.search-container input:focus {
+.search-container:focus-within {
   background-color: var(--tab-background);
   box-shadow: 0 0 5px var(--accent-color);
+  border-radius: 15px;
 }
+
 
 .search-icon {
   color: var(--accent-color);
