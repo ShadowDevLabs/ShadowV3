@@ -1,4 +1,4 @@
-:root {
+:root, :root.dark {
   --background-color: #060611;
   --tab-background: #06060e;
   --tab-border: #8400ff;
@@ -6,22 +6,14 @@
   --accent-color: #ba7df2;
 }
 
-:root.halloween {
-  --background-color: #0b0b0f; 
-  --tab-background: #0c0c0c; 
-  --tab-border: #ff6f00; 
-  --text-color: #ffd1b3; 
-  --accent-color: #ffb300; 
+:root.ncs-bedroom {
+  --background-color: #1a0c2c;
+  --tab-background: #220e3a;
+  --tab-border: #e06540;
+  --text-color: #d9d9f0;
+  --accent-color: #a23ed6;
 }
 
-
-:root.dark{
-  --background-color: #060611;
-  --tab-background: #0e0e1d;
-  --tab-border: #372754;
-  --text-color: #ffffff;
-  --accent-color: #ba7df2;
-}
 
 :root.custom {
   --background-color: #060611;

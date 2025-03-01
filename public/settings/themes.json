@@ -11,14 +11,14 @@
         }
     },
     {
-        "name": "Halloween",
-        "value": "halloween",
+        "name": "NC's Bedroom",
+        "value": "ncs-bedroom",
         "css": {
-            "background-color": "#1a1a1a",
-            "tab-background": "#ff7f00",
-            "tab-border": "#ffcc00",
-            "text-color": "#ffffff",
-            "accent-color": "#ff3d00"
+            "background-color": "#1a0c2c",
+            "tab-background": "#220e3a",
+            "tab-border": "#e06540",
+            "text-color": "#d9d9f0",
+            "accent-color": "#a23ed6"
         }
     },
     {
