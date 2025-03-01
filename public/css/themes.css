@@ -14,6 +14,30 @@
   --accent-color: #a23ed6;
 }
 
+:root.neonfuchsia {
+  --background-color: #0d0d0d;  
+  --tab-background: #1b001e;  
+  --tab-border: #ff0077;  
+  --text-color: #ffffff;  
+  --accent-color: #ff22cc;  
+}
+
+:root.bluehorizon {
+  --background-color: #181a20;  
+  --tab-background: #242733;  
+  --tab-border: #5b9aff;  
+  --text-color: #e0e6f0;  
+  --accent-color: #91bfff;  
+}
+
+:root.darkinferno {
+  --background-color: #140000;  
+  --tab-background: #250000;  
+  --tab-border: #ff4500;  
+  --text-color: #ffd3b6;  
+  --accent-color: #ff6f00;  
+}
+
 
 :root.custom {
   --background-color: #060611;

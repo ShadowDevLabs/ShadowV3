@@ -22,6 +22,39 @@
         }
     },
     {
+        "name": "Neon Fuchsia",
+        "value": "neonfuchsia",
+        "css": {
+            "background-color": "#0d0d0d",
+            "tab-background": "#1b001e",
+            "tab-border": "#ff0077",
+            "text-color": "#ffffff",
+            "accent-color": "#ff22cc"
+        }
+    },
+    {
+        "name": "Dark Inferno",
+        "value": "darkinferno",
+        "css": {
+            "background-color": "#140000",
+            "tab-background": "#250000",
+            "tab-border": "#ff4500",
+            "text-color": "#ffd3b6",
+            "accent-color": "#ff6f00"
+        }
+    },
+    {
+        "name": "Blue Horizon",
+        "value": "bluehorizon",
+        "css": {
+            "background-color": "#181a20",
+            "tab-background": "#242733",
+            "tab-border": "#5b9aff",
+            "text-color": "#e0e6f0",
+            "accent-color": "#91bfff"
+        }
+    },
+    {
         "name": "Shadow (Old)",
         "value": "light",
         "css": {
