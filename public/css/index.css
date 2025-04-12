@@ -252,6 +252,8 @@ body {
   box-shadow: 0 0 6px var(--accent-glow);
 }
 
+
+
 #__shadow-search-bar {
   width: 100%;
   background: transparent;
@@ -261,6 +263,8 @@ body {
   font-size: 15px;
   font-family: 'Poppins', sans-serif;
 }
+
+
 
 .menu-button {
   background: linear-gradient(145deg, var(--primary), var(--secondary));
@@ -287,19 +291,29 @@ body {
   width: 100%;
 }
 
+
+
 .suggestions {
   position: absolute;
   top: 100%;
   left: 0;
-  width: 100%;
-  background: var(--primary);
-  border-radius: 0 0 12px 12px;
-  box-shadow: 0 0 6px var(--accent-glow);
-  z-index: 999;
-  overflow: hidden;
+  right: 0;
+  background-color: var(--primary);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 5px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  z-index: 9999;
+  max-height: 25rem;
+  box-sizing: border-box;
+  margin-left: 150px;
+  width: calc(100% - 220px);
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
+
 
 .suggestions.hidden {
   display: none;
