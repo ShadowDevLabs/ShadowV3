@@ -1,15 +1,31 @@
 :root {
-    --background: linear-gradient(145deg, #010310, #080c17);
-    --home-bg:url("/assets/imgs/backgrounds/home/blue.jpg");
-    --primary: #01031d;
-    --primary-dark: #0c0015;
-    --secondary: #0a0e1a;
-    --accent: #3b82f6;
-    --accent-light: #93c5fd;
-    --accent-glow: rgba(59, 130, 246, 0.2);
-    --border: rgba(59, 130, 246, 0.3);
-    --text: #e0f2fe;
-    --text-muted: #bae6fd;
-    --hover-danger: #f87171;
-    --active-tab: linear-gradient(145deg, #1e3a8a, var(--secondary));
-  }
+  --background: linear-gradient(145deg, #010310, #080c17);
+  --home-bg: url("/assets/imgs/backgrounds/home/blue.jpg");
+  --primary: #01031d;
+  --primary-dark: #0c0015;
+  --secondary: #0a0e1a;
+  --accent: #3b82f6;
+  --accent-light: #93c5fd;
+  --accent-glow: rgba(59, 130, 246, 0.2);
+  --border: rgba(59, 130, 246, 0.3);
+  --text: #e0f2fe;
+  --text-muted: #bae6fd;
+  --hover-danger: #f87171;
+  --active-tab: linear-gradient(145deg, #1e3a8a, var(--secondary));
+}
+
+:root.shadow {
+  --background: linear-gradient(145deg, #0b0013, #15001f);
+  --home-bg: url("https://cdn.wallpapersafari.com/31/56/NxQ8jJ.jpg");
+  --primary: #12001f;
+  --primary-dark: #0a0015;
+  --secondary: #1a0a2b;
+  --accent: #a855f7;
+  --accent-light: #d8b4fe;
+  --accent-glow: rgba(168, 85, 247, 0.2);
+  --border: rgba(168, 85, 247, 0.3);
+  --text: #f3e8ff;
+  --text-muted: #e9d5ff;
+  --hover-danger: #fb7185;
+  --active-tab: linear-gradient(145deg, #6b21a8, var(--secondary));
+}
