@@ -1,47 +1,57 @@
 :root {
-  --background-color: #060611;
-  --tab-background: #0e0e1d;
-  --tab-border: #372754;
-  --text-color: #ffffff;
-  --accent-color: #ba7df2;
-  --hover-color: #8e57d3;
-  --transition-speed: 0.3s;
+  --background: linear-gradient(145deg, #010310, #080c17);
+  --home-bg: url("/assets/imgs/backgrounds/home/blue.jpg");
+  --primary: #01031d;
+  --primary-dark: #0c0015;
+  --secondary: #0a0e1a;
+  --accent: #3b82f6;
+  --accent-light: #93c5fd;
+  --accent-glow: rgba(59, 130, 246, 0.2);
+  --border: rgba(59, 130, 246, 0.3);
+  --text: #e0f2fe;
+  --text-muted: #bae6fd;
+  --hover-danger: #f87171;
+  --active-tab: linear-gradient(145deg, #1e3a8a, var(--secondary));
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: url("https://img.freepik.com/free-vector/abstract-paper-style-background_23-2150744372.jpg");
+  color: var(--text);
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  background-repeat: no-repeat;
+  background-size: cover;
+  justify-content: center;
+  align-items: center;
 }
 
 h1 {
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: bold;
   text-align: center;
-  color: var(--accent-color);
+  color: var(--accent);
   cursor: pointer;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-  margin: 1.5rem 0;
-  transition: transform var(--transition-speed), color var(--transition-speed);
+  text-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  margin-top: 2.5rem;
+  letter-spacing: 2px;
+  transition: transform 0.3s, color 0.3s, text-shadow 0.3s, letter-spacing 0.3s ease-in-out;
 }
 
 h1:hover {
   transform: scale(1.1);
-  color: var(--hover-color);
+  color: var(--accent-light);
+  text-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  letter-spacing: 5px;
 }
-
-
-body {
-  font-family: 'Poppins', sans-serif;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  overflow-x: hidden;
-}
-
-.no-scroll {
-  overflow: hidden;
-}
-
 
 .search-container {
   display: flex;
@@ -50,82 +60,104 @@ body {
 }
 
 #__shadow-search-bar {
-  padding: 10px;
-  border: 2px solid var(--tab-border);
-  border-radius: 5px;
+  padding: 12px 20px;
+  border: 2px solid var(--border);
+  border-radius: 50px;
   font-family: "Poppins", sans-serif;
   font-size: 16px;
-  color: var(--text-color);
-  background-color: var(--tab-background);
-  transition: border-color 0.2s ease;
-  width: 25vw;
+  color: var(--text);
+  background: var(--secondary);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+  width: 35vw;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 #__shadow-search-bar::placeholder {
-  color: var(--text-color);
+  color: var(--text-muted);
   opacity: 0.7;
 }
 
 #__shadow-search-bar:focus {
   outline: none;
-  border-color: var(--accent-color);
+  border-color: var(--accent);
+  box-shadow: 0 0 15px var(--accent-glow);
+  background-color: var(--primary);
+  border-radius: 5px;
+  transform: scale(1.02);
 }
-
 
 .gcontainer {
   display: flex;
   flex-wrap: wrap;
-  gap: 2rem;
+  gap: 3rem;
   justify-content: center;
   padding: 2rem;
 }
 
 .g {
-  width: 200px;
-  height: 250px;
-  background-color: var(--tab-background);
-  border: 1px solid var(--tab-border);
-  border-radius: 15px;
+  width: 280px;
+  height: 280px;
+  background: linear-gradient(45deg, var(--primary), var(--border), var(--secondary));
+  border: 2px solid var(--border);
+  border-radius: 5px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, filter 0.3s ease;
 }
 
 .g:hover {
-  transform: scale(1.1);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+  transform: scale(1.05);
+  background-color: var(--secondary);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+  filter: brightness(1.1);
 }
 
 .game-image {
-  width: 150px;
-  height: 150px;
+  width: 170px;
+  height: 170px;
   object-fit: cover;
   border-radius: 10px;
   margin-bottom: 1rem;
+  transition: transform 0.3s ease-in-out, filter 0.3s ease;
+}
+
+.g:hover .game-image {
+  transform: scale(1.05);
+  filter: brightness(1.2);
 }
 
 .game-name {
   text-align: center;
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: var(--text-color);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.g:hover .game-name {
+  color: var(--accent-light);
+  transform: translateY(-5px);
 }
 
 .icon-button {
   background: none;
   border: none;
-  color: var(--text-color);
-  font-size: 1.5rem;
+  color: var(--text);
+  font-size: 1.8rem;
   cursor: pointer;
-  transition: color var(--transition-speed);
+  transition: color 0.3s, transform 0.3s, filter 0.3s ease;
 }
 
 .icon-button:hover {
-  color: var(--hover-color);
+  color: var(--accent);
+  transform: scale(1.2);
+  filter: brightness(1.2);
 }
 
 .gDisplay {
@@ -137,23 +169,24 @@ body {
   bottom: 0;
   display: none;
   flex-direction: column;
-  background-color: var(--background-color);
+  background-color: var(--primary);
   z-index: 1000;
   animation: fadeIn 0.5s ease-in-out;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
 }
 
 .gDisplay.active {
   display: flex;
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 .gDisplay .nav-controls {
   display: flex;
   justify-content: space-between;
   padding: 20px;
-  background-color: var(--background-color);
-  border-top: 2px solid var(--tab-border);
-  border-bottom: 2px solid var(--tab-border);
+  background-color: var(--primary-dark);
+  border-top: 2px solid var(--border);
+  border-bottom: 2px solid var(--border);
 }
 
 .gDisplay .logo {
@@ -169,9 +202,11 @@ body {
 }
 
 .gDisplay .gDisplayname {
-  color: var(--text-color);
-  font-size: 1.2rem;
+  color: var(--text);
+  font-size: 1.5rem;
   font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .gDisplay .controls {
@@ -185,24 +220,44 @@ body {
   border: none;
   padding: 10px;
   cursor: pointer;
-  transition: transform 0.3s ease, fill 0.3s ease;
+  transition: transform 0.3s ease, fill 0.3s ease, filter 0.3s ease;
 }
 
 .gDisplay .controls button:hover {
   transform: scale(1.1);
+  filter: brightness(1.1);
 }
 
 .gDisplay .controls svg {
-  fill: var(--text-color);
-  width: 24px;
-  height: 24px;
+  fill: var(--text);
+  width: 28px;
+  height: 28px;
 }
 
 .gDisplay iframe {
   flex: 1;
   border: none;
-  overflow: hidden; 
   width: 100%;
   height: 100%;
-  background-color: var(--tab-background);
+  background-color: var(--primary-dark);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.gDisplay iframe {
+  opacity: 0;
+  transform: scale(0.98);
+  animation: fadeIn 0.5s forwards;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

@@ -30,7 +30,9 @@ body {
   overflow: hidden;
   background-image:var(--home-bg);
   background-position: 0% 50%;
-
+  background-repeat: no-repeat;
+  background-size: cover;
+  
 }
 
 
@@ -47,6 +49,7 @@ h1 {
   font-weight: 800;
   background: linear-gradient(90deg, var(--accent), var(--accent-light));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 12px var(--accent-glow);
   letter-spacing: -1px;
