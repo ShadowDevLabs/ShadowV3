@@ -94,7 +94,7 @@ document
     contextMenu.style.display = "none";
     const name = selectedShortcut.querySelector("p").textContent;
     const url = selectedShortcut.getAttribute("data-url");
-    const imgSrc = `https://www.google.com/s2/favicons?domain=${url}&sz=64`;
+    const imgSrc = `https://www.google.com/s2/favassets/imgs/icons?domain=${url}&sz=64`;
     const editModal = document.getElementById("edit-shortcut-modal");
     const editNameInput = document.getElementById("edit-shortcut-name");
     const editUrlInput = document.getElementById("edit-shortcut-url");
@@ -112,7 +112,7 @@ document
       selectedShortcut.querySelector("p").textContent = editNameInput.value;
       const newURL = editUrlInput.value;
       selectedShortcut.setAttribute("data-url", newURL);
-      const newImgSrc = `https://www.google.com/s2/favicons?domain=${newURL}&sz=64`;
+      const newImgSrc = `https://www.google.com/s2/favassets/imgs/icons?domain=${newURL}&sz=64`;
       selectedShortcut.querySelector("img").src = newImgSrc;
       const shortcuts = await settings.get("shortcuts") || [];
       const selectedShortcutIndex = shortcuts.findIndex(

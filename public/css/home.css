@@ -1,138 +1,76 @@
 :root {
-  --background-color: #060611;
-  --tab-background: #06060e;
-  --tab-border: #7939b5;
-  --text-color: #ffffff;
-  --accent-color: #ba7df2;
+  --background: linear-gradient(145deg, #010310, #080c17);
+  --home-bg:url("/assets/imgs/backgrounds/home/blue.jpg");
+  --primary: #01031d;
+  --primary-dark: #0c0015;
+  --secondary: #0a0e1a;
+  --accent: #3b82f6;
+  --accent-light: #93c5fd;
+  --accent-glow: rgba(59, 130, 246, 0.2);
+  --border: rgba(59, 130, 246, 0.3);
+  --text: #e0f2fe;
+  --text-muted: #bae6fd;
+  --hover-danger: #f87171;
+  --active-tab: linear-gradient(145deg, #1e3a8a, var(--secondary));
 }
 
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
 
 body {
-  color: var(--text-color);
+  color: var(--text);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100vh;
   text-align: center;
-  animation: fadeIn 1.5s ease-out;
-  background-image: radial-gradient(circle, var(--background-color), var(--background-color), var(--background-color), var(--tab-border), var(--background-color), var(--background-color), var(--background-color), var(--background-color), var(--background-color), var(--background-color), var(--background-color), var(--background-color), var(--background-color));
+  gap: 1.4rem;
+  min-height: 100vh;
   overflow: hidden;
+  background-image:var(--home-bg);
+  background-position: 0% 50%;
+
 }
 
-.container {
-  padding: 2rem;
-  animation: slideIn 1.2s ease-out;
+
+img {
+  width: 90px;
+  height: 90px;
+  filter: drop-shadow(0 0 12px var(--accent-glow));
+  transition: 0.3s ease;
+  margin-top: 3rem;
 }
 
-.heading h1 {
-  font-size: 5rem;
-  font-weight: 600;
-  background: linear-gradient(90deg, var(--accent-color), var(--text-color));
+h1 {
+  font-size: 10rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, var(--accent), var(--accent-light));
   -webkit-background-clip: text;
-  color: transparent;
-  animation: textIn 1.5s ease-out;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 12px var(--accent-glow);
+  letter-spacing: -1px;
+  margin-top: 0.5rem;
 }
 
-.heading span {
-  color: var(--accent-color);
+@keyframes textGlow {
+  0% {
+    text-shadow: 0 0 12px var(--accent-glow);
+  }
+  50% {
+    text-shadow: 0 0 24px var(--accent), 0 0 12px var(--accent-glow);
+  }
+  100% {
+    text-shadow: 0 0 12px var(--accent-glow);
+  }
 }
 
-h2 {
-  font-size: 1.5rem;
+p {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  max-width: 700px;
+  letter-spacing: 0.4px;
+  line-height: 1.6;
+  margin-top: -9.9rem;
   opacity: 0.9;
-}
-
-.developers {
-  margin: 10px 0 20px;
-  font-size: 0.9rem;
-  opacity: 0.9;
-}
-
-.social-orbit {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  padding-top: 1.5rem;
-  opacity: 0;
-  animation: fadeInUp 1s 0.5s forwards;
-}
-
-.social-icon {
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--tab-background);
-  border: 2px solid var(--tab-border);
-  border-radius: 50%;
-  transition: 0.3s ease-in-out;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-  transform: scale(1);
-  cursor:pointer;
-}
-
-.social-icon:hover {
-  background: var(--tab-border);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
-}
-
-.social-icon svg {
-  width: 28px;
-  height: 28px;
-  fill: var(--text-color);
-  transition: 0.3s ease-in-out;
-}
-
-.social-icon:hover svg {
-  fill: var(--background-color);
-}
-
-/* Load-in animations */
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes slideIn {
-  0% {
-    transform: translateY(50px);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes textIn {
-  0% {
-    transform: translateX(-30px);
-    opacity: 0;
-  }
-  100% {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes fadeInUp {
-  0% {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }

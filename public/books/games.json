@@ -105,7 +105,7 @@
     "name": "Angry Sharks",
     "root": "angry-sharks",
     "file": "index.html",
-    "img": "assets/favicon/icon-512x512.png"
+    "img": "assets/js/favicon/icon-512x512.png"
   },
   {
     "name": "Aquapark slides",
@@ -177,7 +177,7 @@
     "name": "Basketball Stars",
     "root": "basketball-stars",
     "file": "index.html",
-    "img": "assets/images/basketball-stars.png"
+    "img": "assets/js/images/basketball-stars.png"
   },
   {
     "name": "Basketbros.io",
@@ -195,7 +195,7 @@
     "name": "Big NEON TT Square",
     "root": "bntts",
     "file": "index.html",
-    "img": "icons/icon-256.png"
+    "img": "assets/imgs/icons/icon-256.png"
   },
   {
     "name": "Big Red Button",
@@ -327,7 +327,7 @@
     "name": "Chrome Dino",
     "root": "chrome-dino",
     "file": "index.html",
-    "img": "icons/icon-256.png"
+    "img": "assets/imgs/icons/icon-256.png"
   },
   {
     "name": "Cluster Rush",
@@ -375,7 +375,7 @@
     "name": "Cubefield",
     "root": "cubefield",
     "file": "index.html",
-    "img": "assets/unnamed.png"
+    "img": "assets/js/unnamed.png"
   },
   {
     "name": "Cupcake 2048",
@@ -465,7 +465,7 @@
     "name": "Draw the Hill",
     "root": "draw-the-hill",
     "file": "index.html",
-    "img": "icons/icon-512.png"
+    "img": "assets/imgs/icons/icon-512.png"
   },
   {
     "name": "Drift Hunters",
@@ -615,7 +615,7 @@
     "name": "Flappy Bird",
     "root": "flappy-bird",
     "file": "index.html",
-    "img": "assets/thumb.png"
+    "img": "assets/js/thumb.png"
   },
   {
     "name": "Flash Tetris",
@@ -1011,13 +1011,13 @@
     "name": "Offline Paradise",
     "root": "OfflineParadise",
     "file": "index.html",
-    "img": "assets/icon.jpeg"
+    "img": "assets/js/icon.jpeg"
   },
   {
     "name": "Om Nom Bounce",
     "root": "om-bounce",
     "file": "index.html",
-    "img": "assets/icon.jpeg"
+    "img": "assets/js/icon.jpeg"
   },
   {
     "name": "OvO",
@@ -1065,7 +1065,7 @@
     "name": "Particle Clicker",
     "root": "particle-clicker",
     "file": "index.html",
-    "img": "assets/mobile/original.png"
+    "img": "assets/js/mobile/original.png"
   },
   {
     "name": "Pixel Gun Survival",
@@ -1107,7 +1107,7 @@
     "name": "Push Your Luck",
     "root": "push-your-luck",
     "file": "index.html",
-    "img": "assets/img/push.png"
+    "img": "assets/js/img/push.png"
   },
   {
     "name": "Rabbit Samurai",
@@ -1335,7 +1335,7 @@
     "name": "Space Company",
     "root": "space-company",
     "file": "index.html",
-    "img": "Icons/SpaceCompanyFavicon.png"
+    "img": "assets/imgs/icons/SpaceCompanyFavicon.png"
   },
   {
     "name": "Space Garden",
@@ -1449,7 +1449,7 @@
     "name": "Super Mario Constuct",
     "root": "supermarioconstruct",
     "file": "index.html",
-    "img": "media/icons/icon-128.png"
+    "img": "media/assets/imgs/icons/icon-128.png"
   },
   {
     "name": "Superhot",
@@ -1629,13 +1629,13 @@
     "name": "Vex 6",
     "root": "vex6",
     "file": "index.html",
-    "img": "assets/icon.jpeg"
+    "img": "assets/js/icon.jpeg"
   },
   {
     "name": "Vex 7",
     "root": "vex7",
     "file": "index.html",
-    "img": "assets/icon.jpeg"
+    "img": "assets/js/icon.jpeg"
   },
   {
     "name": "Wall Smash",
@@ -1701,7 +1701,7 @@
     "name": "Yoshi's Fabrication Station",
     "root": "yoshifabrication",
     "file": "index.html",
-    "img": "icons/icon-512.png"
+    "img": "assets/imgs/icons/icon-512.png"
   },
   {
     "name": "You Are Jeff Bezos",

@@ -27,7 +27,7 @@ import { SettingsManager } from "./settings_manager.js";
 
   var settingsDefaultTab = {
     title: "Shadow",
-    icon: "/icons/logo.png",
+    icon: "/assets/imgs/icons/logo.png",
   };
 
   self.setTitle = async function (title = "") {
@@ -83,44 +83,44 @@ import { SettingsManager } from "./settings_manager.js";
     switch (cloak) {
       case "search":
         setTitle("Google Search");
-        setFavicon("/icons/cloaks/Google Search.ico");
+        setFavicon("/assets/imgs/icons/cloaks/Google Search.ico");
         break;
       case "drive":
         setTitle("Google Drive");
-        setFavicon("/icons/cloaks/Google Drive.ico");
+        setFavicon("/assets/imgs/icons/cloaks/Google Drive.ico");
         break;
       case "youtube":
         setTitle("YouTube");
-        setFavicon("/icons/cloaks/YouTube.ico");
+        setFavicon("/assets/imgs/icons/cloaks/YouTube.ico");
         break;
       case "gmail":
         setTitle("Gmail");
-        setFavicon("/icons/cloaks/Gmail.ico");
+        setFavicon("/assets/imgs/icons/cloaks/Gmail.ico");
         break;
       case "calendar":
         setTitle("Google Calendar");
-        setFavicon("/icons/cloaks/Calendar.ico");
+        setFavicon("/assets/imgs/icons/cloaks/Calendar.ico");
         break;
       case "meets":
         setTitle("Google Meet");
-        setFavicon("/icons/cloaks/Meet.ico");
+        setFavicon("/assets/imgs/icons/cloaks/Meet.ico");
         break;
       case "classroom":
         setTitle("Google Classroom");
-        setFavicon("/icons/cloaks/Classroom.png");
+        setFavicon("/assets/imgs/icons/cloaks/Classroom.png");
         break;
       case "canvas":
         setTitle("Canvas");
-        setFavicon("/icons/cloaks/Canvas.ico");
+        setFavicon("/assets/imgs/icons/cloaks/Canvas.ico");
         break;
       case "zoom":
         setTitle("Zoom");
-        setFavicon("/icons/cloaks/Zoom.ico");
+        setFavicon("/assets/imgs/icons/cloaks/Zoom.ico");
 
         break;
       case "khan":
         setTitle("Khan Academy");
-        setFavicon("/icons/cloaks/Khan Academy.ico");
+        setFavicon("/assets/imgs/icons/cloaks/Khan Academy.ico");
 
         break;
     }

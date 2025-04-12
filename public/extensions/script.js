@@ -1,4 +1,4 @@
-import { SettingsManager } from "../assets/settings_manager.js";
+import { SettingsManager } from "../assets/js/settings_manager.js";
 
 const settings = new SettingsManager();
 

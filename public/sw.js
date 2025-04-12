@@ -2,8 +2,8 @@ importScripts("/uv/uv.bundle.js");
 importScripts("/uv/uv.config.js");
 importScripts("/uv/uv.client.js");
 importScripts(__uv$config.sw || "/uv/uv.sw.js");
-importScripts("/assets/settings_manager_sw.js")
-importScripts("/assets/history_helper_sw.js")
+importScripts("/assets/js/settings_manager_sw.js")
+importScripts("/assets/js/history_helper_sw.js")
 self.settings = new SettingsManager();
 self.history = new HistoryHelper();
 
