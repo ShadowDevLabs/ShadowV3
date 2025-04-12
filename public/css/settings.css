@@ -449,25 +449,21 @@ input[type="color"]::-moz-color-swatch {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  background-color: var(--secondary);
-  color: var(--text);
-  padding: 16px 20px;
+  padding: 10px 20px;
   border-radius: 12px;
-  border: 1px solid var(--border);
   cursor: pointer;
   font-family: 'Poppins', sans-serif;
   font-size: 16px;
   transition: all 0.3s ease;
   position: relative;
+  border-style: solid;
+  border-width: 2px;
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .theme:hover {
-  background: var(--active-tab);
   transform: translateY(-6px);
-  box-shadow: 0 12px 24px var(--accent-glow);
-  border-color: var(--accent);
 }
 
 .theme:after {
@@ -477,7 +473,6 @@ input[type="color"]::-moz-color-swatch {
   height: 2px;
   bottom: 0;
   left: 0;
-  background: linear-gradient(to right, var(--accent), var(--accent-light));
   transform: scaleX(0);
   transform-origin: bottom right;
   transition: transform 0.3s ease;
@@ -492,16 +487,13 @@ input[type="color"]::-moz-color-swatch {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent), var(--accent-light));
   margin-right: 16px;
   transition: transform 0.6s ease;
-  border: 2px solid var(--border);
+  outline: none;
 }
 
 .theme:hover .color {
-  transform: rotate(360deg) scale(1.2);
-  border-color: var(--accent-light);
-  box-shadow: 0 0 12px var(--accent-glow);
+  transform: rotate(360deg) scale(1.1);
 }
 
 @media (max-width: 768px) {

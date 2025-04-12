@@ -9,14 +9,35 @@ fetch('themes.json')
       themeDiv.onclick = () => {
         changeTheme(theme.value);
       };
+      themeDiv.style.backgroundColor = theme.css['primary'];
+      themeDiv.style.color = theme.css['text'];
+      themeDiv.style.borderColor = theme.css['border'];
 
       const colorDiv = document.createElement('div');
       colorDiv.classList.add('color');
-      colorDiv.style.background = `linear-gradient(135deg, ${theme.css['background-color']}, ${theme.css['tab-background']}, ${theme.css['tab-border']}, ${theme.css['accent-color']})`;
+      colorDiv.style.background = `linear-gradient(135deg, ${theme.css['primary']}, ${theme.css['secondary']}, ${theme.css['accent']}, ${theme.css['accent-light']})`;
+      colorDiv.style.borderColor = theme.css['accent-light'];
 
-      themeDiv.style.backgroundColor = theme.css['tab-background'];
-      themeDiv.style.color = theme.css['text-color'];
-      themeDiv.style.borderColor = theme.css['tab-border'];
+      const afterDiv = document.createElement('div');
+      afterDiv.classList.add('theme-after');
+      afterDiv.style.cssText = `height: 0.5px; width: 100%; position: absolute; bottom: 0; left: 0; background: linear-gradient(to right, ${theme.css['accent']}, ${theme.css['accent-light']}); transform: scaleX(0); transform-origin: bottom right; transition: transform 0.3s ease;`;
+      themeDiv.appendChild(afterDiv);
+
+      themeDiv.addEventListener('mouseover', () => {
+        themeDiv.style.background = theme.css['active-tab'];
+        themeDiv.style.boxShadow = `0 12px 24px ${theme.css['accent-glow']}`;
+        themeDiv.style.borderColor = theme.css['accent'];
+        afterDiv.style.transform = 'scaleX(1)';
+        afterDiv.style.transformOrigin = 'bottom left';
+      });
+
+      themeDiv.addEventListener('mouseleave', () => {
+        themeDiv.style.background = theme.css['secondary'];
+        themeDiv.style.boxShadow = `0 4px 6px rgba(0, 0, 0, 0.1)`;
+        themeDiv.style.borderColor = theme.css['border'];
+        afterDiv.style.transform = 'scaleX(0)';
+        afterDiv.style.transformOrigin = 'bottom right';
+      });
 
       themeDiv.appendChild(colorDiv);
       themeDiv.appendChild(document.createTextNode(theme.name));

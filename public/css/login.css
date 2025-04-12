@@ -1,12 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
-:root {
-  --background-color: #060611;
-  --tab-background: #0e0e1d;
-  --tab-border: #372754;
-  --text-color: #ffffff;
-  --accent-color: #ba7df2;
-}
+
 
 * {
   margin: 0;
