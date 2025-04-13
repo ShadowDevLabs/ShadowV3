@@ -201,35 +201,26 @@ h1:hover::after {
   font-size: 1.4rem;
   font-weight: 700;
   color: var(--text);
+  z-index: 999;
   margin-bottom: 0.5rem;
   text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   letter-spacing: 1px;
   text-transform: uppercase;
-  transition: color 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s ease, transform 0.4s ease, color 0.3s ease;
 }
 
 .g:hover .game-name {
-  color: var(--accent-light);
-}
-
-.game-description {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  text-align: center;
-  margin-top: 0.5rem;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-.g:hover .game-description {
   opacity: 1;
   transform: translateY(0);
+  color: var(--accent-light);
 }
 
 .game-play-button {
   position: absolute;
   top: 50%;
+  cursor:pointer;
   left: 50%;
   transform: translate(-50%, -50%) scale(0);
   background: var(--accent);
@@ -253,6 +244,17 @@ h1:hover::after {
   height: 30px;
   fill: var(--text);
 }
+
+.g:hover .game-play-button {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.game-play-button:hover {
+  background: var(--accent-light);
+  transform: translate(-50%, -50%) scale(1.1) !important;
+}
+
 
 .g:hover .game-play-button {
   opacity: 1;

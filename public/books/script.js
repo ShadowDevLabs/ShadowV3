@@ -15,12 +15,23 @@ fetch("games.json")
       const gameName = document.createElement("p");
       gameName.classList.add("game-name");
       gameName.textContent = game.name;
+
+
+      const playButton = document.createElement("button");
+      playButton.classList.add("game-play-button");
+      playButton.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+      `;
+
       gElement.addEventListener("click", () => {
         launch(`files/${game.root}/${game.file}`, game.name, `files/${game.root}/${game.img}`);
       });
       gElement.appendChild(imgElement);
       gElement.appendChild(gameName);
       fragment.appendChild(gElement);
+      gElement.appendChild(playButton);
     });
     container.appendChild(fragment);
     const searchBar = document.getElementById("__shadow-search-bar");
