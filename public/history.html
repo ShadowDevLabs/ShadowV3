@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>History</title>
   <link rel="stylesheet" href="/css/themes.css" />
-  <script src="/assets/themes.js" type="module"></script>
+  <script src="/assets/js/themes.js" type="module"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="icon" href="/pages/history.ico" type="image/x-icon" />
   <link href="/css/history.css" rel="stylesheet">
@@ -25,13 +25,13 @@
     <div id="historyEntries"></div>
   </div>
   <script type="module">
-    import { HistoryHelper } from "/assets/history_helper.js";
-    import { SettingsManager } from "/assets/settings_manager.js";
+    import { HistoryHelper } from "/assets/js/history_helper.js";
+    import { SettingsManager } from "/assets/js/settings_manager.js";
 
     window.history_helper = new HistoryHelper();
     window.settings = new SettingsManager();
   </script>
-  <script src="/assets/history.js" defer></script>
+  <script src="/assets/js/history.js" defer></script>
 </body>
 
 </html>

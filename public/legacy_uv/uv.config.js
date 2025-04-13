@@ -47,7 +47,7 @@ self.__uv$config = {
         parent.updateOmni();
         parent.setTab();
         //Update history on everything EXCEPT for shadow:// urls
-        if (__uv) parent.tabs.updateHistory(__uv.location.href, document.title, `https://www.google.com/s2/favicons?domain=${__uv.location.href}&sz=24`);
+        if (__uv) parent.tabs.updateHistory(__uv.location.href, document.title, `https://www.google.com/s2/favassets/imgs/icons?domain=${__uv.location.href}&sz=24`);
       } catch (e) {
         console.log(`[LOAD] Error in initializing tab: ${e}`);
       }

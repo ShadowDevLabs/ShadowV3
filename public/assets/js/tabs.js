@@ -1,5 +1,5 @@
-import { HistoryHelper } from "/assets/history_helper.js";
-import { SettingsManager } from "/assets/settings_manager.js";
+import { HistoryHelper } from "/assets/js/history_helper.js";
+import { SettingsManager } from "/assets/js/settings_manager.js";
 
 const searchInput = document.getElementById("__shadow-search-bar");
 const addTabButton = document.getElementById("add-tab");
@@ -141,7 +141,7 @@ class Tab {
     tab.img.className = "tab-icon";
     tab.img.alt = "Favicon"
     if (tab.src.startsWith('shadow://')) {
-      const favicon = `/icons/pages/${tab.src.replace('shadow://', '')}.png`;
+      const favicon = `/assets/imgs/icons/pages/${tab.src.replace('shadow://', '')}.png`;
       tab.img.src = favicon;
     }
 
@@ -283,9 +283,9 @@ class Tab {
     const src = this.parseUrl(i);
     let icon;
     if (src.startsWith("shadow://")) {
-      icon = `/icons/pages/${src.replace("shadow://", "")}.png`;
+      icon = `/assets/imgs/icons/pages/${src.replace("shadow://", "")}.png`;
     } else {
-      icon = `https://www.google.com/s2/favicons?domain=${src}&sz=24`;
+      icon = `https://www.google.com/s2/favassets/imgs/icons?domain=${src}&sz=24`;
     }
     const title = this.tabsArr[this.activeTabIndex].title || this.tabsArr[i].iframe.contentDocument.title;
 

@@ -9,10 +9,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Rubik&display=swap" rel="stylesheet" />
   <title>New Tab</title>
   <link rel="stylesheet" href="/css/themes.css" />
-  <script src="/assets/themes.js" type="module"></script>
+  <script src="/assets/js/themes.js" type="module"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <link rel="icon" type="image/png" href="icons/logo.png" />
+  <link rel="icon" type="image/png" href="assets/imgs/icons/logo.png" />
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-NCTSG4T1B6"></script>
   <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-NCTSG4T1B6');</script>
@@ -39,7 +39,7 @@
       <a class="shortcut add">
         <img alt="AddShortcut"
           src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Plus_symbol.svg/1707px-Plus_symbol.svg.png" />
-        <p>Add shortcut</p>
+        <p>Add</p>
       </a>
     </div>
   </div>
@@ -88,7 +88,7 @@
     <pre id="uv-error-code"></pre>
   </div>
   <script type="module">
-    import { SettingsManager } from "/assets/settings_manager.js";
+    import { SettingsManager } from "/assets/js/settings_manager.js";
   
     window.settings = new SettingsManager(); 
     async function updateSearchInput() {
@@ -108,12 +108,12 @@
       }
     });
   </script>
-  <script src="/assets/main.js"></script>
+  <script src="/assets/js/main.js"></script>
   <script src="/uv/uv.bundle.js"></script>
   <script src="/uv/uv.config.js"></script>
   <script src="/uv/uv.sw.js"></script>
   <script src="/uv/uv.config.js"></script>
-  <script src="/assets/search.js"></script>
+  <script src="/assets/js/search.js"></script>
   <script>
     try {
       parent.updateOmni();

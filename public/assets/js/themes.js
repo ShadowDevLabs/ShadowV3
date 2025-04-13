@@ -25,21 +25,37 @@ export async function setTheme(theme) {
   const root = document.documentElement;
 
   const cssVariables = {
-    '--background-color': '',
-    '--tab-background': '',
-    '--tab-border': '',
-    '--text-color': '',
-    '--accent-color': ''
+    '--background': '',
+    '--home-bg': '',
+    '--primary': '',
+    '--primary-dark': '',
+    '--secondary': '',
+    '--accent': '',
+    '--accent-light': '',
+    '--accent-glow': '',
+    '--border': '',
+    '--text': '',
+    '--text-muted': '',
+    '--hover-danger': '',
+    '--active-tab': ''
   };
 
   if (theme === "custom") {
     const customTheme = JSON.parse(await settings.get("custom"));
     root.className = "custom";
-    cssVariables['--background-color'] = customTheme.backgroundColor;
-    cssVariables['--tab-background'] = customTheme.tabBackground;
-    cssVariables['--tab-border'] = customTheme.tabBorder;
-    cssVariables['--text-color'] = customTheme.textColor;
-    cssVariables['--accent-color'] = customTheme.accentColor;
+    cssVariables['--background'] = customTheme.background;
+    cssVariables['--home-bg'] = customTheme.homeBg;
+    cssVariables['--primary'] = customTheme.primary;
+    cssVariables['--primary-dark'] = customTheme.primaryDark;
+    cssVariables['--secondary'] = customTheme.secondary;
+    cssVariables['--accent'] = customTheme.accent;
+    cssVariables['--accent-light'] = customTheme.accentLight;
+    cssVariables['--accent-glow'] = customTheme.accentGlow;
+    cssVariables['--border'] = customTheme.border;
+    cssVariables['--text'] = customTheme.text;
+    cssVariables['--text-muted'] = customTheme.textMuted;
+    cssVariables['--hover-danger'] = customTheme.hoverDanger;
+    cssVariables['--active-tab'] = customTheme.activeTab;
   } else {
     root.className = theme;
     clearRootVars(Object.keys(cssVariables));
@@ -89,15 +105,30 @@ function shadeColor(color, percent) {
   return `#${RR}${GG}${BB}`;
 }
 
+function hexToRgb(hex) {
+  const r = parseInt(hex.substring(1, 3), 16);
+  const g = parseInt(hex.substring(3, 5), 16);
+  const b = parseInt(hex.substring(5, 7), 16);
+  return `${r}, ${g}, ${b}`;
+}
+
+
 function genTheme(baseColor) {
   const themeVariables = {
-    backgroundColor: shadeColor(baseColor, -75),
-    tabBackground: shadeColor(baseColor, -40),
-    tabBorder: shadeColor(baseColor, 20),
-    textColor: '#ffffff',
-    accentColor: shadeColor(baseColor, 30),
+    background: `linear-gradient(145deg, ${shadeColor(baseColor, -75)}, ${shadeColor(baseColor, -60)})`,
+    homeBg: `linear-gradient(145deg, ${shadeColor(baseColor, -45)}, ${shadeColor(baseColor, -75)}, ${shadeColor(baseColor, -90)})`,
+    primary: shadeColor(baseColor, -75),
+    primaryDark: shadeColor(baseColor, -85),
+    secondary: shadeColor(baseColor, -65),
+    accent: shadeColor(baseColor, 20),
+    accentLight: shadeColor(baseColor, 40),
+    accentGlow: `rgba(${hexToRgb(baseColor)}, 0.2)`,
+    border: `rgba(${hexToRgb(baseColor)}, 0.3)`,
+    text: '#fff',
+    textMuted: `rgba(${hexToRgb(shadeColor(baseColor, 60))}, 0.8)`,
+    hoverDanger: '#f87171',
+    activeTab: `linear-gradient(145deg, ${shadeColor(baseColor, -20)}, ${shadeColor(baseColor, -65)})`
   };
-
   return themeVariables;
 }
 
