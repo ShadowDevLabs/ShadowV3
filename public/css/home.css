@@ -36,6 +36,7 @@ h1 {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 12px var(--accent-glow);
+  cursor:pointer;
   letter-spacing: -1px;
   margin-top: 0.5rem;
 }
@@ -57,6 +58,7 @@ p {
   color: var(--text-muted);
   max-width: 700px;
   letter-spacing: 0.4px;
+  cursor:pointer;
   line-height: 1.6;
   margin-top: -9.9rem;
   opacity: 0.9;
