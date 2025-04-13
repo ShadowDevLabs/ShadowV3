@@ -285,7 +285,7 @@ class Tab {
     if (src.startsWith("shadow://")) {
       icon = `/assets/imgs/icons/pages/${src.replace("shadow://", "")}.png`;
     } else {
-      icon = `https://www.google.com/s2/favassets/imgs/icons?domain=${src}&sz=24`;
+      icon = `https://www.google.com/s2/favicons/imgs/icons?domain=${src}&sz=24`;
     }
     const title = this.tabsArr[this.activeTabIndex].title || this.tabsArr[i].iframe.contentDocument.title;
 
