@@ -116,16 +116,16 @@ function hexToRgb(hex) {
 function genTheme(baseColor) {
   const themeVariables = {
     background: `linear-gradient(145deg, ${shadeColor(baseColor, -75)}, ${shadeColor(baseColor, -60)})`,
-    homeBg: `url("/assets/imgs/backgrounds/home/blue.jpg")`,
+    homeBg: `linear-gradient(145deg, ${shadeColor(baseColor, -45)}, ${shadeColor(baseColor, -75)}, ${shadeColor(baseColor, -90)})`,
     primary: shadeColor(baseColor, -75),
     primaryDark: shadeColor(baseColor, -85),
     secondary: shadeColor(baseColor, -65),
-    accent: baseColor,
+    accent: shadeColor(baseColor, 20),
     accentLight: shadeColor(baseColor, 40),
     accentGlow: `rgba(${hexToRgb(baseColor)}, 0.2)`,
     border: `rgba(${hexToRgb(baseColor)}, 0.3)`,
-    text: '#e0f2fe',
-    textMuted: '#bae6fd',
+    text: '#fff',
+    textMuted: `rgba(${hexToRgb(shadeColor(baseColor, 60))}, 0.8)`,
     hoverDanger: '#f87171',
     activeTab: `linear-gradient(145deg, ${shadeColor(baseColor, -20)}, ${shadeColor(baseColor, -65)})`
   };

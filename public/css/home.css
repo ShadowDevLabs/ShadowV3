@@ -12,7 +12,7 @@ body {
   gap: 1.4rem;
   min-height: 100vh;
   overflow: hidden;
-  background-image:var(--home-bg);
+  background:var(--home-bg);
   background-position: 0% 50%;
   background-repeat: no-repeat;
   background-size: cover;
