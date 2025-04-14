@@ -16,7 +16,7 @@
 
 :root.shadow {
   --background: linear-gradient(145deg, #0b0013, #15001f);
-  --home-bg: url("https://cdn.wallpapersafari.com/31/56/NxQ8jJ.jpg");
+  --home-bg: url("/assets/imgs/backgrounds/home/purple.jpg");
   --primary: #12001f;
   --primary-dark: #0a0015;
   --secondary: #1a0a2b;
@@ -48,7 +48,7 @@
 
 :root.matrix {
   --background: linear-gradient(145deg, #000c05, #001a0f);
-  --home-bg: url("https://www.itl.cat/pngfile/big/295-2951654_black-and-neon-green-wallpaper-black-and-neon.jpg");
+  --home-bg: url("/assets/imgs/backgrounds/home/green.jpg");
   --primary: #001a0f;
   --primary-dark: #000d07;
   --secondary: #003b22;
