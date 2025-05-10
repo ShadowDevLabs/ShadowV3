@@ -1,0 +1,3 @@
+[submodule "public/books/files"]
+	path = public/books/files
+	url = https://github.com/Nailington/3kh0-assets/js.git

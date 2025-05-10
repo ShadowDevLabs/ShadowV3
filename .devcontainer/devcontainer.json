@@ -1,0 +1,11 @@
+{
+  "name": "Shadow",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "node",
+  "features": {
+    "ghcr.io/devcontainers-contrib/features/node-asdf:0": {}
+  },
+  "postCreateCommand": "npm start"
+}

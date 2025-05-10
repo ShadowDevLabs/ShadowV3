@@ -74,5 +74,24 @@
             "hover-danger": "#16a34a",
             "active-tab": "linear-gradient(145deg, #39ff14, var(--secondary))"
         }
+    },
+    {
+        "name": "Opera GX",
+        "value": "operagx",
+        "css": {
+            "background": "linear-gradient(145deg, #0d0606, #040000)",
+            "home-bg": "url('/assets/imgs/backgrounds/home/operagx.jpg')",
+            "primary": "#090505",
+            "primary-dark": "#0a0b10",
+            "secondary": "#000",
+            "accent": "#ff0050",
+            "accent-light": "#ff4f87",
+            "accent-glow": "rgba(255, 0, 80, 0.15)",
+            "border": "rgba(255, 0, 80, 0.25)",
+            "text": "#f0f0f5",
+            "text-muted": "#a0a0b2",
+            "hover-danger": "#ff4f87",
+            "active-tab": "linear-gradient(145deg, #ff0050, #1a1b22)"
+        }
     }
 ]
