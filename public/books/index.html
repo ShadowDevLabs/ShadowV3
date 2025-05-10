@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/books.css" />
+  <link rel="stylesheet" href="../css/themes.css" />
+  <script src="/assets/js/themes.js" type="module"></script>
+
+  <title>Games</title>
+</head>
+
+<body>
+  <h1>Games</h1>
+  <div class="search-container">
+    <input type="text" id="__shadow-search-bar" placeholder="Search Games..." autocomplete="off" />
+  </div>
+
+  <div class="gcontainer" id="gcontainer"></div>
+ 
+  <div class="gDisplay">
+    <div class="nav-controls">
+      <div class="logo">
+        <img class="gDisplayimg" id="gDisplayImg"></img>
+        <div class="gDisplayname" id="gDisplayName"></div>
+      </div>
+      <div class="controls">
+      <!-- Buttons Begin-->
+        <!-- Refresh Btn-->
+        <button id="refresh">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" ><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg>
+        </button>  
+
+        <!-- Fullscreen Btn-->
+        <button id="fullscreen">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M120-120v-200h80v120h120v80H120Zm520 0v-80h120v-120h80v200H640ZM120-640v-200h200v80H200v120h-80Zm640 0v-120H640v-80h200v200h-80Z"/></svg>        </button>  
+
+        <!--- Exit Btn -->
+        <button id="exit">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M200-120q-33 0-56.5-23.5T120-200v-160h80v160h560v-560H200v160h-80v-160q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm220-160-56-58 102-102H120v-80h346L364-622l56-58 200 200-200 200Z"/></svg>  
+        </button>
+        </div>
+      </div>
+      <iframe src="" class="gIframe" id="gIframe"></iframe>
+    </div>
+ 
+  <script src="script.js"></script>
+</body>
+
+</html>

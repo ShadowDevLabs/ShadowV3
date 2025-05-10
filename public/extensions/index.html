@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="../css/overlay.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <title>Extensions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Poppins&family=Roboto&family=Rubik&display=swap"
+    rel="stylesheet" />
+</head>
+
+<body>
+  <div class="overlay">
+    EXTENSIONS COMING SOON
+  </div>
+
+  <header>
+    <div class="header-content">
+      <div class="logo-container">
+        <div class="logo">
+          <h1>Extensions</h1>
+        </div>
+        <nav>
+          <ul>
+            <li><a href="index.html">Discover</a></li>
+            <li><a href="./manage/">Extensions</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="search-container">
+        <i class="fa-solid fa-search search-icon"></i>
+        <input type="text" placeholder="Search Extensions" class="search-input" />
+      </div>
+    </div>
+  </header>
+  <section class="hero-section">
+    <div class="hero-content">
+      <h2>Welcome to Shadow Extensions</h2>
+      <p>Supercharge your browsing experience with extensions for Shadow.</p>
+      <div class="extensions">
+        <img
+          src="https://lh3.googleusercontent.com/TFO5gDBZMhZOyeKAozOLYsxulAwh_RT7qY3vdqKt_8NTMWQjSNRLFc9CjPdkC2MSPimqwSB__nG24HKw4Y1hMdtLLw=s80" />
+        <img
+          src="https://lh3.googleusercontent.com/TFO5gDBZMhZOyeKAozOLYsxulAwh_RT7qY3vdqKt_8NTMWQjSNRLFc9CjPdkC2MSPimqwSB__nG24HKw4Y1hMdtLLw=s80" />
+        <img
+          src="https://lh3.googleusercontent.com/TFO5gDBZMhZOyeKAozOLYsxulAwh_RT7qY3vdqKt_8NTMWQjSNRLFc9CjPdkC2MSPimqwSB__nG24HKw4Y1hMdtLLw=s80" />
+        <img
+          src="https://lh3.googleusercontent.com/TFO5gDBZMhZOyeKAozOLYsxulAwh_RT7qY3vdqKt_8NTMWQjSNRLFc9CjPdkC2MSPimqwSB__nG24HKw4Y1hMdtLLw=s80" />
+        <img
+          src="https://lh3.googleusercontent.com/TFO5gDBZMhZOyeKAozOLYsxulAwh_RT7qY3vdqKt_8NTMWQjSNRLFc9CjPdkC2MSPimqwSB__nG24HKw4Y1hMdtLLw=s80" />
+      </div>
+      <button>Browse Extensions</button>
+    </div>
+  </section>
+  <section class="extension-add">
+    <h2>Add an Extension</h2>
+    <div class="row">
+      <input type="text" name="extName" placeholder="Name" />
+      <input type="text" name="extIcon" placeholder="Icon URL" /><input type="text" name="extDesc"
+        placeholder="Description" />
+    </div>
+    <div class="row">
+      <textarea name="extCode" placeholder="Code here"></textarea>
+    </div>
+    <div class="btns">
+      <button onclick="exportExtension()">Export</button><button onclick="save()">Save</button>
+    </div>
+  </section>
+  <br />
+  <footer>
+    <p>@xNC ・ @Peak ・ <a href="discord.gg/goshadow">Discord</a></p>
+  </footer>
+</body>
+<script src="script.js"></script>
+<script>
+  onload = () => {
+    try {
+      parent.updateOmni();
+      parent.setTab();
+    } catch (e) { }
+  };
+</script>
+
+</html>

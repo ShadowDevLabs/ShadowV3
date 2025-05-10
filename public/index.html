@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shadow</title>
+
+  <!-- Meta Tags-->
+  <meta name="title" content="ShadowV3" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Tabbed, Multi-Featured, and Advanced. Quiet, Fast, Hidden." />
+  <meta name="theme-color" content="#141433">
+  <script src="/assets/js/autoblank.js" type="module"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/css/index.css" />
+  <link rel="stylesheet" href="/css/themes.css" />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&display=swap" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <script src="/assets/js/settings.js" type="module"></script>
+  <script src="/assets/js/debugger.js"></script>
+  <script>
+    window.dewasper = new Dewasper();
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/sw.js", {
+          scope: "/"
+        });
+      });
+    }
+  </script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NCTSG4T1B6"></script>
+  <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-NCTSG4T1B6');</script>
+</head>
+
+<body>
+<script src="https://partner.senty.com.au/partner.js"></script>
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div class="cell-container">
+      <div class="loading-cell"></div>
+      <div class="loading-cell"></div>
+      <div class="loading-cell"></div>
+      <div class="loading-cell"></div>
+      <div class="loading-cell"></div>
+    </div>
+    <p class="loading-text">Loading Shadow</p>
+  </div>
+
+
+  <!-- Tabs Container -->
+  <div id="tabs-container">
+    <button onclick="tabs.createTab();" id="add-tab" class="addtab-btn" style="vertical-align: text-bottom">
+      <svg xmlns="http://www.w3.org/2000/svg" class="icons" height="24px" viewBox="0 -960 960 960" width="24px">
+        <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Header -->
+  <div id="header">
+    <button id="back-button" class="control-button" style="margin-left: 5px" onclick="tabs.backward()">
+      <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" class="icons">
+        <path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z" />
+      </svg>
+    </button>
+    <button id="forward-button" class="control-button" onclick="tabs.forward()"><svg xmlns="http://www.w3.org/2000/svg"
+        height="20px" viewBox="0 -960 960 960" width="20px" class="icons">
+        <path d="M647-440H160v-80h487L423-744l57-56 320 320-320 320-57-56 224-224Z" />
+      </svg>
+    </button>
+    <button id="refresh-button" class="control-button" onclick="tabs.refresh()">
+      <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" class="icons">
+        <path
+          d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z" />
+      </svg>
+    </button>
+
+    <form id="uv-form" class="inputcontainermain">
+      <input type="text" id="__shadow-search-bar" placeholder="Search or enter a URL" autocomplete="off" />
+      <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
+    </form>
+
+    <div id="menu-button" class="menu-button" style="margin-left: 7px"><svg xmlns="http://www.w3.org/2000/svg"
+        height="24px" viewBox="0 -960 960 960" width="24px" class="icons">
+        <path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/>
+      </svg>
+    </div>
+  </div>
+  <div class="input-wrapper">
+    <div id="suggestions" class="suggestions hidden">
+      <div class="suggestion-item" onclick='tabs.load(this.dataset.url); tabs.hideSuggestions()'></div>
+      <div class="suggestion-item" onclick='tabs.load(this.dataset.url); tabs.hideSuggestions()'></div>
+      <div class="suggestion-item" onclick='tabs.load(this.dataset.url); tabs.hideSuggestions()'></div>
+      <div class="suggestion-item" onclick='tabs.load(this.dataset.url); tabs.hideSuggestions()'></div>
+      <div class="suggestion-item" onclick='tabs.load(this.dataset.url); tabs.hideSuggestions()'></div>
+    </div>
+  </div>
+
+
+  <!-- Warning for Broken Site -->
+  <div id="disclaimerSite" class="disclaimer" style="display: none;">
+    <h3>Disclaimer</h3>
+    <p>You're attempting to reach a broken site, would you like to be redirected to <span
+        id="siteRedirect">{site}</span>?</p>
+    <button onclick="">Yes</button>
+    <button onclick="">No</button>
+  </div>
+
+  <!-- BG OVERLAY -->
+  <div id="overlay" class="overlay" style="display: none;"></div>
+
+  <!-- Dropdown Menu -->
+  <div id="menu-dropdown" class="dropdown-content" style="display: none">
+    <table>
+      <tr>
+        <td id="new-tab" onclick='tabs.createTab("shadow:/\/new");'>
+          <button data-add-tab>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
+              <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
+            </svg>
+            New tab
+          </button>
+        </td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td>
+          <button data-add-tab onclick="bookmarksManager.newBookmark()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
+              <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
+            </svg>
+            Add Bookmark
+          </button>
+        </td>
+      </tr>
+    </table>
+    <div class="separator"></div>
+    <table>
+      <tr>
+        <td>
+          <button data-add-tab onclick='tabs.createTab("shadow:/\/settings")'>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
+              <path
+                d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z" />
+            </svg>
+            Settings
+          </button>
+        </td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td>
+          <button data-add-tab onclick='tabs.createTab("shadow:/\/games")'>      
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
+              <path d="M189-160q-60 0-102.5-43T42-307q0-9 1-18t3-18l84-336q14-54 57-87.5t98-33.5h390q55 0 98 33.5t57 87.5l84 336q2 9 3.5 18.5T919-306q0 61-43.5 103.5T771-160q-42 0-78-22t-54-60l-28-58q-5-10-15-15t-21-5H385q-11 0-21 5t-15 15l-28 58q-18 38-54 60t-78 22Zm3-80q19 0 34.5-10t23.5-27l28-57q15-31 44-48.5t63-17.5h190q34 0 63 18t45 48l28 57q8 17 23.5 27t34.5 10q28 0 48-18.5t21-46.5q0 1-2-19l-84-335q-7-27-28-44t-49-17H285q-28 0-49.5 17T208-659l-84 335q-2 6-2 18 0 28 20.5 47t49.5 19Zm348-280q17 0 28.5-11.5T580-560q0-17-11.5-28.5T540-600q-17 0-28.5 11.5T500-560q0 17 11.5 28.5T540-520Zm80-80q17 0 28.5-11.5T660-640q0-17-11.5-28.5T620-680q-17 0-28.5 11.5T580-640q0 17 11.5 28.5T620-600Zm0 160q17 0 28.5-11.5T660-480q0-17-11.5-28.5T620-520q-17 0-28.5 11.5T580-480q0 17 11.5 28.5T620-440Zm80-80q17 0 28.5-11.5T740-560q0-17-11.5-28.5T700-600q-17 0-28.5 11.5T660-560q0 17 11.5 28.5T700-520Zm-360 60q13 0 21.5-8.5T370-490v-40h40q13 0 21.5-8.5T440-560q0-13-8.5-21.5T410-590h-40v-40q0-13-8.5-21.5T340-660q-13 0-21.5 8.5T310-630v40h-40q-13 0-21.5 8.5T240-560q0 13 8.5 21.5T270-530h40v40q0 13 8.5 21.5T340-460Zm140-20Z"/>
+            </svg>
+            Games
+          </button>
+        </td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td>
+          <button data-add-tab onclick='tabs.createTab("shadow://ai")'>     
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
+              <path d="M400-240q-33 0-56.5-23.5T320-320v-50q-57-39-88.5-100T200-600q0-117 81.5-198.5T480-880q117 0 198.5 81.5T760-600q0 69-31.5 129.5T640-370v50q0 33-23.5 56.5T560-240H400Zm0-80h160v-92l34-24q41-28 63.5-71.5T680-600q0-83-58.5-141.5T480-800q-83 0-141.5 58.5T280-600q0 49 22.5 92.5T366-436l34 24v92Zm0 240q-17 0-28.5-11.5T360-120v-40h240v40q0 17-11.5 28.5T560-80H400Zm80-520Z"/>
+            </svg> AI
+          </button>
+        </td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td>
+          <button data-add-tab onclick='alert("Coming in Shadow 3.1.1")'>     
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
+              <path d="M240-400h320v-80H240v80Zm0-120h480v-80H240v80Zm0-120h480v-80H240v80ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z"/>
+            </svg> Chat
+          </button>
+        </td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td>
+          <button data-add-tab onclick='tabs.toggleDevTools()'>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
+              <path
+                d="M320-240 80-480l240-240 57 57-184 184 183 183-56 56Zm320 0-57-57 184-184-183-183 56-56 240 240-240 240Z" />
+            </svg>
+            Devtools
+          </button>
+        </td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td>
+          <button data-add-tab onclick='tabs.createTab("discord.gg/goshadow")'>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" class="menu-icons">
+              <path
+                d="M524.531,69.836a1.5,1.5,0,0,0-.764-.7A485.065,485.065,0,0,0,404.081,32.03a1.816,1.816,0,0,0-1.923.91,337.461,337.461,0,0,0-14.9,30.6,447.848,447.848,0,0,0-134.426,0,309.541,309.541,0,0,0-15.135-30.6,1.89,1.89,0,0,0-1.924-.91A483.689,483.689,0,0,0,116.085,69.137a1.712,1.712,0,0,0-.788.676C39.068,183.651,18.186,294.69,28.43,404.354a2.016,2.016,0,0,0,.765,1.375A487.666,487.666,0,0,0,176.02,479.918a1.9,1.9,0,0,0,2.063-.676A348.2,348.2,0,0,0,208.12,430.4a1.86,1.86,0,0,0-1.019-2.588,321.173,321.173,0,0,1-45.868-21.853,1.885,1.885,0,0,1-.185-3.126c3.082-2.309,6.166-4.711,9.109-7.137a1.819,1.819,0,0,1,1.9-.256c96.229,43.917,200.41,43.917,295.5,0a1.812,1.812,0,0,1,1.924.233c2.944,2.426,6.027,4.851,9.132,7.16a1.884,1.884,0,0,1-.162,3.126,301.407,301.407,0,0,1-45.89,21.83,1.875,1.875,0,0,0-1,2.611,391.055,391.055,0,0,0,30.014,48.815,1.864,1.864,0,0,0,2.063.7A486.048,486.048,0,0,0,610.7,405.729a1.882,1.882,0,0,0,.765-1.352C623.729,277.594,590.933,167.465,524.531,69.836ZM222.491,337.58c-28.972,0-52.844-26.587-52.844-59.239S193.056,219.1,222.491,219.1c29.665,0,53.306,26.82,52.843,59.239C275.334,310.993,251.924,337.58,222.491,337.58Zm195.38,0c-28.971,0-52.843-26.587-52.843-59.239S388.437,219.1,417.871,219.1c29.667,0,53.307,26.82,52.844,59.239C470.715,310.993,447.538,337.58,417.871,337.58Z" />
+            </svg> Discord
+          </button>
+        </td>
+      </tr>
+    </table>
+    <div class="separator"></div>
+    <table>
+      <tr>
+        <td>
+          <button data-add-tab onclick="iframefullscreen()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
+              <path
+                d="M120-120v-200h80v120h120v80H120Zm520 0v-80h120v-120h80v200H640ZM120-640v-200h200v80H200v120h-80Zm640 0v-120H640v-80h200v200h-80Z" />
+            </svg>
+            Fullscreen
+          </button>
+        </td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td>
+          <button data-add-tab onclick="abtblank()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
+              <path
+                d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h560v-280h80v280q0 33-23.5 56.5T760-120H200Zm188-212-56-56 372-372H560v-80h280v280h-80v-144L388-332Z" />
+            </svg> 
+            Open About:Blank
+          </button>
+        </td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td>
+          <button data-add-tab onclick="iframeabtblank()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
+              <path
+                d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h560v-280h80v280q0 33-23.5 56.5T760-120H200Zm188-212-56-56 372-372H560v-80h280v280h-80v-144L388-332Z" />
+            </svg>
+            Open Tab in Abt:Blank
+          </button>
+        </td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td>
+          <button data-add-tab onclick="navigator.clipboard.writeText(dewasper.dump());">
+            <svg xmlns="http://www.w3.org/2000/svg"viewBox="0 -960 960 960" class="menu-icons">
+              <path
+                d="M480-200q66 0 113-47t47-113v-160q0-66-47-113t-113-47q-66 0-113 47t-47 113v160q0 66 47 113t113 47Zm-80-120h160v-80H400v80Zm0-160h160v-80H400v80Zm80 40Zm0 320q-65 0-120.5-32T272-240H160v-80h84q-3-20-3.5-40t-.5-40h-80v-80h80q0-20 .5-40t3.5-40h-84v-80h112q14-23 31.5-43t40.5-35l-64-66 56-56 86 86q28-9 57-9t57 9l88-86 56 56-66 66q23 15 41.5 34.5T688-640h112v80h-84q3 20 3.5 40t.5 40h80v80h-80q0 20-.5 40t-3.5 40h84v80H688q-32 56-87.5 88T480-120Z" />
+            </svg>
+            Dump Debug Info
+          </button>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Bookmarks Container -->
+  <div id="bookmarks-container"></div>
+  <div class="context-menu" id="bookmark-context-menu" style="display: none">
+    <div class="menu-item" onclick="editBookmark(`${title}`, `${url}`)">
+      Edit
+    </div>
+    <div class="menu-item" onclick="deleteBookmark(`${title}`, `${url}`)">
+      Delete
+    </div>
+  </div>
+  <!-- Iframes Container -->
+  <div id="iframes-container"></div>
+  <div class="desc left-margin">
+    <p id="uv-error"></p>
+    <pre id="uv-error-code"></pre>
+  </div>
+  <!-- Dev extension warning -->
+  <div class="extensions_disclaimer" style="display: none" id="dev-alert">
+    <div class="extensions_disclaimer_content">
+      <h2 style="color: var(--accent-color)">Warning</h2>
+      <p id="dev-alert-text"></p>
+      <div class="buttons">
+        <button class="continue-button" onclick="devWarning(true)">
+          Continue
+        </button>
+        <button class="cancel-button" onclick="devWarning(false)">
+          Cancel
+        </button>
+      </div>
+      <label for="remember-choice">
+        <input type="checkbox" id="remember-choice" /> Remember Choice
+      </label>
+    </div>
+  </div>
+  <!--DEV STUFF-->
+  <!-- <button class="powered-by-container" style="right:0; top:0;" onclick="reset()">Reset</button> -->
+  <!--DEV STUFF-->
+  <!--- <a id="billigerhost" class="powered-by-container" style="left: 0; bottom: 0" target="_blank">
+    <img src="/assets/imgs/icons/billigerhost.ico" alt="billigerhost Logo" />
+    <span class="powered-by-text"><span style="color: #ad271f">Billiger</span>Host</span>
+  </a> -->
+
+  <!-- <a id="discord" class="discord" target="_blank">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" height="20" width="20" class="icons">
+      <path
+        d="M524.531,69.836a1.5,1.5,0,0,0-.764-.7A485.065,485.065,0,0,0,404.081,32.03a1.816,1.816,0,0,0-1.923.91,337.461,337.461,0,0,0-14.9,30.6,447.848,447.848,0,0,0-134.426,0,309.541,309.541,0,0,0-15.135-30.6,1.89,1.89,0,0,0-1.924-.91A483.689,483.689,0,0,0,116.085,69.137a1.712,1.712,0,0,0-.788.676C39.068,183.651,18.186,294.69,28.43,404.354a2.016,2.016,0,0,0,.765,1.375A487.666,487.666,0,0,0,176.02,479.918a1.9,1.9,0,0,0,2.063-.676A348.2,348.2,0,0,0,208.12,430.4a1.86,1.86,0,0,0-1.019-2.588,321.173,321.173,0,0,1-45.868-21.853,1.885,1.885,0,0,1-.185-3.126c3.082-2.309,6.166-4.711,9.109-7.137a1.819,1.819,0,0,1,1.9-.256c96.229,43.917,200.41,43.917,295.5,0a1.812,1.812,0,0,1,1.924.233c2.944,2.426,6.027,4.851,9.132,7.16a1.884,1.884,0,0,1-.162,3.126,301.407,301.407,0,0,1-45.89,21.83,1.875,1.875,0,0,0-1,2.611,391.055,391.055,0,0,0,30.014,48.815,1.864,1.864,0,0,0,2.063.7A486.048,486.048,0,0,0,610.7,405.729a1.882,1.882,0,0,0,.765-1.352C623.729,277.594,590.933,167.465,524.531,69.836ZM222.491,337.58c-28.972,0-52.844-26.587-52.844-59.239S193.056,219.1,222.491,219.1c29.665,0,53.306,26.82,52.843,59.239C275.334,310.993,251.924,337.58,222.491,337.58Zm195.38,0c-28.971,0-52.843-26.587-52.843-59.239S388.437,219.1,417.871,219.1c29.667,0,53.307,26.82,52.844,59.239C470.715,310.993,447.538,337.58,417.871,337.58Z" />
+    </svg>
+  </a>-->
+
+
+
+  <!-- Scripts -->
+  <script src="/assets/js/search.js"></script>
+  <script src="/assets/js/themes.js" type="module"></script>
+  <script src="/assets/js/options.js"></script>
+  <script src="/assets/js/search.js"></script>
+  <script src="/uv/uv.bundle.js"></script>
+  <script src="/uv/uv.config.js"></script>
+  <script src="/uv/uv.sw.js"></script>
+  <script src="/uv/uv.config.js"></script>
+  <scirpt src="/assets/js/panic.js"></scirpt>
+  <script src="/assets/js/tabs.js" type="module" defer></script>
+  <script src="/assets/js/bookmarks.js" type="module"></script>
+  <script type="module" async>
+    import { SettingsManager } from "/assets/js/settings_manager.js"
+    import { changeTheme } from "/assets/js/themes.js"
+
+    window.changeTheme = changeTheme;
+    window.settings = new SettingsManager();
+    window.settings.default(
+      "search-engine",
+      "https://www.google.com/search?q=%s",
+    );
+    document.getElementById("uv-search-engine").value =
+      await window.settings.get("search-engine");
+  </script>
+
+  <script>
+    function updtSearchEngine(value) {
+      document.getElementById("uv-search-engine").value = value;
+    }
+
+    window.addEventListener("settings", (event) => {
+      if (event.detail.key === "search-engine") {
+        updtSearchEngine(event.detail.newValue);
+      }
+    });
+  </script>
+  <script>
+    async function reset() {
+      await tabs.settings.clear();
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (const registration of registrations) {
+          registration.unregister();
+        }
+      });
+      location.reload();
+    }
+
+    function saveCurrentTabs() {
+      tabs.saveTabs();
+    }
+
+    function updateOmni() {
+      tabs.updateOmni();
+    }
+
+    function setTab() {
+      tabs.setTab();
+    }
+
+    function createTab(i) {
+      tabs.createTab(i);
+    }
+
+    function load(i) {
+      tabs.load(i);
+    }
+
+    function devAlert(i) {
+      let message = `You have some extensions that are NOT from the store:\n`;
+      i.forEach((a) => {
+        message += `${a}\n`;
+      });
+      message +=
+        "These could potentially be dangerous. Would you like to continue?";
+      document.getElementById("dev-alert-text").innerText = message;
+      document.getElementById("dev-alert").style.display = "block";
+    }
+
+    function devWarning(i) {
+      if (i) {
+        document.querySelector("iframe.active").contentWindow.devContinue();
+      }
+      document.getElementById("dev-alert").style.display = "none";
+    }
+
+    function updateMenu(i) {
+      const menu = document.getElementById("menu-dropdown");
+      const item = menu.children[0];
+      const newElem = item.cloneNode();
+      const a = newElem.children;
+      a.innerHTML = `button data-add-tab onclick=\"${i.onclick}\"><i class=\"${i.iconClass}\"></i> ${i.label}</button>`;
+      menu.appendChild(newElem);
+    }
+    const obj = {
+      onclick: "",
+      iconClass: "",
+      label: "",
+    };
+    updateMenu(obj);
+
+    const ua = navigator.userAgent;
+
+    if (ua.includes("OPR") || ua.includes("Firefox")) {
+      //Some features are unsupported (For example omnibox auto update omnibox)
+      if (
+        confirm(
+          "You are using an unsupported browser. \nSome features may not work, would you like to enable the experimental support features?",
+        )
+      ) {
+        showExpirmentalFeatures();
+        if (
+          confirm(
+            "Would you like to remember this choice? You can always change this in settings.",
+          )
+        ) {
+          (async function () {
+            await tabs.settings.set("expirementalSupport", true);
+          })();
+        }
+      } else {
+        console.log("[LOAD] User doesn't want experimental support features");
+      }
+    } else {
+      console.log("[LOAD] Using supported browser, continue");
+    }
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const loadingCells = document.querySelectorAll('.loading-cell');
+      const mainContent = document.querySelector('.main-content');
+
+      let currentIndex = 0;
+      const interval = setInterval(() => {
+        if (currentIndex < loadingCells.length) {
+          loadingCells[currentIndex].classList.add('loaded');
+          currentIndex++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 150);
+
+      self.stopLoad = function () {
+        document.getElementById('loading-screen').style.display = 'none';
+      }
+      setTimeout(stopLoad, 5000);
+    });
+
+
+
+    document.getElementById("__shadow-search-bar").addEventListener("focus", (e) => {
+      e.target.select();
+    });
+
+    document.getElementById("billigerhost").onclick = (e) => {
+      if (e.shiftKey) {
+        parent.createTab("https://billing.billigerhost.com");
+        setTimeout(updateOmni, 2500);
+      } else {
+        window.open("https://billing.billigerhost.com", "_blank");
+      }
+    };
+  </script>
+</body>
+
+</html>

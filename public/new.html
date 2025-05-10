@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Rubik&display=swap" rel="stylesheet" />
+  <title>New Tab</title>
+  <link rel="stylesheet" href="/css/themes.css" />
+  <script src="/assets/js/themes.js" type="module"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="icon" type="image/png" href="assets/imgs/icons/logo.png" />
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NCTSG4T1B6"></script>
+  <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-NCTSG4T1B6');</script>
+</head>
+
+<body>
+  <div class="bg-dots"></div>
+
+  <div class="container">
+    <h1>Shadow</h1>
+    <div class="search-container">
+        <p class="search-icon"> 
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+            <path
+              d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
+          </svg>
+        </p>
+        <form id="uv-form" class="inputcontainermain">
+        <input type="text" id="uv-address" placeholder="Search or enter a URL" />
+        <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
+      </form>
+    </div>
+    <div class="shortcuts">
+      <a class="shortcut add">
+        <img alt="AddShortcut"
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Plus_symbol.svg/1707px-Plus_symbol.svg.png" />
+        <p>Add</p>
+      </a>
+    </div>
+  </div>
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Add a Shortcut</h2>
+      <form id="shortcut-form">
+        <label for="shortcut-name">Name:</label>
+        <input type="text" id="shortcut-name" name="name" />
+        <label for="shortcut-url">URL:</label>
+        <input type="text" id="shortcut-url" name="url" />
+        <button type="button" id="add-shortcut">Add</button>
+      </form>
+    </div>
+  </div>
+  <div id="edit-shortcut-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeedit">&times;</span>
+      <h2>Edit Shortcut</h2>
+      <form id="edit-shortcut-form">
+        <label for="edit-shortcut-name">Name:</label>
+        <input type="text" id="edit-shortcut-name" required />
+        <label for="edit-shortcut-url">URL:</label>
+        <input type="text" id="edit-shortcut-url" required />
+        <button type="button" id="edit-shortcut">Save</button>
+      </form>
+    </div>
+  </div>
+  <div id="shortcut-context-menu" class="context-menu">
+    <li id="edit-context-menu-option"> 
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+        <path
+          d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z" />
+      </svg> Edit
+    </li>
+    <li id="delete-context-menu-option">
+      <svg xmlns="http://www.w3.org/2000/svg"viewBox="0 -960 960 960">
+        <path
+          d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z" />
+      </svg> Delete
+    </li>
+  </div>
+  <div class="desc left-margin">
+    <p id="uv-error"></p>
+    <pre id="uv-error-code"></pre>
+  </div>
+  <script type="module">
+    import { SettingsManager } from "/assets/js/settings_manager.js";
+  
+    window.settings = new SettingsManager(); 
+    async function updateSearchInput() {
+      var storedSearchEngine = await window.settings.get("search-engine");
+      var searchInput = document.getElementById("uv-search-engine");
+      searchInput.value =
+        storedSearchEngine || "https://www.google.com/search?q=%s";
+    }
+
+    updateSearchInput();
+  </script>
+  <script>
+
+    window.addEventListener("storage", function (e) {
+      if (e.key === "search-engine") {
+        updateSearchInput();
+      }
+    });
+  </script>
+  <script src="/assets/js/main.js"></script>
+  <script src="/uv/uv.bundle.js"></script>
+  <script src="/uv/uv.config.js"></script>
+  <script src="/uv/uv.sw.js"></script>
+  <script src="/uv/uv.config.js"></script>
+  <script src="/assets/js/search.js"></script>
+  <script>
+    try {
+      parent.updateOmni();
+      parent.setTab();
+    } catch (e) {
+      //Silence errors if opened on its own
+    }
+  </script>
+</body>
+
+</html>

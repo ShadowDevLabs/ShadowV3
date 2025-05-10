@@ -1,0 +1,139 @@
+body {
+  background: var(--background);
+  overflow-y: hidden;
+  background-image: var(--home-bg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: 0% 50%;
+  font-family: 'Poppins', sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  width: 90%;
+  margin: 20px auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 24px;
+}
+
+.searchBar {
+  width: 200px;
+  padding: 12px;
+  border-radius: 4px;
+  background-color: var(--secondary);
+  color: var(--text);
+  font-family: 'Poppins', sans-serif;
+  border: 1px solid var(--border);
+  transition: background-color 0.3s;
+}
+
+.searchBar:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.day-section {
+  margin-bottom: 20px;
+}
+
+.day-section h2 {
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: var(--accent);
+}
+
+.history-list {
+  background-color: var(--secondary);
+  border-radius: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+}
+
+.history-item {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.favicon {
+  width: 20px;
+  height: 20px;
+}
+
+.history-time {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.history-title {
+  color: var(--text);
+  font-size: 16px;
+}
+
+.history-actions {
+  display: flex;
+  align-items: center;
+}
+
+.history-actions input[type="checkbox"] {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: background-color 0.3s;
+}
+
+.history-actions input[type="checkbox"]:checked {
+  background-color: var(--accent);
+  border: none;
+}
+
+.deleteBtn {
+  display: inline-block;
+  background-color: var(--border);
+  color: var(--text);
+  font-family: 'Poppins', sans-serif;
+  padding: 12px 16px;
+  margin-left: auto;
+  margin-right: 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--accent);
+  border-radius: 10px;
+}

@@ -1,0 +1,78 @@
+[
+    {
+        "name": "Default",
+        "value": "default",
+        "css": {
+            "background": "linear-gradient(145deg, #010310, #080c17)",
+            "home-bg": "url('/assets/imgs/backgrounds/home/blue.jpg')",
+            "primary": "#01031d",
+            "primary-dark": "#0c0015",
+            "secondary": "#0a0e1a",
+            "accent": "#3b82f6",
+            "accent-light": "#93c5fd",
+            "accent-glow": "rgba(59, 130, 246, 0.2)",
+            "border": "rgba(59, 130, 246, 0.3)",
+            "text": "#e0f2fe",
+            "text-muted": "#bae6fd",
+            "hover-danger": "#f87171",
+            "active-tab": "linear-gradient(145deg, #1e3a8a, var(secondary))"
+        }
+    },
+    {
+        "name": "Shadow",
+        "value": "shadow",
+        "css": {
+            "background": "linear-gradient(145deg, #0b0013, #15001f)",
+            "home-bg": "url('https://cdn.wallpapersafari.com/31/56/NxQ8jJ.jpg')",
+            "primary": "#12001f",
+            "primary-dark": "#0a0015",
+            "secondary": "#1a0a2b",
+            "accent": "#a855f7",
+            "accent-light": "#d8b4fe",
+            "accent-glow": "rgba(168, 85, 247, 0.2)",
+            "border": "rgba(168, 85, 247, 0.3)",
+            "text": "#f3e8ff",
+            "text-muted": "#e9d5ff",
+            "hover-danger": "#fb7185",
+            "active-tab": "linear-gradient(145deg, #6b21a8, var(secondary))"
+        }
+    },
+    {
+        "name": "Red Sunset",
+        "value": "redsunset",
+        "css": {
+            "background": "linear-gradient(145deg, #2b001b, #490000)",
+            "home-bg": "url('/assets/imgs/backgrounds/home/red.jpg')",
+            "primary": "#2e020e",
+            "primary-dark": "#1f0101",
+            "secondary": "#450202",
+            "accent": "#ef4444",
+            "accent-light": "#f87171",
+            "accent-glow": "rgba(239, 68, 68, 0.2)",
+            "border": "rgba(239, 68, 68, 0.3)",
+            "text": "#fef2f2",
+            "text-muted": "#fee2e2",
+            "hover-danger": "#9b1c1c",
+            "active-tab": "linear-gradient(145deg, #ef4444, var(--secondary))"
+        }
+    },
+    {
+        "name": "Matrix",
+        "value": "matrix",
+        "css": {
+            "background": "linear-gradient(145deg, #000c05, #001a0f)",
+            "home-bg": "url('https://www.itl.cat/pngfile/big/295-2951654_black-and-neon-green-wallpaper-black-and-neon.jpg')",
+            "primary": "#001a0f",
+            "primary-dark": "#000d07",
+            "secondary": "#003b22",
+            "accent": "#39ff14",
+            "accent-light": "#66ff66",
+            "accent-glow": "rgba(57, 255, 20, 0.25)",
+            "border": "rgba(57, 255, 20, 0.3)",
+            "text": "#eaffea",
+            "text-muted": "#c6fdd1",
+            "hover-danger": "#16a34a",
+            "active-tab": "linear-gradient(145deg, #39ff14, var(--secondary))"
+        }
+    }
+]

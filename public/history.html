@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>History</title>
+  <link rel="stylesheet" href="/css/themes.css" />
+  <script src="/assets/js/themes.js" type="module"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="/pages/history.ico" type="image/x-icon" />
+  <link href="/css/history.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>History</h1>
+      <button class="deleteBtn" id="deleteBtn" onclick="history_helper.clear(); location.reload();">Clear History</button>
+      <input type="text" class="searchBar" placeholder="Search History">
+    </div>
+
+
+    <div id="historyEntries"></div>
+  </div>
+  <script type="module">
+    import { HistoryHelper } from "/assets/js/history_helper.js";
+    import { SettingsManager } from "/assets/js/settings_manager.js";
+
+    window.history_helper = new HistoryHelper();
+    window.settings = new SettingsManager();
+  </script>
+  <script src="/assets/js/history.js" defer></script>
+</body>
+
+</html>

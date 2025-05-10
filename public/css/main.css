@@ -1,0 +1,330 @@
+* {
+  font-family: "Poppins", sans-serif;
+  box-sizing: border-box;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+    flex-direction: column;
+
+  height: 100%;
+  background: var(--background);
+  color: var(--text);
+  overflow: hidden;
+}
+
+.bg-dots {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(var(--accent) 8%, transparent 10%) 0 0 / 25px 25px;
+  opacity: 0.2;
+  animation: dotsMove 6s linear infinite;
+  mask-image: radial-gradient(circle, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
+}
+
+@keyframes dotsMove {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -40px -40px;
+  }
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  height: 100vh;
+  margin-top: -5%;
+}
+
+h1 {
+  font-size: 90px;
+  font-weight: bold;
+  text-transform: capitalize;
+  text-align: center;
+  background: linear-gradient(45deg, var(--border), var(--accent), var(--primary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-top: 0;
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.search-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: 50px;
+  width: 35vw;
+  padding: 0 15px;
+  background: linear-gradient(145deg, var(--primary), var(--secondary), var(--primary-dark));
+  border-radius: 50px;
+  box-shadow: 0 4px 20px var(--accent-glow);
+  margin-top: -3vw;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+}
+
+.search-container:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  transform: translateY(-5px);
+}
+
+.search-container input {
+  border: none;
+  outline: none;
+  width: 34vw;
+  font-size: 16px;
+  color: var(--text);
+  background: transparent;
+  padding: 10px 15px;
+  transition: all 0.3s ease;
+}
+
+.search-container:focus-within {
+  background-color: var(--primary-dark);
+  box-shadow: 0 0 5px var(--accent);
+  border-radius: 15px;
+}
+
+.search-icon {
+  color: var(--accent);
+  cursor: pointer;
+  transition: color 0.3s ease;
+  position: absolute;
+  right: 20px;
+}
+
+.search-icon:hover {
+  color: var(--border);
+}
+
+.search-icon svg {
+  fill: var(--accent);
+  width: 20px;
+  height: 20px;
+}
+
+.shortcuts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 30px));
+  gap: 15px;
+  justify-content: center; 
+  align-items: center;     
+  width: 36vw;
+  margin-top: 30px;
+  animation: scaleIn 0.8s ease forwards;
+}
+
+.shortcut {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+  color: var(--text);
+  transition: all 0.3s;
+  width: 100px;
+  height: 90px;
+  background-color: var(--secondary);
+  border-radius: 5px;
+  padding: 10px;
+  position: relative;
+}
+
+.shortcut:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+.shortcut img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.shortcut p {
+  margin-top: 10px;
+  font-size: 15px;
+  color: var(--text);
+  display: none; 
+  position: absolute;
+  bottom: -15px;
+  background-color: var(--secondary);
+  padding: 5px;
+  font-weight: 500;
+  width: 100%;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease; 
+  transform: translateY(10px); 
+}
+
+.shortcut:hover p {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+.add img {
+  background-color: var(--accent);
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  padding-top: 100px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+  background-color: var(--primary);
+  margin: auto;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 300px;
+  color: var(--text);
+}
+
+.modal h2 {
+  color: var(--text);
+}
+
+.close {
+  color: var(--text);
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: var(--accent);
+}
+
+#shortcut-form,
+#edit-shortcut-form {
+  display: flex;
+  flex-direction: column;
+}
+
+#shortcut-form label,
+#edit-shortcut-form label {
+  color: var(--text);
+  margin-top: 10px;
+}
+
+#shortcut-form input,
+#edit-shortcut-form input {
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 8px;
+  margin-top: 5px;
+}
+
+#add-shortcut,
+#edit-shortcut {
+  background-color: var(--accent);
+  color: var(--text);
+  border: none;
+  border-radius: 5px;
+  padding: 8px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+#add-shortcut:hover {
+  background-color: var(--border);
+}
+
+#shortcut-context-menu {
+  position: absolute;
+  display: none;
+  z-index: 1;
+  background-color: var(--primary);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: left;
+  padding: 8px;
+  width: fit-content;
+  margin: 0;
+}
+
+.shortcut-context-menu ul {
+  text-decoration: none;
+  list-style: none;
+}
+
+.context-menu li {
+  padding: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px; 
+}
+
+.context-menu li:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+}
+
+svg {
+  width: 20px;
+  height: 20px;
+  vertical-align: text-top;
+  fill: var(--text);
+}
+
+.sponsor {
+  display: block;
+  border-radius: 5px;
+  opacity: 0.8;
+  margin: 0 auto;
+  max-width: 100%;
+  box-shadow: 0 0 10px 5px red;
+  position: fixed;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.5);
+  }
+  to {
+    transform: scale(1);
+  }
+}

@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <script src="/assets/js/themes.js" type="module"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/settings.css" />
+  <link rel="stylesheet" href="/css/themes.css" />
+  <title>Settings</title>
+  <link rel="icon" href="/assets/imgs/icons/logo.png" type="image/x-icon" />
+  <script src="/assets/js/settings.js" type="module"></script>
+  <script src="/uv/uv.config.js"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NCTSG4T1B6"></script>
+  <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-NCTSG4T1B6');</script>
+</head>
+
+<body onload="try {showContent('general'); parent.updateOmni(); parent.setTab();} catch(_){}">
+  <div id="sidebar">
+    <div class="menu-item" onclick="showContent('general')">  
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="sidebar-icons">
+        <path
+          d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z" />
+      </svg>
+      <span class="menu-label">General</span>
+    </div>
+    <div class="menu-item" onclick="showContent('themes')">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="sidebar-icons">
+        <path d="M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 32.5-156t88-127Q256-817 330-848.5T488-880q80 0 151 27.5t124.5 76q53.5 48.5 85 115T880-518q0 115-70 176.5T640-280h-74q-9 0-12.5 5t-3.5 11q0 12 15 34.5t15 51.5q0 50-27.5 74T480-80Zm0-400Zm-220 40q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120-160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm200 0q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120 160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17ZM480-160q9 0 14.5-5t5.5-13q0-14-15-33t-15-57q0-42 29-67t71-25h70q66 0 113-38.5T800-518q0-121-92.5-201.5T488-800q-136 0-232 93t-96 227q0 133 93.5 226.5T480-160Z"/>
+      </svg>
+      <span class="menu-label">Themes</span>
+    </div>
+    <div class="menu-item" onclick="showContent('search')">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="sidebar-icons">
+        <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
+      </svg>
+      <span class="menu-label">Search</span>
+    </div>
+    <div class="menu-item" onclick="showContent('developer')">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="sidebar-icons">
+        <path d="M320-240 80-480l240-240 57 57-184 184 183 183-56 56Zm320 0-57-57 184-184-183-183 56-56 240 240-240 240Z"/>      
+      </svg>
+      <span class="menu-label">Developer</span>
+    </div>
+  </div>
+  <div id="content">
+    <div id="general-content">
+      <div class="content-title">General</div>
+      <!-- Tabs Cloak -->
+      <div class="settings-section">
+        <h2 class="section-title">Tab Cloak</h2>
+        <div class="section-content">
+          <div class="buttons">
+            <input id="title" class="input-field" placeholder="Title" onkeyup="setTitle(this.value)" />
+            <input id="icon" class="input-field" placeholder="Favicon" onkeyup="setFavicon(this.value.trim())" />
+          </div>
+          <p class="section-content">Ready Made Cloaks</p>
+          <div class="buttons">
+            <select name="Readymade Cloaks" id="premadecloaks" class="input-field" title="Cloaks">
+              <option value="search">Google Search</option>
+              <option value="drive">Google Drive</option>
+              <option value="youtube">YouTube</option>
+              <option value="gmail">Gmail</option>
+              <option value="calendar">Google Calendar</option>
+              <option value="meets">Google Meet</option>
+              <option value="classroom">Google Classroom</option>
+              <option value="canvas">Canvas</option>
+              <option value="zoom">Zoom</option>
+              <option value="khan">Khan Academy</option>
+            </select>
+            <div class="select-buttons">
+              <button class="icon-button" onclick="setCloak()">
+                <svg xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;"
+                  viewBox="0 0 640 512"><!--!Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fontassets/imgs/icons, Inc.-->
+                  <path
+                    d="M308.5 135.3c7.1-6.3 9.9-16.2 6.2-25c-2.3-5.3-4.8-10.5-7.6-15.5L304 89.4c-3-5-6.3-9.9-9.8-14.6c-5.7-7.6-15.7-10.1-24.7-7.1l-28.2 9.3c-10.7-8.8-23-16-36.2-20.9L199 27.1c-1.9-9.3-9.1-16.7-18.5-17.8C173.9 8.4 167.2 8 160.4 8l-.7 0c-6.8 0-13.5 .4-20.1 1.2c-9.4 1.1-16.6 8.6-18.5 17.8L115 56.1c-13.3 5-25.5 12.1-36.2 20.9L50.5 67.8c-9-3-19-.5-24.7 7.1c-3.5 4.7-6.8 9.6-9.9 14.6l-3 5.3c-2.8 5-5.3 10.2-7.6 15.6c-3.7 8.7-.9 18.6 6.2 25l22.2 19.8C32.6 161.9 32 168.9 32 176s.6 14.1 1.7 20.9L11.5 216.7c-7.1 6.3-9.9 16.2-6.2 25c2.3 5.3 4.8 10.5 7.6 15.6l3 5.2c3 5.1 6.3 9.9 9.9 14.6c5.7 7.6 15.7 10.1 24.7 7.1l28.2-9.3c10.7 8.8 23 16 36.2 20.9l6.1 29.1c1.9 9.3 9.1 16.7 18.5 17.8c6.7 .8 13.5 1.2 20.4 1.2s13.7-.4 20.4-1.2c9.4-1.1 16.6-8.6 18.5-17.8l6.1-29.1c13.3-5 25.5-12.1 36.2-20.9l28.2 9.3c9 3 19 .5 24.7-7.1c3.5-4.7 6.8-9.5 9.8-14.6l3.1-5.4c2.8-5 5.3-10.2 7.6-15.5c3.7-8.7 .9-18.6-6.2-25l-22.2-19.8c1.1-6.8 1.7-13.8 1.7-20.9s-.6-14.1-1.7-20.9l22.2-19.8zM112 176a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zM504.7 500.5c6.3 7.1 16.2 9.9 25 6.2c5.3-2.3 10.5-4.8 15.5-7.6l5.4-3.1c5-3 9.9-6.3 14.6-9.8c7.6-5.7 10.1-15.7 7.1-24.7l-9.3-28.2c8.8-10.7 16-23 20.9-36.2l29.1-6.1c9.3-1.9 16.7-9.1 17.8-18.5c.8-6.7 1.2-13.5 1.2-20.4s-.4-13.7-1.2-20.4c-1.1-9.4-8.6-16.6-17.8-18.5L583.9 307c-5-13.3-12.1-25.5-20.9-36.2l9.3-28.2c3-9 .5-19-7.1-24.7c-4.7-3.5-9.6-6.8-14.6-9.9l-5.3-3c-5-2.8-10.2-5.3-15.6-7.6c-8.7-3.7-18.6-.9-25 6.2l-19.8 22.2c-6.8-1.1-13.8-1.7-20.9-1.7s-14.1 .6-20.9 1.7l-19.8-22.2c-6.3-7.1-16.2-9.9-25-6.2c-5.3 2.3-10.5 4.8-15.6 7.6l-5.2 3c-5.1 3-9.9 6.3-14.6 9.9c-7.6 5.7-10.1 15.7-7.1 24.7l9.3 28.2c-8.8 10.7-16 23-20.9 36.2L315.1 313c-9.3 1.9-16.7 9.1-17.8 18.5c-.8 6.7-1.2 13.5-1.2 20.4s.4 13.7 1.2 20.4c1.1 9.4 8.6 16.6 17.8 18.5l29.1 6.1c5 13.3 12.1 25.5 20.9 36.2l-9.3 28.2c-3 9-.5 19 7.1 24.7c4.7 3.5 9.5 6.8 14.6 9.8l5.4 3.1c5 2.8 10.2 5.3 15.5 7.6c8.7 3.7 18.6 .9 25-6.2l19.8-22.2c6.8 1.1 13.8 1.7 20.9 1.7s14.1-.6 20.9-1.7l19.8 22.2zM464 304a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
+                </svg>
+                Set
+              </button>
+              <button class="icon-button" onclick="resetTab()">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 640 512">
+                  <path
+                    d="M48.5 224L40 224c-13.3 0-24-10.7-24-24L16 72c0-9.7 5.8-18.5 14.8-22.2s19.3-1.7 26.2 5.2L98.6 96.6c87.6-86.5 228.7-86.2 315.8 1c87.5 87.5 87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3c-62.2-62.2-162.7-62.5-225.3-1L185 183c6.9 6.9 8.9 17.2 5.2 26.2s-12.5 14.8-22.2 14.8L48.5 224z" />
+                </svg>Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <br /><br />
+      <!-- About:blank -->
+      <div class="settings-section">
+        <h2 class="section-title">About:Blank</h2>
+        <div class="section-content">
+          <p class="section-text">
+            The button below opens the site as an about:blank, hiding it from
+            your history.
+          </p>
+          <button class="icon-button" onclick="aboutBlank()">
+            <svg xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 640 512"><!--!Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fontassets/imgs/icons, Inc.-->
+              <path
+                d="M156.6 384.9L125.7 354c-8.5-8.5-11.5-20.8-7.7-32.2c3-8.9 7-20.5 11.8-33.8L24 288c-8.6 0-16.6-4.6-20.9-12.1s-4.2-16.7 .2-24.1l52.5-88.5c13-21.9 36.5-35.3 61.9-35.3l82.3 0c2.4-4 4.8-7.7 7.2-11.3C289.1-4.1 411.1-8.1 483.9 5.3c11.6 2.1 20.6 11.2 22.8 22.8c13.4 72.9 9.3 194.8-111.4 276.7c-3.5 2.4-7.3 4.8-11.3 7.2l0 82.3c0 25.4-13.4 49-35.3 61.9l-88.5 52.5c-7.4 4.4-16.6 4.5-24.1 .2s-12.1-12.2-12.1-20.9l0-107.2c-14.1 4.9-26.4 8.9-35.7 11.9c-11.2 3.6-23.4 .5-31.8-7.8zM384 168a40 40 0 1 0 0-80 40 40 0 1 0 0 80z" />
+            </svg>Launch
+          </button>
+        </div>
+      </div>
+      <br /><br />
+      <div class="settings-section">
+        <h2 class="section-title">Auto Blank</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Enable automatic about:blank cloaking. This can help prevent the site from showing up in your search
+            history, and hides the site from some blockers.
+          </p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="autoBlankSwitch" onclick="setAutoBlank();" />
+            <label for="autoBlankSwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
+      <br />
+      <!--Toggle auto save/load tabs-->
+      <div class="settings-section">
+        <h2 class="section-title">Auto Save/Load Tabs</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Automatically reload tabs from older sessions, toggle auto saving
+            and loading here.
+          </p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="saveTabsSwitch" onclick="setSaveTabs();" />
+            <label for="saveTabsSwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
+      <br />
+      <div class="settings-section">
+        <h2 class="section-title">History</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Save your history! History is accessibly at <span style="cursor: pointer; color: var(--accent);"
+              onclick="top.tabs.createTab('shadow:/\/history')">shadow://history</span>
+          </p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="historySwitch" onclick="toggleHistory();" />
+            <label for="historySwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
+      <br />
+      <!-- Close Protection -->
+      <div class="settings-section">
+        <h2 class="section-title">Close Protection</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Prevent extensions and teachers from closing tabs! Will present a confirmation popup whenever an attempt to
+            close the page occurs.
+          </p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="closeProtSwitch" onclick="toggleCloseProt()" />
+            <label for="closeProtSwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Themes -->
+    <div id="themes-content">
+      <div class="content-title">Themes</div>
+
+      <!-- Premade -->
+      <div class="settings-section">
+        <h2 class="section-title">Pre-Made Themes</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Choose between the following themes. This will change the
+            appearance of the site.
+          </p>
+          <div class="themes-container" id="themes-container">
+            <!-- Theme Buttons Get Loaded here-->
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom -->
+      <div class="settings-section">
+        <h2 class="section-title">Custom Themes</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Create your own theme with the custom theme maker! Enter a base color, and we'll generate a theme for you!
+          </p>
+          <input type="color" id="themeColorPicker" name="themeColorPicker" value="#000000"> <br><br>
+          <button class="icon-button" onclick="applyCustomTheme()">
+            <svg xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;"
+              viewBox="0 0 448 512"><!--!Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fontassets/imgs/icons, Inc.-->
+              <path
+                d="M288 0L160 0 128 0C110.3 0 96 14.3 96 32s14.3 32 32 32l0 132.8c0 11.8-3.3 23.5-9.5 33.5L10.3 406.2C3.6 417.2 0 429.7 0 442.6C0 480.9 31.1 512 69.4 512l309.2 0c38.3 0 69.4-31.1 69.4-69.4c0-12.8-3.6-25.4-10.3-36.4L329.5 230.4c-6.2-10.1-9.5-21.7-9.5-33.5L320 64c17.7 0 32-14.3 32-32s-14.3-32-32-32L288 0zM192 196.8L192 64l64 0 0 132.8c0 23.7 6.6 46.9 19 67.1L309.5 320l-171 0L173 263.9c12.4-20.2 19-43.4 19-67.1z" />
+            </svg>
+            Apply Theme
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="search-content">
+      <div class="content-title">Search</div>
+      <!-- Engine -->
+      <div class="settings-section">
+        <h2 class="section-title">Search Engine</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Changing this will change the search engine used when searching.
+          </p>
+          <select id="searchEngineDropdown" class="input-field">
+            <option value="google" data-url="https://www.google.com/search?q=%s">
+              Google
+            </option>
+            <option value="bing" data-url="https://www.bing.com/search?q=%s">
+              Bing
+            </option>
+            <option value="yahoo" data-url="https://search.yahoo.com/search?p=%s">
+              Yahoo
+            </option>
+            <option value="duckduckgo" data-url="https://duckduckgo.com/?q=%s">
+              DuckDuckGo
+            </option>
+            <option value="brave" data-url="https://search.brave.com/search?q=%s">
+              Brave
+            </option>
+            <option value="yandex" data-url="https://yandex.com/search/?text=%s">
+              Yandex
+            </option>
+          </select>
+        </div>
+      </div>
+      <br />
+      <!-- Suggestions Engine -->
+      <div class="settings-section">
+        <h2 class="section-title">Suggestions Engine</h2>
+        <div class="section-content">
+          <p class="section-text">
+            The engine used for getting search suggestions
+          </p>
+          <select id="searchSuggestionsDropdown" class="input-field">
+            <option value="google" data-engine="google">
+              Google
+            </option>
+            <option value="duckduckgo" data-engine="duckduckgo">
+              DuckDuckGo
+            </option>
+            <option value="yandex" data-engine="yandex">
+              Yandex
+            </option>
+          </select>
+        </div>
+      </div>
+      <br />
+      <!-- Suggestions Engine -->
+      <div class="settings-section">
+        <h2 class="section-title">Search Suggestions</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Enable search suggestions while searching
+          </p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="searchSuggestionsSwitch" onclick="toggleSearchSuggestions()" />
+            <label for="searchSuggestionsSwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
+      <br />
+      <!-- Proxy -->
+      <!-- <div class="settings-section">
+        <h2 class="section-title">Proxy</h2>
+        <div class="section-content">
+          <p class="section-text">
+            This is the proxy that is used when searching.
+          </p>  
+          <select id="proxyDropdown" class="input-field">
+            <option value="ultraviolet">Ultraviolet</option>
+            <option value="dynamic">Dynamic</option>
+          </select>
+        </div>
+      </div> -->
+    </div>
+
+
+    <div id="developer-content">
+      <div class="content-title">Developer Tools</div>
+
+      <div class="settings-section">
+        <h2 class="section-title">Change Transport</h2>
+        <div class="section-content">
+          <p class="section-text">Change the transport and Wisp Server URL that's used when searching on Shadow.
+          </p>
+          <select id="wispSelection" onchange="wispURLOption()" class="input-field">
+            <option value="default">Default Server</option>
+            <option value="custom">Custom Server</option>
+          </select>
+
+          <select id="transportSelection" onchange="changeTransport()" class="input-field">
+            <option value="/epoxy/index.mjs">Epoxy</option>
+            <option value="/libcurl/index.mjs">Libcurl</option>
+          </select>
+          <br>
+
+          <input value="phantom.lol" style="width:90%; display:none; margin-top: 2.5vh;" class="input-field"
+            id="wispURL" /> <br>
+
+          <div class="flex-div" style="display:none;" id="wispBtn">
+            <button class="icon-button" onclick="window.setUrl(); ShowNotification('Wisp URL changed.', 'wispnoti')">
+              <svg xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 640 512"><!--!Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fontassets/imgs/icons, Inc.-->
+                <path
+                  d="M579.8 267.7c56.5-56.5 56.5-148 0-204.5c-50-50-128.8-56.5-186.3-15.4l-1.6 1.1c-14.4 10.3-17.7 30.3-7.4 44.6s30.3 17.7 44.6 7.4l1.6-1.1c32.1-22.9 76-19.3 103.8 8.6c31.5 31.5 31.5 82.5 0 114L422.3 334.8c-31.5 31.5-82.5 31.5-114 0c-27.9-27.9-31.5-71.8-8.6-103.8l1.1-1.6c10.3-14.4 6.9-34.4-7.4-44.6s-34.4-6.9-44.6 7.4l-1.1 1.6C206.5 251.2 213 330 263 380c56.5 56.5 148 56.5 204.5 0L579.8 267.7zM60.2 244.3c-56.5 56.5-56.5 148 0 204.5c50 50 128.8 56.5 186.3 15.4l1.6-1.1c14.4-10.3 17.7-30.3 7.4-44.6s-30.3-17.7-44.6-7.4l-1.6 1.1c-32.1 22.9-76 19.3-103.8-8.6C74 372 74 321 105.5 289.5L217.7 177.2c31.5-31.5 82.5-31.5 114 0c27.9 27.9 31.5 71.8 8.6 103.9l-1.1 1.6c-10.3 14.4-6.9 34.4 7.4 44.6s34.4 6.9 44.6-7.4l1.1-1.6C433.5 260.8 427 182 377 132c-56.5-56.5-148-56.5-204.5 0L60.2 244.3z" />
+              </svg>
+              Set Wisp URL
+            </button>
+            <p class="notification" id="wispnoti"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Agent -->
+      <div class="settings-section">
+        <h2 class="section-title">Custom User Agent</h2>
+        <div class="section-content">
+          <p class="section-text">Switch between different user agents. Some agents may cause issues.</p>
+          <input placeholder="" style="width:90%;" class="input-field" id="customUserAgent" /> <br><br>
+          <button class="icon-button" id="ua"
+            onclick="customUA = document.getElementById('customUserAgent').value; setUA(customUA);">Choose
+            Agent</button>
+        </div>
+      </div> <br>
+
+      <!-- Dump Dev Tools - -->
+      <div class="settings-section">
+        <h2 class="section-title">Dump Error Logs</h2>
+        <div class="section-content">
+          <p class="section-text">Access all the errror logs. (Debugging Tool)</p>
+          <button class="icon-button" onclick="navigator.clipboard.writeText(parent.dewasper.dump());">
+            <svg xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 640 512"><!--!Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fontassets/imgs/icons, Inc.-->
+              <path
+                d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 242.7-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7 288 32zM64 352c-35.3 0-64 28.7-64 64l0 32c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-32c0-35.3-28.7-64-64-64l-101.5 0-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352 64 352zm368 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48z" />
+            </svg>
+            Dump
+          </button>
+        </div>
+
+      </div>
+    </div>
+    <script type="module">
+      import { SettingsManager } from "/assets/js/settings_manager.js"
+      import { checkWispUrl } from "/assets/js/wispchecker.js"
+      import { changeTheme as _changeTheme, applyCustomTheme as _applyCustomTheme } from "/assets/js/themes.js"
+      import { HistoryHelper } from "/assets/js/history_helper.js"
+
+      window.changeTheme = _changeTheme;
+      window.applyCustomTheme = _applyCustomTheme;
+      window.settings = new SettingsManager();
+      window.historyHelper = new HistoryHelper();
+      document.getElementById("autoBlankSwitch").checked = await window.settings.get('auto-blank');
+      document.getElementById("historySwitch").checked = await window.settings.get('history');
+      document.getElementById("saveTabsSwitch").checked = await window.settings.get("save-tabs");
+      document.getElementById("closeProtSwitch").checked = await window.settings.get('close-protection');
+      document.getElementById("searchSuggestionsSwitch").checked = await window.settings.get('search-suggestions');
+      document.getElementById("transportSelection").value = await window.settings.get('transport');
+      document.getElementById("customUserAgent").value = await window.settings.get('user-agent') || navigator.userAgent;
+      document.getElementById("searchSuggestionsDropdown").value = await window.settings.get('search-suggestions-engine');
+      const urlToValueMap = {
+        "https://www.google.com/search?q=%s": "google",
+        "https://www.bing.com/search?q=%s": "bing",
+        "https://search.yahoo.com/search?p=%s": "yahoo",
+        "https://duckduckgo.com/?q=%s": "duckduckgo",
+        "https://search.brave.com/search?q=%s": "brave",
+        "https://yandex.com/search/?text=%s": "yandex"
+      };
+      document.getElementById("searchEngineDropdown").value = urlToValueMap[await window.settings.get('search-engine')];
+
+      if (!(await window.settings.get("server")).startsWith(`wss://${location.host}`)) {
+        document.getElementById("wispSelection").value = 'custom';
+        wispURLOption();
+      }
+
+      window.setUA = async function (agent) {
+        agent = agent || navigator.userAgent;
+        await window.settings.set("user-agent", agent);
+        navigator.serviceWorker.register("/sw.js", {
+          scope: "/"
+        });
+        document.getElementById("customUserAgent").value = await window.settings.get("user-agent");
+      }
+
+      window.setUrl = async function (url = document.getElementById('wispURL').value) {
+        const wsUrl = await checkWispUrl(url);
+        await window.settings.set("server", wsUrl);
+        parent.tabs.setTransport();
+      }
+    </script>
+
+    <script defer>
+      async function toggleSearchSuggestions() {
+        await window.settings.toggle("search-suggestions");
+        parent.tabs.searchSuggestions = await window.settings.get("search-suggestions");
+      }
+
+      async function toggleCloseProt() {
+        await window.settings.toggle("close-protection");
+        if (!await window.settings.get("close-protection")) {
+          top.onbeforeunload = null;
+        } else {
+          top.onbeforeunload = function (e) { e.preventDefault(); return true; /* Prevent automatic tab closing */ };
+        }
+      }
+
+      async function toggleHistory() {
+        await window.settings.toggle("history")
+      }
+
+      async function setAutoBlank() {
+        await window.settings.toggle("auto-blank");
+      }
+
+      async function setSaveTabs() {
+        await window.settings.toggle("save-tabs")
+        if (!await window.settings.get("save-tabs")) {
+          await window.historyHelper.clear("open-tabs");
+        }
+      }
+
+      function aboutBlank() {
+        if (parent !== window) {
+          parent.abtblank();
+        } else {
+          abtblank();
+        }
+      }
+
+      async function changeTransport(transport = document.getElementById("transportSelection").value) {
+        await window.settings.set("transport", transport);
+        window.setUrl();
+        parent.tabs.setTransport();
+      }
+
+      function showContent(contentId) {
+        const contentSections = document.querySelectorAll("#content > div");
+        contentSections.forEach((section) => {
+          section.style.display = "none";
+        });
+
+        const selectedSection = document.getElementById(contentId + "-content");
+        if (selectedSection) {
+          selectedSection.style.display = "block";
+        }
+      }
+
+      async function updateEngine() {
+        var dropdown = document.getElementById("searchEngineDropdown");
+        var selectedOption = dropdown.options[dropdown.selectedIndex];
+        var dataUrl = selectedOption.getAttribute("data-url");
+        await window.settings.set("search-engine", dataUrl);
+        if (parent) parent.tabs.updateSearchEngine();
+      }
+
+      document.getElementById(
+        "searchEngineDropdown",
+      ).addEventListener("change", updateEngine);
+
+      async function updateSuggestions() {
+        var dropdown = document.getElementById("searchSuggestionsDropdown");
+        var selectedOption = dropdown.options[dropdown.selectedIndex];
+        var dataUrl = selectedOption.getAttribute("data-engine");
+        await window.settings.set("search-suggestions-engine", dataUrl);
+      }
+
+
+      document.getElementById(
+        "searchSuggestionsDropdown",
+      ).addEventListener("change", updateSuggestions);
+    </script>
+    <script src="/assets/js/options.js"></script>
+    <script src="/assets/js/notifications.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
