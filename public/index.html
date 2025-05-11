@@ -366,7 +366,7 @@
     window.settings = new SettingsManager();
     window.settings.default(
       "search-engine",
-      "https://www.google.com/search?q=%s",
+      "https://duckduckgo.com/?q=%s",
     );
     document.getElementById("uv-search-engine").value =
       await window.settings.get("search-engine");
