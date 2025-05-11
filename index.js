@@ -125,7 +125,7 @@ app.get('/csrf-token', (req, res) => {
 app.post('/ask', csrfProtection, async (req, res) => {
     const { messages } = req.body;
     const temperature = req.body.temperature || 0.7;
-    const max_tokens = req.body.max_tokens || 256;
+    const max_tokens = req.body.max_tokens || 512;
 
     if (!messages || !Array.isArray(messages)) {
         return res.status(400).json({ error: 'msgs need to be in an array format.' });
@@ -139,7 +139,7 @@ app.post('/ask', csrfProtection, async (req, res) => {
                 'Authorization': `Bearer ${process.env.SHUTTLEAI_API_KEY}`
             },
             body: JSON.stringify({
-                model: 'shuttle-3-mini',
+                model: 'shuttle-3.5',
                 messages: messages,
                 temperature: temperature,
                 max_tokens: max_tokens

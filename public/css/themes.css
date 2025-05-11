@@ -77,3 +77,20 @@
   --hover-danger: #ff4f87;
   --active-tab: linear-gradient(145deg, #ff0050, #1a1b22);
 }
+
+
+:root.midnight {
+  --background: #0a0a0f;
+  --home-bg: url("/assets/imgs/backgrounds/home/indigo.png");
+  --primary: #111322;
+  --primary-dark: #0c0e1a;
+  --secondary: #1a1c2b;
+  --accent: #4f46e5; 
+  --accent-light: #818cf8; 
+  --accent-glow: rgba(99, 102, 241, 0.2);
+  --border: rgba(129, 140, 248, 0.25);
+  --text: #f1f5f9;
+  --text-muted: #cbd5e1;
+  --hover-danger: #ef4444;
+  --active-tab: linear-gradient(145deg, #4338ca, var(--secondary));
+}

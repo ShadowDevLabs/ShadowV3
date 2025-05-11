@@ -23,7 +23,7 @@
         "value": "shadow",
         "css": {
             "background": "linear-gradient(145deg, #0b0013, #15001f)",
-            "home-bg": "url('https://cdn.wallpapersafari.com/31/56/NxQ8jJ.jpg')",
+            "home-bg": "url('/assets/imgs/backgrounds/home/purple.jpg')",
             "primary": "#12001f",
             "primary-dark": "#0a0015",
             "secondary": "#1a0a2b",
@@ -35,6 +35,25 @@
             "text-muted": "#e9d5ff",
             "hover-danger": "#fb7185",
             "active-tab": "linear-gradient(145deg, #6b21a8, var(secondary))"
+        }
+    },
+    {
+        "name": "Midnight City",
+        "value": "midnight",
+        "css": {
+            "background": "#0a0a0f",
+            "home-bg": "url('/assets/imgs/backgrounds/home/indigo.png')",
+            "primary": "#111322",
+            "primary-dark": "#0c0e1a",
+            "secondary": "#1a1c2b",
+            "accent": "#4f46e5",
+            "accent-light": "#818cf8",
+            "accent-glow": "rgba(99, 102, 241, 0.2)",
+            "border": "rgba(129, 140, 248, 0.25)",
+            "text": "#f1f5f9",
+            "text-muted": "#cbd5e1",
+            "hover-danger": "#ef4444",
+            "active-tab": "linear-gradient(145deg, #4338ca, var(--secondary))"
         }
     },
     {
@@ -61,7 +80,7 @@
         "value": "matrix",
         "css": {
             "background": "linear-gradient(145deg, #000c05, #001a0f)",
-            "home-bg": "url('https://www.itl.cat/pngfile/big/295-2951654_black-and-neon-green-wallpaper-black-and-neon.jpg')",
+            "home-bg": "url('/assets/imgs/backgrounds/home/green.jpg')",
             "primary": "#001a0f",
             "primary-dark": "#000d07",
             "secondary": "#003b22",
