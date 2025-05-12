@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/credits.css" />
+    <link rel="stylesheet" href="/css/themes.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="/assets/imgs/icons/pages/home.png" />
+    <title>Credits</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NCTSG4T1B6"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-NCTSG4T1B6');
+    </script>
+    <!-- Themes.JS-->
+    <script src="/assets/js/themes.js" type="module"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ownersTab = document.querySelector('.menu-bar .option:nth-child(1)');
+            const staffTab = document.querySelector('.menu-bar .option:nth-child(2)');
+            const ownersContent = document.getElementById('owners');
+            const staffContent = document.getElementById('staff');
+
+            function toggleTabs(showOwners) {
+                ownersContent.style.display = showOwners ? 'flex' : 'none';
+                staffContent.style.display = showOwners ? 'none' : 'flex';
+                ownersTab.classList.toggle('active', showOwners);
+                staffTab.classList.toggle('active', !showOwners);
+            }
+
+            ownersTab.addEventListener('click', () => toggleTabs(true));
+            staffTab.addEventListener('click', () => toggleTabs(false));
+
+            toggleTabs(true);
+        });
+
+    </script>
+</head>
+
+<body>
+    <h1>Credits</h1>
+    <div class="menu-bar">
+        <div class="option">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                <path
+                    d="M200-160v-80h560v80H200Zm0-140-51-321q-2 0-4.5.5t-4.5.5q-25 0-42.5-17.5T80-680q0-25 17.5-42.5T140-740q25 0 42.5 17.5T200-680q0 7-1.5 13t-3.5 11l125 56 125-171q-11-8-18-21t-7-28q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820q0 15-7 28t-18 21l125 171 125-56q-2-5-3.5-11t-1.5-13q0-25 17.5-42.5T820-740q25 0 42.5 17.5T880-680q0 25-17.5 42.5T820-620q-2 0-4.5-.5t-4.5-.5l-51 321H200Zm68-80h424l26-167-105 46-133-183-133 183-105-46 26 167Zm212 0Z" />
+            </svg> Owners
+        </div>
+        <div class="option">
+
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                <path
+                    d="M160-120q-33 0-56.5-23.5T80-200v-440q0-33 23.5-56.5T160-720h160v-80q0-33 23.5-56.5T400-880h160q33 0 56.5 23.5T640-800v80h160q33 0 56.5 23.5T880-640v440q0 33-23.5 56.5T800-120H160Zm0-80h640v-440H160v440Zm240-520h160v-80H400v80ZM160-200v-440 440Z" />
+            </svg> Staff
+        </div>
+    </div>
+    <div id="content" class="content">
+        <div id="owners" class="owners">
+            <!-- NC -->
+            <div class="user-card">
+                <div class="intro">
+                    <img src="assets/imgs/users/nc.png" class="profile">
+                    <p class="name">NC</p>
+                </div>
+                <div class="roles">
+                    <div class="role">Discord</div>
+                    <div class="role">Marketing</div>
+                    <div class="role">FrontEnd Dev</div>
+                </div>
+                <p class="description">NC is a 14-year-old full-stack developer born in Los Angeles, California. He is
+                    one of the two founders of Shadow and is responsible for designing the user interface for Shadow and
+                    Discord bots such as The Dispenser.</p>
+                <div class="location">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                        fill="#e3e3e3">
+                        <path
+                            d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Zm0 106Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-480Z" />
+                    </svg>Texas, United States of America
+                </div>
+            </div>
+            <!--- Peak -->
+            <div class="user-card">
+                <div class="intro">
+                    <img src="assets/imgs/users/peak.png" class="profile">
+                    <p class="name">Peak</p>
+                </div>
+                <div class="roles">
+                    <div class="role">Server Admin</div>
+                    <div class="role">Backend Dev</div>
+                </div>
+                <p class="description">Founder and Owner of Shadow, Peak is a 17-year-old backend developer and server
+                    admin. He manages the VPS that Shadow runs on and actively protects Shadow from DDoS attacks.</p>
+
+                <div class="location">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                        fill="#e3e3e3">
+                        <path
+                            d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Zm0 106Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-480Z" />
+                    </svg> Illinois, United States of America
+                </div>
+            </div>
+            <!--- Ghostly -->
+            <div class="user-card">
+                <div class="intro">
+                    <img src="assets/imgs/users/ghostly.jpg" class="profile">
+                    <p class="name">Ghostly</p>
+                </div>
+                <div class="roles">
+                    <div class="role">Discord</div>
+                    <div class="role">Marketing</div>
+                </div>
+                <p class="description">Ghostly is a 16-year-old from California and one of the owners of Shadow. He
+                    utilizes his editing and marketing skills to create short-form videos advertising Shadow on TikTok,
+                    YouTube, and Instagram.</p>
+                <div class="location">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                        fill="#e3e3e3">
+                        <path
+                            d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Zm0 106Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-480Z" />
+                    </svg> California, United States of America
+                </div>
+            </div>
+        </div>
+        <div id="staff" class="staff">
+            <p style="color:white; z-index: 1; font-size:22px">Coming Soon!</p>
+        </div>
+    </div>
+</body>
+
+</html>

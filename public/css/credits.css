@@ -1,0 +1,310 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+}
+
+body,
+html {
+  height: 100%;
+  background: var(--background);
+  background-color: var(--primary);
+  color: var(--text);
+  overflow-x: hidden;
+  position: relative;
+  text-align: center;
+  scroll-behavior: smooth;
+}
+
+
+@keyframes pulse-bg {
+  0% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+}
+
+
+h1 {
+  font-size: 80px;
+  font-weight: 700;
+  margin-top: 30px;
+  background: linear-gradient(45deg, var(--accent), var(--accent-light));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: title-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes title-glow {
+  0% {
+    text-shadow: 0 2px 8px var(--accent-glow);
+  }
+  100% {
+    text-shadow: 0 8px 20px rgba(59, 130, 246, 0.8);
+  }
+}
+
+.menu-bar {
+  display: flex;
+  padding: 20px;
+  justify-content: center;
+  margin: 5px auto;
+  gap: 35px;
+  max-width: 900px;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.option {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 14px 35px;
+  border-radius: 50px;
+  width: 180px;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  backdrop-filter: blur(6px);
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.option:hover {
+  background: var(--accent);
+  transform: translateY(-5px);
+}
+
+.option.active {
+  background: var(--active-tab);
+  transform: translateY(-3px) scale(1.05);
+  border-color: var(--accent);
+}
+
+.option svg {
+  fill: var(--text);
+  width: 20px;
+  height: 20px;
+}
+
+.option:hover svg {
+  transform: scale(1.2);
+}
+
+.content {
+  width: 100%;
+  margin: 0 auto;
+  margin-top: -30px;
+  padding: 30px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: 50px;
+}
+
+.staff {
+  display: block;
+  flex-direction: column;
+  gap: 40px;
+  width: 100%;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+
+.owners {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  justify-content: center;
+  width: 100%;
+  perspective: 1000px;
+  margin-top: 25px;
+}
+
+.user-card {
+  background: var(--primary);
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 0 15px var(--accent-glow);
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+  width: 500px;
+  transition: all 0.3s ease;
+}
+
+.user-card:hover {
+  transform: translateY(-15px) rotateX(6deg) scale(1.05);
+  box-shadow: 0 15px 30px var(--accent-glow);
+  border-color: var(--accent-light);
+}
+
+.user-card .intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.user-card .profile {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 12px;
+  box-shadow: 0 0 25px var(--accent-glow);
+  border: 4px solid var(--border);
+}
+
+.user-card:hover .profile {
+  box-shadow: 0 0 35px var(--accent-glow);
+  transform: scale(1.1);
+}
+
+.user-card .name {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 10px 0;
+  color: var(--text);
+  position: relative;
+  display: inline-block;
+}
+
+.user-card .name::after {
+  content: '';
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: var(--accent);
+}
+
+.user-card:hover .name::after {
+  width: 85%;
+}
+
+.roles {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 12px;
+  margin: 18px 0;
+  flex-wrap: wrap;
+}
+
+.role {
+  background-color: transparent;
+  padding: 8px 18px;
+  border-radius: 30px;
+  min-width: 110px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-light);
+  border: 1px solid var(--border);
+}
+
+.user-card:hover .role {
+  background-color: var(--accent);
+  color: var(--primary);
+  transform: translateY(-3px);
+}
+
+.description {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-muted);
+  margin: 25px 0;
+}
+
+.user-card:hover .description {
+  color: var(--text);
+}
+
+.location {
+  font-size: 15px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.location svg {
+  width: 18px;
+  height: 18px;
+  fill: var(--accent);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+}
+
+@media (max-width: 768px) {
+  .menu-bar {
+    gap: 20px;
+  }
+
+  .option {
+    width: 160px;
+    padding: 12px 25px;
+    font-size: 15px;
+  }
+
+  .user-card {
+    padding: 25px;
+  }
+
+  .user-card .profile {
+    width: 110px;
+    height: 110px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation: fadeIn 0.6s ease forwards;
+}
