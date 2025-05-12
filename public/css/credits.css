@@ -63,7 +63,6 @@ h1 {
   gap: 35px;
   max-width: 900px;
   flex-wrap: wrap;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .option {
@@ -117,18 +116,10 @@ h1 {
   gap: 50px;
 }
 
-.staff {
-  display: block;
-  flex-direction: column;
-  gap: 40px;
-  width: 100%;
-  align-items: center;
-  opacity: 0;
-  transform: translateY(20px);
-}
 
 
-.owners {
+
+.owners, .staff {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 40px;
