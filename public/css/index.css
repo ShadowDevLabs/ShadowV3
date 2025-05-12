@@ -259,7 +259,7 @@ body {
 
 .tab {
   flex: 1 1 120px;
-  min-width: 100px;
+  min-width: 60px;
   max-width: 150px;
   display: flex;
   align-items: center;
