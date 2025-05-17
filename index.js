@@ -92,14 +92,14 @@ app.use(express.json());
 
 // Create the CSRF protector with secure options
 const { generateToken, validateRequest } = doubleCsrf({
-  getSecret: () => "your-secret-key", // Use a strong secret key, ideally from environment variables
+  getSecret: () => "your-secret-key",
   cookieName: "x-csrf-token",
   cookieOptions: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: "strict"
   },
-  size: 64, // Token length
+  size: 64, 
   getTokenFromRequest: (req) => req.headers["x-csrf-token"]
 });
 

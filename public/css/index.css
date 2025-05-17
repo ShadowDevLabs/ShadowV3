@@ -1,4 +1,4 @@
-*{
+* {
   font-family: 'Poppins', sans-serif;
 
 }
@@ -173,16 +173,20 @@ body {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.5;
     transform: scale(0.95);
   }
+
   50% {
     opacity: 1;
     transform: scale(1.05);
@@ -190,10 +194,13 @@ body {
 }
 
 @keyframes pulse-core {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(0.8);
     opacity: 0.8;
   }
+
   50% {
     transform: scale(1.2);
     opacity: 1;
@@ -204,16 +211,20 @@ body {
   0% {
     transform: rotate(0deg) translateX(30px) rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg) translateX(30px) rotate(-360deg);
   }
 }
 
 @keyframes glow {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.8;
     text-shadow: 0 0 5px var(--accent-glow);
   }
+
   50% {
     opacity: 1;
     text-shadow: 0 0 15px var(--accent-glow), 0 0 20px var(--accent-glow);
@@ -225,6 +236,7 @@ body {
     opacity: 0.3;
     transform: scaleY(0.1);
   }
+
   100% {
     opacity: 0.6;
     transform: scaleY(0.25);
@@ -236,9 +248,11 @@ body {
     transform: translateY(100vh) translateX(-10px);
     opacity: 0;
   }
+
   50% {
     opacity: 0.5;
   }
+
   100% {
     transform: translateY(-100px) translateX(10px);
     opacity: 0;
@@ -277,6 +291,7 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .tab-title {
   font-size: 14px;
   font-weight: 500;
@@ -591,5 +606,64 @@ iframe.active {
   display: block;
   animation: 0.1s fade-in ease-in;
 }
+#disclaimerSite {
+  background: var(--background);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--text);
+  border: none;
+  padding: 30px 20px;
+  border-radius: 15px;
+  max-width: 500px;
+  width: 90%;
+  z-index: 9999;
+  text-align: center;
+}
 
 
+#disclaimerSite h3 {
+  margin-top: 0;
+  color: var(--accent-light);
+  font-size: 1.6em;
+  margin-bottom: 10px;
+}
+
+#disclaimerSite p {
+  font-size: 1rem;
+  margin: 10px 0 20px;
+  color: var(--text-muted);
+}
+
+#siteRedirect {
+  color: var(--accent);
+  font-weight: bold;
+}
+
+.disclamer-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.disclamer-buttons button {
+  background: none;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.disclamer-buttons button:hover {
+  color: var(--accent-light);
+  border-color: var(--accent);
+}
+
+.disclamer-buttons button:last-of-type:hover {
+  color: var(--hover-danger);
+  border-color: var(--hover-danger);
+}
