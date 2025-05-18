@@ -2,36 +2,77 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="/css/login.css" />
-  <link rel="stylesheet" href="/css/themes.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap" rel="stylesheet" />
-  <link rel="icon" type="image/png" href="/assets/imgs/icons/pages/login.png" />
-  <title>Login</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/login.css" />
+    <link rel="stylesheet" href="/css/themes.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="/assets/imgs/icons/pages/login.png" />
+    <title>Login</title>
     <!-- Google tag (gtag.js) -->
     <script async src="/ana.js"></script>
     <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-NCTSG4T1B6');</script>
 </head>
 
 <body>
-    <div class="login-container">
-        <div class="login-box">
-          <h1 class="login-title">Welcome Back</h1>
-          <form>
-            <div class="input-group">
-              <input type="text" id="username" required>
-              <label for="username">Username</label>
+     <div class="container">
+        <div class="login-card">
+            <div class="card-header">
+                <div class="logo">
+                    <div class="logo-circle">
+                       <img src="assets/imgs/icons/logo.png" class="shadowicon">
+                    </div>
+                </div>
+                <h1>Welcome Back</h1>
+                <p>Please enter your credentials to continue</p>
             </div>
-            <div class="input-group">
-              <input type="password" id="password" required>
-              <label for="password">Password</label>
+
+            <form class="login-form">
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <div class="input-with-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="#bae6fd" class="input-icon">
+                            <path
+                                d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm320-280L160-640v400h640v-400L480-440Zm0-80 320-200H160l320 200ZM160-640v-80 480-400Z" />
+                        </svg>
+                        <input type="email" id="email" placeholder="your@email.com" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="label-group">
+                        <label for="password">Password</label>
+                        <a href="#" class="forgot-password">Forgot password?</a>
+                    </div>
+                    <div class="input-with-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="#bae6fd" class="input-icon">
+                            <path
+                                d="M80-200v-80h800v80H80Zm46-242-52-30 34-60H40v-60h68l-34-58 52-30 34 58 34-58 52 30-34 58h68v60h-68l34 60-52 30-34-60-34 60Zm320 0-52-30 34-60h-68v-60h68l-34-58 52-30 34 58 34-58 52 30-34 58h68v60h-68l34 60-52 30-34-60-34 60Zm320 0-52-30 34-60h-68v-60h68l-34-58 52-30 34 58 34-58 52 30-34 58h68v60h-68l34 60-52 30-34-60-34 60Z" />
+                        </svg>
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                        <button type="button" class="toggle-password">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#bae6fd" class="eye-icon">
+                                <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="remember-me">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">Remember me for 30 days</label>
+                </div>
+
+                <button type="submit" class="login-button">Sign In</button>
+            </form>
+
+            <div class="sign-up">
+                <p>Don't have an account? <a href="#">Sign up</a></p>
             </div>
-            <button type="submit" class="login-button">Login</button>
-          </form>
-          <p class="login-footer">Don't have an account? <a href="/signup">Sign Up</a></p>
         </div>
-      </div>
+    </div>
 </body>
 
 </html>
