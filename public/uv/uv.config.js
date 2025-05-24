@@ -10,7 +10,7 @@ self.__uv$config = {
   sw: "/uv/uv.sw.js",
 };
 
-if (self.top !== self) {
+if (self.location.pathname != '/') {
   self._open = self.open;
   self.open = (url, title, _) => { parent.tabs.createTab(url, title); console.warn(`Replaced open correctly and opening new tab with src ${url}`) }
 }
