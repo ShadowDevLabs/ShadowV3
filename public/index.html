@@ -35,7 +35,7 @@
   <!-- Google tag (gtag.js) -->
   <script src="/ana.js" async></script>
   <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-NCTSG4T1B6');</script>
-  
+
   <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script>
 
 </head>
@@ -340,10 +340,19 @@
   <!--DEV STUFF-->
   <!-- <button class="powered-by-container" style="right:0; top:0;" onclick="reset()">Reset</button> -->
   <!--DEV STUFF-->
-  <!--- <a id="billigerhost" class="powered-by-container" style="left: 0; bottom: 0" target="_blank">
-    <img src="/assets/imgs/icons/billigerhost.ico" alt="billigerhost Logo" />
-    <span class="powered-by-text"><span style="color: #ad271f">Billiger</span>Host</span>
-  </a> -->
+  <div class="billigerhost-container">
+    <a href="https://billing.billigerhost.com/aff.php?aff=81" class="billigerhost-link" target="_blank"
+      rel="noopener noreferrer">
+      <div class="billigerhost-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+        </svg>
+      </div>
+      <span class="billigerhost-text">
+        <span class="brand-billiger">Billiger</span><span class="brand-host">Host</span>
+      </span>
+    </a>
+  </div>
 
   <!-- <a id="discord" class="discord" target="_blank">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" height="20" width="20" class="icons">
@@ -516,14 +525,6 @@
       e.target.select();
     });
 
-    document.getElementById("billigerhost").onclick = (e) => {
-      if (e.shiftKey) {
-        parent.createTab("https://billing.billigerhost.com");
-        setTimeout(updateOmni, 2500);
-      } else {
-        window.open("https://billing.billigerhost.com", "_blank");
-      }
-    };
   </script>
   <script src="https://partner.senty.com.au/partner.js"></script>
 </body>

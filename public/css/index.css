@@ -606,6 +606,7 @@ iframe.active {
   display: block;
   animation: 0.1s fade-in ease-in;
 }
+
 #disclaimerSite {
   background: var(--background);
   position: fixed;
@@ -666,4 +667,67 @@ iframe.active {
 .disclamer-buttons button:last-of-type:hover {
   color: var(--hover-danger);
   border-color: var(--hover-danger);
+}
+
+.billigerhost-container {
+  position: fixed;
+  bottom: 25px;
+  cursor:pointer;
+  font-family: 'Poppins', sans-serif;
+  left: 25px;
+  z-index: 1000;
+}
+
+.billigerhost-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.billigerhost-link:hover {
+  background: var(--primary);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--accent-glow);
+}
+
+.billigerhost-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  background: var(--accent);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.billigerhost-icon svg {
+  width: 12px;
+  height: 12px;
+  fill: white;
+}
+
+.billigerhost-text {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.billigerhost-text .brand-billiger {
+  color: #ad271f;
+}
+
+.billigerhost-text .brand-host {
+  color: var(--text);
 }
