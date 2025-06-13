@@ -255,6 +255,7 @@ h1 {
   background: linear-gradient(135deg, var(--accent), var(--accent-light));
   border-radius: 10px;
   padding: 8px;
+  object-fit: contain;
 }
 
 .modal {
