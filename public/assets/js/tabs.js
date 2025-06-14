@@ -113,7 +113,7 @@ class Tab {
       img: document.createElement("img"),
       src: this.parseUrl(false, src),
     };
-    //Add it to the array so that we can easily access each tab and all its elementes later
+    //Add it to the array so that we can easily access each tab and all its elements later (gng i cant spell)
     this.tabsArr.push(tab);
     //Setup the tab in the tab bar
     tab.tab.classList.add("tab");
@@ -124,7 +124,7 @@ class Tab {
         e,
       ),
     );
-    tab.iframe.title = "Content Iframe"
+    tab.iframe.title = "Content IFrame"
     document.getElementById("iframes-container").appendChild(tab.iframe);
     document
       .getElementById("tabs-container")
@@ -225,38 +225,40 @@ class Tab {
 
   parseUrl(i = this.activeTabIndex, src) {
     src = src || this.tabsArr[i].iframe.contentDocument.location.pathname;
+    console.log(src)
     if (src === "about:blank") return src;
-
+    if (src.startsWith("/uv/service")) return this.decode(src.replace(location.origin, "").replace(this.getPrefix(), ""));
     if (src.startsWith("shadow://")) return src;
-    switch (
-    src.replace(location.href, "").replace(".html", "").replace("/pages/", "").replace(/\//g, "")
-    ) {
-      case "settings":
-        return "shadow://settings";
-      case "home":
-        return "shadow://home";
-      case "new":
-        return "shadow://new";
-      case "extensions":
-        return "shadow://extensions";
-      case "extensionsmanage":
-        return "shadow://extensions/manage";
-      case "games":
-      case "books":
-        return "shadow://games";
-      case "history":
-        return "shadow://history";
-      case "privacy":
-        return "shadow://privacy"
-      case "ai":
-        return "shadow://ai"
-      case "credits":
-        return "shadow://credits"
-      default:
-        return this.decode(
-          src.replace(location.origin, "").replace(this.getPrefix(), "")
-        );
-    }
+    return "shadow://" + src.replace(".html", "").replace("/pages/", "").replace(/\//g, "")
+
+    //   if (src.startsWith("shadow://")) return src;
+    //   switch (
+    //   src.replace(location.href, "").replace(".html", "").replace("/pages/", "").replace(/\//g, "")
+    //   ) {
+    //     case "settings":
+    //       return "shadow://settings";
+    //     case "home":
+    //       return "shadow://home";
+    //     case "new":
+    //       return "shadow://new";
+    //     case "extensions":
+    //       return "shadow://extensions";
+    //     case "extensionsmanage":
+    //       return "shadow://extensions/manage";
+    //     case "games":
+    //     case "books":
+    //       return "shadow://games";
+    //     case "history":
+    //       return "shadow://history";
+    //     case "privacy":
+    //       return "shadow://privacy"
+    //     case "ai":
+    //       return "shadow://ai"
+    //     case "credits":
+    //       return "shadow://credits"
+    //     default:
+    //       
+    //   }
   }
 
   async displaySearchSuggestions(value = searchInput.value) {
@@ -316,7 +318,6 @@ class Tab {
   async saveTabs() {
     const tabSrc = this.tabsArr.map(tab => {
       const src = tab.src
-      console.log(src + (src.startsWith("/pages/")) ? this.parseUrl(false, src) : src)
       return (src.startsWith("/pages/")) ? this.parseUrl(false, src) : src;
     });
     try {
