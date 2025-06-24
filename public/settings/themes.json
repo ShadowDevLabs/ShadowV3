@@ -112,5 +112,24 @@
             "hover-danger": "#ff4f87",
             "active-tab": "linear-gradient(145deg, #ff0050, #1a1b22)"
         }
+    },
+    {
+        "name": "Golden",
+        "value": "golden",
+        "css": {
+            "background": "linear-gradient(145deg, #1a1200, #2d1f00)",
+            "home-bg": "url('/assets/imgs/backgrounds/home/golden.jpg')",
+            "primary": "#2d1f00",
+            "primary-dark": "#1a1200",
+            "secondary": "#3d2f10",
+            "accent": "#ffd700",
+            "accent-light": "#ffed4e",
+            "accent-glow": "rgba(255, 215, 0, 0.2)",
+            "border": "rgba(255, 215, 0, 0.3)",
+            "text": "#fffacd",
+            "text-muted": "#f0e68c",
+            "hover-danger": "#ff8c00",
+            "active-tab": "linear-gradient(145deg, #b8860b, var(--secondary))"
+        }
     }
 ]
