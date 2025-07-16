@@ -15,6 +15,7 @@
 
   <!-- Stylesheets -->
   <link rel="stylesheet" href="/css/index.css" />
+  <link rel="stylesheet" href="/css/loading.css" />
   <link rel="stylesheet" href="/css/themes.css" />
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&display=swap" />
@@ -44,42 +45,21 @@
 <body>
   <!-- Loading Screen -->
   <div id="loading-screen">
-    <!-- Background particles -->
-    <div class="bg-particles">
-      <div class="particle" style="left: 10%; animation-duration: 15s;"></div>
-      <div class="particle" style="left: 20%; animation-duration: 12s; animation-delay: 1s;"></div>
-      <div class="particle" style="left: 30%; animation-duration: 18s; animation-delay: 2s;"></div>
-      <div class="particle" style="left: 40%; animation-duration: 14s; animation-delay: 0.5s;"></div>
-      <div class="particle" style="left: 50%; animation-duration: 16s; animation-delay: 1.5s;"></div>
-      <div class="particle" style="left: 60%; animation-duration: 13s; animation-delay: 3s;"></div>
-      <div class="particle" style="left: 70%; animation-duration: 17s; animation-delay: 2.5s;"></div>
-      <div class="particle" style="left: 80%; animation-duration: 19s; animation-delay: 1s;"></div>
-      <div class="particle" style="left: 90%; animation-duration: 11s; animation-delay: 0s;"></div>
-    </div>
+    <div class="grid-overlay"></div>
 
     <div class="loading-container">
-      <!-- Outer rotating rings -->
-      <div class="ring-container">
-        <div class="ring"></div>
-        <div class="ring"></div>
-        <div class="ring"></div>
+      <div class="logo">
+        <span class="shadow-text">ShadowV3</span>
       </div>
 
-
-      <div class="cell-container">
-        <div class="loading-cell"></div>
-        <div class="loading-cell"></div>
-        <div class="loading-cell"></div>
-        <div class="loading-cell"></div>
-        <div class="loading-cell"></div>
-        <div class="core"></div>
+      <div class="loading-bar-container">
+        <div class="loading-bar"></div>
       </div>
 
-
-      <div class="floor"></div>
+      <div class="presented-by">
+        Developed by <span class="credits">NC & Peak</span>
+      </div>
     </div>
-
-    <div class="loading-text">LOADING SHADOW</div>
   </div>
 
   <!-- Tabs Container -->
@@ -501,32 +481,73 @@
   </script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const loadingCells = document.querySelectorAll('.loading-cell');
-      const mainContent = document.querySelector('.main-content');
+      const loadingBar = document.querySelector('.loading-bar');
+      const loadingScreen = document.getElementById('loading-screen');
+      const searchBar = document.getElementById('__shadow-search-bar');
 
-      let currentIndex = 0;
-      const interval = setInterval(() => {
-        if (currentIndex < loadingCells.length) {
-          loadingCells[currentIndex].classList.add('loaded');
-          currentIndex++;
-        } else {
-          clearInterval(interval);
+      let totalFetches = 0, completedFetches = 0, progress = 0, rafId, finishTimeout;
+
+      const setWidth = w => loadingBar.style.width = w.toFixed(2) + '%';
+
+      const animateTo = target => {
+        if (progress >= target) return;
+        const step = () => {
+          progress += (target - progress) * 0.15;
+          if (progress > target) progress = target;
+          setWidth(progress);
+          if (progress < target) rafId = requestAnimationFrame(step);
+        };
+        cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(step);
+      };
+
+      const update = () => {
+        if (!totalFetches) {
+          animateTo(100);
+          clearTimeout(finishTimeout);
+          finishTimeout = setTimeout(() => {
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => loadingScreen.style.display = 'none', 500);
+          }, 1300);
+          return;
         }
-      }, 150);
+        animateTo((completedFetches / totalFetches) * 90);
+      };
 
-      self.stopLoad = function () {
-        document.getElementById('loading-screen').style.display = 'none';
-      }
-      setTimeout(stopLoad, 5000);
+      const finish = () => {
+        clearTimeout(finishTimeout);
+        finishTimeout = setTimeout(() => {
+          animateTo(100);
+          setTimeout(() => {
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => loadingScreen.style.display = 'none', 500);
+          }, 500);
+        }, 1000);
+      };
+
+      const originalFetch = window.fetch;
+      window.fetch = (...args) => {
+        totalFetches++;
+        update();
+        return originalFetch(...args).then(res => {
+          completedFetches++;
+          update();
+          if (completedFetches >= totalFetches) finish();
+          return res;
+        }).catch(err => {
+          completedFetches++;
+          update();
+          if (completedFetches >= totalFetches) finish();
+          throw err;
+        });
+      };
+
+      setWidth(0);
+      if (searchBar) searchBar.addEventListener('focus', e => e.target.select());
     });
-
-
-
-    document.getElementById("__shadow-search-bar").addEventListener("focus", (e) => {
-      e.target.select();
-    });
-
   </script>
+
+
   <script src="https://partner.senty.com.au/partner.js"></script>
 </body>
 

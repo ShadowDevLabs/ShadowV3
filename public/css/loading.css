@@ -1,0 +1,215 @@
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    font-family: 'Poppins', sans-serif;
+    background: var(--background);
+    z-index: 9999;
+}
+
+
+#loading-screen::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.03) 0%, transparent 30%);
+    animation: backgroundPulse 6s ease-in-out infinite;
+}
+
+.grid-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(rgba(59, 130, 246, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.08) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3;
+    animation: gridMove 15s linear infinite;
+}
+
+.loading-container {
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+
+.logo {
+    font-size: 8rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+    animation: logoGlow 2s ease-in-out infinite alternate, logoFloat 3s ease-in-out infinite;
+    text-shadow: 0 0 20px var(--accent-glow);
+    transform-origin: center;
+}
+
+.shadow-text {
+    background: linear-gradient(45deg, var(--accent), var(--accent-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+.loading-bar-container {
+    width: 400px;
+    height: 8px;
+    background: var(--secondary);
+    border-radius: 4px;
+    margin: 0 auto 2rem;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--border);
+    box-shadow: 0 0 15px var(--accent-glow);
+    animation: barPulse 2s ease-in-out infinite;
+}
+
+.loading-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-light), var(--accent));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px var(--accent-glow);
+    background-size: 200% 100%;
+}
+
+
+.presented-by {
+    color: var(--text-muted);
+    font-size: 1rem;
+    font-weight: 300;
+    opacity: 0.8;
+    animation: fadeInUp 1s ease-out 0.5s both, creditFloat 4s ease-in-out infinite;
+    letter-spacing: 0.5px;
+}
+
+.credits {
+    color: var(--accent-light);
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+@keyframes backgroundPulse {
+
+    0%,
+    100% {
+        opacity: 0.2;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+@keyframes gridMove {
+    0% {
+        transform: translate(0, 0);
+    }
+
+    100% {
+        transform: translate(40px, 40px);
+    }
+}
+
+@keyframes logoGlow {
+    0% {
+        text-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    100% {
+        text-shadow: 0 0 30px var(--accent-glow), 0 0 40px var(--accent-glow);
+    }
+}
+
+@keyframes logoFloat {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@keyframes barPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    50% {
+        box-shadow: 0 0 25px var(--accent-glow), 0 0 35px var(--accent-glow);
+    }
+}
+
+@keyframes loadingProgress {
+    0% {
+        width: 0%;
+        background-position: -200% 0;
+    }
+
+    85% {
+        width: 95%;
+    }
+
+    100% {
+        width: 100%;
+        background-position: 200% 0;
+    }
+}
+
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    100% {
+        opacity: 0.8;
+        transform: translateY(0);
+    }
+}
+
+@keyframes creditFloat {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+}
