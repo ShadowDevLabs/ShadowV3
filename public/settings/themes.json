@@ -114,7 +114,7 @@
         }
     },
     {
-        "name": "Golden",
+        "name": "Metallic Brass",
         "value": "golden",
         "css": {
             "background": "linear-gradient(145deg, #1a1200, #2d1f00)",
@@ -130,6 +130,25 @@
             "text-muted": "#f0e68c",
             "hover-danger": "#ff8c00",
             "active-tab": "linear-gradient(145deg, #b8860b, var(--secondary))"
+        }
+    },
+    {
+        "name": "Kay's Pink",
+        "value": "kayspink",
+        "css": {
+            "background": "linear-gradient(145deg, #0a0012, #17001c)",
+            "home-bg": "url('https://images4.alphacoders.com/646/thumb-1920-646665.png')",
+            "primary": "#120016",
+            "primary-dark": "#0a000f",
+            "secondary": "#1a001f",
+            "accent": "#ff0090",
+            "accent-light": "#ff7bc6",
+            "accent-glow": "rgba(255, 0, 144, 0.2)",
+            "border": "rgba(255, 0, 144, 0.3)",
+            "text": "#ffe4f3",
+            "text-muted": "#ffb8dc",
+            "hover-danger": "#ff5e7e",
+            "active-tab": "linear-gradient(145deg, #8a005e, var(--secondary))"
         }
     }
 ]
