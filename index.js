@@ -11,6 +11,7 @@ import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
 import { libcurlPath } from "@mercuryworkshop/libcurl-transport";
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
 import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
+import { bareModulePath } from "@mercuryworkshop/bare-as-module3"; 
 import { join } from "path";
 import { users, port, brokenSites } from "./config.js";
 import dotenv from 'dotenv';
@@ -20,8 +21,22 @@ const version = process.env.npm_package_version;
 const publicPath = fileURLToPath(new URL("./public/", import.meta.url));
 const app = express();
 const server = createServer();
+
+// auth
 if (Object.keys(users).length > 0) app.use(basicAuth({ users, challenge: true }));
-app.use(express.static(publicPath, { maxAge: 604800000 })); //1 week
+
+// static assets
+app.use(express.static(publicPath, { maxAge: 604800000 })); // 1 week
+app.use("/epoxy/", express.static(epoxyPath));
+app.use("/libcurl/", express.static(libcurlPath));
+app.use("/baremux/", express.static(baremuxPath));
+app.use("/uv/", express.static(uvPath));
+app.use("/bareasmodule/", express.static(bareModulePath));
+app.use("/scram/", express.static("scramjet")); // scramjet support
+
+app.use("/privacy", express.static(publicPath + "/privacy.html"));
+
+// proxy for books
 app.use('/books/files/', (req, res) => {
     const sourceUrl = `http://phantom.lol/books/files${req.url}`;
     http.get(sourceUrl, (sourceResponse) => {
@@ -32,12 +47,8 @@ app.use('/books/files/', (req, res) => {
         res.end(`Error fetching file: ${err.message}`);
     });
 });
-app.use("/epoxy/", express.static(epoxyPath));
-app.use("/libcurl/", express.static(libcurlPath));
-app.use("/baremux/", express.static(baremuxPath));
-app.use("/uv/", express.static(uvPath));
-app.use("/privacy", express.static(publicPath + "/privacy.html"));
 
+// APIs
 app.get("/v1/api/version", (req, res) => {
     if (req.query.v && req.query.v != version) {
         res.status(400).send(version);
@@ -84,13 +95,10 @@ app.get("/v1/api/search-suggestions", async (req, res) => {
     res.send(results);
 });
 
-
 // AI STUFF
-
 app.use(cookieParser()); 
 app.use(express.json());
 
-// Create the CSRF protector with secure options
 const { generateToken, validateRequest } = doubleCsrf({
   getSecret: () => "your-secret-key",
   cookieName: "x-csrf-token",
@@ -103,7 +111,6 @@ const { generateToken, validateRequest } = doubleCsrf({
   getTokenFromRequest: (req) => req.headers["x-csrf-token"]
 });
 
-// Middleware to protect routes
 const csrfProtection = (req, res, next) => {
   try {
     validateRequest(req, res);
@@ -116,12 +123,10 @@ const csrfProtection = (req, res, next) => {
   }
 };
 
-// Route to get CSRF token
 app.get('/csrf-token', (req, res) => {
   res.json({ token: generateToken(req, res) });
 });
 
-// Protected route example
 app.post('/ask', csrfProtection, async (req, res) => {
     const { messages } = req.body;
     const temperature = req.body.temperature || 0.7;
@@ -168,6 +173,7 @@ app.use((req, res) => {
     res.sendFile(join(publicPath, "404.html"));
 });
 
+// server listeners
 server.on("request", (req, res) => {
     res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
     app(req, res);
@@ -186,13 +192,9 @@ server.on("listening", () => {
         `Shadow ${version} has started!\nSprinting on port ${address.port}`,
     );
 
-    setTimeout(function () {
-        console.log("\n");
-    }, 750);
-    setTimeout(function () {
-        console.log("\n");
-    }, 1000);
-    setTimeout(function () {
+    setTimeout(() => console.log("\n"), 750);
+    setTimeout(() => console.log("\n"), 1000);
+    setTimeout(() => {
         console.log(`
 ┌────────────┬─────────────┬────────────┐
 │ Wisp       │ Site        │ API's      │
