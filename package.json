@@ -19,6 +19,7 @@
   "author": "",
   "license": "GPL-3.0-only",
   "dependencies": {
+    "@mercuryworkshop/bare-as-module3": "^2.2.5",
     "@mercuryworkshop/bare-mux": "^2.1.7",
     "@mercuryworkshop/epoxy-tls": "^2.1.17-1",
     "@mercuryworkshop/epoxy-transport": "^2.1.27",
