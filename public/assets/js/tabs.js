@@ -12,31 +12,18 @@ class Tab {
     this.history = new HistoryHelper();
     this.settings = new SettingsManager();
     this.connection = new BareMuxConnection("/baremux/worker.js");
-    this.scramjet = null;
-    
-    // Initialize Scramjet
-    this.initScramjet();
-    
     document.getElementById("uv-form").addEventListener("submit", (e) => {
       e.preventDefault();
       searchInput.blur();
       const url = searchInput.value;
       tabs.load(url);
     });
-    
     this.decode = (i) => {
-      if (typeof self.__uv$config !== 'undefined') {
-        return self.__uv$config.decodeUrl(i);
-      }
-      return i; // Fallback if UV config is not available
+      return self.__uv$config.decodeUrl(i);
     };
     this.encode = (i) => {
-      if (typeof self.__uv$config !== 'undefined') {
-        return self.__uv$config.encodeUrl(i);
-      }
-      return i; // Fallback if UV config is not available
+      return self.__uv$config.encodeUrl(i);
     };
-    
     window.addEventListener("settings", (e) => {
       const detail = e.detail;
       switch (detail.key) {
@@ -56,100 +43,25 @@ class Tab {
           break;
       }
     });
-    
-    this.defaults = [
-      { "key": "search-suggestions", "value": true }, 
-      { "key": "history", "value": true }, 
-      { "key": "save-tabs", "value": true }, 
-      { "key": "search-suggestions-engine", "value": "google" }, 
-      { "key": "shortenUrls", "value": true }, 
-      { "key": "search-engine", "value": "https://www.google.com/search?q=%s" },
-      { "key": "backend", "value": "uv" }
-    ];
-    
+    this.defaults = [{ "key": "search-suggestions", "value": true }, { "key": "history", "value": true }, { "key": "save-tabs", "value": true }, { "key": "search-suggestions-engine", "value": "google" }, { "key": "shortenUrls", "value": true }, { "key": "search-engine", "value": "https://www.google.com/search?q=%s" }];
     this.setDefaults();
     this.setTransport();
     this.init();
-    
     this.getSuggestions = async (query) => await fetch(`/v1/api/search-suggestions?query=${query}`, { headers: { engine: this.searchSuggestionsEngine } }).then(response => { return response.json() });
     this.hideSuggestions = () => document.getElementById("suggestions").classList.add("hidden");
-    
     this.getPrefix = () => {
       switch (this.backend) {
-        case "scramjet":
-          return ""; // Scramjet doesn't use a traditional prefix
+        // case "legacy_uv":
+        //   return __legacy_uv$config.prefix;
+        //   break;
+        // case "scramjet":
+        //   return __scramjet$config.prefix;
+        //   break;
         case "uv":
         default:
-          return (typeof __uv$config !== 'undefined') ? __uv$config.prefix : "/uv/service/";
+          return __uv$config.prefix
           break;
       }
-    }
-  }
-
-  async initScramjet() {
-    try {
-      if (typeof $scramjetLoadController !== 'undefined') {
-        const { ScramjetController } = $scramjetLoadController();
-        this.scramjet = new ScramjetController({
-          files: {
-            wasm: "/scram/scramjet.wasm.wasm",
-            all: "/scram/scramjet.all.js",
-            sync: "/scram/scramjet.sync.js",
-          },
-        });
-        
-        if (navigator.serviceWorker) {
-          await this.scramjet.init();
-          
-          // Make sure service worker is registered
-          try {
-            await navigator.serviceWorker.register("./sw.js");
-          } catch (e) {
-            console.warn("[TABS] Service worker registration failed:", e);
-          }
-          
-          console.log("[TABS] Scramjet initialized successfully");
-        } else {
-          console.warn("[TABS] Service workers not supported, Scramjet unavailable");
-          this.scramjet = null;
-        }
-      } else {
-        console.warn("[TABS] Scramjet controller not available");
-      }
-    } catch (e) {
-      console.error("[TABS] Failed to initialize Scramjet:", e);
-      this.scramjet = null;
-    }
-  }
-
-  encodeUrl(url) {
-    switch (this.backend) {
-      case "scramjet":
-        if (this.scramjet) {
-          return this.scramjet.encodeUrl(url);
-        }
-        // Fallback to UV if Scramjet fails
-        return self.__uv$config.encodeUrl(url);
-      case "uv":
-      default:
-        return self.__uv$config.encodeUrl(url);
-    }
-  }
-
-  decodeUrl(url) {
-    switch (this.backend) {
-      case "scramjet":
-        if (this.scramjet && url.includes("/scramjet/")) {
-          try {
-            return this.scramjet.decodeUrl(url);
-          } catch (e) {
-            console.warn("[TABS] Scramjet decode failed, falling back to UV:", e);
-          }
-        }
-        return self.__uv$config.decodeUrl(url);
-      case "uv":
-      default:
-        return self.__uv$config.decodeUrl(url);
     }
   }
 
@@ -177,91 +89,19 @@ class Tab {
     this.searchEngine = await this.settings.get("search-engine");
   }
 
+
   async load(src, i = this.activeTabIndex) {
     this.hideSuggestions();
-    
-    // Handle shadow:// URLs - don't process them through proxies
-    if (src.startsWith("shadow://")) {
-      this.tabsArr[i].iframe.src = `/pages/${src.replace("shadow://", "")}.html`;
-      this.tabsArr[i].src = src;
-      this.saveTabs();
-      return true;
-    }
-    
     const broken = await this.checkSite(src);
     if (broken && await this.brokenDisclaimer(broken)) {
       src = broken;
     };
     await this.setTransport();
-    
-    // Process the URL based on backend
-    let processedUrl;
-    if (this.backend === "scramjet" && this.scramjet) {
-      // For Scramjet: first get the clean URL, then encode it
-      let cleanUrl = this.search(src.trim(), this.searchEngine);
-      processedUrl = this.scramjet.encodeUrl(cleanUrl);
-    } else {
-      // For UV: use the existing search function
-      processedUrl = self.search ? self.search(src.trim(), this.searchEngine, this.backend) : this.search(src.trim(), this.searchEngine);
-      if (this.backend === "uv" && typeof self.__uv$config !== 'undefined') {
-        // Make sure we add UV prefix if not already there
-        if (!processedUrl.startsWith(self.__uv$config.prefix)) {
-          processedUrl = self.__uv$config.prefix + self.__uv$config.encodeUrl(processedUrl);
-        }
-      }
-    }
-    
-    this.tabsArr[i].iframe.src = processedUrl;
-    this.tabsArr[i].src = processedUrl;
+    src = self.search(src.trim(), this.searchEngine, this.backend);
+    this.tabsArr[i].iframe.src = src;
+    this.tabsArr[i].src = src;
     this.saveTabs();
     return true;
-  }
-
-  search(input, template = "https://www.google.com/search?q=%s") {
-    try {
-      // Check if it's already a valid URL
-      return new URL(input).toString();
-    } catch (err) {}
-    
-    try {
-      // Try to make it a URL with http://
-      let url = new URL(`http://${input}`);
-      if (url.hostname.includes(".")) {
-        return url.toString();
-      }
-    } catch (err) {}
-    
-    // Treat as search query
-    return template.replace("%s", encodeURIComponent(input));
-  }
-
-  searchWithBackend(input, template = "https://www.google.com/search?q=%s") {
-    let finalUrl;
-    
-    try {
-      // Check if it's already a valid URL
-      finalUrl = new URL(input).toString();
-    } catch (err) {
-      try {
-        // Try to make it a URL with http://
-        let url = new URL(`http://${input}`);
-        if (url.hostname.includes(".")) {
-          finalUrl = url.toString();
-        } else {
-          throw new Error("Not a valid domain");
-        }
-      } catch (err) {
-        // Treat as search query
-        finalUrl = template.replace("%s", encodeURIComponent(input));
-      }
-    }
-    
-    // Now encode based on backend
-    if (this.backend === "scramjet" && this.scramjet) {
-      return this.scramjet.encodeUrl(finalUrl);
-    } else {
-      return this.getPrefix() + this.encodeUrl(finalUrl);
-    }
   }
 
   async createTab(src = this.tabsArr.length === 0 ? "shadow://home" : "shadow://new", title) {
@@ -387,23 +227,38 @@ class Tab {
     src = src || this.tabsArr[i].iframe.contentDocument.location.pathname;
     console.log(src)
     if (src === "about:blank") return src;
-    
-    // Handle Scramjet URLs - Scramjet uses its own internal routing
-    if (this.backend === "scramjet" && this.scramjet) {
-      try {
-        return this.scramjet.decodeUrl(src);
-      } catch (e) {
-        console.warn("[TABS] Scramjet decode failed:", e);
-      }
-    }
-    
-    // Handle UV URLs
-    if (src.startsWith("/uv/service")) {
-      return this.decode(src.replace(location.origin, "").replace(this.getPrefix(), ""));
-    }
-    
+    if (src.startsWith("/uv/service")) return this.decode(src.replace(location.origin, "").replace(this.getPrefix(), ""));
     if (src.startsWith("shadow://")) return src;
     return "shadow://" + src.replace(".html", "").replace("/pages/", "").replace(/\//g, "")
+
+    //   if (src.startsWith("shadow://")) return src;
+    //   switch (
+    //   src.replace(location.href, "").replace(".html", "").replace("/pages/", "").replace(/\//g, "")
+    //   ) {
+    //     case "settings":
+    //       return "shadow://settings";
+    //     case "home":
+    //       return "shadow://home";
+    //     case "new":
+    //       return "shadow://new";
+    //     case "extensions":
+    //       return "shadow://extensions";
+    //     case "extensionsmanage":
+    //       return "shadow://extensions/manage";
+    //     case "games":
+    //     case "books":
+    //       return "shadow://games";
+    //     case "history":
+    //       return "shadow://history";
+    //     case "privacy":
+    //       return "shadow://privacy"
+    //     case "ai":
+    //       return "shadow://ai"
+    //     case "credits":
+    //       return "shadow://credits"
+    //     default:
+    //       
+    //   }
   }
 
   async displaySearchSuggestions(value = searchInput.value) {
@@ -548,70 +403,18 @@ class Tab {
   async setTransport(url, transport) {
     url = url ?? (await this.settings.get("server") || `wss://${location.host}/wisp/`);
     transport = transport ?? (await this.settings.get("transport") || "/epoxy/index.mjs");
-    
-    const wispUrl = (location.protocol === "https:" ? "wss" : "ws") + "://" + location.host + "/wisp/";
-    
-    try {
-      switch (transport) {
-        case "/epoxy/index.mjs":
-          await this.connection.setTransport("/epoxy/index.mjs", [{ wisp: wispUrl }]);
-          break;
-        case "/libcurl/index.mjs":
-          await this.connection.setTransport("/libcurl/index.mjs", [{ websocket: wispUrl }]);
-          break;
-        case "/bareasmodule/index.mjs":
-          const bareUrl = await this.settings.get("bareUrl") || url;
-          await this.connection.setTransport("/bareasmodule/index.mjs", [bareUrl]);
-          break;
-        default:
-          if (transport.includes("baremod")) transport = "/epoxy/index.mjs";
-          await this.connection.setTransport(transport, [{ wisp: url }]);
-          break;
-      }
-    } catch (e) {
-      console.warn("[TABS] Transport setup failed:", e);
-      // Fallback to epoxy
-      await this.connection.setTransport("/epoxy/index.mjs", [{ wisp: wispUrl }]);
-    }
-    
+    if (transport.includes("baremod")) transport = "/epoxy/index.mjs";
+    await this.connection.setTransport(transport, [{ wisp: url }]);
     this.settings.set("server", url);
     this.settings.set("transport", transport);
     return true;
   }
 
-  // Method to switch backends dynamically
-  async switchBackend(backend) {
-    this.backend = backend;
-    await this.settings.set("backend", backend);
-    
-    if (backend === "scramjet" && !this.scramjet) {
-      await this.initScramjet();
-    }
-    
-    console.log(`[TABS] Switched to ${backend} backend`);
-    
-    // Trigger a settings event so other parts of the code can react
-    window.dispatchEvent(new CustomEvent('settings', {
-      detail: {
-        key: 'backend',
-        newValue: backend
-      }
-    }));
-  }
-
-  // Helper method to check current backend status
-  getBackendStatus() {
-    return {
-      currentBackend: this.backend,
-      scramjetAvailable: !!this.scramjet,
-      uvAvailable: typeof self.__uv$config !== 'undefined'
-    };
-  }
 }
 
 const tabs = new Tab();
 window.tabs = tabs;
-https://humble-chainsaw-9p49r4xxr763p4jg-8080.app.github.dev/
+
 searchInput.onkeydown = (e) => { if (e.key !== "Enter") tabs.displaySearchSuggestions(e.key.length > 1 ? (e.key === "Backspace" ? searchInput.value.slice(0, -1) : searchInput.value) : searchInput.value + e.key); };
 searchInput.onfocus = () => { if (searchInput.value != "") tabs.displaySearchSuggestions(); };
 document.onclick = (e) => { if (e.target !== searchInput) tabs.hideSuggestions(); };
