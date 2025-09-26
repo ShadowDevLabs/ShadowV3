@@ -3,16 +3,21 @@ import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 const textarea = document.querySelector('.input-container textarea');
 const sendBtn = document.querySelector('.send-btn');
 const messagesContainer = document.querySelector('.messages');
+const modelSelector = document.getElementById("model-selector");
 
 const uValue = 'user';
 const aiValue = 'assistant';
 const chatHistoryLimit = 6;
 
+// default model
+let currentModel = "shuttle-3.5";
+
 let chatHistory = [];
+let csrfToken = null;
 
 const getCsrfToken = async () => {
     try {
-        const response = await fetch('/csrf-token');
+        const response = await fetch('/csrf-token', { credentials: "include" });
         const data = await response.json();
         return data.csrfToken;
     } catch (error) {
@@ -21,10 +26,10 @@ const getCsrfToken = async () => {
     }
 };
 
-const csrfToken = await getCsrfToken();
+csrfToken = await getCsrfToken();
 
 if (!csrfToken) {
-    console.error("Failed to Retrevie  CSRF TOKEN");
+    console.error("Failed to Retrieve CSRF TOKEN");
 }
 
 sendBtn.addEventListener('click', async () => {
@@ -50,7 +55,10 @@ async function sendMsg() {
     if (chatHistory.length > chatHistoryLimit) chatHistory.shift();
     textarea.value = '';
 
-    const payload = { messages: chatHistory };
+    const payload = { 
+        messages: chatHistory,
+        model: modelSelector.value
+    };
 
     const loadingMsg = addMsg('', aiValue, true);
 
@@ -59,13 +67,14 @@ async function sendMsg() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'CSRF-Token': csrfToken
+                'x-csrf-token': csrfToken
             },
+            credentials: "include",
             body: JSON.stringify(payload)
         });
 
         const data = await response.json();
-        const aiMsg = data.error ? 'Error: ' + data.error : data;
+        const aiMsg = data.error ? 'Error: ' + data.error : data.message || data;
 
         loadingMsg.innerHTML = marked(aiMsg);
         loadingMsg.classList.remove('loading');

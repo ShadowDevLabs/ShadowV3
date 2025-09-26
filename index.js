@@ -13,6 +13,8 @@ import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
 import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
 import { join } from "path";
 import { users, port, brokenSites } from "./config.js";
+import session from "express-session";
+
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -90,16 +92,22 @@ app.get("/v1/api/search-suggestions", async (req, res) => {
 app.use(cookieParser()); 
 app.use(express.json());
 
-// Create the CSRF protector with secure options
+app.use(session({
+  secret: process.env.SESSION_SECRET || "putyoursecretkeyhere",
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 1000 * 60 * 30
+  }
+}));
+
 const { generateToken, validateRequest } = doubleCsrf({
   getSecret: () => "your-secret-key",
-  cookieName: "x-csrf-token",
-  cookieOptions: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: "strict"
-  },
-  size: 64, 
+  cookieName: undefined,
+  size: 64,
   getTokenFromRequest: (req) => req.headers["x-csrf-token"]
 });
 
@@ -116,41 +124,57 @@ const csrfProtection = (req, res, next) => {
   }
 };
 
+function requireSession(req, res, next) {
+  if (req.session?.hasSession) return next();
+  res.status(401).json({ error: "Missing or invalid session" });
+}
+
 // Route to get CSRF token
 app.get('/csrf-token', (req, res) => {
-  res.json({ token: generateToken(req, res) });
+  req.session.hasSession = true;
+  res.json({ csrfToken: generateToken(req, res) });
 });
 
-// Protected route example
-app.post('/ask', csrfProtection, async (req, res) => {
-    const { messages } = req.body;
+
+const models = ["gpt-5-mini", "shuttle-3.5", "gpt-5"];
+app.post('/ask', requireSession, csrfProtection, async (req, res) => {
+    const { messages, model } = req.body;
     const temperature = req.body.temperature || 0.7;
     const max_tokens = req.body.max_tokens || 512;
 
-    if (!messages || !Array.isArray(messages)) {
+    if (!Array.isArray(messages)) {
         return res.status(400).json({ error: 'msgs need to be in an array format.' });
     }
 
+    const requestedModel = models.includes(model) ? model : "shuttle-3.5";
+
     try {
-        const response = await fetch('https://api.shuttleai.com/v1/chat/completions', {
-            method: 'POST',
+        const response = await fetch("https://api.shuttleai.com/v1/chat/completions", {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.SHUTTLEAI_API_KEY}`
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.SHUTTLEAI_API_KEY}`
             },
             body: JSON.stringify({
-                model: 'shuttle-3.5',
-                messages: messages,
-                temperature: temperature,
-                max_tokens: max_tokens
-            })
+                model: requestedModel,
+                messages
+        })
         });
 
         const data = await response.json();
-        res.json(data.choices[0].message.content);
+
+        if (!data?.choices?.[0]?.message?.content) {
+            console.error("Unexpected response:", data);
+            return res.status(500).json({ error: "Unexpected response from AI API" });
+        }
+
+        res.json({
+            model: requestedModel,
+            message: data.choices[0].message.content
+        });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Failed to Retrieve Request' });
+        res.status(500).json({ error: "Failed to Retrieve Request" });
     }
 });
 
