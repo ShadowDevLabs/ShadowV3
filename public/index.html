@@ -37,11 +37,19 @@
   <!-- Google tag (gtag.js) -->
   <script src="/ana.js" async></script>
   <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-NCTSG4T1B6');</script>
-
- <!--
-  ADS -----
-  <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script> -->
-
+  <script type="text/javascript" src="libs/main.js"></script>
+  <script type="text/javascript">
+      aclib.runInterstitial({
+          zoneId: '10294290',
+      });
+      aclib.runInPagePush({
+          zoneId: '10294294',
+          maxAds: 2,
+      });
+      aclib.runVideoSlider({
+          zoneId: '10315494',
+      });
+  </script>
 </head>
 
 <body>
@@ -346,13 +354,9 @@
 
 
 
-  <!-- Scripts -->
-  <!--
-  ADS ----- <script type="text/javascript">
-    aclib.runAutoTag({
-      zoneId: 'hfjbzu6ztb',
-    });
-  </script> -->
+<script>
+     aclib.runPop({zoneId: '10286554'});
+</script>
 
   <script src="/baremux/index.js"></script>
   <script src="/assets/js/search.js"></script>
