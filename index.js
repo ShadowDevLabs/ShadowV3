@@ -1,6 +1,6 @@
 import express from "express";
 import basicAuth from "express-basic-auth"
-import wisp from "wisp-server-node";
+import { server as wisp } from "@mercuryworkshop/wisp-js/server";
 import http from "http";
 import cookieParser from 'cookie-parser';
 import * as cheerio from "cheerio";
