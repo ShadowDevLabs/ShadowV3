@@ -35,7 +35,7 @@
     "http": "^0.0.1-security",
     "jsdom": "^24.0.0",
     "terser": "^5.31.6",
-    "wisp-server-node": "^1.0.4",
+    "@mercuryworkshop/wisp-js/server": "^0.4.0",
     "ws": "^8.16.0"
   },
   "devDependencies": {
