@@ -23,6 +23,7 @@
     "@mercuryworkshop/epoxy-tls": "^2.1.17-1",
     "@mercuryworkshop/epoxy-transport": "^2.1.27",
     "@mercuryworkshop/libcurl-transport": "^1.4.0",
+    "@mercuryworkshop/wisp-js": "^0.4.0",
     "@titaniumnetwork-dev/ultraviolet": "^3.2.10",
     "cheerio": "^1.0.0-rc.12",
     "compression": "^1.7.4",
@@ -35,7 +36,6 @@
     "http": "^0.0.1-security",
     "jsdom": "^24.0.0",
     "terser": "^5.31.6",
-    "@mercuryworkshop/wisp-js/server": "^0.4.0",
     "ws": "^8.16.0"
   },
   "devDependencies": {
