@@ -43,7 +43,7 @@ class Tab {
           break;
       }
     });
-    this.defaults = [{ "key": "search-suggestions", "value": true }, { "key": "history", "value": true }, { "key": "save-tabs", "value": true }, { "key": "search-suggestions-engine", "value": "google" }, { "key": "shortenUrls", "value": true }, { "key": "search-engine", "value": "https://www.google.com/search?q=%s" }];
+    this.defaults = [{ "key": "search-suggestions", "value": true }, { "key": "history", "value": true }, { "key": "save-tabs", "value": true }, { "key": "search-suggestions-engine", "value": "google" }, { "key": "shortenUrls", "value": true }, { "key": "search-engine", "value":  "https://duckduckgo.com/?q=%s" }];
     this.setDefaults();
     this.setTransport();
     this.init();
