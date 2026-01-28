@@ -32,7 +32,7 @@
         </p>
         <form id="uv-form" class="inputcontainermain">
         <input type="text" id="uv-address" placeholder="Search or enter a URL" />
-        <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
+        <input id="search-lesson-engine" value="https://www.google.com/search?q=%s" type="hidden" />
       </form>
     </div>
     <div class="shortcuts">
@@ -93,7 +93,7 @@
     window.settings = new SettingsManager(); 
     async function updateSearchInput() {
       var storedSearchEngine = await window.settings.get("search-engine");
-      var searchInput = document.getElementById("uv-search-engine");
+      var searchInput = document.getElementById("search-lesson-engine");
       searchInput.value =
         storedSearchEngine || "https://www.google.com/search?q=%s";
     }

@@ -2,6 +2,13 @@ const maxShortcuts = 10;
 const addShortcutButton = document.querySelector(".shortcut.add");
 const modal = document.getElementById("modal");
 const closeButton = document.querySelector(".close");
+
+const defaultShortcuts = [
+  { name: "Roblox", url: "https://nowgg.fun/apps/a/19900/b.html", icon: "assets/imgs/icons/apps/2.png"},
+  { name: "Now.GG", url: "https://nowgg.fun/", icon: "assets/imgs/icons/apps/1.png" },
+  { name: "G@me$", url: "shadow://books", icon: "assets/imgs/icons/apps/3.png" }
+];
+
 addShortcutButton.addEventListener("click", () => {
   modal.style.display = "block";
 });
@@ -54,14 +61,21 @@ async function addShortcutClicked() {
   }
 }
 async function loadShortcuts() {
-  const shortcuts = await settings.get("shortcuts") || [];
+  let shortcuts = await settings.get("shortcuts");
+  
+  // If no shortcuts exist, use defaults
+  if (!shortcuts || shortcuts.length === 0) {
+    shortcuts = defaultShortcuts;
+    await settings.set("shortcuts", shortcuts);
+  }
+  
   shortcuts.slice(0, maxShortcuts).forEach((shortcut) => {
-    const { name, url } = shortcut;
+    const { name, url, icon } = shortcut;
     const newShortcut = document.createElement("a");
     newShortcut.className = "shortcut";
     const domain = url;
     const size = 64;
-    const imgSrc = `https://www.google.com/s2/favicons?domain=${domain}&sz=${size}`;
+    const imgSrc = icon || `https://www.google.com/s2/favicons?domain=${domain}&sz=${size}`;
     newShortcut.innerHTML = `
       <img src="${imgSrc}">
       <p>${name}</p>
