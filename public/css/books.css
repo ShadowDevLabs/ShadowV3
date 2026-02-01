@@ -2,168 +2,150 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  transition: all 0.3s ease;
 }
 
 body {
   font-family: 'Poppins', sans-serif;
   color: var(--text);
   overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
   background: var(--background);
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at top, var(--accent-glow) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 h1 {
-  font-size: 3.5rem;
-  font-weight: 800;
+  font-size: 2.5rem;
+  font-weight: 700;
   text-align: center;
-  color: var(--accent);
+  background: linear-gradient(135deg, var(--accent-light), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   cursor: pointer;
-  text-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-  margin-top: 2.5rem;
-  letter-spacing: 2px;
-  position: relative;
-  transition: transform 0.3s, text-shadow 0.3s, letter-spacing 0.3s ease-in-out;
-}
-
-h1::after {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 3px;
-  background: var(--accent);
-  transition: width 0.4s ease;
+  padding-top: 2rem;
+  margin-top: 2rem;
+  letter-spacing: 1px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 0 20px var(--accent-glow));
 }
 
 h1:hover {
-  transform: scale(1.05);
-  color: var(--accent-light);
-  text-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
-  letter-spacing: 4px;
-}
-
-h1:hover::after {
-  width: 80%;
+  letter-spacing: 2px;
+  transform: scale(1.02);
+  filter: drop-shadow(0 0 30px var(--accent-glow));
 }
 
 .search-container {
   display: flex;
   justify-content: center;
-  margin: 2.5rem 0;
-  width: 100%;
+  padding: 1.5rem 0;
+  margin-bottom: 0.75rem;
 }
 
 #__shadow-search-bar {
-  padding: 14px 25px;
-  border: 2px solid var(--border);
-  border-radius: 30px;
+  padding: 16px 28px;
+  border: 1px solid var(--border);
+  border-radius: 50px;
   font-family: "Poppins", sans-serif;
   font-size: 16px;
   color: var(--text);
-  background: var(--secondary);
-  transition: all 0.4s ease;
+  background: rgba(1, 3, 29, 0.6);
+  backdrop-filter: blur(12px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   width: 35vw;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 
+    0 4px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 #__shadow-search-bar::placeholder {
   color: var(--text-muted);
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
 #__shadow-search-bar:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 20px var(--accent-glow);
-  background-color: var(--primary);
+  box-shadow: 
+    0 0 0 3px var(--accent-glow),
+    0 8px 32px rgba(59, 130, 246, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  background: rgba(1, 3, 29, 0.8);
   width: 40vw;
-  transform: translateY(-2px);
 }
 
 .gcontainer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 2rem;
   padding: 2rem;
-  max-width: 1800px;
+  max-width: 1600px;
   margin: 0 auto;
+  width: 100%;
+  min-height: 60vh;
 }
 
 .gcontainer:empty::after {
-  font-size: 2rem;
+  content: 'No games found';
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--text-muted);
   text-align: center;
-  width: 100%;
+  grid-column: 1 / -1;
   margin: 4rem 0;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-  animation: pulse 2s infinite ease-in-out;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
+  opacity: 0.6;
 }
 
 .g {
-  width: 200px;
-  height: 250px;
+  aspect-ratio: 1/1;
   position: relative;
-  border-radius: 12px;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   cursor: pointer;
   overflow: hidden;
   background: var(--primary);
-  border: 2px solid var(--border);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-              box-shadow 0.4s ease;
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .g::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(165deg, 
-    var(--accent-glow),
-    var(--primary-dark) 70%);
-  z-index: 1;
-  opacity: 0.9;
-  transition: opacity 0.4s ease;
-}
-
-.g::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, 
-    var(--primary-dark) 0%,
-    transparent 40%);
+  background: rgba(0, 0, 0, 0.3);
   z-index: 2;
+  opacity: 0;
   transition: opacity 0.4s ease;
 }
 
 .g:hover {
-  transform: translateY(-10px) scale(1.03);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6),
-              0 0 15px var(--accent-glow);
+  transform: translateY(-8px);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    0 0 0 1px var(--accent),
+    0 0 40px var(--accent-glow);
   border-color: var(--accent);
 }
 
 .g:hover::before {
-  opacity: 0.7;
+  opacity: 1;
 }
 
 .game-image {
@@ -173,127 +155,94 @@ h1:hover::after {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 0;
-  transition: transform 0.6s ease-in-out;
+  z-index: 1;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .g:hover .game-image {
-  transform: scale(1.1);
+  transform: scale(1.08);
 }
-
-
 
 .game-info {
-  position: relative;
-  width: 100%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
   padding: 1.5rem;
   z-index: 3;
-  transform: translateY(30%);
-  transition: transform 0.4s ease;
-}
-
-.g:hover .game-info {
-  transform: translateY(0);
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .game-name {
   text-align: center;
-  font-size: 1.4rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--text);
-  z-index: 999;
-  margin-bottom: 0.5rem;
-  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.4s ease, transform 0.4s ease, color 0.3s ease;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  line-height: 1.4;
 }
 
 .g:hover .game-name {
-  opacity: 1;
-  transform: translateY(0);
   color: var(--accent-light);
+  text-shadow: 0 0 16px var(--accent-glow);
+}
+
+.g:hover .game-info {
+  opacity: 1;
+  pointer-events: auto;
+  border-color: var(--accent);
+  box-shadow: 0 0 20px var(--accent-glow);
 }
 
 .game-play-button {
-  position: absolute;
-  top: 50%;
-  cursor:pointer;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  background: var(--accent);
-  color: var(--text);
-  border: none;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 5;
-  opacity: 0;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-              opacity 0.4s ease;
-}
-
-.game-play-button svg {
-  width: 30px;
-  height: 30px;
-  fill: var(--text);
-}
-
-.g:hover .game-play-button {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-.game-play-button:hover {
-  background: var(--accent-light);
-  transform: translate(-50%, -50%) scale(1.1) !important;
-}
-
-
-.g:hover .game-play-button {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-.game-play-button:hover {
-  background: var(--accent-light);
-  transform: translate(-50%, -50%) scale(1.1) !important;
+  display: none;
 }
 
 .icon-button {
-  background: none;
-  border: none;
+  background: rgba(10, 14, 26, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 10px;
   color: var(--text);
   font-size: 1.8rem;
   cursor: pointer;
-  transition: color 0.3s, transform 0.3s, filter 0.3s ease;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .icon-button:hover {
-  color: var(--accent);
-  transform: scale(1.2);
-  filter: brightness(1.2);
+  background: var(--primary);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 0 20px var(--accent-glow),
+    0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
 .gDisplay {
   position: fixed;
   top: 0;
   left: 0;
-  overflow: hidden;
   right: 0;
   bottom: 0;
   display: none;
   flex-direction: column;
-  background-color: var(--primary);
+  background: var(--primary);
   z-index: 1000;
-  animation: fadeIn 0.5s ease-in-out;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .gDisplay.active {
@@ -304,69 +253,84 @@ h1:hover::after {
 .gDisplay .nav-controls {
   display: flex;
   justify-content: space-between;
-  padding: 18px 25px;
-  background: var(--primary-dark);
-  border-bottom: 2px solid var(--border);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  align-items: center;
+  padding: 20px 28px;
+  background: rgba(1, 3, 29, 0.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
 .gDisplay .logo {
   display: flex;
   align-items: center;
+  gap: 16px;
 }
 
 .gDisplay .gDisplayimg {
-  width: 50px;
-  height: 50px;
+  width: 48px;
+  height: 48px;
   object-fit: contain;
-  margin-right: 15px;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .gDisplay .gDisplayname {
   color: var(--text);
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, var(--text), var(--accent-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .gDisplay .controls {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
 }
 
 .gDisplay .controls button {
-  background: var(--secondary);
+  background: rgba(10, 14, 26, 0.6);
+  backdrop-filter: blur(8px);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px;
+  border-radius: 10px;
+  padding: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .gDisplay .controls button:hover {
-  transform: scale(1.05);
+  transform: translateY(-2px);
   background: var(--primary);
   border-color: var(--accent);
-  box-shadow: 0 0 10px var(--accent-glow);
+  box-shadow: 
+    0 0 20px var(--accent-glow),
+    0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
-.gDisplay .controls button.close:hover {
-  background: var(--primary);
+.gDisplay .controls button#exit:hover {
   border-color: var(--hover-danger);
+  box-shadow: 
+    0 0 20px rgba(248, 113, 113, 0.3),
+    0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
-.gDisplay .controls button.close:hover svg {
+.gDisplay .controls button#exit:hover svg {
   fill: var(--hover-danger);
 }
 
 .gDisplay .controls svg {
   fill: var(--text);
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   transition: fill 0.3s ease;
 }
 
@@ -375,85 +339,97 @@ h1:hover::after {
   border: none;
   width: 100%;
   height: 100%;
-  background-color: var(--primary-dark);
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+  background: var(--primary-dark);
   opacity: 0;
-  transform: scale(0.98);
-  animation: fadeIn 0.5s forwards;
-}
-
-.tab.active {
-  background: var(--active-tab);
-  border-color: var(--accent);
-  box-shadow: 0 0 15px var(--accent-glow);
+  animation: fadeIn 0.4s forwards 0.1s;
 }
 
 @keyframes fadeIn {
-  0% {
+  from {
     opacity: 0;
-    transform: scale(0.95);
   }
-  100% {
+  to {
     opacity: 1;
-    transform: scale(1);
   }
 }
 
-
+/* Responsive Design */
 @media (max-width: 1600px) {
   .gcontainer {
-    max-width: 1300px;
-  }
-  .g {
-    width: 240px;
-    height: 290px;
+    max-width: 1400px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
 
 @media (max-width: 1200px) {
   .gcontainer {
-    max-width: 1000px;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 1.5rem;
   }
-  .g {
-    width: 220px;
-    height: 270px;
-  }
+  
   #__shadow-search-bar {
     width: 50vw;
   }
+  
   #__shadow-search-bar:focus {
     width: 55vw;
+  }
+  
+  h1 {
+    font-size: 2.2rem;
   }
 }
 
 @media (max-width: 768px) {
   .gcontainer {
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1.25rem;
+    padding: 1.5rem;
   }
-  .g {
-    width: 200px;
-    height: 250px;
-  }
+  
   h1 {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
+  
   #__shadow-search-bar {
     width: 70vw;
   }
+  
   #__shadow-search-bar:focus {
     width: 75vw;
   }
 }
 
 @media (max-width: 576px) {
-  .g {
-    width: 45%;
-    height: 230px;
+  .gcontainer {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
   }
+  
+  h1 {
+    font-size: 1.8rem;
+    letter-spacing: 0.5px;
+    padding-top: 1.5rem;
+  }
+  
+  h1:hover {
+    letter-spacing: 1px;
+  }
+  
   .game-name {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
   }
-  .game-name-floating {
+  
+  .gDisplay .nav-controls {
+    padding: 16px 20px;
+  }
+  
+  .gDisplay .gDisplayname {
     font-size: 1rem;
+  }
+  
+  .gDisplay .gDisplayimg {
+    width: 40px;
+    height: 40px;
   }
 }
