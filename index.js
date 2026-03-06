@@ -139,11 +139,8 @@ app.get("/csrf-token", (req, res) => {
   res.json({ csrfToken: generateToken(req, res) });
 });
 
-const models = ["gpt-5-mini", "shuttle-3.5", "gpt-5"];
 app.post("/ask", requireSession, csrfProtection, async (req, res) => {
   const { messages, model } = req.body;
-  const temperature = req.body.temperature || 0.7;
-  const max_tokens = req.body.max_tokens || 512;
 
   if (!Array.isArray(messages)) {
     return res
@@ -151,7 +148,8 @@ app.post("/ask", requireSession, csrfProtection, async (req, res) => {
       .json({ error: "msgs need to be in an array format." });
   }
 
-  const requestedModel = models.includes(model) ? model : "shuttle-3.5";
+  const requestedModel =
+    typeof model === "string" && model.trim() ? model.trim() : "shuttleai/auto";
 
   try {
     const response = await fetch(
@@ -170,6 +168,12 @@ app.post("/ask", requireSession, csrfProtection, async (req, res) => {
     );
 
     const data = await response.json();
+
+    if (!response.ok) {
+      const apiMessage =
+        data?.error?.message || data?.error || "AI provider request failed";
+      return res.status(response.status).json({ error: apiMessage });
+    }
 
     if (!data?.choices?.[0]?.message?.content) {
       console.error("Unexpected response:", data);

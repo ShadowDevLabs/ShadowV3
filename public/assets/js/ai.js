@@ -75,6 +75,13 @@ function getSessionById(sessionId) {
   return sessions.find((session) => session.id === sessionId) || null;
 }
 
+function getNewestSessionId() {
+  if (sessions.length === 0) return null;
+  return [...sessions].sort(
+    (a, b) => (b.updatedAt || 0) - (a.updatedAt || 0),
+  )[0].id;
+}
+
 function compactTitle(input) {
   const text = String(input || "")
     .replace(/\s+/g, " ")
@@ -190,7 +197,7 @@ function deleteSession(sessionId) {
   }
 
   if (activeSessionId === sessionId) {
-    activeSessionId = sessions[0].id;
+    activeSessionId = getNewestSessionId();
   }
 
   persistSessions();
@@ -850,7 +857,7 @@ async function init() {
   if (sessions.length === 0) {
     sessions = [createSession()];
   }
-  activeSessionId = sessions[0].id;
+  activeSessionId = getNewestSessionId();
 
   renderChatList();
   renderMessages();
