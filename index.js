@@ -117,7 +117,7 @@ app.use(
 );
 
 const { generateToken, validateRequest } = doubleCsrf({
-  getSecret: () => "your-secret-key",
+  getSecret: () => process.env.CSRF_SECRET || "your-secret-key",
   cookieName: undefined,
   size: 64,
   getTokenFromRequest: (req) => req.headers["x-csrf-token"],
