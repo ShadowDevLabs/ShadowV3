@@ -21,7 +21,7 @@ dotenv.config();
 const version = process.env.npm_package_version;
 const publicPath = fileURLToPath(new URL("./public/", import.meta.url));
 const app = express();
-const server = createServer();
+const server = createServer(app);
 if (Object.keys(users).length > 0)
   app.use(basicAuth({ users, challenge: true }));
 app.use((req, res, next) => {
