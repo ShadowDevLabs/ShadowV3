@@ -2,6 +2,7 @@ import { SettingsManager } from "./settings_manager.js";
 
 class ExtensionDownloader extends Extensions {
   constructor() {
+    super();
     this.settings = new SettingsManager();
   }
 
