@@ -21,7 +21,7 @@ dotenv.config();
 const version = process.env.npm_package_version;
 const publicPath = fileURLToPath(new URL("./public/", import.meta.url));
 const app = express();
-const server = createServer();
+const server = createServer(app);
 if (Object.keys(users).length > 0)
   app.use(basicAuth({ users, challenge: true }));
 app.use((req, res, next) => {
@@ -35,7 +35,32 @@ app.use((req, res, next) => {
 });
 app.use(express.static(publicPath, { maxAge: 604800000 })); //1 week
 app.use("/books/files/", (req, res) => {
-  const sourceUrl = `http://phantom.lol/books/files${req.url}`;
+  // Build a safe path relative to /books/files/ to avoid path traversal and SSRF.
+  const baseUrl = new URL("http://phantom.lol/books/files/");
+
+  // req.originalUrl includes the mount path; strip it so we only proxy the suffix.
+  const mountPath = "/books/files/";
+  const originalUrl = req.originalUrl || req.url || "";
+  const suffix = originalUrl.startsWith(mountPath)
+    ? originalUrl.slice(mountPath.length)
+    : "";
+
+  // Split suffix into path and query string.
+  const [rawPath, rawQuery = ""] = suffix.split("?");
+
+  // Basic validation to prevent path traversal and backslash abuse.
+  if (rawPath.includes("..") || rawPath.includes("\\")) {
+    res.status(400).end("Invalid path");
+    return;
+  }
+
+  // Normalize leading slash and apply to the base URL.
+  let safePath = rawPath.startsWith("/") ? rawPath : `/${rawPath}`;
+  baseUrl.pathname = baseUrl.pathname.replace(/\/+$/, "") + safePath;
+  baseUrl.search = rawQuery ? `?${rawQuery}` : "";
+
+  const sourceUrl = baseUrl.toString();
+
   http
     .get(sourceUrl, (sourceResponse) => {
       res.writeHead(sourceResponse.statusCode, sourceResponse.headers);
@@ -117,7 +142,7 @@ app.use(
 );
 
 const { generateToken, validateRequest } = doubleCsrf({
-  getSecret: () => "your-secret-key",
+  getSecret: () => process.env.CSRF_SECRET || "your-secret-key",
   cookieName: undefined,
   size: 64,
   getTokenFromRequest: (req) => req.headers["x-csrf-token"],
