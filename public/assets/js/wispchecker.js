@@ -5,7 +5,7 @@ String.prototype.delete = function (snippet) {
 };
 
 export async function checkWispUrl(url) {
-    if(checkWispServer(url)) return url;
+    if (await checkWispServer(url)) return url;
 
     url = `wss://${url.delete("https://").delete("http://").delete("ws://").delete("wss://").delete("/wisp/").delete("/wisp").delete("/")}/wisp/`
     if (await checkWispServer(url)) {
