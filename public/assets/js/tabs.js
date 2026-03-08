@@ -38,7 +38,7 @@ class Tab {
           break;
         case "search-suggestions-engine":
           this.searchSuggestionsEngine = detail.newValue;
-          break
+          break;
         default:
           break;
       }
@@ -62,7 +62,7 @@ class Tab {
           return __uv$config.prefix
           break;
       }
-    }
+    };
   }
 
   async setDefaults() {
@@ -124,7 +124,7 @@ class Tab {
         e,
       ),
     );
-    tab.iframe.title = "Content IFrame"
+    tab.iframe.title = "Content IFrame";
     document.getElementById("iframes-container").appendChild(tab.iframe);
     document
       .getElementById("tabs-container")
@@ -139,7 +139,7 @@ class Tab {
   createTabItems(tab) {
     //Tab icon
     tab.img.className = "tab-icon";
-    tab.img.alt = "Favicon"
+    tab.img.alt = "Favicon";
     if (tab.src.startsWith('shadow://')) {
       const favicon = `/assets/imgs/icons/pages/${tab.src.replace('shadow://', '')}.png`;
       tab.img.src = favicon;
