@@ -24,6 +24,15 @@ const app = express();
 const server = createServer();
 if (Object.keys(users).length > 0)
   app.use(basicAuth({ users, challenge: true }));
+app.use((req, res, next) => {
+  if (req.method === 'POST') {
+    const len = parseInt(req.headers['content-length'], 10);
+    if (req.path !== '/ask' && len > 102400) {
+      return res.status(413).end();
+    }
+  }
+  next();
+});
 app.use(express.static(publicPath, { maxAge: 604800000 })); //1 week
 app.use("/books/files/", (req, res) => {
   const sourceUrl = `http://phantom.lol/books/files${req.url}`;
@@ -92,7 +101,6 @@ app.get("/v1/api/search-suggestions", async (req, res) => {
 // AI STUFF
 
 app.use(cookieParser());
-app.use(express.json({ limit: "12mb" }));
 
 app.use(
   session({
@@ -139,7 +147,7 @@ app.get("/csrf-token", (req, res) => {
   res.json({ csrfToken: generateToken(req, res) });
 });
 
-app.post("/ask", requireSession, csrfProtection, async (req, res) => {
+app.post("/ask", express.json({ limit: "12mb" }), requireSession, csrfProtection, async (req, res) => {
   const { messages, model } = req.body;
 
   if (!Array.isArray(messages)) {
