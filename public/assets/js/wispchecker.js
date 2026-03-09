@@ -1,18 +1,37 @@
 import { WispWebSocket } from "./wispclient.js";
 
-String.prototype.delete = function (snippet) {
-    return this.replace(new RegExp(snippet, 'g'), '');
-};
+// Escape special regex characters in a string so it can be used safely in RegExp
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function deleteSnippet(str, snippet) {
+    return str.replace(new RegExp(escapeRegExp(snippet), 'g'), '');
+}
 
 export async function checkWispUrl(url) {
     if (await checkWispServer(url)) return url;
 
-    url = `wss://${url.delete("https://").delete("http://").delete("ws://").delete("wss://").delete("/wisp/").delete("/wisp").delete("/")}/wisp/`
+    const patternsToRemove = [
+        "https://",
+        "http://",
+        "ws://",
+        "wss://",
+        "/wisp/",
+        "/wisp",
+        "/"
+    ];
+
+    for (const pattern of patternsToRemove) {
+        url = deleteSnippet(url, pattern);
+    }
+
+    url = `wss://${url}/wisp/`;
     if (await checkWispServer(url)) {
         return url
     }
 
-    return `wss://${location.origin}/wisp/`
+    return `wss://${location.host}/wisp/`
 }
 
 export async function checkWispServer(url) {
@@ -40,7 +59,7 @@ export async function checkWispServer(url) {
         const timeout = setTimeout(() => {
             ws.close(); // Close WebSocket if not opened
             resolve(false); // Resolve as unsuccessful
-        }, 500); // Wait 5 seconds for a connection
+        }, 500); // Wait 0.5 seconds for a connection
 
         ws.addEventListener("close", () => {
             clearTimeout(timeout); // Clear timeout on closure
