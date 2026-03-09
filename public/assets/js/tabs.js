@@ -9,6 +9,7 @@ class Tab {
     this.activeTabIndex = -1;
     this.tabsArr = [];
     this.brokenSites = fetch('/v1/api/broken-sites').then(res => res.json());
+    this.brokenSitesLastUpdated = 0;
     this.history = new HistoryHelper();
     this.settings = new SettingsManager();
     this.connection = new BareMuxConnection("/baremux/worker.js");
@@ -67,9 +68,9 @@ class Tab {
 
   async setDefaults() {
     const arr = this.defaults;
-    arr.forEach(async i => {
-      this.settings.default(i.key, i.value)
-    });
+    for (const i of arr) {
+      await this.settings.default(i.key, i.value);
+    }
   }
 
   async init() {
@@ -145,7 +146,7 @@ class Tab {
       tab.img.src = favicon;
     }
 
-    tab.img.onerror = `${(tab.img.style.display = "none;")}`;
+    tab.img.onerror = () => { tab.img.style.display = "none"; };
     tab.tab.appendChild(tab.img);
     //Tab title
     const titleContainer = document.createElement("div");
@@ -306,7 +307,7 @@ class Tab {
 
     //Set the icon for the tab
     this.tabsArr[i].img.src = icon
-    if (this.tabsArr[i].img.style.display == "none;") this.tabsArr[i].img.style.display = "block;";
+    if (this.tabsArr[i].img.style.display === "none") this.tabsArr[i].img.style.display = "block";
 
     //Set the title for a tab
     this.tabsArr[i].tab.querySelector(".tab-title").textContent = title;
@@ -373,12 +374,15 @@ class Tab {
 
   async checkSite(url) {
     url = /^https:\/\//i.test(url) ? url : `https://${url}`;
-    if (await this.brokenSites.lastUpdated <= Date.now - 300000 /*5 minutes*/) {
-      fetch(`/v1/api/broken-sites`).then((res) => { this.brokenSites = res.json(); });
+    let sites = await this.brokenSites;
+    if (this.brokenSitesLastUpdated <= Date.now() - 300000 /*5 minutes*/) {
+      this.brokenSites = fetch(`/v1/api/broken-sites`).then((res) => res.json());
+      this.brokenSitesLastUpdated = Date.now();
+      sites = await this.brokenSites;
     }
 
-    if ((await this.brokenSites).hasOwnProperty(url)) {
-      return (await this.brokenSites)[url];
+    if (sites && Object.prototype.hasOwnProperty.call(sites, url)) {
+      return sites[url];
     } else {
       return false;
     }
@@ -415,7 +419,18 @@ class Tab {
 const tabs = new Tab();
 window.tabs = tabs;
 
-searchInput.onkeydown = (e) => { if (e.key !== "Enter") tabs.displaySearchSuggestions(e.key.length > 1 ? (e.key === "Backspace" ? searchInput.value.slice(0, -1) : searchInput.value) : searchInput.value + e.key); };
+searchInput.onkeydown = (e) => {
+  if (e.key === "Enter") return;
+
+  const query =
+    e.key.length > 1
+      ? (e.key === "Backspace"
+          ? searchInput.value.slice(0, -1)
+          : searchInput.value)
+      : searchInput.value + e.key;
+
+  tabs.displaySearchSuggestions(query);
+};
 searchInput.onfocus = () => { if (searchInput.value != "") tabs.displaySearchSuggestions(); };
 document.onclick = (e) => { if (e.target !== searchInput) tabs.hideSuggestions(); };
 window.onmessage = (message) => { if (message.data === "hide-suggestions") tabs.hideSuggestions(); };
