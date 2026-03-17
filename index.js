@@ -33,28 +33,29 @@ app.use((req, res, next) => {
   }
   next();
 });
+app.use("/epoxy/", express.static(epoxyPath));
+app.use("/libcurl/", express.static(libcurlPath));
+app.use("/baremux/", express.static(baremuxPath));
+app.use("/uv/", express.static(uvPath));
+app.use("/privacy", express.static(publicPath + "/privacy.html"));
+
 app.use(express.static(publicPath, { maxAge: 604800000 })); //1 week
 app.use("/books/files/", (req, res) => {
-  // Build a safe path relative to /books/files/ to avoid path traversal and SSRF.
   const baseUrl = new URL("http://phantom.lol/books/files/");
 
-  // req.originalUrl includes the mount path; strip it so we only proxy the suffix.
   const mountPath = "/books/files/";
   const originalUrl = req.originalUrl || req.url || "";
   const suffix = originalUrl.startsWith(mountPath)
     ? originalUrl.slice(mountPath.length)
     : "";
 
-  // Split suffix into path and query string.
   const [rawPath, rawQuery = ""] = suffix.split("?");
 
-  // Basic validation to prevent path traversal and backslash abuse.
   if (rawPath.includes("..") || rawPath.includes("\\")) {
     res.status(400).end("Invalid path");
     return;
   }
 
-  // Normalize leading slash and apply to the base URL.
   let safePath = rawPath.startsWith("/") ? rawPath : `/${rawPath}`;
   baseUrl.pathname = baseUrl.pathname.replace(/\/+$/, "") + safePath;
   baseUrl.search = rawQuery ? `?${rawQuery}` : "";
@@ -71,11 +72,6 @@ app.use("/books/files/", (req, res) => {
       res.end(`Error fetching file: ${err.message}`);
     });
 });
-app.use("/epoxy/", express.static(epoxyPath));
-app.use("/libcurl/", express.static(libcurlPath));
-app.use("/baremux/", express.static(baremuxPath));
-app.use("/uv/", express.static(uvPath));
-app.use("/privacy", express.static(publicPath + "/privacy.html"));
 
 app.get("/v1/api/version", (req, res) => {
   if (req.query.v && req.query.v != version) {
@@ -235,11 +231,6 @@ app.get("/v1/api/user-agents", async (req, res) => {
 app.use((req, res) => {
   res.status(404);
   res.sendFile(join(publicPath, "404.html"));
-});
-
-server.on("request", (req, res) => {
-  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
-  app(req, res);
 });
 
 server.on("upgrade", (req, socket, head) => {
