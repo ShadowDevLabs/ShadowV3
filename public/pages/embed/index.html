@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title></title>
+<link rel="icon" id="favicon" type="image/png" href="">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+iframe { width: 100%; height: 100%; border: none; display: block; }
+</style>
+</head>
+<body>
+<iframe id="game" allowfullscreen></iframe>
+<script>
+const params = new URLSearchParams(location.search);
+let url = params.get('url');
+
+if (!url) {
+  document.body.innerHTML = '<p style="color:#fff;padding:20px">No URL provided.</p>';
+} else {
+  url = url.replace(/\.html\.html$/i, '.html');
+  document.getElementById('game').src = url;
+
+  fetch('/books/learningcourses.json')
+    .then(r => r.json())
+    .then(data => {
+      const game = data.games.find(g =>
+        '/books/files/k12learning/' + g.url === url ||
+        '/books/files/k12learning/' + g.url.replace(/\.html$/i, '') === url.replace(/\.html$/i, '')
+      );
+      if (!game) return;
+
+      const gameLabel = game.label || '';
+      const iconUrl = game.imageUrl ? '/books/files/k12learning/' + game.imageUrl : null;
+
+      if (iconUrl) document.getElementById('favicon').href = iconUrl;
+
+      try {
+        const tabsApi = window.parent?.tabs;
+        if (!tabsApi) return;
+
+        const tab = tabsApi.tabsArr.find(t => t.iframe === window.frameElement);
+        if (!tab) return;
+
+        tab.title = gameLabel;
+        tab.tab.querySelector('.tab-title').textContent = gameLabel;
+
+        if (iconUrl) {
+          Object.defineProperty(tab.img, 'src', {
+            get() { return this._src; },
+            set(v) {
+              if (v && v.includes('/assets/imgs/icons/pages/')) return;
+              this._src = v;
+              this.setAttribute('src', v);
+            },
+            configurable: true
+          });
+          tab.img.src = iconUrl;
+          tab.img.style.display = '';
+          tab.img.onerror = () => {};
+        }
+
+        tabsApi.getTabInfo = function(i = this.activeTabIndex) {
+          const src = this.parseUrl(i);
+          let icon;
+          if (src.startsWith('shadow://')) {
+            icon = `/assets/imgs/icons/pages/${src.replace('shadow://', '')}.png`;
+          } else {
+            icon = `https://www.google.com/s2/favicons/imgs/icons?domain=${src}&sz=24`;
+          }
+          const title = this.tabsArr[i].title || this.tabsArr[i].iframe.contentDocument.title;
+          return { title, icon, src };
+        };
+
+      } catch {}
+    })
+    .catch(() => {});
+}
+</script>
+</body>
+</html>

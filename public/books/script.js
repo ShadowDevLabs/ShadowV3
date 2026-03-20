@@ -1,175 +1,229 @@
-document.addEventListener('DOMContentLoaded', () => {
-  fetchGames();
-  setupEventListeners();
-});
+import { SettingsManager } from "../assets/js/settings_manager.js";
 
-async function fetchGames() {
+const BATCH = 60;
+const BASE_PATH = '/books/files/k12learning/';
+const FAV_KEY = 'arcade_favorites';
+
+const settings = new SettingsManager();
+
+let allGames     = [];
+let visible      = [];
+let rendered     = 0;
+let activeFilter = 'all';
+let searchQuery  = '';
+let favorites    = new Set();
+let imgObserver, scrollObserver;
+
+async function loadFavorites() {
+  const stored = await settings.get(FAV_KEY);
+  favorites = new Set(Array.isArray(stored) ? stored : []);
+}
+
+async function saveFavorites() {
+  await settings.set(FAV_KEY, [...favorites]);
+}
+
+function isHot(game) {
+  return (game.categories || []).some(c => c.toLowerCase() === 'hot');
+}
+
+function openGameTab(game) {
+  const gameUrl = BASE_PATH + game.url;
+  const embedUrl = `embed.html?url=${encodeURIComponent(gameUrl)}`;
+
   try {
-    const response = await fetch("games.json");
-    if (!response.ok) throw new Error('Network response was not ok');
-    const games = await response.json();
-    renderGames(games);
-  } catch (error) {
-    console.error("Error loading games:", error);
+    const tabsApi = window.parent?.tabs;
+    if (!tabsApi) { window.open(gameUrl, '_blank'); return; }
+    tabsApi.createTab(embedUrl);
+  } catch {
+    window.open(gameUrl, '_blank');
   }
 }
 
-function renderGames(games) {
-  const container = document.getElementById("gcontainer");
+const HEART_FILLED = `<svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="currentColor"><path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Z"/></svg>`;
+const HEART_EMPTY  = `<svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="currentColor"><path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z"/></svg>`;
 
-  games.sort((a, b) => a.name.localeCompare(b.name));
-
-  const fragment = document.createDocumentFragment();
-
-  const observer = createLazyLoadObserver();
-
-  games.forEach((game) => {
-    const gElement = createGameElement(game);
-    fragment.appendChild(gElement);
-
-    observer.observe(gElement);
-  });
-
-  container.appendChild(fragment);
-
-  setupSearchFunctionality(container);
-}
-
-function createLazyLoadObserver() {
-  return new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const gameElement = entry.target;
-        const imgElement = gameElement.querySelector('img[data-src]');
-
-        if (imgElement) {
-          imgElement.src = imgElement.dataset.src;
-          imgElement.removeAttribute('data-src');
-        }
-
-        observer.unobserve(gameElement);
-      }
+function setupImgObserver() {
+  imgObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const img = e.target;
+      img.src = img.dataset.src;
+      img.onload  = () => { img.classList.add('loaded'); img.previousElementSibling?.classList.add('hidden'); };
+      img.onerror = () => img.remove();
+      imgObserver.unobserve(img);
     });
-  }, {
-    rootMargin: '200px', 
-    threshold: 0.01
+  }, { rootMargin: '300px' });
+}
+
+function setupScrollObserver() {
+  scrollObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && rendered < visible.length) renderBatch();
+  }, { rootMargin: '400px' });
+  scrollObserver.observe(document.getElementById('sentinel'));
+}
+
+function buildCard(game) {
+  const a = document.createElement('a');
+  a.className = 'card';
+  a.href = '#';
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    openGameTab(game);
   });
-}
 
-function createGameElement(game) {
-  const gElement = document.createElement("div");
-  gElement.classList.add("g");
+  const ph = document.createElement('div');
+  ph.className = 'card-ph';
+  ph.textContent = (game.label || '??').slice(0, 2).toUpperCase();
+  a.appendChild(ph);
 
-  const imgElement = document.createElement("img");
-  imgElement.dataset.src = `files/${game.root}/${game.img}`; 
-  imgElement.alt = game.name;
-  imgElement.classList.add("game-image");
+  if (game.imageUrl) {
+    const img = document.createElement('img');
+    img.dataset.src = BASE_PATH + game.imageUrl;
+    img.alt = game.label;
+    img.decoding = 'async';
+    a.appendChild(img);
+    imgObserver.observe(img);
+  }
 
-  imgElement.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E";
+  if (isHot(game)) {
+    const badge = document.createElement('div');
+    badge.className = 'badge-hot';
+    badge.innerHTML = `<span class="badge-hot-flame">🔥</span><span class="badge-hot-text">HOT</span>`;
+    a.appendChild(badge);
+  }
 
-  const gameName = document.createElement("p");
-  gameName.classList.add("game-name");
-  gameName.textContent = game.name;
-
-  const playButton = document.createElement("button");
-  playButton.classList.add("game-play-button");
-  playButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
-
-  gElement.dataset.root = game.root;
-  gElement.dataset.file = game.file;
-  gElement.dataset.name = game.name;
-  gElement.dataset.img = `files/${game.root}/${game.img}`;
-
-  gElement.appendChild(imgElement);
-  gElement.appendChild(gameName);
-  gElement.appendChild(playButton);
-
-  return gElement;
-}
-
-function setupSearchFunctionality(container) {
-  const searchBar = document.getElementById("__shadow-search-bar");
-
-  let debounceTimeout;
-  searchBar.addEventListener("input", () => {
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(() => {
-      const query = searchBar.value.toLowerCase();
-
-      requestAnimationFrame(() => {
-        const gameElements = container.querySelectorAll(".g");
-        gameElements.forEach((gameElement) => {
-          const gameName = gameElement.dataset.name.toLowerCase();
-          const match = gameName.includes(query);
-          gameElement.style.display = match ? "flex" : "none";
-        });
-      });
-    }, 150); 
-  });
-}
-
-function setupEventListeners() {
-
-  document.getElementById("gcontainer").addEventListener("click", (e) => {
-    const gameElement = e.target.closest(".g");
-    if (gameElement) {
-      const root = gameElement.dataset.root;
-      const file = gameElement.dataset.file;
-      const name = gameElement.dataset.name;
-      const img = gameElement.dataset.img;
-      launch(`files/${root}/${file}`, name, img);
+  const isFav = favorites.has(game.label);
+  const favBtn = document.createElement('button');
+  favBtn.className = 'fav-btn' + (isFav ? ' active' : '');
+  favBtn.innerHTML = isFav ? HEART_FILLED : HEART_EMPTY;
+  favBtn.title = 'Favorite';
+  favBtn.addEventListener('click', async e => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (favorites.has(game.label)) {
+      favorites.delete(game.label);
+      favBtn.classList.remove('active');
+      favBtn.innerHTML = HEART_EMPTY;
+    } else {
+      favorites.add(game.label);
+      favBtn.classList.add('active');
+      favBtn.innerHTML = HEART_FILLED;
     }
+    await saveFavorites();
+    if (activeFilter === 'favorites') applyFilters();
   });
+  a.appendChild(favBtn);
 
-  document.getElementById("fullscreen").addEventListener("click", () => {
-    const iframeContainer = document.querySelector(".gDisplay");
-    gameFullscreen(iframeContainer);
-  });
+  const overlay = document.createElement('div');
+  overlay.className = 'card-overlay';
+  overlay.innerHTML =
+    '<div class="card-play"><svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg></div>' +
+    `<div class="card-name">${game.label}</div>`;
 
-  document.getElementById("exit").addEventListener("click", () => {
-    showiframe();
-  });
+  const cats = (game.categories || []).filter(c => c.toLowerCase() !== 'hot');
+  if (cats.length) {
+    const ct = document.createElement('div');
+    ct.className = 'card-cats';
+    ct.textContent = cats.slice(0, 2).join(' · ');
+    overlay.appendChild(ct);
+  }
 
-  document.getElementById("refresh").addEventListener("click", () => {
-    const gIframe = document.getElementById("gIframe");
-    gIframe.contentWindow.location.reload();
-  });
+  a.appendChild(overlay);
+  return a;
 }
 
-function launch(src, name, gameimg) {
-  const gDisplay = document.querySelector(".gDisplay");
-  const gDisplayImg = document.getElementById("gDisplayImg");
-  const gDisplayName = document.getElementById("gDisplayName");
-  const gIframe = document.getElementById("gIframe");
-
-  gDisplayImg.src = gameimg;
-  gDisplayName.textContent = name;
-
-  gDisplay.classList.add("active");
-  document.body.classList.add("no-scroll");
-
-  setTimeout(() => {
-    gIframe.src = src;
-  }, 50);
+function renderBatch() {
+  const grid = document.getElementById('grid');
+  const end  = Math.min(rendered + BATCH, visible.length);
+  const frag = document.createDocumentFragment();
+  for (let i = rendered; i < end; i++) frag.appendChild(buildCard(visible[i]));
+  grid.appendChild(frag);
+  rendered = end;
 }
 
-function showiframe() {
-  const gDisplay = document.querySelector(".gDisplay");
-  const gIframe = document.getElementById("gIframe");
-  gDisplay.classList.remove("active");
+function applyFilters() {
+  const q = searchQuery.toLowerCase();
 
-  setTimeout(() => {
-    gIframe.src = "";
-  }, 100);
-  document.body.classList.remove("no-scroll");
-}
+  let filtered = allGames.filter(g => {
+    if (activeFilter === 'favorites') return favorites.has(g.label);
+    const catOk = activeFilter === 'all' ||
+      (g.categories || []).some(c => c.toLowerCase() === activeFilter);
+    const searchOk = !q || g.label.toLowerCase().includes(q);
+    return catOk && searchOk;
+  });
 
-function gameFullscreen(element) {
-  if (!document.fullscreenElement) {
-    element.requestFullscreen().catch(err => {
-      console.error(`Error attempting to enable fullscreen: ${err.message}`);
-    });
+  if (activeFilter !== 'favorites' && !q) {
+    const hot  = filtered.filter(g => isHot(g));
+    const rest = filtered.filter(g => !isHot(g));
+    visible = [...hot, ...rest];
   } else {
-    document.exitFullscreen();
+    visible = filtered;
+  }
+
+  rendered = 0;
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  document.getElementById('countDisplay').textContent =
+    `${visible.length} game${visible.length !== 1 ? 's' : ''}`;
+
+  if (visible.length === 0) {
+    grid.innerHTML = '<div class="empty"><strong>NO RESULTS</strong>Try a different search or filter</div>';
+    return;
+  }
+
+  renderBatch();
+}
+
+function buildFilters(games) {
+  const set = new Set();
+  games.forEach(g => (g.categories || []).forEach(c => {
+    if (c.toLowerCase() !== 'hot') set.add(c.toLowerCase());
+  }));
+  const cats = ['all', 'favorites', ...Array.from(set).sort()];
+  const container = document.getElementById('filters');
+  cats.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className   = 'pill' + (cat === 'all' ? ' active' : '');
+    if (cat === 'favorites') {
+      btn.innerHTML = `<span class="pill-heart">${HEART_FILLED}</span> Favorites`;
+    } else {
+      btn.textContent = cat === 'all' ? 'All' : cat;
+    }
+    btn.dataset.cat = cat;
+    btn.addEventListener('click', () => {
+      activeFilter = cat;
+      container.querySelectorAll('.pill').forEach(p =>
+        p.classList.toggle('active', p.dataset.cat === cat));
+      applyFilters();
+    });
+    container.appendChild(btn);
+  });
+}
+
+function debounce(fn, ms) {
+  let t;
+  return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
+
+async function init() {
+  setupImgObserver();
+  setupScrollObserver();
+  await loadFavorites();
+  try {
+    const data = await fetch('learningcourses.json').then(r => r.json());
+    allGames = data.games.filter(g => g.label !== 'Request Games');
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('grid').style.display = 'grid';
+    buildFilters(allGames);
+    applyFilters();
+    document.getElementById('searchInput').addEventListener('input',
+      debounce(e => { searchQuery = e.target.value; applyFilters(); }, 150));
+  } catch {
+    document.getElementById('loading').innerHTML =
+      '<div class="empty"><strong>ERROR</strong>Could not load learningcourses.json</div>';
   }
 }
+
+init();
