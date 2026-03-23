@@ -1,18 +1,15 @@
 import { SettingsManager } from "../assets/js/settings_manager.js";
 
-const BATCH = 60;
-const BASE_PATH = '/books/files/k12learning/';
+const BASE_PATH = 'https://goshadow.net/books/files/k12learning/';
 const FAV_KEY = 'arcade_favorites';
 
 const settings = new SettingsManager();
 
 let allGames     = [];
 let visible      = [];
-let rendered     = 0;
 let activeFilter = 'all';
 let searchQuery  = '';
 let favorites    = new Set();
-let imgObserver, scrollObserver;
 
 async function loadFavorites() {
   const stored = await settings.get(FAV_KEY);
@@ -29,7 +26,8 @@ function isHot(game) {
 
 function openGameTab(game) {
   const gameUrl = BASE_PATH + game.url;
-  const embedUrl = `embed.html?url=${encodeURIComponent(gameUrl)}`;
+  const iconUrl = game.imageUrl ? BASE_PATH + game.imageUrl : '';
+  const embedUrl = `embed.html?url=${encodeURIComponent(gameUrl)}&title=${encodeURIComponent(game.label || '')}&icon=${encodeURIComponent(iconUrl)}&src=books`;
 
   try {
     const tabsApi = window.parent?.tabs;
@@ -42,26 +40,6 @@ function openGameTab(game) {
 
 const HEART_FILLED = `<svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="currentColor"><path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Z"/></svg>`;
 const HEART_EMPTY  = `<svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="currentColor"><path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z"/></svg>`;
-
-function setupImgObserver() {
-  imgObserver = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      const img = e.target;
-      img.src = img.dataset.src;
-      img.onload  = () => { img.classList.add('loaded'); img.previousElementSibling?.classList.add('hidden'); };
-      img.onerror = () => img.remove();
-      imgObserver.unobserve(img);
-    });
-  }, { rootMargin: '300px' });
-}
-
-function setupScrollObserver() {
-  scrollObserver = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting && rendered < visible.length) renderBatch();
-  }, { rootMargin: '400px' });
-  scrollObserver.observe(document.getElementById('sentinel'));
-}
 
 function buildCard(game) {
   const a = document.createElement('a');
@@ -79,11 +57,20 @@ function buildCard(game) {
 
   if (game.imageUrl) {
     const img = document.createElement('img');
-    img.dataset.src = BASE_PATH + game.imageUrl;
+    img.src = BASE_PATH + game.imageUrl;
     img.alt = game.label;
+    img.loading = 'lazy';
     img.decoding = 'async';
+    img.onload = () => {
+      if (!img.isConnected) return;
+      img.classList.add('loaded');
+      img.previousElementSibling?.classList.add('hidden');
+    };
+    img.onerror = () => {
+      if (!img.isConnected) return;
+      img.remove();
+    };
     a.appendChild(img);
-    imgObserver.observe(img);
   }
 
   if (isHot(game)) {
@@ -133,23 +120,21 @@ function buildCard(game) {
   return a;
 }
 
-function renderBatch() {
+function renderVisible() {
   const grid = document.getElementById('grid');
-  const end  = Math.min(rendered + BATCH, visible.length);
   const frag = document.createDocumentFragment();
-  for (let i = rendered; i < end; i++) frag.appendChild(buildCard(visible[i]));
+  for (let i = 0; i < visible.length; i++) frag.appendChild(buildCard(visible[i]));
   grid.appendChild(frag);
-  rendered = end;
 }
 
 function applyFilters() {
   const q = searchQuery.toLowerCase();
 
   let filtered = allGames.filter(g => {
-    if (activeFilter === 'favorites') return favorites.has(g.label);
+    const searchOk = !q || g.label.toLowerCase().includes(q);
+    if (activeFilter === 'favorites') return favorites.has(g.label) && searchOk;
     const catOk = activeFilter === 'all' ||
       (g.categories || []).some(c => c.toLowerCase() === activeFilter);
-    const searchOk = !q || g.label.toLowerCase().includes(q);
     return catOk && searchOk;
   });
 
@@ -161,8 +146,11 @@ function applyFilters() {
     visible = filtered;
   }
 
-  rendered = 0;
   const grid = document.getElementById('grid');
+  grid.querySelectorAll('img').forEach(img => {
+    img.onload = null;
+    img.onerror = null;
+  });
   grid.innerHTML = '';
 
   document.getElementById('countDisplay').textContent =
@@ -173,7 +161,7 @@ function applyFilters() {
     return;
   }
 
-  renderBatch();
+  renderVisible();
 }
 
 function buildFilters(games) {
@@ -208,8 +196,6 @@ function debounce(fn, ms) {
 }
 
 async function init() {
-  setupImgObserver();
-  setupScrollObserver();
   await loadFavorites();
   try {
     const data = await fetch('learningcourses.json').then(r => r.json());
