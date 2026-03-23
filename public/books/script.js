@@ -1,6 +1,6 @@
 import { SettingsManager } from "../assets/js/settings_manager.js";
 
-const BASE_PATH = 'https://goshadow.net/books/files/k12learning/';
+const BASE_PATH = 'books/files/k12learning/';
 const FAV_KEY = 'arcade_favorites';
 
 const settings = new SettingsManager();
