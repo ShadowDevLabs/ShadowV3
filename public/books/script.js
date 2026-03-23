@@ -178,7 +178,7 @@ function updateDisplay() {
 function applyFilters() {
   const q = searchQuery.toLowerCase();
 
-  let filtered = allGames.filter(g => {
+  const filtered = allGames.filter(g => {
     const searchOk = !q || g.label.toLowerCase().includes(q);
     if (activeFilter === 'favorites') return favorites.has(g.label) && searchOk;
     const catOk = activeFilter === 'all' ||
@@ -186,7 +186,7 @@ function applyFilters() {
     return catOk && searchOk;
   });
 
-  if (activeFilter !== 'favorites' && !q) {
+  if (activeFilter !== 'favorites') {
     const hot  = filtered.filter(g => isHot(g));
     const rest = filtered.filter(g => !isHot(g));
     visible = [...hot, ...rest];
