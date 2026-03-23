@@ -16,67 +16,163 @@ iframe { width: 100%; height: 100%; border: none; display: block; }
 <script>
 const params = new URLSearchParams(location.search);
 let url = params.get('url');
+const gameFrame = document.getElementById('game');
+const faviconEl = document.getElementById('favicon');
+const GAME_BASE_PATH = '/books/files/k12learning/';
+const GAME_INDEX_CACHE_KEY = 'books_game_index_v1';
+const GAME_INDEX_CACHE_VERSION = 1;
+
+let inMemoryGameIndex = null;
+let tabContext = null;
+
+function toComparablePath(value = '') {
+  try {
+    return new URL(value, location.origin).pathname;
+  } catch {
+    return value;
+  }
+}
+
+function normalizeGameUrl(value = '') {
+  return toComparablePath(value)
+    .replace(/\.html\.html$/i, '.html')
+    .replace(/\.html$/i, '')
+    .toLowerCase();
+}
+
+function sanitizeIconUrl(value = '') {
+  if (!value) return '';
+  return value.replace(/\.(png|jpe?g|webp|gif|svg)\.html$/i, '.$1');
+}
+
+function buildGameIndex(data) {
+  const index = {};
+  (data.games || []).forEach(game => {
+    if (!game || !game.url) return;
+    const gameUrl = GAME_BASE_PATH + game.url;
+    index[normalizeGameUrl(gameUrl)] = {
+      label: game.label || '',
+      iconUrl: game.imageUrl ? GAME_BASE_PATH + game.imageUrl : null
+    };
+  });
+  return index;
+}
+
+async function getGameMetaByUrl(targetUrl) {
+  if (inMemoryGameIndex) {
+    return inMemoryGameIndex[normalizeGameUrl(targetUrl)] || null;
+  }
+
+  const normalized = normalizeGameUrl(targetUrl);
+  let index = null;
+
+  try {
+    const cached = JSON.parse(sessionStorage.getItem(GAME_INDEX_CACHE_KEY) || 'null');
+    if (cached && cached.v === GAME_INDEX_CACHE_VERSION && cached.index && typeof cached.index === 'object') {
+      index = cached.index;
+    }
+  } catch {}
+
+  if (!index || typeof index !== 'object') {
+    const data = await fetch('/books/learningcourses.json', { cache: 'force-cache' }).then(r => r.json());
+    index = buildGameIndex(data);
+    try {
+      sessionStorage.setItem(GAME_INDEX_CACHE_KEY, JSON.stringify({ v: GAME_INDEX_CACHE_VERSION, index }));
+    } catch {}
+  }
+
+  inMemoryGameIndex = index;
+  return index[normalized] || null;
+}
+
+function getTabContext() {
+  if (tabContext) return tabContext;
+
+  try {
+    const tabsApi = window.parent?.tabs;
+    if (!tabsApi) return null;
+    const tab = tabsApi.tabsArr.find(t => t.iframe === window.frameElement);
+    if (!tab) return null;
+    tabContext = { tabsApi, tab };
+    return tabContext;
+  } catch {
+    return null;
+  }
+}
+
+function applyGameMeta(gameLabel, iconUrl) {
+  const safeIconUrl = sanitizeIconUrl(iconUrl || '');
+  if (safeIconUrl) faviconEl.href = safeIconUrl;
+
+  const ctx = getTabContext();
+  if (!ctx) return;
+
+  const { tabsApi, tab } = ctx;
+
+  if (gameLabel && tab.title !== gameLabel) {
+    tab.title = gameLabel;
+    tab.tab.querySelector('.tab-title').textContent = gameLabel;
+  }
+
+  if (safeIconUrl) {
+    if (!tab.img.dataset.booksIconSrcPatched) {
+      Object.defineProperty(tab.img, 'src', {
+        get() { return this._src; },
+        set(v) {
+          if (v && v.includes('/assets/imgs/icons/pages/')) return;
+          this._src = v;
+          this.setAttribute('src', v);
+        },
+        configurable: true
+      });
+      tab.img.dataset.booksIconSrcPatched = '1';
+      tab.img.onerror = () => {};
+    }
+
+    if (tab.img.getAttribute('src') !== safeIconUrl) {
+      tab.img.src = safeIconUrl;
+    }
+    if (tab.img.style.display === 'none') {
+      tab.img.style.display = '';
+    }
+  }
+
+  if (!tabsApi.__booksEmbedGetTabInfoPatched) {
+    tabsApi.getTabInfo = function(i = this.activeTabIndex) {
+      const src = this.parseUrl(i);
+      let icon;
+      if (src.startsWith('shadow://')) {
+        icon = `/assets/imgs/icons/pages/${src.replace('shadow://', '')}.png`;
+      } else {
+        icon = `https://www.google.com/s2/favicons/imgs/icons?domain=${src}&sz=24`;
+      }
+      const title = this.tabsArr[i].title || this.tabsArr[i].iframe.contentDocument.title;
+      return { title, icon, src };
+    };
+    tabsApi.__booksEmbedGetTabInfoPatched = true;
+  }
+}
 
 if (!url) {
   document.body.innerHTML = '<p style="color:#fff;padding:20px">No URL provided.</p>';
 } else {
   url = url.replace(/\.html\.html$/i, '.html');
-  document.getElementById('game').src = url;
+  gameFrame.src = url;
 
-  fetch('/books/learningcourses.json')
-    .then(r => r.json())
-    .then(data => {
-      const game = data.games.find(g =>
-        '/books/files/k12learning/' + g.url === url ||
-        '/books/files/k12learning/' + g.url.replace(/\.html$/i, '') === url.replace(/\.html$/i, '')
-      );
-      if (!game) return;
+  const queryLabel = params.get('title') || '';
+  const queryIcon = params.get('icon') || '';
+  applyGameMeta(queryLabel, queryIcon || null);
 
-      const gameLabel = game.label || '';
-      const iconUrl = game.imageUrl ? '/books/files/k12learning/' + game.imageUrl : null;
-
-      if (iconUrl) document.getElementById('favicon').href = iconUrl;
-
-      try {
-        const tabsApi = window.parent?.tabs;
-        if (!tabsApi) return;
-
-        const tab = tabsApi.tabsArr.find(t => t.iframe === window.frameElement);
-        if (!tab) return;
-
-        tab.title = gameLabel;
-        tab.tab.querySelector('.tab-title').textContent = gameLabel;
-
-        if (iconUrl) {
-          Object.defineProperty(tab.img, 'src', {
-            get() { return this._src; },
-            set(v) {
-              if (v && v.includes('/assets/imgs/icons/pages/')) return;
-              this._src = v;
-              this.setAttribute('src', v);
-            },
-            configurable: true
-          });
-          tab.img.src = iconUrl;
-          tab.img.style.display = '';
-          tab.img.onerror = () => {};
-        }
-
-        tabsApi.getTabInfo = function(i = this.activeTabIndex) {
-          const src = this.parseUrl(i);
-          let icon;
-          if (src.startsWith('shadow://')) {
-            icon = `/assets/imgs/icons/pages/${src.replace('shadow://', '')}.png`;
-          } else {
-            icon = `https://www.google.com/s2/favicons/imgs/icons?domain=${src}&sz=24`;
-          }
-          const title = this.tabsArr[i].title || this.tabsArr[i].iframe.contentDocument.title;
-          return { title, icon, src };
-        };
-
-      } catch {}
-    })
-    .catch(() => {});
+  if (!queryLabel || !queryIcon) {
+    getGameMetaByUrl(url)
+      .then(meta => {
+        if (!meta) return;
+        const finalLabel = queryLabel || meta.label;
+        const finalIcon = queryIcon || meta.iconUrl;
+        applyGameMeta(finalLabel, finalIcon || null);
+      })
+      .catch(() => {});
+  }
 }
 </script>
 </body>
