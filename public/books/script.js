@@ -7,6 +7,7 @@ const settings = new SettingsManager();
 
 let allGames     = [];
 let visible      = [];
+let previousVisible = new Set();
 let activeFilter = 'all';
 let searchQuery  = '';
 let favorites    = new Set();
@@ -134,8 +135,16 @@ function updateDisplay() {
   
   grid.querySelectorAll('.card').forEach(card => {
     const label = card.dataset.gameLabel;
-    card.style.display = visibleLabels.has(label) ? '' : 'none';
+    const shouldBeVisible = visibleLabels.has(label);
+    const wasVisible = previousVisible.has(label);
+    
+    // Only update if visibility changed
+    if (shouldBeVisible !== wasVisible) {
+      card.style.display = shouldBeVisible ? '' : 'none';
+    }
   });
+  
+  previousVisible = visibleLabels;
 
   let emptyMsg = grid.querySelector('.empty');
   if (visible.length === 0) {
@@ -216,6 +225,7 @@ async function init() {
     document.getElementById('grid').style.display = 'grid';
     buildFilters(allGames);
     visible = allGames;
+    previousVisible = new Set(allGames.map(g => g.label));
     renderVisible();
     applyFilters();
     document.getElementById('searchInput').addEventListener('input',
