@@ -45,6 +45,7 @@ function buildCard(game) {
   const a = document.createElement('a');
   a.className = 'card';
   a.href = '#';
+  a.dataset.gameLabel = game.label;
   a.addEventListener('click', e => {
     e.preventDefault();
     openGameTab(game);
@@ -127,6 +128,29 @@ function renderVisible() {
   grid.appendChild(frag);
 }
 
+function updateDisplay() {
+  const grid = document.getElementById('grid');
+  const visibleLabels = new Set(visible.map(g => g.label));
+  
+  grid.querySelectorAll('.card').forEach(card => {
+    const label = card.dataset.gameLabel;
+    card.style.display = visibleLabels.has(label) ? '' : 'none';
+  });
+
+  let emptyMsg = grid.querySelector('.empty');
+  if (visible.length === 0) {
+    if (!emptyMsg) {
+      emptyMsg = document.createElement('div');
+      emptyMsg.className = 'empty';
+      emptyMsg.innerHTML = '<strong>NO RESULTS</strong>Try a different search or filter';
+      grid.appendChild(emptyMsg);
+    }
+    emptyMsg.style.display = '';
+  } else if (emptyMsg) {
+    emptyMsg.style.display = 'none';
+  }
+}
+
 function applyFilters() {
   const q = searchQuery.toLowerCase();
 
@@ -146,22 +170,10 @@ function applyFilters() {
     visible = filtered;
   }
 
-  const grid = document.getElementById('grid');
-  grid.querySelectorAll('img').forEach(img => {
-    img.onload = null;
-    img.onerror = null;
-  });
-  grid.innerHTML = '';
-
   document.getElementById('countDisplay').textContent =
     `${visible.length} game${visible.length !== 1 ? 's' : ''}`;
 
-  if (visible.length === 0) {
-    grid.innerHTML = '<div class="empty"><strong>NO RESULTS</strong>Try a different search or filter</div>';
-    return;
-  }
-
-  renderVisible();
+  updateDisplay();
 }
 
 function buildFilters(games) {
@@ -203,6 +215,8 @@ async function init() {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('grid').style.display = 'grid';
     buildFilters(allGames);
+    visible = allGames;
+    renderVisible();
     applyFilters();
     document.getElementById('searchInput').addEventListener('input',
       debounce(e => { searchQuery = e.target.value; applyFilters(); }, 150));
