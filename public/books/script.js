@@ -132,6 +132,21 @@ function renderVisible() {
 function updateDisplay() {
   const grid = document.getElementById('grid');
   const visibleLabels = new Set(visible.map(g => g.label));
+  const cardsByLabel = new Map();
+
+  grid.querySelectorAll('.card').forEach(card => {
+    cardsByLabel.set(card.dataset.gameLabel, card);
+  });
+
+  const orderedCards = [];
+  for (let i = 0; i < visible.length; i++) {
+    const card = cardsByLabel.get(visible[i].label);
+    if (card) orderedCards.push(card);
+  }
+
+  for (let i = 0; i < orderedCards.length; i++) {
+    grid.appendChild(orderedCards[i]);
+  }
   
   grid.querySelectorAll('.card').forEach(card => {
     const label = card.dataset.gameLabel;
