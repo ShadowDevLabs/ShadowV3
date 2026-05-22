@@ -8,19 +8,30 @@ const screenShareBtn = document.getElementById("screen-share-btn");
 const screenShareStatus = document.getElementById("screen-share-status");
 const chatList = document.getElementById("chat-list");
 const newChatBtn = document.getElementById("new-chat-btn");
+const chatSearchInput = document.getElementById("chat-search-input");
+const welcomePanel = document.getElementById("welcome-panel");
+const imagePicker = document.getElementById("image-picker");
+const uploadImageBtn = document.getElementById("upload-image-btn");
+const attachmentTray = document.getElementById("attachment-tray");
+const quickPromptCards = document.querySelectorAll("[data-prompt]");
 
 const USER = "user";
 const ASSISTANT = "assistant";
 const STORAGE_KEY = "shadow-ai-sessions-v1";
+const FINGERPRINT_STORAGE_KEY = "shadow-client-fingerprint-v1";
 const CONTEXT_LIMIT = 12;
+const THUMBMARK_MODULE_URL =
+  "https://cdn.jsdelivr.net/npm/@thumbmarkjs/thumbmarkjs/dist/thumbmark.esm.js";
 
 let csrfToken = null;
 let sessions = [];
 let activeSessionId = null;
+let fingerprintPromise = null;
 
 let screenStream = null;
 let screenVideoTrack = null;
 let captureVideo = null;
+let draftAttachments = [];
 
 let assistantSession = null;
 const assistantState = {
@@ -106,10 +117,25 @@ function formatDate(value) {
 function renderChatList() {
   chatList.innerHTML = "";
 
+  const filterValue = String(chatSearchInput?.value || "")
+    .trim()
+    .toLowerCase();
+
   const sorted = [...sessions].sort(
     (a, b) => (b.updatedAt || 0) - (a.updatedAt || 0),
   );
   for (const session of sorted) {
+    const searchableText = [
+      session.title,
+      ...session.messages.map((message) => extractTextFromContent(message.content)),
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    if (filterValue && !searchableText.includes(filterValue)) {
+      continue;
+    }
+
     const item = document.createElement("div");
     item.className = "chat-item";
     if (session.id === activeSessionId) item.classList.add("active");
@@ -152,16 +178,22 @@ function renderMessages() {
   const session = getActiveSession();
   messagesContainer.innerHTML = "";
   if (!session) {
+    if (welcomePanel) welcomePanel.hidden = false;
     return;
   }
 
   if (session.messages.length === 0) {
-    addMsg("**Hello, how may I help you?**", ASSISTANT);
+    if (welcomePanel) welcomePanel.hidden = false;
     return;
   }
 
+  if (welcomePanel) welcomePanel.hidden = true;
+
   session.messages.forEach((message) => {
-    addMsg(message.content, message.role);
+    const messageText =
+      extractTextFromContent(message.content) ||
+      createDraftMessageLabel("", message.attachments || []);
+    addMsg(messageText, message.role, false, message.attachments || []);
   });
 }
 
@@ -209,6 +241,209 @@ function getThemeToken(name, fallback) {
   const styles = getComputedStyle(document.documentElement);
   const value = styles.getPropertyValue(name).trim();
   return value || fallback;
+}
+
+function extractTextFromContent(content) {
+  if (typeof content === "string") {
+    return content.trim();
+  }
+
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => (part?.type === "text" ? String(part.text || "") : ""))
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  return "";
+}
+
+function renderAttachmentTray() {
+  if (!attachmentTray) return;
+
+  attachmentTray.innerHTML = "";
+
+  if (draftAttachments.length === 0) {
+    attachmentTray.hidden = true;
+    return;
+  }
+
+  attachmentTray.hidden = false;
+
+  for (const attachment of draftAttachments) {
+    const tile = document.createElement("div");
+    tile.className = "attachment-tile";
+
+    const img = document.createElement("img");
+    img.src = attachment.previewUrl;
+    img.alt = attachment.name;
+
+    const meta = document.createElement("div");
+    meta.className = "attachment-meta";
+
+    const title = document.createElement("span");
+    title.className = "attachment-name";
+    title.textContent = attachment.name;
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "attachment-remove";
+    remove.textContent = "Remove";
+    remove.addEventListener("click", () => {
+      removeDraftAttachment(attachment.id);
+    });
+
+    meta.appendChild(title);
+    meta.appendChild(remove);
+    tile.appendChild(img);
+    tile.appendChild(meta);
+    attachmentTray.appendChild(tile);
+  }
+}
+
+function removeDraftAttachment(attachmentId) {
+  const next = draftAttachments.filter((item) => item.id !== attachmentId);
+  const removed = draftAttachments.find((item) => item.id === attachmentId);
+  if (removed?.previewUrl) {
+    URL.revokeObjectURL(removed.previewUrl);
+  }
+  draftAttachments = next;
+  renderAttachmentTray();
+}
+
+function clearDraftAttachments() {
+  draftAttachments.forEach((attachment) => {
+    if (attachment?.previewUrl) {
+      URL.revokeObjectURL(attachment.previewUrl);
+    }
+  });
+  draftAttachments = [];
+  renderAttachmentTray();
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(reader.error || new Error("Failed to read file"));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function addDraftAttachments(files) {
+  const acceptedFiles = [...files].filter((file) => file.type.startsWith("image/"));
+  if (acceptedFiles.length === 0) return;
+
+  const nextAttachments = [];
+
+  for (const file of acceptedFiles) {
+    const previewUrl = URL.createObjectURL(file);
+    const dataUrl = await readFileAsDataUrl(file);
+    nextAttachments.push({
+      id: createId(),
+      name: file.name,
+      type: file.type,
+      previewUrl,
+      dataUrl,
+    });
+  }
+
+  draftAttachments = [...draftAttachments, ...nextAttachments];
+  renderAttachmentTray();
+}
+
+function getDraftUserContent(text, attachments) {
+  const trimmedText = String(text || "").trim();
+  const imageParts = attachments.map((attachment) => ({
+    type: "image_url",
+    image_url: { url: attachment.dataUrl, detail: "auto" },
+  }));
+
+  if (trimmedText && imageParts.length === 0) {
+    return trimmedText;
+  }
+
+  if (!trimmedText && imageParts.length === 1) {
+    return imageParts;
+  }
+
+  const parts = [];
+  if (trimmedText) {
+    parts.push({ type: "text", text: trimmedText });
+  }
+  parts.push(...imageParts);
+  return parts;
+}
+
+function createDraftMessageLabel(text, attachments) {
+  const trimmedText = String(text || "").trim();
+  if (trimmedText) return trimmedText;
+  if (attachments.length === 1) return "Image attachment";
+  return `${attachments.length} image attachments`;
+}
+
+function extractFingerprintValue(result) {
+  if (!result) return "";
+  if (typeof result === "string") return result.trim();
+  if (typeof result !== "object") return String(result).trim();
+
+  const candidateKeys = [
+    "thumbmark",
+    "fingerprint",
+    "visitorId",
+    "visitor_id",
+    "id",
+  ];
+
+  for (const key of candidateKeys) {
+    const value = result[key];
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  try {
+    return JSON.stringify(result);
+  } catch {
+    return "";
+  }
+}
+
+async function loadClientFingerprint() {
+  try {
+    const cachedValue = localStorage.getItem(FINGERPRINT_STORAGE_KEY);
+    if (cachedValue) return cachedValue;
+
+    const thumbmarkModule = await import(THUMBMARK_MODULE_URL);
+    const ThumbmarkClass =
+      thumbmarkModule.Thumbmark ||
+      thumbmarkModule.default?.Thumbmark ||
+      thumbmarkModule.default;
+
+    if (typeof ThumbmarkClass !== "function") {
+      return "";
+    }
+
+    const thumbmark = new ThumbmarkClass();
+    const result = await thumbmark.get();
+    const fingerprint = extractFingerprintValue(result);
+
+    if (fingerprint) {
+      localStorage.setItem(FINGERPRINT_STORAGE_KEY, fingerprint);
+    }
+
+    return fingerprint;
+  } catch {
+    return localStorage.getItem(FINGERPRINT_STORAGE_KEY) || "";
+  }
+}
+
+function getClientFingerprint() {
+  if (!fingerprintPromise) {
+    fingerprintPromise = loadClientFingerprint();
+  }
+  return fingerprintPromise;
 }
 
 function getAssistantTheme() {
@@ -636,7 +871,10 @@ function getContextMessages(sessionId = activeSessionId) {
   if (!session) return [];
   return session.messages.slice(-CONTEXT_LIMIT).map((item) => ({
     role: item.role,
-    content: item.content,
+    content:
+      Array.isArray(item.content) || typeof item.content === "string"
+        ? item.content
+        : getDraftUserContent(item.content, item.attachments || []),
   }));
 }
 
@@ -655,19 +893,26 @@ async function buildOutboundMessages(
 
   const lastIndex = contextMessages.length - 1;
   const latest = contextMessages[lastIndex];
-  if (!latest || latest.role !== USER || typeof latest.content !== "string") {
+  if (!latest || latest.role !== USER) {
     return contextMessages;
   }
 
   const imageDataUrl = await captureScreenFrameDataUrl();
   return contextMessages.map((entry, index) => {
     if (index !== lastIndex) return entry;
+
+    const content = Array.isArray(entry.content)
+      ? [...entry.content]
+      : [{ type: "text", text: String(entry.content || "") }];
+
+    content.push({
+      type: "image_url",
+      image_url: { url: imageDataUrl, detail: "auto" },
+    });
+
     return {
       role: USER,
-      content: [
-        { type: "text", text: latest.content },
-        { type: "image_url", image_url: { url: imageDataUrl, detail: "auto" } },
-      ],
+      content,
     };
   });
 }
@@ -683,11 +928,13 @@ async function getCsrfToken() {
 }
 
 async function requestAssistantResponse(messages, model) {
+  const fingerprint = await getClientFingerprint();
   const response = await fetch("/ask", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "x-csrf-token": csrfToken,
+      ...(fingerprint ? { "x-shadow-fingerprint": fingerprint } : {}),
     },
     credentials: "include",
     body: JSON.stringify({ messages, model }),
@@ -745,7 +992,10 @@ async function askFromAssistant(prompt) {
       },
     ];
 
-    const aiMsg = await requestAssistantResponse(messages, modelSelector.value);
+    const aiMsg = await requestAssistantResponse(
+      messages,
+      modelSelector.value,
+    );
     assistantState.output = aiMsg;
     assistantState.error = "";
   } catch (error) {
@@ -761,7 +1011,7 @@ async function askFromAssistant(prompt) {
   }
 }
 
-function addMsg(content, role, isLoading = false) {
+function addMsg(content, role, isLoading = false, attachments = []) {
   const msgElement = document.createElement("div");
   msgElement.classList.add("message", role);
 
@@ -770,6 +1020,20 @@ function addMsg(content, role, isLoading = false) {
     msgElement.innerHTML = `<div class="spinner"></div>${content}`;
   } else {
     msgElement.innerHTML = marked(content);
+  }
+
+  if (attachments.length > 0) {
+    const attachmentWrap = document.createElement("div");
+    attachmentWrap.className = "message-attachments";
+
+    for (const attachment of attachments) {
+      const image = document.createElement("img");
+      image.src = attachment.dataUrl || attachment.previewUrl;
+      image.alt = attachment.name || "Uploaded image";
+      attachmentWrap.appendChild(image);
+    }
+
+    msgElement.appendChild(attachmentWrap);
   }
 
   messagesContainer.appendChild(msgElement);
@@ -786,12 +1050,22 @@ function addMessageToSession(role, content, sessionId = activeSessionId) {
   const session = getSessionById(sessionId);
   if (!session) return;
 
-  session.messages.push({ role, content, createdAt: Date.now() });
+  let attachments = [];
+  let messageContent = content;
+
+  if (typeof content === "object" && content !== null && !Array.isArray(content)) {
+    attachments = Array.isArray(content.attachments) ? content.attachments : [];
+    messageContent = content.content;
+  }
+
+  session.messages.push({ role, content: messageContent, attachments, createdAt: Date.now() });
   if (
     role === USER &&
     session.messages.filter((msg) => msg.role === USER).length === 1
   ) {
-    session.title = compactTitle(content);
+    session.title = compactTitle(
+      extractTextFromContent(messageContent) || "Image attachment",
+    );
   }
 
   touchSession(session);
@@ -799,14 +1073,28 @@ function addMessageToSession(role, content, sessionId = activeSessionId) {
 
 async function sendMsg() {
   const message = textarea.value.trim();
-  if (!message) return;
+  if (!message && draftAttachments.length === 0) return;
 
   const requestSessionId = activeSessionId;
   if (!requestSessionId) return;
 
-  addMessageToSession(USER, message, requestSessionId);
-  addMsg(message, USER);
+  const outboundAttachments = draftAttachments.map((attachment) => ({
+    ...attachment,
+  }));
+  const displayMessage = createDraftMessageLabel(message, outboundAttachments);
+  const content = getDraftUserContent(message, outboundAttachments);
+
+  addMessageToSession(
+    USER,
+    {
+      content,
+      attachments: outboundAttachments,
+    },
+    requestSessionId,
+  );
+  addMsg(displayMessage, USER, false, outboundAttachments);
   textarea.value = "";
+  clearDraftAttachments();
 
   let outboundMessages;
   try {
@@ -852,6 +1140,7 @@ async function sendMsg() {
 
 async function init() {
   csrfToken = await getCsrfToken();
+  void getClientFingerprint();
 
   sessions = loadSessions();
   if (sessions.length === 0) {
@@ -861,10 +1150,33 @@ async function init() {
 
   renderChatList();
   renderMessages();
+  renderAttachmentTray();
   updateShareUi();
 
   sendBtn.addEventListener("click", async () => {
     await sendMsg();
+  });
+
+  uploadImageBtn.addEventListener("click", () => {
+    imagePicker.click();
+  });
+
+  imagePicker.addEventListener("change", async () => {
+    if (imagePicker.files) {
+      await addDraftAttachments(imagePicker.files);
+      imagePicker.value = "";
+    }
+  });
+
+  chatSearchInput.addEventListener("input", () => {
+    renderChatList();
+  });
+
+  quickPromptCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      textarea.value = card.dataset.prompt || "";
+      textarea.focus();
+    });
   });
 
   screenShareBtn.addEventListener("click", async () => {

@@ -168,6 +168,143 @@ app.get("/csrf-token", (req, res) => {
   res.json({ csrfToken: generateToken(req, res) });
 });
 
+const AI_MINUTE_LIMIT = 10;
+const AI_DAY_LIMIT = 250;
+const AI_MINUTE_WINDOW_MS = 60 * 1000;
+const DEFAULT_AI_MODEL = "gpt-5.4-mini";
+const AI_MODELS = new Set([
+  DEFAULT_AI_MODEL,
+  "gpt-5.4",
+  "claude-sonnet-4.6",
+  "gemini-3-flash-preview",
+]);
+const aiRequestLimits = new Map();
+
+function getDayKey(timestamp) {
+  return new Date(timestamp).toISOString().slice(0, 10);
+}
+
+function getRateLimitKey(req) {
+  return (
+    req.get("x-shadow-fingerprint")?.trim() || req.sessionID || req.ip || "anonymous"
+  );
+}
+
+function readMessageText(content) {
+  if (typeof content === "string") {
+    return content.trim();
+  }
+
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => (part?.type === "text" ? String(part.text || "") : ""))
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  return "";
+}
+
+function getModelName(model) {
+  if (typeof model !== "string") return DEFAULT_AI_MODEL;
+
+  const trimmed = model.trim();
+  return trimmed && AI_MODELS.has(trimmed) ? trimmed : DEFAULT_AI_MODEL;
+}
+
+async function postAiRequest(messages, model) {
+  const response = await fetch("https://api.navy/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.NAVY_API_KEY}`,
+    },
+    body: JSON.stringify({ messages, model }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    const errorMessage = data?.error?.message || data?.error || "AI provider request failed";
+    return { ok: false, status: response.status, error: errorMessage };
+  }
+
+  const reply = data?.choices?.[0]?.message?.content;
+  if (!reply) {
+    return { ok: false, status: 500, error: "Unexpected response from AI API" };
+  }
+
+  return { ok: true, reply };
+}
+
+function getAiLimitState(limitKey, now) {
+  const currentDay = getDayKey(now);
+  const existingState = aiRequestLimits.get(limitKey);
+
+  if (!existingState) {
+    const freshState = {
+      dayKey: currentDay,
+      dayCount: 0,
+      minuteHits: [],
+    };
+    aiRequestLimits.set(limitKey, freshState);
+    return freshState;
+  }
+
+  existingState.minuteHits = existingState.minuteHits.filter(
+    (hitTime) => now - hitTime < AI_MINUTE_WINDOW_MS,
+  );
+
+  if (existingState.dayKey !== currentDay) {
+    existingState.dayKey = currentDay;
+    existingState.dayCount = 0;
+  }
+
+  return existingState;
+}
+
+function checkAiRateLimit(req) {
+  const now = Date.now();
+  const limitKey = getRateLimitKey(req);
+  const state = getAiLimitState(limitKey, now);
+
+  if (state.minuteHits.length >= AI_MINUTE_LIMIT) {
+    const oldestHit = state.minuteHits[0];
+    const retryAfterSeconds = Math.max(
+      1,
+      Math.ceil((AI_MINUTE_WINDOW_MS - (now - oldestHit)) / 1000),
+    );
+    return {
+      allowed: false,
+      status: 429,
+      error: "Rate limit reached. Try again in a minute.",
+      retryAfterSeconds,
+    };
+  }
+
+  if (state.dayCount >= AI_DAY_LIMIT) {
+    const nextReset = new Date(now);
+    nextReset.setUTCHours(24, 0, 0, 0);
+    const retryAfterSeconds = Math.max(
+      1,
+      Math.ceil((nextReset.getTime() - now) / 1000),
+    );
+    return {
+      allowed: false,
+      status: 429,
+      error: "Daily rate limit reached. Try again tomorrow.",
+      retryAfterSeconds,
+    };
+  }
+
+  state.minuteHits.push(now);
+  state.dayCount += 1;
+  aiRequestLimits.set(limitKey, state);
+
+  return { allowed: true };
+}
+
 app.post("/ask", express.json({ limit: "12mb" }), requireSession, csrfProtection, async (req, res) => {
   const { messages, model } = req.body;
 
@@ -177,38 +314,38 @@ app.post("/ask", express.json({ limit: "12mb" }), requireSession, csrfProtection
       .json({ error: "msgs need to be in an array format." });
   }
 
-  const requestedModel =
-    typeof model === "string" && model.trim() ? model.trim() : "shuttleai/auto";
-
-  try {
-    const response = await fetch(
-      "https://api.shuttleai.com/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.SHUTTLEAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: requestedModel,
-          messages,
-        }),
-      },
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      const apiMessage =
-        data?.error?.message || data?.error || "AI provider request failed";
-      return res.status(response.status).json({ error: apiMessage });
+  const rateLimitCheck = checkAiRateLimit(req);
+  if (!rateLimitCheck.allowed) {
+    if (typeof rateLimitCheck.retryAfterSeconds === "number") {
+      res.setHeader("Retry-After", String(rateLimitCheck.retryAfterSeconds));
     }
+    return res.status(rateLimitCheck.status).json({ error: rateLimitCheck.error });
+  }
 
+  const requestedModel =
+    typeof model === "string" && model.trim() && allowedAiModels.has(model.trim())
+      ? model.trim()
+      : "gpt-5.4-mini";
+
+  let requestMessages = messages;
+
+  if (webSearch) {
+    const searchQuery = getWebSearchQuery(messages);
+    if (searchQuery) {
+      const searchContext = await fetchWebSearchContext(searchQuery);
+      if (searchContext) {
+        const selectedModel = getModelName(model);
+              searchContext,
+          },
+          const aiResult = await postAiRequest(messages, selectedModel);
+
+          if (!aiResult.ok) {
+            return res.status(aiResult.status).json({ error: aiResult.error });
     if (!data?.choices?.[0]?.message?.content) {
       console.error("Unexpected response:", data);
       return res.status(500).json({ error: "Unexpected response from AI API" });
-    }
-
+            model: selectedModel,
+            message: aiResult.reply,
     res.json({
       model: requestedModel,
       message: data.choices[0].message.content,
