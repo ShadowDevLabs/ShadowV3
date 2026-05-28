@@ -322,38 +322,17 @@ app.post("/ask", express.json({ limit: "12mb" }), requireSession, csrfProtection
     return res.status(rateLimitCheck.status).json({ error: rateLimitCheck.error });
   }
 
-  const requestedModel =
-    typeof model === "string" && model.trim() && allowedAiModels.has(model.trim())
-      ? model.trim()
-      : "gpt-5.4-mini";
+  const selectedModel = getModelName(model);
+  const aiResult = await postAiRequest(messages, selectedModel);
 
-  let requestMessages = messages;
-
-  if (webSearch) {
-    const searchQuery = getWebSearchQuery(messages);
-    if (searchQuery) {
-      const searchContext = await fetchWebSearchContext(searchQuery);
-      if (searchContext) {
-        const selectedModel = getModelName(model);
-              searchContext,
-          },
-          const aiResult = await postAiRequest(messages, selectedModel);
-
-          if (!aiResult.ok) {
-            return res.status(aiResult.status).json({ error: aiResult.error });
-    if (!data?.choices?.[0]?.message?.content) {
-      console.error("Unexpected response:", data);
-      return res.status(500).json({ error: "Unexpected response from AI API" });
-            model: selectedModel,
-            message: aiResult.reply,
-    res.json({
-      model: requestedModel,
-      message: data.choices[0].message.content,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to Retrieve Request" });
+  if (!aiResult.ok) {
+    return res.status(aiResult.status).json({ error: aiResult.error });
   }
+
+  res.json({
+    model: selectedModel,
+    message: aiResult.reply,
+  });
 });
 
 app.get("/v1/api/user-agents", async (req, res) => {
