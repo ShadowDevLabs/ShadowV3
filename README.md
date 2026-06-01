@@ -5,7 +5,6 @@
 ---
 
 # Changes
-- 🔄 Added Proxy Switcher with Dynamic (Scramjet Coming Soon)
 - 📈 Update UV to v3, uses eproxy/baremux.
 - 🔧 Improved tabs.js, more optimized, better handling.
 - 💻 Rewrote tabs.js code from scratch for optimizations.
