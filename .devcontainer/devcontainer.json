@@ -7,5 +7,5 @@
   "features": {
     "ghcr.io/devcontainers-contrib/features/node-asdf:0": {}
   },
-  "postCreateCommand": "npm start"
+  "postCreateCommand": "npm install"
 }
