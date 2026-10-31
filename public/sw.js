@@ -1,28 +1,26 @@
-importScripts("/uv/uv.bundle.js");
-importScripts("/uv/uv.config.js");
-importScripts("/uv/uv.client.js");
-importScripts(__uv$config.sw || "/uv/uv.sw.js");
-importScripts("/assets/js/settings_manager_sw.js")
+importScripts("/controller/controller.sw.js");
 importScripts("/assets/js/history_helper_sw.js")
-self.settings = new SettingsManager();
 self.history = new HistoryHelper();
-
-
-const uv = new UVServiceWorker();
-uv.on("request", async (event) => {
-  event.data.headers["user-agent"] = await self.settings.get("user-agent") ?? event.data.headers["user-agent"]
-});
 
 self.addEventListener("message", (event) => {
   const { reason, data } = event.data
   if(reason === "save-open-tabs") {
-    self.history.setOpen(data); 
+    self.history.setOpen(data);
   }
 })
 
-self.addEventListener("fetch", async (event) => {
-  if (event.request.url.startsWith(location.origin + __uv$config.prefix)) {
-    event.respondWith((async () => await uv.fetch(event))());
+self.addEventListener("fetch", (event) => {
+  if ($scramjetController.shouldRoute(event)) {
+    event.respondWith($scramjetController.route(event));
   }
-  else event.respondWith((async () => await fetch(event.request))());
+  // Files are cached for a week, revalidate the app's own pages, scripts and styles so a deploy reaches returning visitors.
+  // Everything else (images, fonts, game files, ?v= pinned scripts) keeps the normal HTTP cache.
+  else {
+    const { request } = event;
+    const url = new URL(request.url);
+    const isAppFile = request.mode === "navigate" || ((request.destination === "script" || request.destination === "style") && !url.search);
+    if (url.origin === location.origin && isAppFile && !url.pathname.startsWith("/books/files/")) {
+      event.respondWith(fetch(request, { cache: "no-cache" }));
+    }
+  }
 });

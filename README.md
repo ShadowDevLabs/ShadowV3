@@ -5,7 +5,7 @@
 ---
 
 # Changes
-- 📈 Update UV to v3, uses eproxy/baremux.
+- 📈 Moved from Ultraviolet to Scramjet v2, uses epoxy/libcurl over wisp.
 - 🔧 Improved tabs.js, more optimized, better handling.
 - 💻 Rewrote tabs.js code from scratch for optimizations.
 - 🌐 Favicon Updates when a new URL is pressed.
@@ -37,7 +37,7 @@
 # Credits
 - [NC](https://github.com/NCCoder2) ｜Developer
 - [NotPeak](https://github.com/NottPeak)｜Developer
-- [Ultraviolet](https://github.com/titaniumnetwork-dev/Ultraviolet)｜Proxy
+- [Scramjet](https://github.com/MercuryWorkshop/scramjet)｜Proxy
 - [Dynamic](https://github.com/NebulaServices/Dynamic)｜Proxy
 
 # [Join the Discord](https://discord.gg/goshadow)

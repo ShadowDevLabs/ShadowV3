@@ -1,17 +1,16 @@
 import express from "express";
 import basicAuth from "express-basic-auth";
 import { server as wisp } from "@mercuryworkshop/wisp-js/server";
-import http from "http";
+import https from "https";
+import compression from "compression";
 import cookieParser from "cookie-parser";
 import * as cheerio from "cheerio";
 import { doubleCsrf } from "csrf-csrf";
 import { createServer } from "http";
 import { fileURLToPath } from "url";
-import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
-import { libcurlPath } from "@mercuryworkshop/libcurl-transport";
-import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
-import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
-import { join } from "path";
+import { createRequire } from "module";
+import { scramjetPath } from "@mercuryworkshop/scramjet/path";
+import { dirname, join } from "path";
 import { users, port, brokenSites } from "./config.js";
 import session from "express-session";
 
@@ -19,11 +18,13 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const version = process.env.npm_package_version;
+const distPath = (name) => dirname(createRequire(import.meta.url).resolve(name));
 const publicPath = fileURLToPath(new URL("./public/", import.meta.url));
 const app = express();
 const server = createServer(app);
 if (Object.keys(users).length > 0)
   app.use(basicAuth({ users, challenge: true }));
+app.use(compression());
 app.use((req, res, next) => {
   if (req.method === 'POST') {
     const len = parseInt(req.headers['content-length'], 10);
@@ -33,15 +34,18 @@ app.use((req, res, next) => {
   }
   next();
 });
-app.use("/epoxy/", express.static(epoxyPath));
-app.use("/libcurl/", express.static(libcurlPath));
-app.use("/baremux/", express.static(baremuxPath));
-app.use("/uv/", express.static(uvPath));
+// Every proxied page requests the runtime with ?v=<version>, so those urls can skip the network entirely
+const pinned = { setHeaders: (res) => { if (res.req.query.v) res.setHeader("Cache-Control", "public, max-age=31536000, immutable"); } };
+app.use("/epoxy/", express.static(distPath("@mercuryworkshop/epoxy-transport")));
+app.use("/libcurl/", express.static(distPath("@mercuryworkshop/libcurl-transport")));
+app.use("/controller/", express.static(distPath("@mercuryworkshop/scramjet-controller"), pinned));
+app.use("/scramjet/", express.static(scramjetPath, pinned));
+app.use("/utils/", express.static(distPath("@mercuryworkshop/scramjet-utils")));
 app.use("/privacy", express.static(publicPath + "/privacy.html"));
 
 app.use(express.static(publicPath, { maxAge: 604800000 })); //1 week
 app.use("/books/files/", (req, res) => {
-  const baseUrl = new URL("http://phantom.lol/books/files/");
+  const baseUrl = new URL("https://phantom.lol/books/files/");
 
   const mountPath = "/books/files/";
   const originalUrl = req.originalUrl || req.url || "";
@@ -62,9 +66,14 @@ app.use("/books/files/", (req, res) => {
 
   const sourceUrl = baseUrl.toString();
 
-  http
+  https
     .get(sourceUrl, (sourceResponse) => {
-      res.writeHead(sourceResponse.statusCode, sourceResponse.headers);
+      const headers = { ...sourceResponse.headers };
+      // These describe the upstream domain, not the one we're serving from
+      for (const name of ["strict-transport-security", "alt-svc", "nel", "report-to"]) delete headers[name];
+      // Keep upstream redirects on this domain so game files never load from phantom.lol directly
+      if (headers.location) headers.location = headers.location.replace(/^https?:\/\/(www\.)?phantom\.lol/, "");
+      res.writeHead(sourceResponse.statusCode, headers);
       sourceResponse.pipe(res);
     })
     .on("error", (err) => {

@@ -144,7 +144,7 @@ function applyGameMeta(gameLabel, iconUrl) {
       if (src.startsWith('shadow://')) {
         icon = `/assets/imgs/icons/pages/${src.replace('shadow://', '')}.png`;
       } else {
-        icon = `https://www.google.com/s2/favicons/imgs/icons?domain=${src}&sz=24`;
+        icon = `https://www.google.com/s2/favicons?domain=${src.replace(/^[a-z]+:\/\//, "").split("/")[0]}&sz=24`;
       }
       const title = this.tabsArr[i].title || this.tabsArr[i].iframe.contentDocument.title;
       return { title, icon, src };

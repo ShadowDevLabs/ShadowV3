@@ -36,8 +36,6 @@
   <link rel="stylesheet" href="/css/index.css" />
   <link rel="stylesheet" href="/css/loading.css" />
   <link rel="stylesheet" href="/css/themes.css" />
-  <link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&display=swap" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <script src="/assets/js/settings.js" type="module"></script>
@@ -45,13 +43,6 @@
   <script src="/assets/js/versioncheck.js" type="module"></script>
   <script>
     window.dewasper = new Dewasper();
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("/sw.js", {
-          scope: "/"
-        });
-      });
-    }
   </script>
   <!-- Google tag (gtag.js) -->
   <script src="/ana.js" async></script>
@@ -372,15 +363,12 @@
     aclib.runPop({ zoneId: '10286554' });
   </script>
 
-  <script src="/baremux/index.js"></script>
-  <script src="/assets/js/search.js"></script>
   <script src="/assets/js/themes.js" type="module"></script>
   <script src="/assets/js/options.js"></script>
   <script src="/assets/js/search.js"></script>
-  <script src="/uv/uv.bundle.js"></script>
-  <script src="/uv/uv.config.js"></script>
-  <script src="/uv/uv.sw.js"></script>
-  <script src="/uv/uv.config.js"></script>
+  <script src="/scramjet/scramjet.js"></script>
+  <script src="/controller/controller.api.js"></script>
+  <script src="/utils/scramjet-utils.js"></script>
   <scirpt src="/assets/js/panic.js"></scirpt>
   <script src="/assets/js/tabs.js" type="module" defer></script>
   <script src="/assets/js/bookmarks.js" type="module"></script>
@@ -502,71 +490,16 @@
     }
   </script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const loadingBar = document.querySelector('.loading-bar');
+    function stopLoad() {
       const loadingScreen = document.getElementById('loading-screen');
-      const searchBar = document.getElementById('__shadow-search-bar');
+      document.querySelector('.loading-bar').style.width = '100%';
+      setTimeout(() => {
+        loadingScreen.style.opacity = '0';
+        setTimeout(() => loadingScreen.style.display = 'none', 200);
+      }, 200);
+    }
 
-      let totalFetches = 0, completedFetches = 0, progress = 0, rafId, finishTimeout;
-
-      const setWidth = w => loadingBar.style.width = w.toFixed(2) + '%';
-
-      const animateTo = target => {
-        if (progress >= target) return;
-        const step = () => {
-          progress += (target - progress) * 0.15;
-          if (progress > target) progress = target;
-          setWidth(progress);
-          if (progress < target) rafId = requestAnimationFrame(step);
-        };
-        cancelAnimationFrame(rafId);
-        rafId = requestAnimationFrame(step);
-      };
-
-      const update = () => {
-        if (!totalFetches) {
-          animateTo(100);
-          clearTimeout(finishTimeout);
-          finishTimeout = setTimeout(() => {
-            loadingScreen.style.opacity = '0';
-            setTimeout(() => loadingScreen.style.display = 'none', 500);
-          }, 1300);
-          return;
-        }
-        animateTo((completedFetches / totalFetches) * 90);
-      };
-
-      const finish = () => {
-        clearTimeout(finishTimeout);
-        finishTimeout = setTimeout(() => {
-          animateTo(100);
-          setTimeout(() => {
-            loadingScreen.style.opacity = '0';
-            setTimeout(() => loadingScreen.style.display = 'none', 500);
-          }, 500);
-        }, 1000);
-      };
-
-      const originalFetch = window.fetch;
-      window.fetch = (...args) => {
-        totalFetches++;
-        update();
-        return originalFetch(...args).then(res => {
-          completedFetches++;
-          update();
-          if (completedFetches >= totalFetches) finish();
-          return res;
-        }).catch(err => {
-          completedFetches++;
-          update();
-          if (completedFetches >= totalFetches) finish();
-          throw err;
-        });
-      };
-
-      setWidth(0);
-      if (searchBar) searchBar.addEventListener('focus', e => e.target.select());
-    });
+    document.getElementById('__shadow-search-bar').addEventListener('focus', e => e.target.select());
   </script>
 
 

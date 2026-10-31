@@ -100,7 +100,8 @@ function abtblank() {
 
 function iframeabtblank() {
   const iframe = iframesContainer.children[tabs.activeTabIndex];
-  const url = iframe.src;
+  //Proxied urls only work while this page's controller is alive, and this page gets replaced below, so open the whole app and let it restore the tab
+  const url = iframe.src.includes("/~/sj/") ? location.href : iframe.src;
   const width = window.innerWidth;
   const height = window.innerHeight;
 

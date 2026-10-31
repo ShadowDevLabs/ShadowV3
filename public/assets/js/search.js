@@ -6,9 +6,10 @@
  *
  * @param {string} input
  * @param {string} template
+ * @param {(url: string | URL) => string} encode
  * @returns {string}
  */
-function search(input, template, backend) {
+function search(input, template, encode) {
   let url;
 
   //Local shadow:// urls
@@ -22,24 +23,15 @@ function search(input, template, backend) {
   try {
     url = new URL(input);
     if (url.hostname.includes(".")) {
-      return (
-        `/${backend}/service/` + self.__uv$config.encodeUrl(url.toString())
-      );
+      return encode(url);
     }
   } catch (err) {}
 
   try {
     url = new URL(`https://${input}`);
     if (url.hostname.includes(".")) {
-      return (
-        `/${backend}/service/` + self.__uv$config.encodeUrl(url.toString())
-      );
+      return encode(url);
     }
   } catch (err) {}
-  return (
-    `/${backend}/service/` +
-    self.__uv$config.encodeUrl(
-      template.replace("%s", encodeURIComponent(input)),
-    )
-  );
+  return encode(template.replace("%s", encodeURIComponent(input)));
 }
