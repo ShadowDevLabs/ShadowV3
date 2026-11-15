@@ -168,6 +168,25 @@
           </div>
         </div>
       </div>
+
+      <!-- Panic Key -->
+      <div class="settings-section">
+        <h2 class="section-title">Panic Key</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Set a key that instantly sends the whole window to a safe site. Works from inside pages too, so one tap
+            gets you out fast. The key is ignored while you're typing in a text box.
+          </p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
+            <button class="input-field" id="panicKeyBtn" style="cursor:pointer; min-width:150px;" onclick="capturePanicKey()">
+              Click, then press a key
+            </button>
+            <button class="input-field" style="cursor:pointer;" onclick="clearPanicKey()">Disable</button>
+          </div>
+          <input class="input-field" style="width:90%;" id="panicUrl" placeholder="https://classroom.google.com"
+            onchange="savePanicUrl()" />
+        </div>
+      </div>
     </div>
 
     <!-- Themes -->
@@ -375,6 +394,36 @@
       document.getElementById("transportSelection").value = await window.settings.get('transport');
       document.getElementById("customUserAgent").value = await window.settings.get('user-agent') || navigator.userAgent;
       document.getElementById("searchSuggestionsDropdown").value = await window.settings.get('search-suggestions-engine');
+
+      // Panic key UI
+      const panicKeyLabel = (k) => k ? `Key: ${k === " " ? "Space" : k}` : "Click, then press a key";
+      document.getElementById("panicKeyBtn").textContent = panicKeyLabel(await window.settings.get("panic-key"));
+      document.getElementById("panicUrl").value = (await window.settings.get("panic-url")) || "https://classroom.google.com";
+      window.capturePanicKey = function () {
+        const btn = document.getElementById("panicKeyBtn");
+        btn.textContent = "Press any key…";
+        const onKey = async (e) => {
+          e.preventDefault();
+          document.removeEventListener("keydown", onKey, true);
+          if (e.key === "Escape") { btn.textContent = panicKeyLabel(await window.settings.get("panic-key")); return; }
+          await window.settings.set("panic-key", e.key);
+          btn.textContent = panicKeyLabel(e.key);
+          if (parent !== window && parent.tabs) parent.tabs.panicKey = e.key;
+        };
+        document.addEventListener("keydown", onKey, true);
+      };
+      window.clearPanicKey = async function () {
+        await window.settings.set("panic-key", "");
+        document.getElementById("panicKeyBtn").textContent = panicKeyLabel(null);
+        if (parent !== window && parent.tabs) parent.tabs.panicKey = null;
+      };
+      window.savePanicUrl = async function () {
+        let v = document.getElementById("panicUrl").value.trim() || "https://classroom.google.com";
+        if (!/^https?:\/\//i.test(v)) v = "https://" + v;
+        await window.settings.set("panic-url", v);
+        if (parent !== window && parent.tabs) parent.tabs.panicUrl = v;
+      };
+
       const urlToValueMap = {
         "https://www.google.com/search?q=%s": "google",
         "https://www.bing.com/search?q=%s": "bing",

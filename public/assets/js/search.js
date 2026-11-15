@@ -21,6 +21,9 @@ function resolveInput(input, template) {
 
   if (input.startsWith("shadow://") || input === "about:blank") return input;
   if (/^chrome-extension:\/\//i.test(input)) return input;
+  // Site-absolute local path (e.g. /pages/embed/, /arcade/snake/) — a Shadow page,
+  // not something to proxy or search for. "//" is protocol-relative, so exclude it.
+  if (/^\/[^/]/.test(input)) return input;
 
   if (/^[a-z][a-z0-9+.-]*:\/\//i.test(input)) {
     try {

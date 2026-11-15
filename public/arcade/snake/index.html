@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Snake</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-user-select:none; user-select:none; }
+  html,body { height:100%; }
+  body { background:#0b0e17; color:#e8ecf7; font-family:system-ui,sans-serif; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:14px; min-height:100%; touch-action:none; }
+  h1 { font-size:26px; letter-spacing:1px; }
+  .row { display:flex; gap:18px; align-items:center; font-size:15px; color:#9aa6c4; }
+  .row b { color:#e8ecf7; }
+  canvas { background:#0f1522; border:1px solid #1e2740; border-radius:10px; max-width:92vw; height:auto; touch-action:none; }
+  button { background:#22c55e; color:#06240f; border:0; border-radius:8px; padding:9px 16px; font-weight:700; cursor:pointer; }
+  .hint { color:#6b7696; font-size:13px; }
+</style>
+</head>
+<body>
+  <h1>🐍 SNAKE</h1>
+  <div class="row"><span>Score <b id="score">0</b></span><span>Best <b id="best">0</b></span></div>
+  <canvas id="c" width="420" height="420"></canvas>
+  <div class="row"><button onclick="start()">New Game</button><span class="hint">Arrows / WASD / swipe</span></div>
+<script>
+const cv=document.getElementById("c"), ctx=cv.getContext("2d"), G=21, S=cv.width/G;
+let snake,dir,next,food,score,best=+(localStorage.getItem("snake_best")||0),timer,speed;
+document.getElementById("best").textContent=best;
+function spawn(){ while(true){ const f={x:(Math.random()*G)|0,y:(Math.random()*G)|0};
+  if(!snake.some(s=>s.x===f.x&&s.y===f.y)){ food=f; return; } } }
+function start(){ snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}]; dir=next={x:1,y:0}; score=0; speed=110; spawn();
+  document.getElementById("score").textContent=0; clearInterval(timer); timer=setInterval(tick,speed); draw(); }
+function tick(){ dir=next; const head={x:(snake[0].x+dir.x+G)%G,y:(snake[0].y+dir.y+G)%G};
+  if(snake.some(s=>s.x===head.x&&s.y===head.y)){ return lose(); }
+  snake.unshift(head);
+  if(head.x===food.x&&head.y===food.y){ score+=10; document.getElementById("score").textContent=score;
+    if(score>best){ best=score; localStorage.setItem("snake_best",best); document.getElementById("best").textContent=best; }
+    spawn(); if(speed>55){ speed-=3; clearInterval(timer); timer=setInterval(tick,speed); } }
+  else snake.pop();
+  draw(); }
+function lose(){ clearInterval(timer); ctx.fillStyle="rgba(11,14,23,.75)"; ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.font="bold 28px system-ui"; ctx.fillText("Game Over",cv.width/2,cv.height/2-6);
+  ctx.font="14px system-ui"; ctx.fillStyle="#9aa6c4"; ctx.fillText("Score "+score+" — press New Game",cv.width/2,cv.height/2+22); }
+function draw(){ ctx.fillStyle="#0f1522"; ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.fillStyle="#ef4444"; const fx=food.x*S, fy=food.y*S; ctx.beginPath();
+  ctx.arc(fx+S/2,fy+S/2,S/2-2,0,7); ctx.fill();
+  snake.forEach((s,i)=>{ ctx.fillStyle=i===0?"#4ade80":`hsl(142,65%,${Math.max(32,55-i*1.4)}%)`;
+    ctx.fillRect(s.x*S+1,s.y*S+1,S-2,S-2); }); }
+function turn(x,y){ if(x===-dir.x&&y===-dir.y) return; next={x,y}; }
+addEventListener("keydown",e=>{ const k=e.key.toLowerCase(); const m={arrowleft:[-1,0],a:[-1,0],arrowright:[1,0],d:[1,0],
+  arrowup:[0,-1],w:[0,-1],arrowdown:[0,1],s:[0,1]}[k]; if(m){ e.preventDefault(); turn(m[0],m[1]); } });
+let sx,sy;
+addEventListener("touchstart",e=>{ sx=e.touches[0].clientX; sy=e.touches[0].clientY; },{passive:true});
+addEventListener("touchend",e=>{ if(sx==null) return; const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+  if(Math.max(Math.abs(dx),Math.abs(dy))<20) return;
+  if(Math.abs(dx)>Math.abs(dy)) turn(dx>0?1:-1,0); else turn(0,dy>0?1:-1); sx=null; });
+start();
+</script>
+</body>
+</html>

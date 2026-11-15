@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>2048</title>
+<style>
+  :root { --bg:#0b0e17; --grid:#1b2133; --cell:#141a28; --text:#e8ecf7; }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-user-select:none; user-select:none; }
+  html,body { height:100%; }
+  body { background:var(--bg); color:var(--text); font-family:"Segoe UI",system-ui,sans-serif;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; min-height:100%; touch-action:none; }
+  .top { display:flex; align-items:center; gap:14px; width:min(92vw,440px); }
+  h1 { font-size:34px; letter-spacing:-1px; }
+  .scores { margin-left:auto; display:flex; gap:8px; }
+  .box { background:var(--grid); border-radius:8px; padding:6px 14px; text-align:center; min-width:72px; }
+  .box small { display:block; font-size:10px; letter-spacing:1px; color:#7c88a8; text-transform:uppercase; }
+  .box b { font-size:20px; }
+  #board { position:relative; width:min(92vw,440px); aspect-ratio:1; background:var(--grid);
+    border-radius:12px; padding:10px; }
+  .grid-bg,#tiles { position:absolute; inset:10px; display:grid; grid-template-columns:repeat(4,1fr);
+    grid-template-rows:repeat(4,1fr); gap:10px; }
+  .grid-bg div { background:var(--cell); border-radius:7px; }
+  .tile { position:absolute; display:flex; align-items:center; justify-content:center; border-radius:7px;
+    font-weight:800; transition:transform .1s ease, background .1s; }
+  .tile.pop { animation:pop .15s ease; }
+  @keyframes pop { 0%{transform:scale(.6)} 100%{transform:scale(1)} }
+  button { background:#3b82f6; color:#fff; border:0; border-radius:8px; padding:10px 18px; font-size:14px;
+    font-weight:600; cursor:pointer; }
+  .hint { color:#7c88a8; font-size:13px; }
+  #over { position:absolute; inset:10px; background:rgba(11,14,23,.86); border-radius:7px; display:none;
+    flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:5; }
+  #over.show { display:flex; }
+  #over h2 { font-size:30px; }
+</style>
+</head>
+<body>
+  <div class="top">
+    <h1>2048</h1>
+    <div class="scores">
+      <div class="box"><small>Score</small><b id="score">0</b></div>
+      <div class="box"><small>Best</small><b id="best">0</b></div>
+    </div>
+  </div>
+  <div id="board">
+    <div class="grid-bg"></div>
+    <div id="tiles"></div>
+    <div id="over"><h2 id="over-msg">Game Over</h2><button onclick="game.reset()">New Game</button></div>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <button onclick="game.reset()">New Game</button>
+    <span class="hint">Arrow keys / WASD / swipe · join tiles to reach 2048</span>
+  </div>
+<script>
+const N = 4;
+const COLORS = {2:"#1f2a44",4:"#26406e",8:"#f59e0b",16:"#f97316",32:"#ef4444",64:"#e11d48",
+  128:"#8b5cf6",256:"#7c3aed",512:"#6d28d9",1024:"#0ea5e9",2048:"#10b981"};
+const bg = document.querySelector(".grid-bg");
+for (let i=0;i<16;i++) bg.appendChild(document.createElement("div"));
+const tilesEl = document.getElementById("tiles");
+
+const game = {
+  grid:[], score:0, best:+(localStorage.getItem("a2048_best")||0), busy:false,
+  reset(){ this.grid=Array.from({length:N},()=>Array(N).fill(0)); this.score=0;
+    document.getElementById("over").classList.remove("show"); this.add(); this.add(); this.draw(); this.sync(); },
+  add(){ const empty=[]; for(let r=0;r<N;r++)for(let c=0;c<N;c++) if(!this.grid[r][c]) empty.push([r,c]);
+    if(!empty.length) return; const [r,c]=empty[Math.floor(Math.random()*empty.length)];
+    this.grid[r][c]=Math.random()<0.9?2:4; },
+  sync(){ document.getElementById("score").textContent=this.score;
+    if(this.score>this.best){ this.best=this.score; localStorage.setItem("a2048_best",this.best); }
+    document.getElementById("best").textContent=this.best; },
+  draw(){ tilesEl.innerHTML=""; const size=(tilesEl.clientWidth-30)/4;
+    for(let r=0;r<N;r++)for(let c=0;c<N;c++){ const v=this.grid[r][c]; if(!v) continue;
+      const t=document.createElement("div"); t.className="tile pop"; t.textContent=v;
+      t.style.width=t.style.height=size+"px";
+      t.style.transform=`translate(${c*(size+10)}px,${r*(size+10)}px)`;
+      t.style.background=COLORS[v]||"#059669"; t.style.fontSize=(v<100?size*0.42:v<1000?size*0.34:size*0.26)+"px";
+      t.style.color=v<=4?"#cbd5e1":"#fff"; tilesEl.appendChild(t); } },
+  move(dir){ if(this.busy) return; const before=JSON.stringify(this.grid); let gained=0;
+    const line=(arr)=>{ let a=arr.filter(x=>x); for(let i=0;i<a.length-1;i++){ if(a[i]===a[i+1]){ a[i]*=2; gained+=a[i]; a.splice(i+1,1); } }
+      while(a.length<N) a.push(0); return a; };
+    const rot=(g)=>g[0].map((_,i)=>g.map(row=>row[i]));
+    let g=this.grid.map(r=>r.slice());
+    if(dir==="left") g=g.map(line);
+    if(dir==="right") g=g.map(r=>line(r.reverse()).reverse());
+    if(dir==="up"){ g=rot(g).map(line); g=rot(g); }
+    if(dir==="down"){ g=rot(g).map(r=>line(r.reverse()).reverse()); g=rot(g); }
+    if(JSON.stringify(g)===before) return;
+    this.grid=g; this.score+=gained; this.add(); this.draw(); this.sync();
+    if(this.won()) this.end("You win! 🎉"); else if(this.stuck()) this.end("Game Over"); },
+  won(){ return this.grid.some(r=>r.some(v=>v>=2048)); },
+  stuck(){ for(let r=0;r<N;r++)for(let c=0;c<N;c++){ if(!this.grid[r][c]) return false;
+    if(c<N-1&&this.grid[r][c]===this.grid[r][c+1]) return false;
+    if(r<N-1&&this.grid[r][c]===this.grid[r+1][c]) return false; } return true; },
+  end(msg){ document.getElementById("over-msg").textContent=msg; document.getElementById("over").classList.add("show"); }
+};
+window.game=game;
+addEventListener("keydown",e=>{ const k=e.key.toLowerCase(); const m={arrowleft:"left",a:"left",arrowright:"right",d:"right",
+  arrowup:"up",w:"up",arrowdown:"down",s:"down"}[k]; if(m){ e.preventDefault(); game.move(m); } });
+let sx,sy;
+addEventListener("touchstart",e=>{ sx=e.touches[0].clientX; sy=e.touches[0].clientY; },{passive:true});
+addEventListener("touchend",e=>{ if(sx==null) return; const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+  if(Math.max(Math.abs(dx),Math.abs(dy))<24) return;
+  game.move(Math.abs(dx)>Math.abs(dy)?(dx>0?"right":"left"):(dy>0?"down":"up")); sx=sy=null; });
+addEventListener("resize",()=>game.draw());
+game.reset();
+</script>
+</body>
+</html>

@@ -54,6 +54,9 @@ globalThis.__shadowUnproxy = (ref) => {
 };
 
 const isInternal = (url) => url.startsWith("shadow://");
+// A same-origin Shadow page loaded straight into the iframe (arcade embed, games),
+// never run through the proxy.
+const isLocalPath = (url) => /^\/[^/]/.test(url);
 const internalPath = (url) => `/pages/${url.slice("shadow://".length)}.html`;
 const internalIcon = (url) =>
   `/assets/imgs/icons/pages/${url.slice("shadow://".length).split("/")[0]}.png`;
@@ -107,6 +110,12 @@ class Tab {
         case "user-agent":
           this.userAgent = newValue || null;
           break;
+        case "panic-key":
+          this.panicKey = newValue || null;
+          break;
+        case "panic-url":
+          this.panicUrl = newValue || "https://www.google.com";
+          break;
         default:
           break;
       }
@@ -146,6 +155,9 @@ class Tab {
     this.searchSuggestions = await this.settings.get("search-suggestions");
     this.searchEngine = await this.settings.get("search-engine");
     this.userAgent = (await this.settings.get("user-agent")) || null;
+    await this.settings.default("panic-url", "https://classroom.google.com");
+    this.panicKey = (await this.settings.get("panic-key")) || null;
+    this.panicUrl = (await this.settings.get("panic-url")) || "https://www.google.com";
 
     try {
       await this.bootProxy();
@@ -337,6 +349,8 @@ class Tab {
 
     if (isInternal(url)) {
       tab.iframe.src = internalPath(url);
+    } else if (isLocalPath(url)) {
+      tab.iframe.src = url;
     } else if (url === "about:blank") {
       tab.iframe.src = url;
     } else if (!this.controller) {
@@ -1041,6 +1055,21 @@ class Tab {
    * shell and inside every tab, so they work wherever focus is.
    */
   handleKey(e) {
+    // Panic key: one press anywhere (shell or inside a page) jumps the whole
+    // window to a safe site. Ignored while typing so the key can still be typed.
+    if (this.panicKey && e.key === this.panicKey) {
+      const el = e.target;
+      const typing = el && (/^(input|textarea|select)$/i.test(el.tagName || "") || el.isContentEditable);
+      if (!typing) {
+        e.preventDefault();
+        try {
+          window.top.location.href = this.panicUrl || "https://www.google.com";
+        } catch {
+          window.location.href = this.panicUrl || "https://www.google.com";
+        }
+        return true;
+      }
+    }
     if (e.altKey && !e.ctrlKey && !e.metaKey) {
       const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
       const n = this.tabsArr.length;

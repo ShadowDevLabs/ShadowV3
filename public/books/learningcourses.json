@@ -1,6 +1,61 @@
 {
   "games": [
     {
+      "label": "Snake",
+      "url": "/arcade/snake/",
+      "imageUrl": "/arcade/snake/icon.svg",
+      "categories": [
+        "Arcade",
+        "Originals",
+        "Hot"
+      ],
+      "featured": true
+    },
+    {
+      "label": "Brick Breaker",
+      "url": "/arcade/breakout/",
+      "imageUrl": "/arcade/breakout/icon.svg",
+      "categories": [
+        "Arcade",
+        "Originals",
+        "Hot"
+      ],
+      "featured": true
+    },
+    {
+      "label": "Minefield",
+      "url": "/arcade/minesweeper/",
+      "imageUrl": "/arcade/minesweeper/icon.svg",
+      "categories": [
+        "Puzzle",
+        "Originals",
+        "Hot"
+      ],
+      "featured": true
+    },
+    {
+      "label": "Blocks",
+      "url": "/arcade/blocks/",
+      "imageUrl": "/arcade/blocks/icon.svg",
+      "categories": [
+        "Puzzle",
+        "Originals",
+        "Hot"
+      ],
+      "featured": true
+    },
+    {
+      "label": "Memory Match",
+      "url": "/arcade/memory/",
+      "imageUrl": "/arcade/memory/icon.svg",
+      "categories": [
+        "Puzzle",
+        "Originals",
+        "Hot"
+      ],
+      "featured": true
+    },
+    {
       "label": "1v1.LoL",
       "imageUrl": "images/main4/1_58.png",
       "url": "gn/58.html",
@@ -5733,7 +5788,7 @@
       ]
     },
     {
-      "label": "Friday Night Funkin\u00e2\u20ac\u2122 Soft",
+      "label": "Friday Night Funkinâ€™ Soft",
       "url": "gn/509.html",
       "imageUrl": "gn/covers/509.png",
       "categories": []
@@ -6491,7 +6546,7 @@
       ]
     },
     {
-      "label": "Friday Night Funkin\u00e2\u20ac\u2122 Wednesday's Infidelity",
+      "label": "Friday Night Funkinâ€™ Wednesday's Infidelity",
       "url": "gn/616.html",
       "imageUrl": "gn/covers/616.png",
       "categories": []
@@ -6506,7 +6561,7 @@
       ]
     },
     {
-      "label": "FNF vs Bob v2.0 (Bob\u00e2\u20ac\u2122s Onslaught)",
+      "label": "FNF vs Bob v2.0 (Bobâ€™s Onslaught)",
       "url": "gn/618.html",
       "imageUrl": "gn/covers/618.png",
       "categories": []

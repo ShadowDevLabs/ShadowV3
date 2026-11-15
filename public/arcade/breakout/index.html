@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Brick Breaker</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-user-select:none; user-select:none; }
+  html,body { height:100%; }
+  body { background:#0b0e17; color:#e8ecf7; font-family:system-ui,sans-serif; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:12px; min-height:100%; touch-action:none; }
+  h1 { font-size:24px; letter-spacing:1px; }
+  .row { display:flex; gap:18px; font-size:15px; color:#9aa6c4; } .row b { color:#e8ecf7; }
+  canvas { background:#0f1522; border:1px solid #1e2740; border-radius:10px; max-width:94vw; height:auto; cursor:none; }
+  .hint { color:#6b7696; font-size:13px; }
+</style>
+</head>
+<body>
+  <h1>🧱 BRICK BREAKER</h1>
+  <div class="row"><span>Score <b id="score">0</b></span><span>Lives <b id="lives">3</b></span></div>
+  <canvas id="c" width="480" height="420"></canvas>
+  <div class="hint">Move the paddle with the mouse, touch, or arrow keys · click / tap to launch</div>
+<script>
+const cv=document.getElementById("c"), ctx=cv.getContext("2d"), W=cv.width, H=cv.height;
+const COLS=9, ROWS=6, BW=W/COLS, BH=20, TOP=40;
+const HUES=["#ef4444","#f97316","#f59e0b","#22c55e","#0ea5e9","#8b5cf6"];
+let bricks, paddle, ball, score, lives, stuck, keys={};
+function reset(full){ if(full){ score=0; lives=3; } paddle={x:W/2-45,w:90,h:12};
+  ball={x:W/2,y:H-40,dx:0,dy:0,r:7}; stuck=true;
+  document.getElementById("score").textContent=score; document.getElementById("lives").textContent=lives;
+  if(full||!bricks){ bricks=[]; for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++) bricks.push({c,r,alive:true}); } }
+function launch(){ if(stuck){ stuck=false; ball.dx=3*(Math.random()<.5?-1:1); ball.dy=-4; } }
+function step(){ if(keys.left) paddle.x-=7; if(keys.right) paddle.x+=7;
+  paddle.x=Math.max(0,Math.min(W-paddle.w,paddle.x));
+  if(stuck){ ball.x=paddle.x+paddle.w/2; ball.y=H-40; return; }
+  ball.x+=ball.dx; ball.y+=ball.dy;
+  if(ball.x<ball.r||ball.x>W-ball.r) ball.dx*=-1;
+  if(ball.y<ball.r) ball.dy*=-1;
+  if(ball.y>H){ lives--; document.getElementById("lives").textContent=lives;
+    if(lives<=0){ reset(true); return; } reset(false); return; }
+  if(ball.y+ball.r>=H-24 && ball.x>paddle.x && ball.x<paddle.x+paddle.w && ball.dy>0){
+    const hit=(ball.x-(paddle.x+paddle.w/2))/(paddle.w/2); ball.dx=hit*5; ball.dy=-Math.abs(ball.dy); }
+  for(const b of bricks){ if(!b.alive) continue; const bx=b.c*BW, by=TOP+b.r*(BH+6);
+    if(ball.x>bx&&ball.x<bx+BW-4&&ball.y>by&&ball.y<by+BH){ b.alive=false; ball.dy*=-1;
+      score+=10; document.getElementById("score").textContent=score;
+      if(bricks.every(x=>!x.alive)){ bricks.forEach(x=>x.alive=true); reset(false); } break; } } }
+function draw(){ ctx.fillStyle="#0f1522"; ctx.fillRect(0,0,W,H);
+  for(const b of bricks){ if(!b.alive) continue; ctx.fillStyle=HUES[b.r%HUES.length];
+    ctx.fillRect(b.c*BW+2,TOP+b.r*(BH+6),BW-4,BH); }
+  ctx.fillStyle="#e8ecf7"; ctx.fillRect(paddle.x,H-24,paddle.w,paddle.h);
+  ctx.fillStyle="#38bdf8"; ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,7); ctx.fill(); }
+function loop(){ step(); draw(); requestAnimationFrame(loop); }
+function moveTo(clientX){ const r=cv.getBoundingClientRect(); const x=(clientX-r.left)*(W/r.width);
+  paddle.x=Math.max(0,Math.min(W-paddle.w,x-paddle.w/2)); }
+cv.addEventListener("mousemove",e=>moveTo(e.clientX));
+cv.addEventListener("touchmove",e=>{ moveTo(e.touches[0].clientX); },{passive:true});
+cv.addEventListener("mousedown",launch); cv.addEventListener("touchstart",launch,{passive:true});
+addEventListener("keydown",e=>{ if(e.key==="ArrowLeft"||e.key==="a")keys.left=1; if(e.key==="ArrowRight"||e.key==="d")keys.right=1;
+  if(e.key===" "||e.key==="Enter"){ e.preventDefault(); launch(); } });
+addEventListener("keyup",e=>{ if(e.key==="ArrowLeft"||e.key==="a")keys.left=0; if(e.key==="ArrowRight"||e.key==="d")keys.right=0; });
+reset(true); loop();
+</script>
+</body>
+</html>

@@ -25,15 +25,23 @@ function isHot(game) {
   return (game.categories || []).some(c => c.toLowerCase() === 'hot');
 }
 
+// Submodule games are relative to BASE_PATH; bundled originals and external
+// games give an absolute path (/arcade/…) or full URL, used as-is.
+function resolveAsset(u) {
+  return !u ? '' : /^(https?:)?\/\//i.test(u) || u.startsWith('/') ? u : BASE_PATH + u;
+}
+
 function openGameTab(game) {
-  const gameUrl = BASE_PATH + game.url;
-  const iconUrl = game.imageUrl ? BASE_PATH + game.imageUrl : '';
-  const embedUrl = `embed.html?url=${encodeURIComponent(gameUrl)}&title=${encodeURIComponent(game.label || '')}&icon=${encodeURIComponent(iconUrl)}&src=books`;
+  const gameUrl = resolveAsset(game.url);
+  const iconUrl = resolveAsset(game.imageUrl);
+  // /pages/embed/ wraps the game in a chromeless iframe and syncs the tab's
+  // title/favicon. Site-absolute so it resolves the same from any Shadow page.
+  const embedUrl = `/pages/embed/?url=${encodeURIComponent(gameUrl)}&title=${encodeURIComponent(game.label || '')}&icon=${encodeURIComponent(iconUrl)}&src=books`;
 
   try {
     const tabsApi = window.parent?.tabs;
     if (!tabsApi) { window.open(gameUrl, '_blank'); return; }
-    tabsApi.createTab(embedUrl);
+    tabsApi.createTab(embedUrl, game.label || undefined);
   } catch {
     window.open(gameUrl, '_blank');
   }
@@ -59,7 +67,7 @@ function buildCard(game) {
 
   if (game.imageUrl) {
     const img = document.createElement('img');
-    img.src = BASE_PATH + game.imageUrl;
+    img.src = resolveAsset(game.imageUrl);
     img.alt = game.label;
     img.loading = 'lazy';
     img.decoding = 'async';

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Memory Match</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-user-select:none; user-select:none; }
+  html,body { height:100%; }
+  body { background:#0b0e17; color:#e8ecf7; font-family:system-ui,sans-serif; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:14px; min-height:100%; }
+  h1 { font-size:24px; letter-spacing:1px; }
+  .row { display:flex; gap:16px; align-items:center; font-size:15px; color:#9aa6c4; } .row b { color:#e8ecf7; }
+  button { background:#3b82f6; color:#fff; border:0; border-radius:8px; padding:9px 16px; font-weight:600; cursor:pointer; }
+  #grid { display:grid; gap:10px; }
+  .card { width:74px; height:74px; perspective:600px; cursor:pointer; }
+  .inner { position:relative; width:100%; height:100%; transition:transform .35s; transform-style:preserve-3d; }
+  .card.flip .inner,.card.done .inner { transform:rotateY(180deg); }
+  .face { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; border-radius:10px;
+    backface-visibility:hidden; font-size:34px; }
+  .front { background:linear-gradient(145deg,#1f2a44,#141a28); border:1px solid #2a3350; }
+  .front::after { content:"?"; color:#48608f; font-weight:800; font-size:26px; }
+  .back { background:#1b2740; transform:rotateY(180deg); }
+  .card.done .back { background:#14312a; }
+  .win { color:#4ade80; font-weight:700; }
+</style>
+</head>
+<body>
+  <h1>🧠 MEMORY MATCH</h1>
+  <div class="row"><span>Moves <b id="moves">0</b></span><span>Pairs <b id="pairs">0</b></span>
+    <button onclick="newGame()">New Game</button><span id="status" class="win"></span></div>
+  <div id="grid"></div>
+<script>
+const SET=["🍎","🚀","🐱","🎲","⚡","🌙","🎧","🎸","🔥","🌸","🐙","🍕"];
+const gridEl=document.getElementById("grid");
+let first,lock,moves,matched,total;
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function newGame(){ const pairs=8; total=pairs; matched=0; moves=0; first=null; lock=false;
+  document.getElementById("moves").textContent=0; document.getElementById("pairs").textContent=0;
+  document.getElementById("status").textContent="";
+  const cols=4; gridEl.style.gridTemplateColumns=`repeat(${cols},74px)`;
+  const deck=shuffle([...SET.slice(0,pairs),...SET.slice(0,pairs)]);
+  gridEl.innerHTML="";
+  deck.forEach(sym=>{ const card=document.createElement("div"); card.className="card"; card.dataset.sym=sym;
+    card.innerHTML=`<div class="inner"><div class="face front"></div><div class="face back">${sym}</div></div>`;
+    card.onclick=()=>flip(card); gridEl.appendChild(card); }); }
+function flip(card){ if(lock||card.classList.contains("flip")||card.classList.contains("done")) return;
+  card.classList.add("flip");
+  if(!first){ first=card; return; }
+  moves++; document.getElementById("moves").textContent=moves;
+  if(first.dataset.sym===card.dataset.sym){ first.classList.add("done"); card.classList.add("done");
+    first=null; matched++; document.getElementById("pairs").textContent=matched;
+    if(matched===total) document.getElementById("status").textContent=`🎉 Solved in ${moves} moves!`; }
+  else { lock=true; const a=first; first=null; setTimeout(()=>{ a.classList.remove("flip"); card.classList.remove("flip"); lock=false; },700); } }
+newGame();
+</script>
+</body>
+</html>

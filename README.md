@@ -15,6 +15,9 @@
 - 🖼️ Real site favicons, live tab titles, per-tab loading spinner, and an omnibox that follows in-page navigation without polling.
 - 🛠️ Devtools (Eruda) is served locally instead of from a CDN.
 
+- 🕹️ **Six built-in games** that need no assets or network — 2048, Snake, Brick Breaker, Minefield (minesweeper), Blocks, and Memory Match — bundled under `public/arcade/` and listed first in the arcade (`shadow://books`). They run self-contained, so they work even when the games-asset submodule isn't checked out.
+- 🚨 **Panic key** (Settings → General): pick a key that instantly sends the whole window to a safe site. It works from inside proxied pages too and is ignored while you're typing.
+
 ### Keyboard shortcuts
 | Keys | Action |
 |---|---|
