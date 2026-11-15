@@ -6,20 +6,36 @@ import cookieParser from "cookie-parser";
 import * as cheerio from "cheerio";
 import { doubleCsrf } from "csrf-csrf";
 import { createServer } from "http";
+import { createRequire } from "module";
 import { fileURLToPath } from "url";
-import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
-import { libcurlPath } from "@mercuryworkshop/libcurl-transport";
-import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
-import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
-import { join } from "path";
+import { dirname, join } from "path";
 import { users, port, brokenSites } from "./config.js";
 import session from "express-session";
+import { build, isBuilt } from "./scripts/build.mjs";
 
 import dotenv from "dotenv";
 dotenv.config();
 
-const version = process.env.npm_package_version;
+const require = createRequire(import.meta.url);
+const version =
+  process.env.npm_package_version ?? require("./package.json").version;
 const publicPath = fileURLToPath(new URL("./public/", import.meta.url));
+
+const { scramjetPath } = require("@mercuryworkshop/scramjet/path");
+// These packages only export ".", so resolve the entry file and take its directory (dist/).
+const controllerPath = dirname(
+  require.resolve("@mercuryworkshop/scramjet-controller"),
+);
+const epoxyPath = dirname(require.resolve("@mercuryworkshop/epoxy-transport"));
+const libcurlPath = dirname(
+  require.resolve("@mercuryworkshop/libcurl-transport"),
+);
+const erudaPath = dirname(require.resolve("eruda"));
+
+if (!isBuilt()) {
+  console.log("[build] public/dist is missing, building it now...");
+  await build({ quiet: true });
+}
 const app = express();
 const server = createServer(app);
 if (Object.keys(users).length > 0)
@@ -33,10 +49,23 @@ app.use((req, res, next) => {
   }
   next();
 });
-app.use("/epoxy/", express.static(epoxyPath));
-app.use("/libcurl/", express.static(libcurlPath));
-app.use("/baremux/", express.static(baremuxPath));
-app.use("/uv/", express.static(uvPath));
+// Proxy runtime, served straight from node_modules.
+//   /scramjet/    scramjet.js + scramjet.wasm (rewriter + client)
+//   /controller/  controller.api.js (page), controller.inject.js (proxied docs), controller.sw.js (service worker)
+//   /epoxy/, /libcurl/  wisp transports, picked in settings
+const runtimeStatic = { maxAge: 3600000 }; // 1 hour: these change whenever the packages are bumped
+app.use("/scramjet/", express.static(scramjetPath, runtimeStatic));
+app.use("/controller/", express.static(controllerPath, runtimeStatic));
+app.use("/epoxy/", express.static(epoxyPath, runtimeStatic));
+app.use("/libcurl/", express.static(libcurlPath, runtimeStatic));
+// In-page devtools console (menu -> Devtools), served locally so it doesn't depend on a CDN.
+app.use("/eruda/", express.static(erudaPath, runtimeStatic));
+// Our own bundles (scripts/build.mjs). Revalidated on every load so a redeploy takes effect immediately.
+app.use("/dist/", express.static(join(publicPath, "dist"), { maxAge: 0 }));
+app.get("/sw.js", (req, res) => {
+  res.set("Cache-Control", "no-cache");
+  res.sendFile(join(publicPath, "sw.js"));
+});
 app.use("/privacy", express.static(publicPath + "/privacy.html"));
 
 app.use(express.static(publicPath, { maxAge: 604800000 })); //1 week
@@ -88,7 +117,7 @@ app.get("/v1/api/broken-sites", async (req, res) => {
 app.get("/v1/api/search-suggestions", async (req, res) => {
   let response;
   let results = [];
-  const query = req.query.query;
+  const query = encodeURIComponent(String(req.query.query ?? ""));
   switch (req.headers.engine ?? "google") {
     case "duckduckgo":
       response = await fetch(
@@ -117,6 +146,41 @@ app.get("/v1/api/search-suggestions", async (req, res) => {
   }
 
   res.send(results);
+});
+
+// Downloads an extension package from the Chrome Web Store so the client can
+// install it (the store doesn't send CORS headers, so the browser can't).
+const CRX_MAX_BYTES = 64 * 1024 * 1024;
+app.get("/v1/api/crx/:id", async (req, res) => {
+  const id = req.params.id;
+  if (!/^[a-p]{32}$/.test(id)) {
+    return res.status(400).json({ error: "Not a Chrome Web Store extension ID" });
+  }
+  try {
+    const upstream = await fetch(
+      `https://clients2.google.com/service/update2/crx?response=redirect&prodversion=138.0&acceptformat=crx2,crx3&x=id%3D${id}%26uc`,
+    );
+    if (!upstream.ok) {
+      return res
+        .status(upstream.status === 204 ? 404 : 502)
+        .json({ error: "The Chrome Web Store has no package for that ID" });
+    }
+    const body = Buffer.from(await upstream.arrayBuffer());
+    if (body.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "The Chrome Web Store has no package for that ID" });
+    }
+    if (body.length > CRX_MAX_BYTES) {
+      return res.status(413).json({ error: "Extension package is too large" });
+    }
+    res.set("Content-Type", "application/x-chrome-extension");
+    res.set("Cache-Control", "public, max-age=3600");
+    res.send(body);
+  } catch (error) {
+    console.error("[crx]", error);
+    res.status(502).json({ error: "Could not reach the Chrome Web Store" });
+  }
 });
 
 // AI STUFF
@@ -232,6 +296,12 @@ app.use((req, res) => {
   res.status(404);
   res.sendFile(join(publicPath, "404.html"));
 });
+
+// Local development only: lets the proxy reach localhost / LAN targets.
+if (process.env.WISP_ALLOW_PRIVATE === "1") {
+  wisp.options.allow_loopback_ips = true;
+  wisp.options.allow_private_ips = true;
+}
 
 server.on("upgrade", (req, socket, head) => {
   if (req.url.endsWith("/wisp/")) wisp.routeRequest(req, socket, head);

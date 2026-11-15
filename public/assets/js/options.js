@@ -35,11 +35,15 @@ function closeMenu(event) {
 }
 
 try { menuButton.addEventListener("click", toggleDropdown); } catch (_) { }
+// Clicking anywhere else closes the menu.
+document.addEventListener("click", closeMenu);
 
 // Menu Buttons
 
 function iframefullscreen() {
-  const iframe = iframesContainer.children[tabs.activeTabIndex];
+  // Look the iframe up through the tab list: tabs can be reordered, iframes are not.
+  const iframe = tabs.tabsArr[tabs.activeTabIndex]?.iframe;
+  if (!iframe) return;
   if (iframe.requestFullscreen) {
     iframe.requestFullscreen();
   } else if (iframe.mozRequestFullScreen) {
@@ -99,8 +103,11 @@ function abtblank() {
 }
 
 function iframeabtblank() {
-  const iframe = iframesContainer.children[tabs.activeTabIndex];
-  const url = iframe.src;
+  // Proxied pages are served by the Scramjet controller living in *this* page, so
+  // the encoded iframe URL dies as soon as we navigate away. Open a fresh Shadow
+  // inside the about:blank window instead, pointed straight at the tab's real URL.
+  const current = tabs.parseUrl();
+  const url = `${location.origin}/?url=${encodeURIComponent(current)}`;
   const width = window.innerWidth;
   const height = window.innerHeight;
 
@@ -116,7 +123,7 @@ function iframeabtblank() {
 
 
   if (!inFrame && !navigator.userAgent.includes("Firefox")) {
-    const popup = window.open("about:blank", `width=${width},height=${height}`);
+    const popup = window.open("about:blank", "_blank", `width=${width},height=${height}`);
 
 
     if (!popup || popup.closed) {

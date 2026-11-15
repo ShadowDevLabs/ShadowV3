@@ -1,45 +1,49 @@
-//I really have no clue where this came from, I updated it a bit for shadow:// urls, but uh thanks whoever made it
-
 "use strict";
 
 /**
+ * Turns whatever was typed into the omnibox into a real URL.
+ *
+ *   shadow://settings        -> shadow://settings (internal page)
+ *   chrome-extension://...   -> unchanged (extension page)
+ *   https://example.com      -> unchanged
+ *   example.com/path         -> https://example.com/path
+ *   anything else            -> the search engine template with %s filled in
+ *
+ * The result is a plain URL; encoding it for the proxy is tabs.js' job.
  *
  * @param {string} input
- * @param {string} template
+ * @param {string} template search URL containing %s
  * @returns {string}
  */
-function search(input, template, backend) {
-  let url;
+function resolveInput(input, template) {
+  input = String(input ?? "").trim();
+  template = template || "https://duckduckgo.com/?q=%s";
 
-  //Local shadow:// urls
-  try {
-    if (input.includes("shadow://")) {
-      url = "/pages/" + input.replace("shadow://", "") + ".html";
-      return url;
-    }
-  } catch (err) {}
+  if (input.startsWith("shadow://") || input === "about:blank") return input;
+  if (/^chrome-extension:\/\//i.test(input)) return input;
 
-  try {
-    url = new URL(input);
-    if (url.hostname.includes(".")) {
-      return (
-        `/${backend}/service/` + self.__uv$config.encodeUrl(url.toString())
-      );
-    }
-  } catch (err) {}
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(input)) {
+    try {
+      return new URL(input).toString();
+    } catch (err) {}
+  }
 
-  try {
-    url = new URL(`https://${input}`);
-    if (url.hostname.includes(".")) {
-      return (
-        `/${backend}/service/` + self.__uv$config.encodeUrl(url.toString())
-      );
-    }
-  } catch (err) {}
-  return (
-    `/${backend}/service/` +
-    self.__uv$config.encodeUrl(
-      template.replace("%s", encodeURIComponent(input)),
-    )
-  );
+  // "example.com", "localhost:3000", "10.0.0.1/admin" — but not "what is 2.5"
+  if (!/\s/.test(input)) {
+    try {
+      const url = new URL(`https://${input}`);
+      const host = url.hostname;
+      if (host.includes(".") || host === "localhost") {
+        if (host === "localhost" || /^[\d.]+$/.test(host)) url.protocol = "http:";
+        return url.toString();
+      }
+    } catch (err) {}
+  }
+
+  return template.replace("%s", encodeURIComponent(input));
+}
+
+// Old name, kept for anything still calling it.
+function search(input, template) {
+  return resolveInput(input, template);
 }

@@ -44,7 +44,8 @@ class BookmarksManager {
   async load() {
     const storedBookmarks = await this.settings.get("bookmarks");
     if (storedBookmarks) {
-      const bookmarks = JSON.parse(storedBookmarks);
+      // Stored as an array; very old versions stored a JSON string.
+      const bookmarks = typeof storedBookmarks === "string" ? JSON.parse(storedBookmarks) : storedBookmarks;
       bookmarks.forEach((bookmark) =>
         this.addBookmark(bookmark.title, bookmark.url),
       );
@@ -115,10 +116,11 @@ class BookmarksManager {
   }
 
   newBookmark() {
-    const iframesContainer = document.getElementById("iframes-container");
-    const iframe = iframesContainer.children[activeTabIndex];
-    this.addBookmark(iframe.contentWindow.document.title, tabs.parseUrl());
+    const { title, src } = tabs.getTabInfo();
+    if (!src) return;
+    this.addBookmark(title || src, src);
   }
 }
 
 const bookmarksManager = new BookmarksManager();
+window.bookmarksManager = bookmarksManager; // used by inline onclick handlers

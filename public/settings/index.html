@@ -13,7 +13,6 @@
   <title>Settings</title>
   <link rel="icon" href="/assets/imgs/icons/logo.png" type="image/x-icon" />
   <script src="/assets/js/settings.js" type="module"></script>
-  <script src="/uv/uv.config.js"></script>
   <!-- Google tag (gtag.js) -->
   <script src="/ana.js"></script>
   <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-NCTSG4T1B6');</script>
@@ -386,17 +385,18 @@
       };
       document.getElementById("searchEngineDropdown").value = urlToValueMap[await window.settings.get('search-engine')];
 
-      if (!(await window.settings.get("server")).startsWith(`wss://${location.host}`)) {
+      const savedServer = (await window.settings.get("server")) || "";
+      // Anything not pointing back at this host is a custom server.
+      if (savedServer && !savedServer.includes(`://${location.host}/`)) {
         document.getElementById("wispSelection").value = 'custom';
         wispURLOption();
       }
 
       window.setUA = async function (agent) {
         agent = agent || navigator.userAgent;
+        // tabs.js listens for this setting and applies it to outgoing requests.
         await window.settings.set("user-agent", agent);
-        navigator.serviceWorker.register("/sw.js", {
-          scope: "/"
-        });
+        if (parent !== window && parent.tabs) parent.tabs.userAgent = agent === navigator.userAgent ? null : agent;
         document.getElementById("customUserAgent").value = await window.settings.get("user-agent");
       }
 

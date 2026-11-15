@@ -1,0 +1,268 @@
+/* Browser-shell additions: tab states, extension toolbar + popup, floating menu, toasts. */
+
+/* ---- tabs ---------------------------------------------------------------- */
+
+.tab {
+  user-select: none;
+}
+
+.tab.dragging {
+  opacity: 0.55;
+}
+
+.tab .tab-icon {
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.tab .tab-spinner {
+  display: none;
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  box-sizing: border-box;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: shadow-spin 0.7s linear infinite;
+}
+
+.tab.loading .tab-spinner {
+  display: inline-block;
+}
+
+.tab.loading .tab-icon {
+  display: none;
+}
+
+@keyframes shadow-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Pinned tabs collapse to just their icon. */
+.tab.pinned {
+  flex: 0 0 auto;
+  min-width: 0;
+  padding: 8px 10px;
+}
+
+.tab.pinned .tab-title,
+.tab.pinned .close-tab-button {
+  display: none;
+}
+
+/* ---- extension toolbar ----------------------------------------------------- */
+
+#ext-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 4px;
+  flex: 0 0 auto;
+}
+
+.ext-icon {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, var(--primary), var(--secondary));
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 6px var(--accent-glow);
+  transition: box-shadow 0.2s ease;
+}
+
+.ext-icon:hover {
+  box-shadow: 0 0 10px var(--accent-glow), 0 0 4px var(--accent-glow);
+}
+
+.ext-icon.disabled {
+  opacity: 0.45;
+}
+
+.ext-icon img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.ext-badge {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  min-width: 14px;
+  max-width: 30px;
+  padding: 0 3px;
+  box-sizing: border-box;
+  border-radius: 7px;
+  background: #5f6368;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 14px;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+#ext-popup-wrap {
+  display: none;
+  position: fixed;
+  top: 110px;
+  right: 16px;
+  z-index: 10000;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100vh - 16px);
+}
+
+#ext-popup-wrap.open {
+  display: block;
+}
+
+/* index.css hides every iframe that isn't the active tab; the popup is its own thing. */
+#ext-popup {
+  display: block;
+  flex: none;
+  width: 360px;
+  height: 480px;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+}
+
+/* ---- floating menu (tab menu, extension menus) ------------------------------- */
+
+.shadow-menu {
+  position: fixed;
+  z-index: 10001;
+  min-width: 190px;
+  max-width: 320px;
+  padding: 6px;
+  background: var(--primary);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  font-size: 13px;
+  user-select: none;
+}
+
+.shadow-menu-item {
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shadow-menu-item:hover {
+  background: var(--accent-glow);
+}
+
+.shadow-menu-item.disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.shadow-menu-item.disabled:hover {
+  background: none;
+}
+
+.shadow-menu-header {
+  padding: 4px 12px 2px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shadow-menu-separator {
+  margin: 4px 0;
+  border-top: 1px solid var(--border);
+}
+
+/* ---- toasts ------------------------------------------------------------------ */
+
+#shadow-toasts {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 10002;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: min(360px, calc(100vw - 32px));
+}
+
+.shadow-toast {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 14px;
+  background: var(--primary);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.shadow-toast img {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.shadow-toast-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.shadow-toast-body button {
+  align-self: flex-start;
+  margin-top: 6px;
+  padding: 3px 10px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.shadow-toast-body button:hover {
+  background: var(--accent-glow);
+}
+
+/* ---- content ----------------------------------------------------------------- */
+
+/* A site with no background of its own would otherwise show the dark shell through. */
+#iframes-container > iframe.proxied {
+  background: #fff;
+}

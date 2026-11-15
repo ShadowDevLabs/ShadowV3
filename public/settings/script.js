@@ -99,7 +99,7 @@ async function wispURLOption() {
   } else {
     customWispURL.style.display = 'none';
     setWispUrlBtn.style.display = 'none';
-    await window.settings.set("server", `wss://${location.host}/wisp/`);
+    await window.settings.set("server", `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/wisp/`);
     top.tabs.setTransport();
   }
 }

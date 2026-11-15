@@ -1,16 +1,18 @@
 {
   "name": "shadow",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "description": "Shadow proxy",
   "type": "module",
   "engines": {
     "npm": ">=7.0.0",
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "scripts": {
     "start": "node index.js",
     "dev": "node index.js 9090",
     "shadow": "node index.js",
+    "build": "node scripts/build.mjs",
+    "postinstall": "node scripts/build.mjs",
     "pretty": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json,html,css}\""
   },
   "keywords": [
@@ -19,26 +21,31 @@
   "author": "",
   "license": "GPL-3.0-only",
   "dependencies": {
-    "@mercuryworkshop/bare-mux": "^2.1.7",
-    "@mercuryworkshop/epoxy-tls": "^2.1.17-1",
-    "@mercuryworkshop/epoxy-transport": "^2.1.27",
-    "@mercuryworkshop/libcurl-transport": "^1.4.0",
-    "@mercuryworkshop/wisp-js": "^0.4.0",
-    "@titaniumnetwork-dev/ultraviolet": "^3.2.10",
+    "@mercuryworkshop/epoxy-transport": "^3.0.2",
+    "@mercuryworkshop/libcurl-transport": "^2.0.6",
+    "@mercuryworkshop/scramjet": "2.0.67-alpha.2",
+    "@mercuryworkshop/scramjet-controller": "0.0.14",
+    "@mercuryworkshop/wisp-js": "^0.5.3",
+    "@x8r/sapphire": "0.1.4",
     "cheerio": "^1.0.0-rc.12",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.7",
     "csrf-csrf": "^3.1.0",
     "dotenv": "^16.4.7",
+    "eruda": "^3.4.3",
+    "esbuild": "^0.25.0",
     "express": "^5.0.0",
     "express-basic-auth": "^1.2.1",
     "express-session": "^1.18.2",
-    "http": "^0.0.1-security",
-    "jsdom": "^24.0.0",
-    "terser": "^5.31.6",
+    "jszip": "^3.10.1",
     "ws": "^8.16.0"
   },
   "devDependencies": {
     "prettier": "^3.3.3"
+  },
+  "overrides": {
+    "@x8r/sapphire": {
+      "@mercuryworkshop/scramjet-controller": "$@mercuryworkshop/scramjet-controller"
+    }
   }
 }
