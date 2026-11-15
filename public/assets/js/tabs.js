@@ -3,6 +3,7 @@ import { SettingsManager } from "/assets/js/settings_manager.js";
 import { Controller, Sapphire, ShadowPlugin } from "/dist/shadow-proxy.js";
 import { ExtensionUI } from "/assets/js/extension_ui.js";
 import { showMenu, hideMenu, toast } from "/assets/js/ui.js";
+import { applySitePatches } from "/assets/js/site-patches.js";
 
 const searchInput = document.getElementById("__shadow-search-bar");
 const addTabButton = document.getElementById("add-tab");
@@ -703,6 +704,8 @@ class Tab {
         }, 100);
       }).observe(head, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ["href"] });
     });
+    // Site-specific compatibility fixups (assets/js/site-patches.js), matched by host.
+    try { applySitePatches(win, String(client.url)); } catch (e) { console.debug("[site-patch]", e); }
     refresh();
   }
 

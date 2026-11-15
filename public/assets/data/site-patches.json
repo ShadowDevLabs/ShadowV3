@@ -1,0 +1,5 @@
+[
+  {
+    "_readme": "CSS-only per-site fixes, applied inside the proxied page by hostname. Add objects like { \"match\": \"example.com\", \"css\": \"...\", \"note\": \"why\" }. 'match' accepts 'example.com' (domain + subdomains), '*.example.com' (subdomains only), or '~text' (hostname contains text). These load live, so you can tune them on a running deployment without a rebuild."
+  }
+]
