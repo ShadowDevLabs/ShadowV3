@@ -1,0 +1,33 @@
+{
+  "_note": "Maintainer-curated catalog. 'id' is a Chrome Web Store extension ID; the Add button fetches that package through /v1/api/crx/:id. These IDs were entered from memory and should be verified against the live Web Store before relying on them (a wrong ID just makes that one Add button error). For a self-hosted package instead, drop the file in public/store/packages/ and use { \"name\": \"...\", \"path\": \"/store/packages/file.zip\", ... }. Add an \"icon\" URL per entry for a real logo; otherwise a category glyph is shown.",
+  "extensions": [
+    { "id": "cjpalhdlnbpafiamejdnhcphjbkeiagm", "name": "uBlock Origin", "author": "Raymond Hill", "category": "Ad Blockers", "featured": true,
+      "description": "Efficient, wide-spectrum content blocker. Blocks ads, trackers, and more with low memory use." },
+    { "id": "ddkjiahejlhfcafbddmgiahcphecmpfh", "name": "uBlock Origin Lite", "author": "Raymond Hill", "category": "Ad Blockers",
+      "description": "A permission-light, MV3 content blocker that works with declarative rules." },
+    { "id": "bgnkhhnnamicmpeenaelnjfhikgbkllg", "name": "AdGuard AdBlocker", "author": "AdGuard", "category": "Ad Blockers",
+      "description": "Blocks ads and trackers across sites, with cosmetic filtering and anti-adblock handling." },
+    { "id": "mnjggcdmjocbbbhaepdhchncahnbgone", "name": "SponsorBlock for YouTube", "author": "Ajay Ramachandran", "category": "Productivity", "featured": true,
+      "description": "Skips sponsored segments, intros, and self-promos in YouTube videos using community data." },
+    { "id": "gebbhagfogifgggkldgodflihgfeippi", "name": "Return YouTube Dislike", "author": "Dmitrii Selivanov", "category": "Productivity",
+      "description": "Brings back the dislike count on YouTube videos using an archived + estimated dataset." },
+    { "id": "eimadpbcbfnmbkopoojfekhnkhdbieeh", "name": "Dark Reader", "author": "Dark Reader Ltd", "category": "Appearance", "featured": true,
+      "description": "Dark mode for every website, with brightness, contrast, and sepia controls." },
+    { "id": "clngdbkpkpeebahjckkjfobafhncgmne", "name": "Stylus", "author": "Stylus Team", "category": "Appearance",
+      "description": "Install and write custom themes (userstyles) to restyle any site." },
+    { "id": "dhdgffkkebhmkfjojejmpbldmpobfkfo", "name": "Tampermonkey", "author": "Jan Biniok", "category": "Userscripts",
+      "description": "The popular userscript manager — run custom JavaScript on the pages you choose." },
+    { "id": "jinjaccalgkegednnccohejagnlnfdag", "name": "Violentmonkey", "author": "violentmonkey", "category": "Userscripts",
+      "description": "Open-source userscript manager with a clean editor and sync." },
+    { "id": "pkehgijcmpdhfbdbbnkijodmdjhbjlgp", "name": "Privacy Badger", "author": "EFF Technologists", "category": "Privacy",
+      "description": "Automatically learns to block invisible trackers as you browse." },
+    { "id": "nngceckbapebfimnlniiiahkandclblb", "name": "Bitwarden", "author": "Bitwarden Inc.", "category": "Passwords",
+      "description": "Open-source password manager that stores and autofills your logins." },
+    { "id": "chklaanhfefbnpoihckbnefhakgolnmc", "name": "JSON Viewer", "author": "tulios", "category": "Developer",
+      "description": "Pretty-prints and collapses JSON responses in the browser." },
+    { "id": "gppongmhjkpfnbhagpmjfkannfbllamg", "name": "Wappalyzer", "author": "Wappalyzer", "category": "Developer",
+      "description": "Identifies the frameworks, libraries, and tools a website is built with." },
+    { "id": "fmkadmapgofadopljbjfkapdkoienihi", "name": "React Developer Tools", "author": "Meta", "category": "Developer",
+      "description": "Inspect the React component tree, props, and state in page devtools." }
+  ]
+}

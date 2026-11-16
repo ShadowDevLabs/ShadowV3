@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="/assets/js/themes.js" type="module"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="/css/themes.css" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Shadow Web Store</title>
+  <link rel="icon" href="/assets/imgs/icons/pages/store.png" />
+</head>
+<body>
+  <header class="store-header">
+    <div class="brand">
+      <div class="logo">S</div>
+      <div>
+        <h1>Shadow Web Store</h1>
+        <p class="tagline">Chrome extensions, installed straight into Shadow</p>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <input id="search" type="text" placeholder="Search extensions…" autocomplete="off" spellcheck="false" />
+    </div>
+    <button id="add-url" class="ghost">Add by URL / ID</button>
+    <a href="/extensions/" class="manage-link">Manage installed</a>
+  </header>
+
+  <div id="unavailable" class="notice" hidden>
+    Extensions need the proxy, and it didn't start in this window. Reload Shadow and reopen the store.
+  </div>
+
+  <!-- Add from the real Chrome Web Store (any extension, not just the catalog) -->
+  <div id="url-box" class="url-box" hidden>
+    <input id="url-input" type="text" placeholder="Paste a Chrome Web Store link or a 32-character extension ID" autocomplete="off" spellcheck="false" />
+    <button id="url-install" class="primary">Install</button>
+    <button id="url-cancel" class="ghost">Cancel</button>
+    <p id="url-status" class="status" role="status"></p>
+  </div>
+
+  <nav id="categories" class="categories"></nav>
+
+  <section id="featured-section" class="featured" hidden>
+    <h2>Featured</h2>
+    <div id="featured" class="featured-row"></div>
+  </section>
+
+  <main>
+    <h2 id="grid-title">All extensions</h2>
+    <div id="grid" class="grid"></div>
+    <p id="empty" class="muted" hidden>No extensions match your search.</p>
+  </main>
+
+  <!-- Detail modal -->
+  <div id="modal" class="modal" hidden>
+    <div class="modal-card">
+      <button id="modal-close" class="modal-close" title="Close">✕</button>
+      <div class="modal-head">
+        <div class="ext-ico" id="modal-ico"></div>
+        <div>
+          <h2 id="modal-name"></h2>
+          <p class="muted" id="modal-meta"></p>
+        </div>
+      </div>
+      <p id="modal-desc" class="modal-desc"></p>
+      <div id="modal-perms" class="modal-perms"></div>
+      <div class="modal-actions">
+        <button id="modal-install" class="primary"></button>
+        <span id="modal-status" class="status"></span>
+      </div>
+      <p class="muted small">
+        Installs the package from the Chrome Web Store through Shadow. Only install extensions you trust —
+        an extension can read and change the pages you open here, same as in Chrome.
+      </p>
+    </div>
+  </div>
+
+  <template id="card-tpl">
+    <article class="card" tabindex="0">
+      <div class="ext-ico card-ico"></div>
+      <div class="card-body">
+        <h3 class="card-name"></h3>
+        <p class="card-author muted"></p>
+        <p class="card-desc"></p>
+      </div>
+      <div class="card-foot">
+        <span class="card-cat"></span>
+        <button class="card-btn primary">Add</button>
+      </div>
+    </article>
+  </template>
+
+  <script src="script.js" type="module"></script>
+</body>
+</html>

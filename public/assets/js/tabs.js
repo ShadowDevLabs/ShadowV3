@@ -422,15 +422,16 @@ class Tab {
     iframesContainer.appendChild(tab.iframe);
 
     if (this.controller) {
-      tab.frame = this.controller.createFrame(tab.iframe, {
-        plugins: [
-          this.sapphire.createPlugin(tab.id),
-          new ShadowPlugin({
-            onDocument: (ctx) => this.onDocument(tab, ctx),
-            getUserAgent: () => this.userAgent,
-          }),
-        ],
-      });
+      // sapphire is set just after the controller finishes booting; guard the
+      // brief gap so a very early tab doesn't crash (it just lacks extensions).
+      const plugins = [
+        new ShadowPlugin({
+          onDocument: (ctx) => this.onDocument(tab, ctx),
+          getUserAgent: () => this.userAgent,
+        }),
+      ];
+      if (this.sapphire) plugins.unshift(this.sapphire.createPlugin(tab.id));
+      tab.frame = this.controller.createFrame(tab.iframe, { plugins });
     }
 
     const at = typeof index === "number" ? Math.min(Math.max(index, 0), this.tabsArr.length) : this.tabsArr.length;

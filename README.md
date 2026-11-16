@@ -6,7 +6,7 @@
 
 # What's new in 3.4 (`slop` branch)
 - 🚀 **Scramjet v2** replaces Ultraviolet as the proxy engine (`@mercuryworkshop/scramjet` 2.0.67-alpha.2 + `scramjet-controller` 0.0.14). bare-mux is gone; Epoxy and Libcurl talk to Wisp directly.
-- 🧩 **Chrome extensions.** Install a `.crx`/`.zip` or paste a Chrome Web Store link at `shadow://extensions`. Content scripts, background pages/service workers, toolbar popups with badges, context menus, notifications, keyboard commands and most `chrome.*` APIs work, via [Sapphire](https://github.com/x8rr/sapphire).
+- 🧩 **Chrome extensions. A storefront UI lives at `shadow://store` (browse a curated catalog or paste any Chrome Web Store link/ID).** Install a `.crx`/`.zip` or paste a Chrome Web Store link at `shadow://extensions`. Content scripts, background pages/service workers, toolbar popups with badges, context menus, notifications, keyboard commands and most `chrome.*` APIs work, via [Sapphire](https://github.com/x8rr/sapphire).
 - 📌 Pinned tabs, drag-to-reorder (without reloading the page), duplicate, close others / to the right, middle-click to close, and a right-click tab menu.
 - ↩️ Reopen closed tabs.
 - 💤 Restored sessions load lazily: only the active tab loads, the rest load when you click them. Sessions saved by older versions are converted automatically.
