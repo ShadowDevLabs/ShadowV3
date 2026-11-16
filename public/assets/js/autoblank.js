@@ -33,6 +33,8 @@ function abtblank() {
         } else {
             const doc = popup.document;
             const iframe = doc.createElement("iframe");
+            // Screenshot, picture-in-picture and clipboard features need these inside the cloak window.
+            iframe.allow = "display-capture; picture-in-picture; fullscreen; clipboard-read; clipboard-write";
             const style = iframe.style;
             const link = doc.createElement("link");
 

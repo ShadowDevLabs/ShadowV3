@@ -20,6 +20,11 @@ async function saveFavorites() {
   await settings.set(FAV_KEY, [...favorites]);
 }
 
+// Games shipped with Shadow itself (public/arcade/): playable with no connection.
+function isBundled(game) {
+  return typeof game.url === 'string' && game.url.startsWith('/arcade/');
+}
+
 function isHot(game) {
   return (game.categories || []).some(c => c.toLowerCase() === 'hot');
 }
@@ -182,7 +187,14 @@ function renderVisible() {
 function applyFilters() {
   const q = searchQuery.toLowerCase();
 
+  // Without a connection only the bundled games can run (the service worker
+  // keeps them cached), so the rest are hidden until the network is back.
+  const offline = !navigator.onLine;
+  const notice = document.getElementById('offlineNotice');
+  if (notice) notice.hidden = !offline;
+
   let filtered = allGames.filter(g => {
+    if (offline && !isBundled(g)) return false;
     const searchOk = !q || g.label.toLowerCase().includes(q);
     if (activeFilter === 'favorites') return favorites.has(g.label) && searchOk;
     const catOk = activeFilter === 'all' ||
@@ -247,6 +259,8 @@ async function init() {
     applyFilters();
     document.getElementById('searchInput').addEventListener('input',
       debounce(e => { searchQuery = e.target.value; applyFilters(); }, 150));
+    window.addEventListener('online', applyFilters);
+    window.addEventListener('offline', applyFilters);
   } catch {
     document.getElementById('loading').innerHTML =
       '<div class="empty"><strong>ERROR</strong>Could not load learningcourses.json</div>';

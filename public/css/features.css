@@ -1,0 +1,890 @@
+/* Shell features: layout (bookmarks bar, vertical tabs, split view), dialogs and
+   popovers, downloads, workspaces, site settings, reader mode, screenshot clip.
+   Loaded by the shell (index.html) after shell.css, and by a few internal pages
+   for the shared list styles at the bottom. */
+
+/* ---- shell layout ---------------------------------------------------------- */
+
+/* The shell is a column: tab strip, toolbar, bookmarks bar, then the page takes
+   whatever is left. (It used to subtract a fixed 132px for the bars above it.) */
+body:not(.list-page) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+body > #tabs-container,
+body > #header,
+body > .input-wrapper,
+body > #bookmarks-container {
+  flex: 0 0 auto;
+}
+
+body > #iframes-container {
+  flex: 1 1 0;
+  min-height: 0;
+  height: auto;
+}
+
+body > .desc {
+  display: none;
+}
+
+/* ---- address bar extras ------------------------------------------------------ */
+
+.omni-button {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0.75;
+}
+
+.omni-button:hover {
+  background: var(--accent-glow);
+  opacity: 1;
+}
+
+#site-button {
+  margin-right: 6px;
+}
+
+#bookmark-star {
+  margin-left: 6px;
+}
+
+#bookmark-star .star-fill {
+  display: none;
+}
+
+#bookmark-star.on .star-fill {
+  display: inline;
+  fill: var(--accent);
+}
+
+#bookmark-star.on .star-outline {
+  display: none;
+}
+
+#private-badge {
+  display: none;
+  flex: 0 0 auto;
+  margin-right: 8px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  user-select: none;
+}
+
+#uv-form.private #private-badge {
+  display: inline-block;
+}
+
+#downloads-button {
+  position: relative;
+  margin-left: 0;
+  margin-right: 6px;
+  flex: 0 0 auto;
+}
+
+#downloads-button[hidden] {
+  display: none;
+}
+
+/* A ring that fills as the active downloads progress. */
+#downloads-button.busy::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: conic-gradient(var(--accent) var(--progress, 0%), transparent 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  pointer-events: none;
+}
+
+#downloads-button.attention {
+  animation: shadow-bump 0.6s ease;
+}
+
+@keyframes shadow-bump {
+  30% {
+    transform: translateY(4px);
+  }
+  60% {
+    transform: translateY(-2px);
+  }
+}
+
+/* ---- tabs: private, split, vertical -------------------------------------------- */
+
+.tab.private {
+  border-style: dashed;
+}
+
+.tab.private::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.tab.in-split {
+  border-bottom: 2px solid var(--accent);
+}
+
+body.vertical-tabs:not(.immersive) {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+}
+
+body.vertical-tabs:not(.immersive) > * {
+  grid-column: 2;
+}
+
+body.vertical-tabs:not(.immersive) > #tabs-container {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 12px 6px 12px 12px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 0;
+}
+
+body.vertical-tabs:not(.immersive) > #header {
+  grid-row: 1;
+  padding-top: 12px;
+}
+
+body.vertical-tabs:not(.immersive) > .input-wrapper {
+  grid-row: 2;
+}
+
+body.vertical-tabs:not(.immersive) > #bookmarks-container {
+  grid-row: 3;
+}
+
+body.vertical-tabs:not(.immersive) > #iframes-container {
+  grid-row: 4;
+}
+
+body.vertical-tabs .tab,
+body.vertical-tabs .tab.pinned {
+  flex: 0 0 auto;
+  max-width: none;
+  min-width: 0;
+  padding: 8px 12px;
+}
+
+body.vertical-tabs .tab:hover {
+  transform: translateX(2px);
+}
+
+body.vertical-tabs .tab .tab-title {
+  max-width: none;
+  flex: 1 1 auto;
+}
+
+/* Pinned tabs keep their title here (there's room), marked by the accent edge. */
+body.vertical-tabs .tab.pinned .tab-title {
+  display: inline-block;
+}
+
+body.vertical-tabs .tab.pinned {
+  border-left: 3px solid var(--accent);
+}
+
+body.vertical-tabs .addtab-btn {
+  align-self: flex-start;
+}
+
+/* The suggestions box is positioned for the horizontal layout's toolbar. */
+body.vertical-tabs .suggestions {
+  margin-left: 150px;
+}
+
+/* ---- bookmarks bar ------------------------------------------------------------- */
+
+#bookmarks-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 16px 0;
+  min-height: 30px;
+  box-sizing: border-box;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+#bookmarks-container.hidden,
+body.immersive #bookmarks-container {
+  display: none;
+}
+
+.bookmark {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 170px;
+  padding: 3px 10px 3px 8px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  color: var(--text);
+  font-size: 12.5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.bookmark[hidden] {
+  display: none;
+}
+
+.bookmark:hover {
+  background: var(--accent-glow);
+  border-color: var(--border);
+}
+
+.bookmark img {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.bookmark span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bookmark-overflow {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 2px 9px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.bookmark-overflow[hidden] {
+  display: none;
+}
+
+/* ---- split view ------------------------------------------------------------------ */
+
+#iframes-container.split {
+  flex-direction: row;
+  --split: 0.5;
+}
+
+#iframes-container.split > iframe.split-left,
+#iframes-container.split > iframe.split-right {
+  display: block;
+  width: auto;
+  min-width: 0;
+  animation: none;
+  border-color: var(--border);
+}
+
+#iframes-container.split > iframe.split-left {
+  order: 1;
+  flex: 0 0 calc(var(--split) * 100% - 5px);
+}
+
+#iframes-container.split > iframe.split-right {
+  order: 3;
+  flex: 1 1 0;
+}
+
+/* The half that has focus (the one the address bar is showing). */
+#iframes-container.split > iframe.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+#split-divider {
+  order: 2;
+  flex: 0 0 10px;
+  cursor: col-resize;
+  position: relative;
+}
+
+#split-divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  width: 4px;
+  height: 44px;
+  margin-top: -22px;
+  border-radius: 2px;
+  background: var(--border);
+}
+
+#split-divider:hover::after,
+#iframes-container.resizing #split-divider::after {
+  background: var(--accent);
+}
+
+#iframes-container.resizing > iframe {
+  pointer-events: none;
+}
+
+/* ---- dialogs ----------------------------------------------------------------------- */
+
+.shadow-dialog-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 10060;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 16vh;
+  background: rgba(5, 8, 15, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.shadow-dialog {
+  width: min(92vw, 420px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  background: var(--primary);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  font-size: 14px;
+}
+
+.shadow-dialog h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.shadow-dialog p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.shadow-dialog label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.shadow-dialog input,
+.shadow-dialog select,
+.shadow-dialog textarea,
+.shadow-popover select,
+.shadow-popover input[type="text"] {
+  padding: 8px 10px;
+  background: var(--secondary);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+
+.shadow-dialog input:focus,
+.shadow-dialog select:focus,
+.shadow-dialog textarea:focus {
+  border-color: var(--accent);
+}
+
+.shadow-dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.shadow-dialog-buttons button,
+.shadow-popover button {
+  padding: 6px 14px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.shadow-dialog-buttons button:hover,
+.shadow-popover button:hover:not(:disabled) {
+  background: var(--accent-glow);
+}
+
+.shadow-dialog-buttons button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.shadow-dialog-buttons button.danger {
+  background: var(--hover-danger);
+  border-color: var(--hover-danger);
+}
+
+/* ---- popovers (downloads, site settings, workspaces) --------------------------------- */
+
+.shadow-popover {
+  position: fixed;
+  z-index: 10020;
+  box-sizing: border-box;
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+  padding: 12px;
+  background: var(--primary);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+  font-size: 13px;
+}
+
+.shadow-popover .muted,
+.list-page .muted {
+  color: var(--text-muted);
+  opacity: 0.8;
+  font-size: 12px;
+}
+
+.shadow-popover button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.shadow-popover button.link {
+  border: 0;
+  padding: 2px 4px;
+  color: var(--accent-light);
+}
+
+.popover-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.popover-title strong {
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.popover-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.site-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.site-row select {
+  max-width: 170px;
+  padding: 5px 8px;
+  font-size: 12.5px;
+}
+
+.site-custom-ua {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 4px;
+}
+
+.stepper {
+  display: flex;
+  gap: 4px;
+}
+
+.stepper button {
+  min-width: 30px;
+  padding: 4px 8px;
+}
+
+.stepper button.wide {
+  min-width: 58px;
+  font-variant-numeric: tabular-nums;
+}
+
+input.toggle {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 36px;
+  height: 20px;
+  margin: 0;
+  border-radius: 10px;
+  background: var(--secondary);
+  border: 1px solid var(--border);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+input.toggle::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: transform 0.15s;
+}
+
+input.toggle:checked {
+  background: var(--accent);
+}
+
+input.toggle:checked::after {
+  transform: translateX(16px);
+  background: #fff;
+}
+
+.workspace-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+
+.workspace-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.workspace-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.workspace-actions {
+  display: flex;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.workspace-actions button {
+  padding: 4px 8px;
+}
+
+/* ---- downloads (panel + shadow://downloads) --------------------------------------------- */
+
+.download-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.download-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-top: 1px solid var(--border);
+}
+
+.download-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.download-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.download-status {
+  margin-top: 2px;
+  color: var(--text-muted);
+  opacity: 0.8;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.download-item.failed .download-status {
+  color: var(--hover-danger);
+  opacity: 1;
+}
+
+.download-bar {
+  height: 4px;
+  margin-top: 6px;
+  border-radius: 2px;
+  background: var(--secondary);
+  overflow: hidden;
+}
+
+.download-bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.15s linear;
+}
+
+.download-bar.indeterminate span {
+  animation: shadow-slide 1.1s ease-in-out infinite;
+}
+
+@keyframes shadow-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
+}
+
+.download-actions {
+  display: flex;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.download-actions button {
+  padding: 4px 9px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12.5px;
+}
+
+.download-actions button:hover {
+  background: var(--accent-glow);
+}
+
+/* ---- reader mode ---------------------------------------------------------------------------- */
+
+#reader-view {
+  position: absolute;
+  inset: 12px 16px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--accent);
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--primary);
+}
+
+body.immersive #reader-view {
+  inset: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.reader-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--primary);
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.reader-spacer {
+  flex: 1;
+}
+
+.reader-bar button {
+  min-width: 32px;
+  padding: 4px 8px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12.5px;
+}
+
+.reader-bar button:hover {
+  background: var(--accent-glow);
+}
+
+.reader-host {
+  flex: 1 1 0;
+  min-height: 0;
+  outline: none;
+}
+
+/* ---- screenshot clip ---------------------------------------------------------------------- */
+
+#clip-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10070;
+  display: flex;
+  flex-direction: column;
+  background: rgba(5, 8, 15, 0.88);
+  color: var(--text);
+}
+
+.clip-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+}
+
+.clip-hint {
+  flex: 1;
+  color: var(--text-muted);
+}
+
+.clip-bar button {
+  padding: 6px 16px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.clip-bar button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.clip-stage {
+  flex: 1 1 0;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px 16px;
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+}
+
+.clip-image {
+  max-width: 100%;
+  max-height: 100%;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.clip-selection {
+  position: absolute;
+  border: 2px solid var(--accent);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.clip-selection[hidden] {
+  display: none;
+}
+
+/* ---- offline ---------------------------------------------------------------------------------- */
+
+body.offline #header::after {
+  content: "Offline";
+  flex: 0 0 auto;
+  margin-left: 8px;
+  padding: 2px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--hover-danger);
+  color: var(--hover-danger);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ---- shared by internal list pages (shadow://downloads, shadow://history) ---------------------- */
+
+.list-page {
+  overflow-y: auto !important;
+}
+
+.list-page .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.list-page .header-actions[hidden] {
+  display: none;
+}
+
+.list-page .inline-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.list-page .download-list.page {
+  background-color: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 14px;
+}
+
+.list-page .download-list.page:empty {
+  display: none;
+}
+
+.list-page .download-list.page .download-item:first-child {
+  border-top: 0;
+}

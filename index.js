@@ -12,6 +12,7 @@ import { dirname, join } from "path";
 import { users, port, brokenSites } from "./config.js";
 import session from "express-session";
 import { build, isBuilt } from "./scripts/build.mjs";
+import { syncRouter } from "./src/server/sync.js";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -109,6 +110,9 @@ app.get("/v1/api/version", (req, res) => {
   }
   res.status(200).send(version);
 });
+
+// Encrypted settings/bookmarks/tabs sync between a user's devices (src/server/sync.js).
+app.use("/v1/api/sync", syncRouter());
 
 app.get("/v1/api/broken-sites", async (req, res) => {
   res.status(200).send(await brokenSites());

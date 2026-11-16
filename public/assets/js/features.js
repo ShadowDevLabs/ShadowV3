@@ -51,8 +51,22 @@ function actionsFor(tabs) {
     { label: "Zoom in", hint: "Alt +", run: () => tabs.setZoom(tabs.activeTabIndex, "in") },
     { label: "Zoom out", hint: "Alt −", run: () => tabs.setZoom(tabs.activeTabIndex, "out") },
     { label: "Reset zoom", hint: "Alt 0", run: () => tabs.setZoom(tabs.activeTabIndex, "reset") },
+    { label: "New private tab", hint: "Alt+Shift+N", run: () => tabs.createTab("shadow://new", undefined, { private: true }) },
+    { label: tabs.split ? "Exit split view" : "Split view", hint: "Alt+S", run: () => tabs.toggleSplit() },
+    { label: tabs.verticalTabs ? "Horizontal tabs" : "Vertical tabs", hint: "Alt+V", run: () => tabs.setVerticalTabs(!tabs.verticalTabs) },
+    { label: "Reader mode", hint: "Alt+Shift+R", run: () => import("/assets/js/pagetools.js").then((m) => m.toggleReader(tabs)) },
+    { label: "Translate page", run: () => import("/assets/js/pagetools.js").then((m) => m.translatePage(tabs, { ask: true })) },
+    { label: "Take screenshot", hint: "Alt+Shift+S", run: () => import("/assets/js/pagetools.js").then((m) => m.screenshot(tabs)) },
+    { label: "Picture in picture", run: () => import("/assets/js/pagetools.js").then((m) => m.togglePictureInPicture(tabs)) },
+    { label: "Download this video", run: () => import("/assets/js/pagetools.js").then((m) => m.downloadVideo(tabs)) },
+    { label: "Save page as…", run: () => import("/assets/js/pagetools.js").then((m) => m.savePage(tabs)) },
+    { label: `Dark mode for every site: turn ${tabs.forceDark ? "off" : "on"}`, run: () => tabs.setForceDark(!tabs.forceDark) },
+    { label: "Site settings", run: () => tabs.showSitePanel() },
+    { label: "Downloads", hint: "Alt+J", run: () => tabs.createTab("shadow://downloads") },
+    { label: "Save tabs as a workspace", run: () => tabs.workspaces.saveCurrent() },
+    { label: window.bookmarksManager?.visible ? "Hide bookmarks bar" : "Show bookmarks bar", hint: "Alt+B", run: () => window.bookmarksManager?.setVisible(!window.bookmarksManager.visible) },
     { label: "Open devtools", run: () => tabs.toggleDevTools() },
-    { label: "Bookmark this page", run: () => window.bookmarksManager?.newBookmark() },
+    { label: "Bookmark this page", run: () => window.bookmarksManager?.toggleCurrent() },
     { label: "Settings", run: () => tabs.createTab("shadow://settings") },
     { label: "Store", run: () => tabs.createTab("shadow://store") },
     { label: "Extensions", run: () => tabs.createTab("shadow://extensions") },
@@ -60,14 +74,18 @@ function actionsFor(tabs) {
     { label: "History", run: () => tabs.createTab("shadow://history") },
     { label: "Home", run: () => tabs.createTab("shadow://home") },
   ];
+  if (window.shadowPwa?.canInstall) a.push({ label: "Install Shadow as an app", run: () => window.shadowPwa.install() });
+  // Saved workspaces: open one alongside the current tabs.
+  for (const workspace of tabs.workspaces?.list ?? []) {
+    a.push({ label: workspace.name, kind: "Workspace", run: () => tabs.workspaces.open(workspace.id) });
+  }
   // Saved bookmarks, so the palette is also a bookmark launcher.
-  const bookmarks = window.bookmarksManager?.container?.children;
-  if (bookmarks) {
-    for (const el of bookmarks) {
-      const url = el.getAttribute("data-url");
-      const title = el.getAttribute("data-title") || url;
-      if (url) a.push({ label: title, kind: "Bookmark", run: () => tabs.load(url) });
-    }
+  for (const bookmark of window.bookmarksManager?.list ?? []) {
+    a.push({ label: bookmark.title || bookmark.url, kind: "Bookmark", run: () => tabs.load(bookmark.url) });
+  }
+  // Tabs open on other devices (cloud sync).
+  for (const remote of window.shadowSync?.remoteTabs() ?? []) {
+    a.push({ label: remote.title || remote.url, kind: remote.device, run: () => tabs.createTab(remote.url) });
   }
   // Open tabs, so the palette doubles as a tab switcher.
   tabs.tabsArr.forEach((tab, i) => {
@@ -98,9 +116,10 @@ function renderPalette() {
     row.innerHTML =
       (it.icon ? `<img src="${it.icon}" onerror="this.remove()">` : `<span class="cmd-dot"></span>`) +
       `<span class="cmd-label"></span>` +
-      (it.kind ? `<span class="cmd-kind">${it.kind}</span>` : "") +
+      (it.kind ? `<span class="cmd-kind"></span>` : "") +
       (it.hint ? `<span class="cmd-hint">${it.hint}</span>` : "");
     row.querySelector(".cmd-label").textContent = it.label;
+    if (it.kind) row.querySelector(".cmd-kind").textContent = it.kind; // may be a device name from sync
     row.addEventListener("mousedown", (e) => { e.preventDefault(); runPalette(i); });
     row.addEventListener("mousemove", () => setActive(i));
     paletteList.appendChild(row);

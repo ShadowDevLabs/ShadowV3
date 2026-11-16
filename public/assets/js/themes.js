@@ -62,7 +62,67 @@ export async function setTheme(theme) {
   }
 
   setRootVars(cssVariables);
+  await applyCustomizations();
 }
+
+// ---------------------------------------------------------------- customizer
+// Layered on top of whichever theme is active (Settings → Themes → Customize):
+//   theme-accent     a hex color that replaces the theme's accent colors
+//   theme-wallpaper  an image (URL or data: URL) behind Shadow's own pages
+//   theme-css        free-form CSS added to the shell and every internal page
+const ACCENT_VARS = ["--accent", "--accent-light", "--accent-glow", "--border"];
+const isShell = window === window.top || !!document.getElementById("tabs-container");
+
+export async function applyCustomizations() {
+  const root = document.documentElement;
+  const [accent, wallpaper, css] = await Promise.all([
+    settings.get("theme-accent"),
+    settings.get("theme-wallpaper"),
+    settings.get("theme-css"),
+  ]);
+
+  if (typeof accent === "string" && /^#[0-9a-f]{6}$/i.test(accent)) {
+    root.style.setProperty("--accent", accent);
+    root.style.setProperty("--accent-light", shadeColor(accent, 30));
+    root.style.setProperty("--accent-glow", `rgba(${hexToRgb(accent)}, 0.2)`);
+    root.style.setProperty("--border", `rgba(${hexToRgb(accent)}, 0.3)`);
+    root.dataset.customAccent = "1";
+  } else if (root.dataset.customAccent) {
+    // Back to the theme's own values (a "custom" theme re-sets them in setTheme).
+    delete root.dataset.customAccent;
+    if (root.className !== "custom") ACCENT_VARS.forEach((key) => root.style.removeProperty(key));
+    else return setTheme("custom");
+  }
+
+  let style = document.getElementById("shadow-customizer");
+  const rules = [];
+  if (typeof wallpaper === "string" && wallpaper && !isShell) {
+    root.style.setProperty("--home-bg", `url(${JSON.stringify(wallpaper)})`);
+    rules.push(
+      `body { background-image: var(--home-bg) !important; background-size: cover !important; background-position: center !important; background-attachment: fixed !important; }`,
+      `.bg-dots { display: none !important; }`,
+    );
+    root.dataset.customWallpaper = "1";
+  } else if (root.dataset.customWallpaper) {
+    delete root.dataset.customWallpaper;
+    if (root.className !== "custom") root.style.removeProperty("--home-bg");
+  }
+  if (typeof css === "string" && css.trim()) rules.push(css);
+  if (rules.length === 0) return void style?.remove();
+  if (!style) {
+    style = document.createElement("style");
+    style.id = "shadow-customizer";
+    (document.head ?? root).append(style);
+  }
+  style.textContent = rules.join("\n");
+}
+
+// Any frame changing one of these re-applies them everywhere.
+try {
+  new BroadcastChannel("shadow-settings").addEventListener("message", (e) => {
+    if (typeof e.data?.key === "string" && e.data.key.startsWith("theme-")) applyCustomizations();
+  });
+} catch {}
 
 window.addEventListener("storage", function (e) {
   if (e.key === "theme") {
@@ -76,6 +136,7 @@ window.addEventListener("storage", function (e) {
 
 document.addEventListener("DOMContentLoaded", async () => {
   const theme = localStorage.getItem("theme") || await settings.get("theme");
+  if (!theme) applyCustomizations();
   if (theme) {
     setTheme(theme);
     const themeSelector = document.getElementById("themeSelector");

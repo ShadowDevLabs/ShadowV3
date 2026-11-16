@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Downloads</title>
+  <link rel="stylesheet" href="/css/themes.css" />
+  <script src="/assets/js/themes.js" type="module"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link rel="icon" href="/assets/imgs/icons/logo.png" />
+  <link href="/css/history.css" rel="stylesheet" />
+  <link href="/css/features.css" rel="stylesheet" />
+</head>
+
+<body class="list-page">
+  <div class="container">
+    <div class="header">
+      <h1>Downloads</h1>
+      <div class="header-actions">
+        <label class="inline-toggle" title="Hand finished files to the browser's own download as soon as they're done">
+          <input type="checkbox" id="autosave" /> Save to this device automatically
+        </label>
+        <button class="deleteBtn" id="clear">Clear list</button>
+      </div>
+    </div>
+    <p class="muted" id="unavailable" hidden>Open this page inside Shadow to see your downloads.</p>
+    <div id="list" class="download-list page"></div>
+    <p class="muted" id="empty" hidden>Nothing downloaded yet. Files you download from proxied sites are captured here.</p>
+  </div>
+  <script type="module">
+    const downloads = (() => {
+      try {
+        return parent !== window ? parent.tabs?.downloads : null;
+      } catch {
+        return null;
+      }
+    })();
+    const list = document.getElementById("list");
+    const empty = document.getElementById("empty");
+    const autosave = document.getElementById("autosave");
+
+    function render() {
+      list.textContent = "";
+      for (const item of downloads.items) list.append(downloads.renderItem(item));
+      empty.hidden = downloads.items.length > 0;
+    }
+
+    if (!downloads) {
+      document.getElementById("unavailable").hidden = false;
+      document.querySelector(".header-actions").hidden = true;
+    } else {
+      await downloads.ready;
+      autosave.checked = downloads.autoSave !== false;
+      autosave.addEventListener("change", () => {
+        downloads.autoSave = autosave.checked;
+        downloads.settings.set("downloads-autosave", autosave.checked);
+      });
+      document.getElementById("clear").addEventListener("click", () => downloads.clear());
+      const stop = downloads.onChange(render);
+      addEventListener("pagehide", stop);
+      render();
+    }
+    try {
+      parent.updateOmni();
+      parent.setTab();
+    } catch {}
+  </script>
+</body>
+
+</html>

@@ -5,7 +5,9 @@
 // the rewriting and the network I/O. Extension resources (chrome-extension://…)
 // are served by Sapphire. On top of that, it stale-while-revalidate caches
 // Shadow's own static assets so repeat visits are instant and the origin (and
-// the mirror fleet) take far fewer hits.
+// the mirror fleet) take far fewer hits, precaches the shell and the built-in
+// games at install, and falls back to cached pages when the network is gone —
+// which is what makes Shadow installable and the arcade playable offline.
 importScripts("/dist/sapphire-sw-router.js");
 importScripts("/controller/controller.sw.js");
 importScripts("/assets/js/settings_manager_sw.js");
@@ -16,7 +18,9 @@ self.history = new HistoryHelper();
 
 // Bump to invalidate the static cache after a shell asset change that can't wait
 // for the background refresh (rare — SWR already keeps assets fresh within a load).
-const STATIC_CACHE = "shadow-static-v1";
+const STATIC_CACHE = "shadow-static-v2";
+// Shadow's own HTML pages, kept for offline use (network first, see pageRequest()).
+const PAGE_CACHE = "shadow-pages-v1";
 const CACHEABLE_EXT = /\.(css|js|mjs|png|jpe?g|svg|ico|webp|gif|woff2?|ttf|otf|json|wasm)$/i;
 // Never cache: the proxy runtime routes, the live config/transport, API responses.
 const NO_CACHE = /^\/(wisp|epoxy|libcurl|v1\/api)(\/|$)/;
@@ -43,7 +47,87 @@ async function staleWhileRevalidate(request) {
   return cached || network;
 }
 
-self.addEventListener("install", () => self.skipWaiting());
+// Fetched at install so the shell and the arcade work offline from the first
+// visit on (the first page load happens before this worker controls anything, so
+// nothing it loaded went through the cache). Missing entries are skipped.
+const PRECACHE_PAGES = [
+  "/",
+  "/new.html",
+  "/history.html",
+  "/downloads.html",
+  "/home/",
+  "/books/",
+  "/settings/",
+  "/pages/embed/",
+  "/pages/new.html",
+  "/pages/home.html",
+  "/pages/books.html",
+  "/pages/games.html",
+  "/pages/history.html",
+  "/pages/downloads.html",
+  "/pages/settings.html",
+  "/arcade/2048/",
+  "/arcade/blocks/",
+  "/arcade/breakout/",
+  "/arcade/memory/",
+  "/arcade/minesweeper/",
+  "/arcade/snake/",
+];
+const PRECACHE_ASSETS = [
+  ...["index", "loading", "themes", "shell", "features", "main", "home", "books", "history", "settings"].map((n) => `/css/${n}.css`),
+  ...[
+    "autoblank", "settings", "debugger", "versioncheck", "search", "options", "themes", "tabs", "bookmarks", "sync", "pwa",
+    "history_helper", "settings_manager", "extension_ui", "ui", "site-patches", "features", "downloads", "sitesettings",
+    "workspaces", "pagetools", "main", "history",
+  ].map((n) => `/assets/js/${n}.js`),
+  "/assets/data/site-patches.json",
+  "/books/script.js",
+  "/books/learningcourses.json",
+  "/home/script.js",
+  "/manifest.webmanifest",
+  "/favicon.ico",
+  "/assets/imgs/icons/logo.png",
+  "/assets/imgs/icons/app/icon-192.png",
+  ...["2048", "blocks", "breakout", "memory", "minesweeper", "snake"].map((n) => `/arcade/${n}/icon.svg`),
+];
+
+// Shadow's pages are static and only read their query string client-side, so one
+// cached copy per path serves every ?url=… variant.
+const pageKey = (url) => url.origin + url.pathname;
+
+async function precache() {
+  const pages = await caches.open(PAGE_CACHE);
+  const assets = await caches.open(STATIC_CACHE);
+  const add = async (cache, path, key) => {
+    try {
+      const res = await fetch(path, { credentials: "same-origin" });
+      if (res.ok && res.type === "basic") await cache.put(key, res);
+    } catch {}
+  };
+  await Promise.all([
+    ...PRECACHE_PAGES.map((path) => add(pages, path, self.location.origin + path)),
+    ...PRECACHE_ASSETS.map((path) => add(assets, path, path)),
+  ]);
+}
+
+/** Navigations to Shadow's own pages: network first, cached copy when offline. */
+async function pageRequest(request, url) {
+  const cache = await caches.open(PAGE_CACHE);
+  try {
+    const res = await fetch(request);
+    if (res.ok && res.type === "basic") cache.put(pageKey(url), res.clone());
+    return res;
+  } catch (e) {
+    const cached = await cache.match(pageKey(url));
+    if (cached) return cached;
+    throw e;
+  }
+}
+
+self.addEventListener("install", (event) => {
+  self.skipWaiting();
+  event.waitUntil(precache());
+});
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
@@ -80,6 +164,15 @@ self.addEventListener("fetch", (event) => {
   }
   if (isCacheableStatic(url, event.request)) {
     event.respondWith(staleWhileRevalidate(event.request));
+    return;
   }
-  // Everything else (navigations, APIs, the proxy) goes to the network untouched.
+  if (
+    event.request.mode === "navigate" &&
+    event.request.method === "GET" &&
+    url.origin === self.location.origin &&
+    !NO_CACHE.test(url.pathname)
+  ) {
+    event.respondWith(pageRequest(event.request, url));
+  }
+  // Everything else (APIs, the proxy runtime) goes to the network untouched.
 });

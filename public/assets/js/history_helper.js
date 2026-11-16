@@ -39,6 +39,8 @@ class HistoryHelper {
   async add(obj) {
     let arr = await this.get() ?? [];
     arr.unshift(obj);
+    // The whole list is read and rewritten on every visit, so keep it bounded.
+    if (arr.length > 5000) arr.length = 5000;
     this.set(arr);
   }
 

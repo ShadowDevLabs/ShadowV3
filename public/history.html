@@ -10,28 +10,28 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="icon" href="/pages/history.ico" type="image/x-icon" />
   <link href="/css/history.css" rel="stylesheet">
+  <link href="/css/features.css" rel="stylesheet">
 </head>
 
-<body>
+<body class="list-page">
 
   <div class="container">
     <div class="header">
       <h1>History</h1>
-      <button class="deleteBtn" id="deleteBtn" onclick="history_helper.clear(); location.reload();">Clear History</button>
-      <input type="text" class="searchBar" placeholder="Search History">
+      <div class="header-actions">
+        <label class="inline-toggle" title="Fold each day's visits to the same site into one group">
+          <input type="checkbox" id="groupBySite" /> Group by site
+        </label>
+        <button class="deleteBtn" id="deleteBtn">Clear History</button>
+        <input type="search" class="searchBar" id="searchBar" placeholder="Search History" autocomplete="off">
+      </div>
     </div>
 
-
+    <p class="muted" id="status"></p>
     <div id="historyEntries"></div>
+    <button class="deleteBtn" id="showMore" hidden>Show more</button>
   </div>
-  <script type="module">
-    import { HistoryHelper } from "/assets/js/history_helper.js";
-    import { SettingsManager } from "/assets/js/settings_manager.js";
-
-    window.history_helper = new HistoryHelper();
-    window.settings = new SettingsManager();
-  </script>
-  <script src="/assets/js/history.js" defer></script>
+  <script src="/assets/js/history.js" type="module"></script>
 </body>
 
 </html>

@@ -18,9 +18,25 @@
 - 🕹️ **Six built-in games** that need no assets or network — 2048, Snake, Brick Breaker, Minefield (minesweeper), Blocks, and Memory Match — bundled under `public/arcade/` and listed first in the arcade (`shadow://books`). They run self-contained, so they work even when the games-asset submodule isn't checked out.
 - 🚨 **Panic key** (Settings → General): pick a key that instantly sends the whole window to a safe site. It works from inside proxied pages too and is ignored while you're typing.
 
+- 🗂️ **Workspaces**: save the open tabs as a named set and bring it back later (menu → Workspaces, or the palette).
+- 🪟 **Split view** (two tabs side by side, draggable divider), **private tabs** (nothing saved to history, the session or "reopen closed tab" — cookies are still shared with normal tabs), and **vertical tabs**.
+- ⬇️ **Downloads manager**: attachments, non-displayable files, `<a download>` links, "save link/image/video" and screenshots are captured with progress, listed at `shadow://downloads`, and can be opened in a tab or saved again.
+- 📖 **Reader mode**, **Translate page** (through Google Translate), **screenshot / clip tool**, picture-in-picture and "download this video" (menu → Page tools).
+- ⭐ A real **bookmarks bar** with a star in the address bar, a customizable **speed dial** on the new-tab page, a **right-click menu** on proxied pages (Shift+right-click for the browser's own), and a **history page** with search, grouping and per-entry delete.
+- 🎚️ **Per-site settings** (the tune button in the address bar): zoom, JavaScript on/off, dark mode and user agent, remembered per domain.
+- 🎨 **Theme customizer** (accent color, wallpaper, custom CSS) and **dark mode for every site**.
+- ☁️ **Cloud sync** of settings, bookmarks, shortcuts, workspaces and open tabs, end-to-end encrypted with a sync code (see below).
+- ⚡ Scramjet now **boots lazily** on the first proxied page, the address bar **prewarms** connections, and the service worker **precaches** the shell and the built-in games.
+- 📲 **Installable PWA** with an **offline mode**: the built-in games keep working with no connection.
+
 ### Keyboard shortcuts
 | Keys | Action |
 |---|---|
+| `Alt+Shift+N` | New private tab |
+| `Alt+S` | Split view on / off |
+| `Alt+V` / `Alt+B` | Vertical tabs / bookmarks bar |
+| `Alt+J` | Downloads |
+| `Alt+Shift+R` / `Alt+Shift+S` | Reader mode / screenshot |
 | `Alt+T` / `Alt+W` | New tab / close tab |
 | `Alt+Shift+T` | Reopen closed tab |
 | `Alt+L` | Focus the address bar |
@@ -33,6 +49,9 @@
 | `Alt+F` | Find in page |
 | `Alt+Enter` | Immersive (hide chrome) |
 | `Alt +` / `Alt −` / `Alt 0` | Zoom in / out / reset |
+
+## Cloud sync
+Settings → Sync creates a sync code on one device; entering it on another links them. The browser derives an account id, an auth token and an AES-GCM key from the code — only the first two reach the server, which stores one encrypted blob per account (`src/server/sync.js`, endpoints under `/v1/api/sync/`). Records are JSON files in `SYNC_DIR` (default `./data/sync`), so it needs a writable disk: on read-only hosts (Vercel) the endpoints answer 503 and the rest of Shadow is unaffected. With several app servers behind the same domains, point `SYNC_DIR` at shared storage. Other knobs: `SYNC_DISABLED=1`, `SYNC_MAX_ACCOUNTS` (default 20000), `SYNC_MAX_BYTES` (default 65536).
 
 ## Per-site compatibility patches
 `public/assets/js/site-patches.js` applies fixups to proxied pages by hostname, so a site that needs a nudge (a bit of CSS, a small script) can be handled without touching the proxy engine. CSS-only fixes live in `public/assets/data/site-patches.json` and load live — add `{ "match": "example.com", "css": "...", "note": "why" }` and reload, no rebuild. `match` accepts `example.com` (domain + subdomains), `*.example.com` (subdomains only), or `~text` (hostname contains text). Script fixes go in the `JS_PATCHES` array in `site-patches.js`. It ships with no site fixes — real ones have to be written against live sites — but the framework is wired and runs whatever you add.

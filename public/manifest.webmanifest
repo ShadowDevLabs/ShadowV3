@@ -1,0 +1,21 @@
+{
+  "name": "Shadow",
+  "short_name": "Shadow",
+  "description": "Shadow browser",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#010310",
+  "theme_color": "#01031d",
+  "icons": [
+    { "src": "/assets/imgs/icons/app/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/imgs/icons/app/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/imgs/icons/app/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Games", "url": "/?url=shadow%3A%2F%2Fbooks", "icons": [{ "src": "/assets/imgs/icons/app/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

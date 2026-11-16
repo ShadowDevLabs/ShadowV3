@@ -52,6 +52,8 @@
         <input type="text" id="shortcut-name" name="name" />
         <label for="shortcut-url">URL:</label>
         <input type="text" id="shortcut-url" name="url" />
+        <label for="shortcut-icon">Icon URL (optional):</label>
+        <input type="text" id="shortcut-icon" name="icon" placeholder="Leave empty to use the site's icon" />
         <button type="button" id="add-shortcut">Add</button>
       </form>
     </div>
@@ -65,11 +67,18 @@
         <input type="text" id="edit-shortcut-name" required />
         <label for="edit-shortcut-url">URL:</label>
         <input type="text" id="edit-shortcut-url" required />
+        <label for="edit-shortcut-icon">Icon URL (optional):</label>
+        <input type="text" id="edit-shortcut-icon" placeholder="Leave empty to use the site's icon" />
         <button type="button" id="edit-shortcut">Save</button>
       </form>
     </div>
   </div>
   <div id="shortcut-context-menu" class="context-menu">
+    <li id="newtab-context-menu-option">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+        <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
+      </svg> Open in new tab
+    </li>
     <li id="edit-context-menu-option"> 
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
         <path

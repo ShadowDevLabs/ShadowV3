@@ -69,6 +69,12 @@ class SettingsManager {
             }
           });
           self.dispatchEvent(event);
+          // Other frames (the shell, other internal pages) hear about it here;
+          // the "settings" event above only reaches the window that made the change.
+          try {
+            SettingsManager.channel ??= new BroadcastChannel("shadow-settings");
+            SettingsManager.channel.postMessage({ key, database: this.dbName });
+          } catch {}
         };
         request.onerror = (e) => {
           reject(e.target.error);

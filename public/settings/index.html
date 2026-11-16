@@ -39,6 +39,12 @@
       </svg>
       <span class="menu-label">Search</span>
     </div>
+    <div class="menu-item" onclick="showContent('sync')">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="sidebar-icons">
+        <path d="M160-160v-80h110l-16-14q-52-46-73-105t-21-119q0-111 66.500-197.500T400-790v84q-72 26-116 88.500T240-478q0 45 17 87.500t53 78.500l10 10v-98h80v240H160Zm400-10v-84q72-26 116-88.500T720-482q0-45-17-87.500T650-648l-10-10v98h-80v-240h240v80H690l16 14q49 49 71.500 106.500T800-482q0 111-66.500 197.500T560-170Z" />
+      </svg>
+      <span class="menu-label">Sync</span>
+    </div>
     <div class="menu-item" onclick="showContent('developer')">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="sidebar-icons">
         <path d="M320-240 80-480l240-240 57 57-184 184 183 183-56 56Zm320 0-57-57 184-184-183-183 56-56 240 240-240 240Z"/>      
@@ -187,6 +193,48 @@
             onchange="savePanicUrl()" />
         </div>
       </div>
+      <br /><br />
+      <!-- Browser layout and page behaviour (settings/features.js) -->
+      <div class="settings-section">
+        <h2 class="section-title">Vertical Tabs</h2>
+        <div class="section-content">
+          <p class="section-text">Show tabs in a column down the left side instead of a strip along the top. (Alt+V)</p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="verticalTabsSwitch" />
+            <label for="verticalTabsSwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h2 class="section-title">Bookmarks Bar</h2>
+        <div class="section-content">
+          <p class="section-text">Show your bookmarks under the address bar. Use the star in the address bar to add the page you're on. (Alt+B)</p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="bookmarksBarSwitch" />
+            <label for="bookmarksBarSwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h2 class="section-title">Dark Mode For Every Site</h2>
+        <div class="section-content">
+          <p class="section-text">Darken light websites automatically. Sites that are already dark are left alone, and you can override it per site from the site settings button in the address bar.</p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="forceDarkSwitch" />
+            <label for="forceDarkSwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h2 class="section-title">Save Downloads Automatically</h2>
+        <div class="section-content">
+          <p class="section-text">Hand finished downloads straight to your device. When off, files wait in the downloads list until you save them.</p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="downloadsAutosaveSwitch" />
+            <label for="downloadsAutosaveSwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Themes -->
@@ -223,6 +271,30 @@
             </svg>
             Apply Theme
           </button>
+        </div>
+      </div>
+
+      <!-- Customizer: layered on top of whichever theme is active (settings/features.js) -->
+      <div class="settings-section">
+        <h2 class="section-title">Customize</h2>
+        <div class="section-content">
+          <p class="section-text">Fine-tune the theme you picked: your own accent color, a wallpaper behind Shadow's pages, and custom CSS.</p>
+          <p class="section-text"><b>Accent color</b></p>
+          <input type="color" id="accentPicker" value="#3b82f6">
+          <button class="icon-button" id="accentReset" style="display:inline-flex; margin-left: 10px;">Use theme color</button>
+          <br><br>
+          <p class="section-text"><b>Wallpaper</b> — an image address, or pick a file (up to 2 MB, stored on this device only).</p>
+          <input class="input-field" style="width:90%;" id="wallpaperUrl" placeholder="https://example.com/wallpaper.jpg" />
+          <br><br>
+          <input type="file" id="wallpaperFile" accept="image/*" hidden>
+          <button class="icon-button" id="wallpaperPick" style="display:inline-flex;">Choose image…</button>
+          <button class="icon-button" id="wallpaperClear" style="display:inline-flex; margin-left: 10px;">Remove wallpaper</button>
+          <br><br>
+          <p class="section-text"><b>Custom CSS</b> — applied to Shadow's own interface (not to websites).</p>
+          <textarea class="input-field" id="customCss" rows="7" spellcheck="false" style="width:90%; font-family: ui-monospace, Menlo, Consolas, monospace; resize: vertical;" placeholder=".tab { border-radius: 4px; }"></textarea>
+          <br><br>
+          <button class="icon-button" id="customCssApply" style="display:inline-flex;">Apply CSS</button>
+          <span id="customizeStatus" class="section-text" style="margin-left: 12px;"></span>
         </div>
       </div>
 
@@ -376,6 +448,46 @@
 
       </div>
     </div>
+    <!-- Sync -->
+    <div id="sync-content">
+      <div class="content-title">Sync</div>
+      <div class="settings-section">
+        <h2 class="section-title">Sync Across Devices</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Keep your settings, bookmarks, shortcuts, workspaces and open tabs in step on every device. There's no
+            email or password: one device creates a sync code and the others enter it. Your data is encrypted with
+            that code before it leaves the browser, so the server only stores something it can't read — and anyone
+            with the code can, so keep it private.
+          </p>
+          <div id="syncOff">
+            <button class="icon-button" id="syncCreate" style="display:inline-flex;">Set up sync on this device</button>
+            <br><br>
+            <p class="section-text">Already set up somewhere else? Enter that device's code:</p>
+            <input class="input-field" style="width:60%;" id="syncCodeInput" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" autocomplete="off" spellcheck="false" />
+            <button class="icon-button" id="syncJoin" style="display:inline-flex; margin-left: 10px;">Connect</button>
+          </div>
+          <div id="syncOn" hidden>
+            <p class="section-text">Your sync code — enter it on your other devices:</p>
+            <input class="input-field" style="width:60%; font-family: ui-monospace, Menlo, Consolas, monospace;" id="syncCode" readonly />
+            <button class="icon-button" id="syncCopy" style="display:inline-flex; margin-left: 10px;">Copy</button>
+            <br><br>
+            <p class="section-text">This device's name:</p>
+            <input class="input-field" style="width:60%;" id="syncDeviceName" maxlength="40" />
+            <br><br>
+            <button class="icon-button" id="syncNow" style="display:inline-flex;">Sync now</button>
+            <button class="icon-button" id="syncDisconnect" style="display:inline-flex; margin-left: 10px;">Stop syncing here</button>
+            <button class="icon-button" id="syncWipe" style="display:inline-flex; margin-left: 10px;">Delete synced data</button>
+          </div>
+          <p class="section-text" id="syncStatus" style="margin-top: 14px;"></p>
+        </div>
+      </div>
+      <div class="settings-section" id="syncDevicesSection" hidden>
+        <h2 class="section-title">Tabs On Your Other Devices</h2>
+        <div class="section-content" id="syncDevices"></div>
+      </div>
+    </div>
+    <script src="/settings/features.js" type="module"></script>
     <script type="module">
       import { SettingsManager } from "/assets/js/settings_manager.js"
       import { checkWispUrl } from "/assets/js/wispchecker.js"

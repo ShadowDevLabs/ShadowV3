@@ -158,7 +158,8 @@ export class ExtensionUI {
 
   // ---------------------------------------------------------------- host prompts
 
-  showContextMenu(request) {
+  /** An extension context-menu request as showMenu() items. */
+  menuItems(request) {
     const items = [];
     const add = (entry, depth) => {
       if (entry.type === "separator") return items.push({ separator: true });
@@ -181,7 +182,11 @@ export class ExtensionUI {
       if (String(entry.id).startsWith("__sapphire_root_")) for (const child of entry.children) add(child, 0);
       else add(entry, 0);
     }
-    showMenu(request.x, request.y, items);
+    return items;
+  }
+
+  showContextMenu(request) {
+    showMenu(request.x, request.y, this.menuItems(request));
   }
 
   notify(extId, id, options = {}, callbacks = {}) {

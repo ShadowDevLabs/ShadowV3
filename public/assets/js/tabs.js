@@ -1,10 +1,46 @@
 import { HistoryHelper } from "/assets/js/history_helper.js";
 import { SettingsManager } from "/assets/js/settings_manager.js";
-import { Controller, Sapphire, ShadowPlugin } from "/dist/shadow-proxy.js";
 import { ExtensionUI } from "/assets/js/extension_ui.js";
-import { showMenu, hideMenu, toast } from "/assets/js/ui.js";
+import { showMenu, hideMenu, hidePopover, toast } from "/assets/js/ui.js";
 import { applySitePatches } from "/assets/js/site-patches.js";
 import { openCommandPalette, openFind, closeFind, resetFind } from "/assets/js/features.js";
+import { Downloads, isInlineType, filenameFromDisposition } from "/assets/js/downloads.js";
+import { SiteSettings, showSitePanel } from "/assets/js/sitesettings.js";
+import { Workspaces } from "/assets/js/workspaces.js";
+import {
+  showPageMenu,
+  showToolsMenu,
+  toggleReader,
+  closeReader,
+  readerIsOpen,
+  readerTabChanged,
+  translatePage,
+  screenshot,
+  togglePictureInPicture,
+  downloadVideo,
+  setDarkMode,
+  refreshTabDarkMode,
+} from "/assets/js/pagetools.js";
+
+// Scramjet, its controller and /dist/shadow-proxy.js (Sapphire + ShadowPlugin) are
+// only loaded when the first proxied page is opened — see Tab.bootProxy(). A visit
+// that only plays the built-in games never downloads or boots any of it.
+let Controller, Sapphire, ShadowPlugin;
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[data-lazy="${src}"]`)) return resolve();
+    const el = document.createElement("script");
+    el.src = src;
+    el.dataset.lazy = src;
+    el.onload = () => resolve();
+    el.onerror = () => {
+      el.remove();
+      reject(new Error(`Couldn't load ${src}`));
+    };
+    document.head.append(el);
+  });
+}
 
 const searchInput = document.getElementById("__shadow-search-bar");
 const addTabButton = document.getElementById("add-tab");
@@ -57,8 +93,10 @@ globalThis.__shadowUnproxy = (ref) => {
 
 const isInternal = (url) => url.startsWith("shadow://");
 // A same-origin Shadow page loaded straight into the iframe (arcade embed, games),
-// never run through the proxy.
-const isLocalPath = (url) => /^\/[^/]/.test(url);
+// or a blob: this page made (an opened download) — never run through the proxy.
+const isLocalPath = (url) => /^\/[^/]/.test(url) || url.startsWith(`blob:${location.origin}/`);
+// Pages that talk to the extension runtime, so they need the proxy booted first.
+const needsProxy = (url) => /^shadow:\/\/(extensions|store)\b/.test(url);
 const internalPath = (url) => `/pages/${url.slice("shadow://".length)}.html`;
 const internalIcon = (url) =>
   `/assets/imgs/icons/pages/${url.slice("shadow://".length).split("/")[0]}.png`;
@@ -90,6 +128,15 @@ class Tab {
     this.brokenSitesLastUpdated = Date.now();
     this.history = new HistoryHelper();
     this.settings = new SettingsManager();
+    this.siteSettings = new SiteSettings(this.settings);
+    this.downloads = new Downloads(this);
+    this.workspaces = new Workspaces(this);
+    /** Split view: {left, right} tab objects while two tabs share the window, else null. */
+    this.split = null;
+    this.forceDark = false;
+    this.verticalTabs = false;
+    this.proxyBoot = null;
+    this.warmed = new Map();
 
     document.getElementById("uv-form").addEventListener("submit", (e) => {
       e.preventDefault();
@@ -122,6 +169,10 @@ class Tab {
           break;
       }
     });
+    // Changes made in other frames (the settings page, sync) arrive here.
+    try {
+      new BroadcastChannel("shadow-settings").addEventListener("message", (e) => this.onRemoteSetting(e.data?.key));
+    } catch {}
 
     this.defaults = [
       { key: "search-suggestions", value: true },
@@ -160,13 +211,18 @@ class Tab {
     await this.settings.default("panic-url", "https://classroom.google.com");
     this.panicKey = (await this.settings.get("panic-key")) || null;
     this.panicUrl = (await this.settings.get("panic-url")) || "https://www.google.com";
+    this.forceDark = !!(await this.settings.get("force-dark"));
+    this.downloads.autoSave = (await this.settings.get("downloads-autosave")) !== false;
+    this.setVerticalTabs(!!(await this.settings.get("vertical-tabs")), false);
+    await this.siteSettings.ready;
 
-    try {
-      await this.bootProxy();
-    } catch (e) {
-      // Internal pages still work without the proxy; proxied loads show the error.
-      this.proxyError = e;
-      console.error("[PROXY] Failed to start Scramjet:", e);
+    // The service worker also caches the shell and saves the session, so it is
+    // registered up front; Scramjet itself waits for the first proxied page.
+    this.registerServiceWorker().catch((e) => console.debug("[SW]", e));
+    if (await this.hasExtensions()) {
+      // Installed extensions have background pages and toolbar buttons that
+      // should be there from the start, so boot right away for those users.
+      this.ensureProxy().catch(() => {});
     }
 
     // /?url=<address> opens straight to a page (used by "Open Tab in Abt:Blank").
@@ -187,16 +243,59 @@ class Tab {
     return true;
   }
 
+  registerServiceWorker() {
+    if (!("serviceWorker" in navigator)) {
+      return Promise.reject(new Error("This browser doesn't support service workers."));
+    }
+    this.swRegistration ??= navigator.serviceWorker.register("/sw.js", { scope: "/" });
+    return this.swRegistration;
+  }
+
+  /** Whether any extension is installed, without booting the extension runtime. */
+  async hasExtensions() {
+    const known = await this.settings.get("has-extensions");
+    if (typeof known === "boolean") return known;
+    // Never recorded (first run of this version): look for Sapphire's database.
+    try {
+      if (!indexedDB.databases) return true;
+      return (await indexedDB.databases()).some((db) => db.name === "sapphire_extensions");
+    } catch {
+      return true;
+    }
+  }
+
+  /**
+   * Boots the proxy once, on first use. Resolves when proxied pages can load;
+   * rejects (and can be retried by the next call) if it couldn't start.
+   */
+  ensureProxy() {
+    if (this.controller) return Promise.resolve();
+    this.proxyBoot ??= this.bootProxy().then(
+      () => {
+        this.proxyError = null;
+      },
+      (e) => {
+        this.proxyError = e;
+        this.proxyBoot = null;
+        console.error("[PROXY] Failed to start Scramjet:", e);
+        throw e;
+      },
+    );
+    return this.proxyBoot;
+  }
+
   /** Service worker -> transport -> Scramjet controller -> Sapphire (extensions). */
   async bootProxy() {
-    if (!("serviceWorker" in navigator)) {
-      throw new Error("This browser doesn't support service workers.");
-    }
+    // Classic scripts that set $scramjet / $scramjetController; the bundle
+    // imported right after builds on those globals, so the order matters.
+    if (typeof $scramjet === "undefined") await loadScript("/scramjet/scramjet.js");
+    if (typeof $scramjetController === "undefined") await loadScript("/controller/controller.api.js");
     if (typeof $scramjet === "undefined" || typeof $scramjetController === "undefined") {
       throw new Error("Scramjet failed to load.");
     }
+    ({ Controller, Sapphire, ShadowPlugin } = await import("/dist/shadow-proxy.js"));
 
-    await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+    await this.registerServiceWorker();
     const registration = await navigator.serviceWorker.ready;
     if (!navigator.serviceWorker.controller) {
       // First visit (or a hard reload): wait for the worker to claim this page.
@@ -210,23 +309,52 @@ class Tab {
 
     await this.setTransport();
 
-    this.controller = new Controller({
+    const controller = new Controller({
       serviceworker,
       transport: this.transport,
       config: proxyConfig,
     });
-    await this.controller.wait();
+    await controller.wait();
 
     this.extensions = new ExtensionUI(this);
     this.sapphire = new Sapphire({ host: this.hostBindings() });
-    this.sapphire.attachController(this.controller);
+    this.sapphire.attachController(controller);
     this.extensions.attach(this.sapphire);
     try {
       await this.sapphire.init(); // starts previously installed extensions
     } catch (e) {
       console.error("[EXT] Failed to restore extensions:", e);
     }
+    // Only now can proxied pages load: every tab opened so far gets its frame.
+    this.controller = controller;
+    for (const tab of this.tabsArr) {
+      this.ensureFrame(tab);
+      this.sapphire.notifyTabCreated(tab.id);
+    }
+    const rememberExtensions = () => {
+      try {
+        const has = this.sapphire.getInstalledExtensions(null).length > 0;
+        if (has !== this.knownHasExtensions) this.settings.set("has-extensions", (this.knownHasExtensions = has));
+      } catch {}
+    };
+    this.sapphire.onChange(rememberExtensions);
+    rememberExtensions();
     this.extensions.render();
+  }
+
+  /** Attaches a Scramjet frame (and the extension + Shadow plugins) to a tab's iframe. */
+  ensureFrame(tab) {
+    if (tab.frame || !this.controller) return;
+    const plugins = [
+      new ShadowPlugin({
+        onDocument: (ctx) => this.onDocument(tab, ctx),
+        getUserAgent: () => this.siteSettings.userAgentFor(this.hostFor(tab)) ?? this.userAgent,
+        onNavigationResponse: (info) => this.onNavigationResponse(tab, info),
+        onResponse: (info) => this.onProxyResponse(tab, info),
+      }),
+    ];
+    if (this.sapphire) plugins.unshift(this.sapphire.createPlugin(tab.id));
+    tab.frame = this.controller.createFrame(tab.iframe, { plugins });
   }
 
   /** What Sapphire needs from the browser shell to back chrome.tabs & friends. */
@@ -277,7 +405,17 @@ class Tab {
       createNotification: (extId, id, options, callbacks) =>
         this.extensions.notify(extId, id, options, callbacks),
       clearNotification: (extId, id) => this.extensions.clearNotification(extId, id),
-      showContextMenu: (request) => this.extensions.showContextMenu(request),
+      // Sapphire's contextmenu listener runs just before ours (onDocument): park
+      // its entries so they're shown inside the page menu. If nothing picks them
+      // up, they get a menu of their own.
+      showContextMenu: (request) => {
+        this.pendingExtMenu = request;
+        setTimeout(() => {
+          if (this.pendingExtMenu !== request) return;
+          this.pendingExtMenu = null;
+          this.extensions.showContextMenu(request);
+        }, 60);
+      },
       requestPermissions: (extId, permissions, origins) =>
         this.extensions.requestPermissions(extId, permissions, origins),
     };
@@ -292,6 +430,7 @@ class Tab {
       url: this.currentUrl(tab),
       title: this.titleFor(tab),
       active: index === this.activeTabIndex,
+      incognito: !!tab.private,
       pinned: tab.pinned,
       status: tab.loading ? "loading" : "complete",
       favIconUrl: tab.img.src || undefined,
@@ -347,22 +486,34 @@ class Tab {
 
     tab.url = url;
     tab.pendingUrl = null;
+    const token = (tab.navToken = (tab.navToken ?? 0) + 1);
     this.setLoading(tab, true);
     if (i === this.activeTabIndex) resetFind();
+    readerTabChanged(tab);
+    this.renderTab(tab);
+    if (i === this.activeTabIndex) this.updateOmni();
+
+    const proxied = !isInternal(url) && !isLocalPath(url) && url !== "about:blank";
+    if (proxied || needsProxy(url)) {
+      try {
+        await this.ensureProxy();
+      } catch {
+        // Internal pages still work without the proxy; proxied loads show the error.
+      }
+      // The tab was closed or sent somewhere else while the proxy was starting.
+      if (!this.tabsArr.includes(tab) || tab.navToken !== token) return false;
+    }
 
     if (isInternal(url)) {
       tab.iframe.src = internalPath(url);
-    } else if (isLocalPath(url)) {
-      tab.iframe.src = url;
-    } else if (url === "about:blank") {
+    } else if (!proxied) {
       tab.iframe.src = url;
     } else if (!this.controller) {
       this.showProxyError(tab, url);
     } else {
+      this.ensureFrame(tab);
       tab.frame.go(this.sapphire.resolveUrl(url));
     }
-    this.renderTab(tab);
-    if (i === this.activeTabIndex) this.updateOmni();
     this.saveTabs();
     return true;
   }
@@ -373,6 +524,7 @@ class Tab {
 <div style="max-width:520px;padding:24px"><h2>Shadow couldn't start the proxy</h2>
 <p id="m"></p><p id="u" style="opacity:.6;word-break:break-all"></p>
 <p>Try reloading the page, or use a current version of Chrome, Edge or Firefox.</p></div></body>`;
+    this.setLoading(tab, false);
     tab.iframe.srcdoc = doc;
     tab.iframe.addEventListener(
       "load",
@@ -390,13 +542,14 @@ class Tab {
   /**
    * @param {string} [src] URL / search text / shadow:// page
    * @param {string} [title] fixed title for the tab
-   * @param {{active?: boolean, lazy?: boolean, pinned?: boolean, index?: number}} [options]
+   * @param {{active?: boolean, lazy?: boolean, pinned?: boolean, index?: number, private?: boolean}} [options]
    *   lazy tabs aren't loaded until they're first shown (used when restoring a session).
+   *   private tabs leave no trace in history, the saved session or "reopen closed tab".
    */
   async createTab(
     src = this.tabsArr.length === 0 ? "shadow://home" : "shadow://new",
     title,
-    { active = true, lazy = false, pinned = false, index } = {},
+    { active = true, lazy = false, pinned = false, index, private: isPrivate = false } = {},
   ) {
     const tab = {
       id: this.nextTabId++,
@@ -408,12 +561,14 @@ class Tab {
       url: self.resolveInput(src, this.searchEngine),
       pendingUrl: null,
       pinned: false,
+      private: !!isPrivate,
       loading: false,
       zoom: 1,
       lastHistoryUrl: null,
     };
 
     tab.tab.classList.add("tab");
+    tab.tab.classList.toggle("private", tab.private);
     tab.tab.dataset.tabId = String(tab.id);
     this.createTabItems(tab);
     tab.iframe.title = "Content IFrame";
@@ -421,25 +576,16 @@ class Tab {
     tab.iframe.addEventListener("load", () => this.onFrameLoad(tab));
     iframesContainer.appendChild(tab.iframe);
 
-    if (this.controller) {
-      // sapphire is set just after the controller finishes booting; guard the
-      // brief gap so a very early tab doesn't crash (it just lacks extensions).
-      const plugins = [
-        new ShadowPlugin({
-          onDocument: (ctx) => this.onDocument(tab, ctx),
-          getUserAgent: () => this.userAgent,
-        }),
-      ];
-      if (this.sapphire) plugins.unshift(this.sapphire.createPlugin(tab.id));
-      tab.frame = this.controller.createFrame(tab.iframe, { plugins });
-    }
+    // Before the proxy has booted there is no frame yet; bootProxy() adds one
+    // to every open tab when it finishes.
+    this.ensureFrame(tab);
 
     const at = typeof index === "number" ? Math.min(Math.max(index, 0), this.tabsArr.length) : this.tabsArr.length;
     this.tabsArr.splice(at, 0, tab);
     if (at <= this.activeTabIndex) this.activeTabIndex++;
     tabStrip.insertBefore(tab.tab, this.tabsArr[at + 1]?.tab ?? addTabButton);
     if (pinned) this.setPinned(at, true, false);
-    this.sapphire?.notifyTabCreated(tab.id);
+    if (this.controller) this.sapphire?.notifyTabCreated(tab.id);
 
     if (lazy && !active) {
       tab.pendingUrl = tab.url;
@@ -492,16 +638,27 @@ class Tab {
     this.makeDraggable(tab);
   }
 
-  closeTab(i = this.activeTabIndex, force = false) {
+  /**
+   * @param {boolean} [force] don't open a fresh tab when the last one closes
+   * @param {{remember?: boolean}} [options] remember=false keeps it out of "reopen closed tab"
+   */
+  closeTab(i = this.activeTabIndex, force = false, { remember = true } = {}) {
     const tab = this.tabsArr[i];
     if (!tab) return;
 
     const url = tab.pendingUrl ?? this.currentUrl(tab);
-    if (url && url !== "shadow://new" && url !== "about:blank") {
+    if (remember && !tab.private && url && url !== "shadow://new" && url !== "about:blank" && !url.startsWith("blob:")) {
       this.closedTabs.push({ url, pinned: tab.pinned, index: i });
       if (this.closedTabs.length > MAX_CLOSED_TABS) this.closedTabs.shift();
     }
 
+    readerTabChanged(tab);
+    if (this.split && (this.split.left === tab || this.split.right === tab)) {
+      // The other half takes over the whole window.
+      const other = this.split.left === tab ? this.split.right : this.split.left;
+      this.endSplit();
+      if (this.tabsArr[this.activeTabIndex] === tab) this.switchTab(this.tabsArr.indexOf(other));
+    }
     const wasActive = this.activeTabIndex === i;
     tab.iframe.remove();
     tab.tab.remove();
@@ -510,7 +667,7 @@ class Tab {
       const at = this.controller.frames.indexOf(tab.frame);
       if (at !== -1) this.controller.frames.splice(at, 1);
     }
-    this.sapphire?.notifyTabRemoved(tab.id);
+    if (this.controller) this.sapphire?.notifyTabRemoved(tab.id);
 
     if (this.tabsArr.length === 0) {
       this.activeTabIndex = -1;
@@ -533,7 +690,7 @@ class Tab {
   duplicateTab(i = this.activeTabIndex) {
     const tab = this.tabsArr[i];
     if (!tab) return;
-    this.createTab(tab.pendingUrl ?? this.currentUrl(tab), undefined, { index: i + 1 });
+    this.createTab(tab.pendingUrl ?? this.currentUrl(tab), undefined, { index: i + 1, private: tab.private });
   }
 
   closeOtherTabs(i = this.activeTabIndex) {
@@ -595,7 +752,7 @@ class Tab {
       // Pinned and unpinned tabs each stay in their own group.
       if (dragged.pinned !== tab.pinned) return;
       const rect = el.getBoundingClientRect();
-      const before = e.clientX < rect.left + rect.width / 2;
+      const before = this.verticalTabs ? e.clientY < rect.top + rect.height / 2 : e.clientX < rect.left + rect.width / 2;
       const from = this.tabsArr.indexOf(dragged);
       let to = this.tabsArr.indexOf(tab);
       if (from < to && before) to -= 1;
@@ -607,10 +764,14 @@ class Tab {
   showTabMenu(i, x, y) {
     const tab = this.tabsArr[i];
     if (!tab) return;
+    const inSplit = !!this.split && (this.split.left === tab || this.split.right === tab);
     showMenu(x, y, [
       { label: "Reload", onclick: () => this.refresh(i) },
       { label: "Duplicate", onclick: () => this.duplicateTab(i) },
       { label: tab.pinned ? "Unpin" : "Pin", onclick: () => this.setPinned(i, !tab.pinned) },
+      inSplit
+        ? { label: "Exit split view", onclick: () => this.endSplit() }
+        : { label: "Open in split view", onclick: () => this.splitWith(i), disabled: this.tabsArr.length < 2 || i === this.activeTabIndex },
       { separator: true },
       { label: "Close", onclick: () => this.closeTab(i) },
       { label: "Close other tabs", onclick: () => this.closeOtherTabs(i), disabled: this.tabsArr.length < 2 },
@@ -623,12 +784,20 @@ class Tab {
   switchTab(i) {
     const tab = this.tabsArr[i];
     if (!tab) return;
+    const previous = this.tabsArr[this.activeTabIndex];
+    if (previous !== tab) readerTabChanged();
+    if (this.split && tab !== this.split.left && tab !== this.split.right) {
+      // A tab from outside the pair replaces whichever half has focus.
+      const side = previous === this.split.right ? "right" : "left";
+      this.split[side] = tab;
+    }
     document
       .querySelectorAll(".tab.active, #iframes-container > iframe.active")
       .forEach((elem) => elem.classList.remove("active"));
     tab.iframe.classList.add("active");
     tab.tab.classList.add("active");
     this.activeTabIndex = i;
+    this.renderSplit();
     tab.tab.scrollIntoView?.({ block: "nearest", inline: "nearest" });
     this.extensions?.hidePopup();
 
@@ -638,9 +807,82 @@ class Tab {
       this.updateOmni();
       this.renderTab(tab);
     }
-    this.sapphire?.notifyTabActivated(tab.id);
+    if (this.controller) this.sapphire?.notifyTabActivated(tab.id);
     this.extensions?.render();
     this.saveTabs();
+  }
+
+  // ---------------------------------------------------------------- split view
+
+  /** Shows tab `i` beside the active tab. */
+  splitWith(i) {
+    const other = this.tabsArr[i];
+    const active = this.tabsArr[this.activeTabIndex];
+    if (!other || !active || other === active) return;
+    this.split = { left: active, right: other };
+    this.renderSplit();
+    if (other.pendingUrl) this.load(other.pendingUrl, i); // a restored tab that hasn't loaded yet
+  }
+
+  /** Opens a URL in a new tab beside the active one. */
+  async openInSplit(url = "shadow://new") {
+    const active = this.tabsArr[this.activeTabIndex];
+    await this.createTab(url, undefined, { active: false, index: this.activeTabIndex + 1, private: active?.private });
+    this.splitWith(this.tabsArr.indexOf(active) + 1);
+  }
+
+  /** Menu / Alt+S: split with the neighbouring tab (or a new one), or leave split view. */
+  toggleSplit() {
+    if (this.split) return this.endSplit();
+    if (this.tabsArr.length < 2) return void this.openInSplit();
+    const i = this.activeTabIndex;
+    this.splitWith(i + 1 < this.tabsArr.length ? i + 1 : i - 1);
+  }
+
+  endSplit() {
+    if (!this.split) return;
+    this.split = null;
+    this.renderSplit();
+  }
+
+  renderSplit() {
+    const split = this.split;
+    iframesContainer.classList.toggle("split", !!split);
+    for (const tab of this.tabsArr) {
+      tab.iframe.classList.toggle("split-left", !!split && split.left === tab);
+      tab.iframe.classList.toggle("split-right", !!split && split.right === tab);
+      tab.tab.classList.toggle("in-split", !!split && (split.left === tab || split.right === tab));
+    }
+    let divider = document.getElementById("split-divider");
+    if (!split) return void divider?.remove();
+    if (!divider) {
+      divider = document.createElement("div");
+      divider.id = "split-divider";
+      divider.title = "Drag to resize, double-click to reset";
+      // Iframes swallow pointer events, so they're made inert while dragging.
+      divider.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        divider.setPointerCapture(e.pointerId);
+        iframesContainer.classList.add("resizing");
+      });
+      divider.addEventListener("pointermove", (e) => {
+        if (!iframesContainer.classList.contains("resizing")) return;
+        const rect = iframesContainer.getBoundingClientRect();
+        const ratio = Math.min(0.8, Math.max(0.2, (e.clientX - rect.left) / rect.width));
+        iframesContainer.style.setProperty("--split", String(ratio));
+      });
+      const stop = () => iframesContainer.classList.remove("resizing");
+      divider.addEventListener("pointerup", stop);
+      divider.addEventListener("pointercancel", stop);
+      divider.addEventListener("dblclick", () => iframesContainer.style.removeProperty("--split"));
+      iframesContainer.append(divider);
+    }
+  }
+
+  /** A click or key press landed in a tab's page: in split view that half takes focus. */
+  focusPane(tab) {
+    if (!this.split || this.tabsArr[this.activeTabIndex] === tab) return;
+    if (tab === this.split.left || tab === this.split.right) this.switchTab(this.tabsArr.indexOf(tab));
   }
 
   // ---------------------------------------------------------------- frame events
@@ -654,7 +896,35 @@ class Tab {
     const refresh = () => this.noteNavigation(tab);
 
     win.addEventListener("keydown", (e) => this.handleKey(e), true);
-    win.addEventListener("mousedown", () => this.dismissOverlays(), true);
+    win.addEventListener(
+      "mousedown",
+      () => {
+        this.dismissOverlays();
+        this.focusPane(tab);
+      },
+      true,
+    );
+    // Our own right-click menu. Shift+right-click keeps the browser's.
+    win.addEventListener(
+      "contextmenu",
+      (e) => {
+        if (e.shiftKey) return;
+        e.preventDefault();
+        const ext = this.pendingExtMenu; // parked by Sapphire's listener, which runs first
+        this.pendingExtMenu = null;
+        this.focusPane(tab);
+        showPageMenu(this, tab, win, e, ext ? this.extensions.menuItems(ext) : []);
+      },
+      true,
+    );
+    // Forced dark mode goes in as early as possible so the page doesn't flash
+    // white; it is re-checked once the page's own styles have loaded.
+    const dark = () => setDarkMode(win, isTopLevel, this.darkModeFor(tab) && (isTopLevel || !!tab.iframe.contentDocument?.getElementById("__shadow-dark")));
+    try {
+      dark();
+      win.addEventListener("DOMContentLoaded", dark);
+      win.addEventListener("load", dark);
+    } catch {}
 
     // target="_blank" links and window.open() become Shadow tabs instead of
     // escaping into real browser tabs.
@@ -662,19 +932,25 @@ class Tab {
       if (e.defaultPrevented || e.button !== 0) return;
       const link = e.target?.closest?.("a[href]");
       if (!link) return;
+      const href = link.href; // the element's own (Scramjet) getter returns the real URL
+      // <a download>: fetch it into the downloads manager instead of navigating.
+      if (link.hasAttribute("download") && /^(https?|blob|data):/i.test(href)) {
+        e.preventDefault();
+        this.downloads.start({ url: href, win, name: link.getAttribute("download") || "" });
+        return;
+      }
       const newTab = link.target === "_blank" || e.ctrlKey || e.metaKey;
       if (!newTab) return;
-      const href = link.href; // the element's own (Scramjet) getter returns the real URL
       if (!/^https?:/i.test(href)) return;
       e.preventDefault();
-      this.createTab(href, undefined, { active: !(e.ctrlKey || e.metaKey), index: this.tabsArr.indexOf(tab) + 1 });
+      this.createTab(href, undefined, { active: !(e.ctrlKey || e.metaKey), index: this.tabsArr.indexOf(tab) + 1, private: tab.private });
     });
     win.open = (url) => {
       let target = "shadow://new";
       try {
         if (url) target = new URL(String(url), String(client.url)).href;
       } catch {}
-      this.createTab(target, undefined, { index: this.tabsArr.indexOf(tab) + 1 });
+      this.createTab(target, undefined, { index: this.tabsArr.indexOf(tab) + 1, private: tab.private });
       return null;
     };
 
@@ -722,11 +998,74 @@ class Tab {
       if (win && !this.isProxied(tab) && !win.__shadowWired) {
         win.__shadowWired = true;
         win.addEventListener("keydown", (e) => this.handleKey(e), true);
-        win.addEventListener("mousedown", () => this.dismissOverlays(), true);
+        win.addEventListener(
+          "mousedown",
+          () => {
+            this.dismissOverlays();
+            this.focusPane(tab);
+          },
+          true,
+        );
       }
     } catch {}
-    this.applyZoom(tab);
     this.noteNavigation(tab);
+    this.applyZoom(tab);
+  }
+
+  /**
+   * A document navigation got its response (ShadowPlugin, before any rewriting).
+   * Attachments and types the browser can't show are taken over by the downloads
+   * manager; returning true tells the plugin to answer the navigation with
+   * "204 No Content", which leaves the tab on the page it was on.
+   */
+  onNavigationResponse(tab, { url, headers, body }) {
+    const header = (name) => headers.find(([key]) => key.toLowerCase() === name)?.[1] ?? "";
+    const disposition = header("content-disposition");
+    const type = header("content-type");
+    const attachment = /^\s*attachment/i.test(disposition);
+    if (!attachment && isInlineType(type)) return false;
+
+    this.downloads.fromBody({
+      body,
+      url,
+      name: filenameFromDisposition(disposition),
+      mime: type,
+      size: Number(header("content-length")),
+    });
+    // Nothing navigates, so undo the "loading" state the click put the tab in.
+    setTimeout(() => {
+      if (!this.tabsArr.includes(tab)) return;
+      this.setLoading(tab, false);
+      let blank = true;
+      try {
+        const href = tab.iframe.contentWindow.location.href;
+        blank = href === "about:blank" || href === "about:srcdoc";
+      } catch {}
+      if (blank) {
+        // The tab was opened just for this file (a download link in a new tab).
+        if (this.tabsArr.length > 1) this.closeTab(this.tabsArr.indexOf(tab), false, { remember: false });
+        else this.load("shadow://new", this.tabsArr.indexOf(tab));
+      } else {
+        this.noteNavigation(tab);
+      }
+    }, 0);
+    return true;
+  }
+
+  /** Every proxied response, after rewriting: the place for per-site response rules. */
+  onProxyResponse(tab, { url, destination, headers }) {
+    if (destination !== "document" && destination !== "iframe") return;
+    // The top document decides by its own host; frames follow the tab they're in.
+    let host = this.hostFor(tab);
+    if (destination === "document") {
+      try {
+        host = new URL(url).hostname;
+      } catch {}
+    }
+    if (this.siteSettings.get(host).js === false) {
+      // Scramjet strips the site's own CSP; this one switches scripts off entirely.
+      headers.set("content-security-policy", "script-src 'none'");
+    }
   }
 
   /** The tab's URL may have changed: refresh the strip, omnibox, history, saved tabs. */
@@ -741,7 +1080,14 @@ class Tab {
       this.updateOmni();
       this.extensions?.render();
     }
-    if (/^https?:/i.test(url) && url !== tab.lastHistoryUrl && !tab.loading) {
+    // Per-site zoom: applied when the tab lands on a different site.
+    const host = this.hostFor(tab);
+    if (host !== tab.zoomHost) {
+      tab.zoomHost = host;
+      tab.zoom = this.siteSettings.get(host).zoom ?? 1;
+      this.applyZoom(tab);
+    }
+    if (!tab.private && /^https?:/i.test(url) && url !== tab.lastHistoryUrl && !tab.loading) {
       tab.lastHistoryUrl = url;
       this.updateHistory(
         url,
@@ -752,11 +1098,13 @@ class Tab {
     this.saveTabs();
   }
 
-  dismissOverlays() {
+  dismissOverlays({ keepReader = false } = {}) {
     this.hideSuggestions();
     hideMenu();
+    hidePopover();
     this.extensions?.hidePopup();
     closeFind();
+    if (!keepReader && readerIsOpen()) closeReader();
     if (this.immersive) this.toggleImmersive(false);
     window.closeMenu?.({ target: document.body });
   }
@@ -794,7 +1142,9 @@ class Tab {
         return tab.url;
       }
     }
-    if (loc.origin !== location.origin) return tab.url;
+    if (loc.origin !== location.origin || loc.protocol === "blob:") return tab.url;
+    // Local pages that aren't shadow:// pages (the arcade, embeds) keep their path.
+    if (isLocalPath(tab.url ?? "") && !tab.url.startsWith("blob:") && loc.pathname.startsWith(tab.url.split(/[?#]/)[0].replace(/[^/]*$/, ""))) return tab.url;
     const page = loc.pathname.replace(".html", "").replace("/pages/", "").replace(/\//g, "");
     return "shadow://" + (page || "home");
   }
@@ -865,7 +1215,9 @@ class Tab {
     const tab = this.tabsArr[this.activeTabIndex];
     if (!tab || document.activeElement === searchInput) return;
     const url = this.currentUrl(tab) ?? "";
-    searchInput.value = url === "shadow://new" || url === "shadow://home" ? "" : url;
+    searchInput.value = url === "shadow://new" || url === "shadow://home" || url.startsWith("blob:") ? "" : url;
+    document.getElementById("uv-form").classList.toggle("private", !!tab.private);
+    window.bookmarksManager?.updateStar(url);
   }
 
   getTabInfo(i = this.activeTabIndex) {
@@ -923,14 +1275,17 @@ class Tab {
 
   async saveTabsNow() {
     if (this.restoring) return;
-    const entries = this.tabsArr.map((tab) => ({
+    // Private tabs and opened downloads (blob: URLs die with the page) aren't saved.
+    const saved = this.tabsArr.filter((tab) => !tab.private && !(tab.pendingUrl ?? tab.url ?? "").startsWith("blob:"));
+    const entries = saved.map((tab) => ({
       url: tab.pendingUrl ?? tab.url,
       pinned: tab.pinned,
     }));
+    const active = Math.max(0, saved.indexOf(this.tabsArr[this.activeTabIndex]));
     try {
       (await navigator.serviceWorker.getRegistration()).active.postMessage({
         reason: "save-open-tabs",
-        data: [...entries, this.activeTabIndex],
+        data: [...entries, active],
       });
     } catch (e) {
       console.log(`[ATL] Issue with sending request to service worker: ${e}`);
@@ -1078,7 +1433,156 @@ class Tab {
       tab.zoom = steps[Math.max(0, Math.min(steps.length - 1, idx + (action === "in" ? 1 : -1)))];
     }
     this.applyZoom(tab);
+    const host = this.hostFor(tab);
+    if (host) {
+      tab.zoomHost = host;
+      this.siteSettings.set(host, { zoom: tab.zoom });
+      // Other tabs on the same site follow, like in any other browser.
+      for (const other of this.tabsArr) {
+        if (other !== tab && this.hostFor(other) === host) {
+          other.zoom = tab.zoom;
+          this.applyZoom(other);
+        }
+      }
+    }
     if (tab.zoom !== 1) toast(`Zoom ${Math.round(tab.zoom * 100)}%`, { timeout: 1000 });
+  }
+
+  // ---------------------------------------------------------------- per-site state
+
+  /** Hostname of the website a tab is showing ("" for Shadow's own pages). */
+  hostFor(tab) {
+    const url = tab?.pendingUrl ?? tab?.url ?? "";
+    return /^https?:/i.test(url) ? hostnameOf(url) : "";
+  }
+
+  darkModeFor(tab) {
+    const site = this.siteSettings.get(this.hostFor(tab)).dark;
+    return site ?? this.forceDark;
+  }
+
+  setForceDark(on) {
+    this.forceDark = !!on;
+    this.settings.set("force-dark", this.forceDark);
+    this.refreshDarkMode();
+    toast(`Dark mode for every site: ${this.forceDark ? "on" : "off"}`, { timeout: 1500 });
+  }
+
+  refreshDarkMode() {
+    for (const tab of this.tabsArr) refreshTabDarkMode(this, tab);
+  }
+
+  showSitePanel() {
+    showSitePanel(this, document.getElementById("site-button"));
+  }
+
+  openFind() {
+    openFind(this);
+  }
+
+  /** A setting changed in another frame (settings page, sync): pick up the ones cached here. */
+  async onRemoteSetting(key) {
+    switch (key) {
+      case "force-dark": {
+        const on = !!(await this.settings.get(key));
+        if (on !== this.forceDark) {
+          this.forceDark = on;
+          this.refreshDarkMode();
+        }
+        break;
+      }
+      case "vertical-tabs":
+        this.setVerticalTabs(!!(await this.settings.get(key)), false);
+        break;
+      case "site-settings":
+        await this.siteSettings.load();
+        this.refreshDarkMode();
+        break;
+      case "workspaces":
+        await this.workspaces.load();
+        break;
+      case "bookmarks":
+      case "bookmarks-bar":
+        await window.bookmarksManager?.load();
+        break;
+      case "downloads-autosave":
+        this.downloads.autoSave = (await this.settings.get(key)) !== false;
+        break;
+      case "search-engine":
+      case "search-suggestions":
+      case "search-suggestions-engine":
+      case "user-agent":
+      case "panic-key":
+      case "panic-url": {
+        const value = await this.settings.get(key);
+        window.dispatchEvent(new CustomEvent("settings", { detail: { key, newValue: value } }));
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
+  // ---------------------------------------------------------------- layout
+
+  setVerticalTabs(on, save = true) {
+    this.verticalTabs = !!on;
+    document.body.classList.toggle("vertical-tabs", this.verticalTabs);
+    if (save) this.settings.set("vertical-tabs", this.verticalTabs);
+    window.bookmarksManager?.layout();
+  }
+
+  /** The toolbar menu's "View" entry. */
+  showViewMenu(x, y) {
+    const bookmarks = window.bookmarksManager;
+    showMenu(x, y, [
+      { label: "Split view", checked: !!this.split, onclick: () => this.toggleSplit() },
+      { label: "Vertical tabs", checked: this.verticalTabs, onclick: () => this.setVerticalTabs(!this.verticalTabs) },
+      { label: "Bookmarks bar", checked: !!bookmarks?.visible, onclick: () => bookmarks?.setVisible(!bookmarks.visible) },
+      { label: "Immersive mode", checked: !!this.immersive, onclick: () => this.toggleImmersive() },
+      { separator: true },
+      { label: "Zoom in", onclick: () => this.setZoom(this.activeTabIndex, "in") },
+      { label: "Zoom out", onclick: () => this.setZoom(this.activeTabIndex, "out") },
+      { label: "Reset zoom", onclick: () => this.setZoom(this.activeTabIndex, "reset") },
+    ]);
+  }
+
+  showToolsMenu(x, y) {
+    showToolsMenu(this, x, y);
+  }
+
+  // ---------------------------------------------------------------- prewarm
+
+  /**
+   * Opens the connection to a site the user is probably about to visit (hovering
+   * a bookmark or suggestion, typing an address), so the real navigation skips
+   * the DNS + TLS setup. One cheap HEAD per origin, rate limited.
+   */
+  prewarm(input) {
+    let url;
+    try {
+      url = new URL(self.resolveInput(String(input ?? ""), this.searchEngine));
+    } catch {
+      return;
+    }
+    if (!/^https?:$/.test(url.protocol)) return;
+    if (!this.controller) {
+      // First sign of intent to browse: get the proxy itself ready instead.
+      this.ensureProxy().catch(() => {});
+      return;
+    }
+    const now = Date.now();
+    const last = this.warmed.get(url.origin);
+    if (last && now - last < 120_000) return;
+    if ([...this.warmed.values()].filter((t) => now - t < 10_000).length >= 4) return;
+    if (this.warmed.size > 200) this.warmed.clear();
+    this.warmed.set(url.origin, now);
+    try {
+      const headers = [["user-agent", this.userAgent ?? navigator.userAgent]];
+      Promise.resolve(this.transport.request(new URL(url.origin + "/"), "HEAD", null, headers, undefined))
+        .then((res) => res?.body?.cancel?.())
+        .catch(() => {});
+    } catch {}
   }
 
   applyZoom(tab) {
@@ -1117,8 +1621,15 @@ class Tab {
       let handled = true;
       if (key === "t" && e.shiftKey) this.reopenClosedTab();
       else if (key === "t") this.createTab();
+      else if (key === "n" && e.shiftKey) this.createTab("shadow://new", undefined, { private: true });
       else if (key === "w") this.closeTab();
+      else if (key === "r" && e.shiftKey) toggleReader(this);
       else if (key === "r") this.refresh();
+      else if (key === "s" && e.shiftKey) screenshot(this);
+      else if (key === "s") this.toggleSplit();
+      else if (key === "b") window.bookmarksManager?.setVisible(!window.bookmarksManager.visible);
+      else if (key === "j") this.downloads.togglePanel();
+      else if (key === "v") this.setVerticalTabs(!this.verticalTabs);
       else if (key === "d") this.duplicateTab();
       else if (key === "p") this.setPinned(this.activeTabIndex, !this.tabsArr[this.activeTabIndex]?.pinned);
       else if (key === "k") openCommandPalette(this);
@@ -1169,6 +1680,21 @@ searchInput.addEventListener("focus", () => {
   if (searchInput.value != "") tabs.displaySearchSuggestions();
 });
 searchInput.addEventListener("blur", () => setTimeout(() => tabs.updateOmni(), 150));
+// Someone clicking into the address bar is about to browse: get the proxy ready
+// now, and warm up the connection to wherever they seem to be headed.
+searchInput.addEventListener("focus", () => tabs.prewarm(tabs.searchEngine?.replace("%s", "") ?? ""));
+let warmTimer;
+searchInput.addEventListener("input", () => {
+  clearTimeout(warmTimer);
+  const value = searchInput.value.trim();
+  if (value.length < 4 || value.startsWith("shadow://")) return;
+  warmTimer = setTimeout(() => tabs.prewarm(value), 350);
+});
+document.getElementById("suggestions").addEventListener("mouseover", (e) => {
+  const item = e.target.closest?.(".suggestion-item");
+  if (item?.dataset.url) tabs.prewarm(item.dataset.url);
+});
+document.getElementById("site-button")?.addEventListener("click", () => tabs.showSitePanel());
 document.addEventListener("click", (e) => {
   if (e.target !== searchInput) tabs.hideSuggestions();
 });
