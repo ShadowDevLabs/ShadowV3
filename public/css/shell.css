@@ -266,3 +266,94 @@
 #iframes-container > iframe.proxied {
   background: #fff;
 }
+
+/* ---- immersive mode ---------------------------------------------------------- */
+
+body.immersive #tabs-container { display: none !important; }
+body.immersive #iframes-container { height: 100% !important; padding: 0 !important; }
+body.immersive #iframes-container > iframe { border: 0 !important; border-radius: 0 !important; }
+
+/* ---- command palette --------------------------------------------------------- */
+
+#cmd-palette {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  background: rgba(5, 8, 15, 0.55);
+  backdrop-filter: blur(3px);
+  padding-top: 12vh;
+  justify-content: center;
+}
+#cmd-palette.open { display: flex; }
+.cmd-box {
+  width: min(92vw, 580px);
+  max-height: 64vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--primary);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+#cmd-input {
+  padding: 16px 18px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+}
+#cmd-list { overflow-y: auto; padding: 6px; }
+.cmd-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text);
+}
+.cmd-item.active { background: var(--accent-glow); }
+.cmd-item img { width: 18px; height: 18px; border-radius: 4px; object-fit: contain; flex: 0 0 auto; }
+.cmd-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin: 0 6px; flex: 0 0 auto; }
+.cmd-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cmd-kind {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-muted); border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px;
+}
+.cmd-hint { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+/* ---- find in page ------------------------------------------------------------ */
+
+#find-bar {
+  display: none;
+  position: fixed;
+  top: 12px;
+  right: 24px;
+  z-index: 10040;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  background: var(--primary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+#find-bar.open { display: flex; }
+#find-input {
+  width: 180px; padding: 6px 8px; background: transparent; border: 0;
+  color: var(--text); font-size: 14px; font-family: inherit; outline: none;
+}
+#find-count { font-size: 12px; color: var(--text-muted); min-width: 42px; text-align: center; font-variant-numeric: tabular-nums; }
+#find-bar button {
+  width: 28px; height: 28px; padding: 0; display: flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px;
+}
+#find-bar button:hover { background: var(--accent-glow); }
+mark.__shadow-find { background: #ffe066; color: #111; border-radius: 2px; }
+mark.__shadow-find.current { background: #ff9f1a; box-shadow: 0 0 0 2px #ff9f1a; }

@@ -29,6 +29,10 @@
 | `Alt+1`…`Alt+8`, `Alt+9` | Switch to tab N / last tab |
 | `Alt+[` / `Alt+]` | Previous / next tab |
 | `Alt+D` / `Alt+P` | Duplicate / pin tab |
+| `Alt+K` | Command palette (tabs, actions, quick open) |
+| `Alt+F` | Find in page |
+| `Alt+Enter` | Immersive (hide chrome) |
+| `Alt +` / `Alt −` / `Alt 0` | Zoom in / out / reset |
 
 ## Per-site compatibility patches
 `public/assets/js/site-patches.js` applies fixups to proxied pages by hostname, so a site that needs a nudge (a bit of CSS, a small script) can be handled without touching the proxy engine. CSS-only fixes live in `public/assets/data/site-patches.json` and load live — add `{ "match": "example.com", "css": "...", "note": "why" }` and reload, no rebuild. `match` accepts `example.com` (domain + subdomains), `*.example.com` (subdomains only), or `~text` (hostname contains text). Script fixes go in the `JS_PATCHES` array in `site-patches.js`. It ships with no site fixes — real ones have to be written against live sites — but the framework is wired and runs whatever you add.

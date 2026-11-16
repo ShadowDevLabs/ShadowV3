@@ -4,6 +4,7 @@ import { Controller, Sapphire, ShadowPlugin } from "/dist/shadow-proxy.js";
 import { ExtensionUI } from "/assets/js/extension_ui.js";
 import { showMenu, hideMenu, toast } from "/assets/js/ui.js";
 import { applySitePatches } from "/assets/js/site-patches.js";
+import { openCommandPalette, openFind, closeFind, resetFind } from "/assets/js/features.js";
 
 const searchInput = document.getElementById("__shadow-search-bar");
 const addTabButton = document.getElementById("add-tab");
@@ -347,6 +348,7 @@ class Tab {
     tab.url = url;
     tab.pendingUrl = null;
     this.setLoading(tab, true);
+    if (i === this.activeTabIndex) resetFind();
 
     if (isInternal(url)) {
       tab.iframe.src = internalPath(url);
@@ -407,6 +409,7 @@ class Tab {
       pendingUrl: null,
       pinned: false,
       loading: false,
+      zoom: 1,
       lastHistoryUrl: null,
     };
 
@@ -721,6 +724,7 @@ class Tab {
         win.addEventListener("mousedown", () => this.dismissOverlays(), true);
       }
     } catch {}
+    this.applyZoom(tab);
     this.noteNavigation(tab);
   }
 
@@ -751,6 +755,8 @@ class Tab {
     this.hideSuggestions();
     hideMenu();
     this.extensions?.hidePopup();
+    closeFind();
+    if (this.immersive) this.toggleImmersive(false);
     window.closeMenu?.({ target: document.body });
   }
 
@@ -1057,6 +1063,37 @@ class Tab {
    * Shortcuts use Alt because the real browser owns the Ctrl ones. Bound on the
    * shell and inside every tab, so they work wherever focus is.
    */
+  // ---------------------------------------------------------------- view
+
+  /** Page zoom for one tab. action: "in" | "out" | "reset" | a number. */
+  setZoom(i, action) {
+    const tab = this.tabsArr[i];
+    if (!tab) return;
+    const steps = [0.3, 0.5, 0.67, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3];
+    if (typeof action === "number") tab.zoom = action;
+    else if (action === "reset") tab.zoom = 1;
+    else {
+      const idx = steps.reduce((best, v, n) => (Math.abs(v - tab.zoom) < Math.abs(steps[best] - tab.zoom) ? n : best), 0);
+      tab.zoom = steps[Math.max(0, Math.min(steps.length - 1, idx + (action === "in" ? 1 : -1)))];
+    }
+    this.applyZoom(tab);
+    if (tab.zoom !== 1) toast(`Zoom ${Math.round(tab.zoom * 100)}%`, { timeout: 1000 });
+  }
+
+  applyZoom(tab) {
+    try {
+      const body = tab.iframe.contentDocument?.body;
+      if (body) body.style.zoom = tab.zoom === 1 ? "" : String(tab.zoom);
+    } catch {}
+  }
+
+  /** Immersive mode: hide the shell chrome so the page fills the window. */
+  toggleImmersive(force) {
+    this.immersive = force === undefined ? !this.immersive : force;
+    document.body.classList.toggle("immersive", this.immersive);
+    if (this.immersive) toast("Immersive mode — Alt+Enter or Esc to exit", { timeout: 1600 });
+  }
+
   handleKey(e) {
     // Panic key: one press anywhere (shell or inside a page) jumps the whole
     // window to a safe site. Ignored while typing so the key can still be typed.
@@ -1083,6 +1120,12 @@ class Tab {
       else if (key === "r") this.refresh();
       else if (key === "d") this.duplicateTab();
       else if (key === "p") this.setPinned(this.activeTabIndex, !this.tabsArr[this.activeTabIndex]?.pinned);
+      else if (key === "k") openCommandPalette(this);
+      else if (key === "f") openFind(this);
+      else if (key === "Enter") this.toggleImmersive();
+      else if (key === "=" || key === "+") this.setZoom(this.activeTabIndex, "in");
+      else if (key === "-" || key === "_") this.setZoom(this.activeTabIndex, "out");
+      else if (key === "0") this.setZoom(this.activeTabIndex, "reset");
       else if (key === "l") {
         window.focus();
         searchInput.focus();
