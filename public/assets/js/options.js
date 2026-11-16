@@ -23,11 +23,9 @@ function toggleDropdown() {
 
 function closeMenu(event) {
   if (isDropdownVisible) {
-    if (
-      event.target !== menuButton &&
-      !dropdown.contains(event.target) &&
-      event.target !== menuButton
-    ) {
+    // contains(): a click on the dots lands on the <svg>/<path> inside the button,
+    // and comparing with === closed the menu the same instant it opened.
+    if (!menuButton.contains(event.target) && !dropdown.contains(event.target)) {
       dropdown.style.display = "none";
       isDropdownVisible = false;
     }

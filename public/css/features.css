@@ -888,3 +888,12 @@ body.offline #header::after {
 .list-page .download-list.page .download-item:first-child {
   border-top: 0;
 }
+
+/* ---- toolbar menu ------------------------------------------------------------------------------- */
+
+/* Never taller than the window: it scrolls instead of running off the bottom. */
+.dropdown-content {
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  box-sizing: border-box;
+}

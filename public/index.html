@@ -185,6 +185,8 @@
 
   <!-- Dropdown Menu -->
   <div id="menu-dropdown" class="dropdown-content" style="display: none">
+    <!-- Kept short on purpose: everything else lives behind View, Page tools and More
+         (floating menus built in tabs.js / pagetools.js). -->
     <table>
       <tr>
         <td id="new-tab" onclick='tabs.createTab("shadow:/\/new");'>
@@ -193,18 +195,6 @@
               <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
             </svg>
             New tab
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick="tabs.reopenClosedTab()">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path d="M280-200v-80h284q63 0 109.500-40T720-420q0-60-46.500-100T564-560H312l104 104-56 56-200-200 200-200 56 56-104 104h252q97 0 166.500 63T800-420q0 94-69.500 157T564-200H280Z" />
-            </svg>
-            Reopen closed tab
           </button>
         </td>
       </tr>
@@ -224,11 +214,24 @@
     <table>
       <tr>
         <td>
-          <button data-add-tab onclick="bookmarksManager.newBookmark()">
+          <button data-add-tab onclick="tabs.reopenClosedTab()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
+              <path d="M280-200v-80h284q63 0 109.500-40T720-420q0-60-46.500-100T564-560H312l104 104-56 56-200-200 200-200 56 56-104 104h252q97 0 166.500 63T800-420q0 94-69.500 157T564-200H280Z" />
+            </svg>
+            Reopen closed tab
+          </button>
+        </td>
+      </tr>
+    </table>
+    <div class="separator"></div>
+    <table>
+      <tr>
+        <td>
+          <button data-add-tab onclick="bookmarksManager.toggleCurrent()">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
               <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
             </svg>
-            Add Bookmark
+            Bookmark this page
           </button>
         </td>
       </tr>
@@ -248,6 +251,18 @@
     <table>
       <tr>
         <td>
+          <button data-add-tab onclick='tabs.createTab("shadow://history")'>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
+              <path d="M480-120q-138 0-240.500-91.500T122-440h82q14 104 92.500 172T480-200q117 0 198.500-81.500T760-480q0-117-81.500-198.500T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.500-99T480-840q75 0 140.500 28.500t114 77q48.500 48.500 77 114T840-480q0 75-28.500 140.500t-77 114q-48.500 48.500-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z" />
+            </svg>
+            History
+          </button>
+        </td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td>
           <button data-add-tab onclick='tabs.workspaces.showPanel(document.getElementById("menu-button"))'>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
               <path d="M480-118 120-398l66-50 294 228 294-228 66 50-360 280Zm0-202L120-600l360-280 360 280-360 280Zm0-280Zm0 178 230-178-230-178-230 178 230 178Z" />
@@ -257,6 +272,7 @@
         </td>
       </tr>
     </table>
+    <div class="separator"></div>
     <table>
       <tr>
         <td>
@@ -310,30 +326,6 @@
     <table>
       <tr>
         <td>
-          <button data-add-tab onclick='tabs.createTab("shadow://store")'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path d="M280-80q-33 0-56.5-23.5T200-160v-440q0-33 23.5-56.5T280-680h40q0-66 47-113t113-47q66 0 113 47t47 113h40q33 0 56.5 23.5T760-600v440q0 33-23.5 56.5T680-80H280Zm0-80h400v-440h-40v80q0 17-11.5 28.5T600-480q-17 0-28.5-11.5T560-520v-80H400v80q0 17-11.5 28.5T360-480q-17 0-28.5-11.5T320-520v-80h-40v440Zm120-520h160q0-33-23.5-56.5T480-760q-33 0-56.5 23.5T400-680ZM280-160v-440 440Z" />
-            </svg>
-            Store
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick='tabs.createTab("shadow://history")'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path d="M480-120q-138 0-240.500-91.500T122-440h82q14 104 92.500 172T480-200q117 0 198.500-81.500T760-480q0-117-81.500-198.500T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.500-99T480-840q75 0 140.500 28.500t114 77q48.500 48.500 77 114T840-480q0 75-28.500 140.500t-77 114q-48.500 48.500-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z" />
-            </svg>
-            History
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
           <button data-add-tab onclick='tabs.createTab("shadow:/\/books")'>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
               <path
@@ -347,113 +339,11 @@
     <table>
       <tr>
         <td>
-          <button data-add-tab onclick='tabs.createTab("shadow://ai")'>
+          <button data-add-tab onclick='tabs.showMoreMenu(event.clientX, event.clientY)'>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path
-                d="M400-240q-33 0-56.5-23.5T320-320v-50q-57-39-88.5-100T200-600q0-117 81.5-198.5T480-880q117 0 198.5 81.5T760-600q0 69-31.5 129.5T640-370v50q0 33-23.5 56.5T560-240H400Zm0-80h160v-92l34-24q41-28 63.5-71.5T680-600q0-83-58.5-141.5T480-800q-83 0-141.5 58.5T280-600q0 49 22.5 92.5T366-436l34 24v92Zm0 240q-17 0-28.5-11.5T360-120v-40h240v40q0 17-11.5 28.5T560-80H400Zm80-520Z" />
-            </svg> AI
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick='alert("Coming in Shadow 3.1.1")'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path
-                d="M240-400h320v-80H240v80Zm0-120h480v-80H240v80Zm0-120h480v-80H240v80ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z" />
-            </svg> Chat
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick='tabs.toggleDevTools()'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path
-                d="M320-240 80-480l240-240 57 57-184 184 183 183-56 56Zm320 0-57-57 184-184-183-183 56-56 240 240-240 240Z" />
+              <path d="M240-400q-33 0-56.500-23.500T160-480q0-33 23.500-56.500T240-560q33 0 56.500 23.500T320-480q0 33-23.500 56.500T240-400Zm240 0q-33 0-56.500-23.500T400-480q0-33 23.500-56.500T480-560q33 0 56.500 23.500T560-480q0 33-23.500 56.500T480-400Zm240 0q-33 0-56.500-23.500T640-480q0-33 23.500-56.500T720-560q33 0 56.500 23.500T800-480q0 33-23.500 56.500T720-400Z" />
             </svg>
-            Devtools
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick='tabs.createTab("discord.gg/goshadow")'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" class="menu-icons">
-              <path
-                d="M524.531,69.836a1.5,1.5,0,0,0-.764-.7A485.065,485.065,0,0,0,404.081,32.03a1.816,1.816,0,0,0-1.923.91,337.461,337.461,0,0,0-14.9,30.6,447.848,447.848,0,0,0-134.426,0,309.541,309.541,0,0,0-15.135-30.6,1.89,1.89,0,0,0-1.924-.91A483.689,483.689,0,0,0,116.085,69.137a1.712,1.712,0,0,0-.788.676C39.068,183.651,18.186,294.69,28.43,404.354a2.016,2.016,0,0,0,.765,1.375A487.666,487.666,0,0,0,176.02,479.918a1.9,1.9,0,0,0,2.063-.676A348.2,348.2,0,0,0,208.12,430.4a1.86,1.86,0,0,0-1.019-2.588,321.173,321.173,0,0,1-45.868-21.853,1.885,1.885,0,0,1-.185-3.126c3.082-2.309,6.166-4.711,9.109-7.137a1.819,1.819,0,0,1,1.9-.256c96.229,43.917,200.41,43.917,295.5,0a1.812,1.812,0,0,1,1.924.233c2.944,2.426,6.027,4.851,9.132,7.16a1.884,1.884,0,0,1-.162,3.126,301.407,301.407,0,0,1-45.89,21.83,1.875,1.875,0,0,0-1,2.611,391.055,391.055,0,0,0,30.014,48.815,1.864,1.864,0,0,0,2.063.7A486.048,486.048,0,0,0,610.7,405.729a1.882,1.882,0,0,0,.765-1.352C623.729,277.594,590.933,167.465,524.531,69.836ZM222.491,337.58c-28.972,0-52.844-26.587-52.844-59.239S193.056,219.1,222.491,219.1c29.665,0,53.306,26.82,52.843,59.239C275.334,310.993,251.924,337.58,222.491,337.58Zm195.38,0c-28.971,0-52.843-26.587-52.843-59.239S388.437,219.1,417.871,219.1c29.667,0,53.307,26.82,52.844,59.239C470.715,310.993,447.538,337.58,417.871,337.58Z" />
-            </svg> Discord
-          </button>
-        </td>
-      </tr>
-    </table>
-    <div class="separator"></div>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick="iframefullscreen()">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path
-                d="M120-120v-200h80v120h120v80H120Zm520 0v-80h120v-120h80v200H640ZM120-640v-200h200v80H200v120h-80Zm640 0v-120H640v-80h200v200h-80Z" />
-            </svg>
-            Fullscreen
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick="abtblank()">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path
-                d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h560v-280h80v280q0 33-23.5 56.5T760-120H200Zm188-212-56-56 372-372H560v-80h280v280h-80v-144L388-332Z" />
-            </svg>
-            Open About:Blank
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick="iframeabtblank()">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path
-                d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h560v-280h80v280q0 33-23.5 56.5T760-120H200Zm188-212-56-56 372-372H560v-80h280v280h-80v-144L388-332Z" />
-            </svg>
-            Open Tab in Abt:Blank
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick="navigator.clipboard.writeText(dewasper.dump());">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path
-                d="M480-200q66 0 113-47t47-113v-160q0-66-47-113t-113-47q-66 0-113 47t-47 113v160q0 66 47 113t113 47Zm-80-120h160v-80H400v80Zm0-160h160v-80H400v80Zm80 40Zm0 320q-65 0-120.5-32T272-240H160v-80h84q-3-20-3.5-40t-.5-40h-80v-80h80q0-20 .5-40t3.5-40h-84v-80h112q14-23 31.5-43t40.5-35l-64-66 56-56 86 86q28-9 57-9t57 9l88-86 56 56-66 66q23 15 41.5 34.5T688-640h112v80h-84q3 20 3.5 40t.5 40h80v80h-80q0 20-.5 40t-3.5 40h84v80H688q-32 56-87.5 88T480-120Z" />
-            </svg>
-            Dump Debug Info
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table id="install-row" hidden>
-      <tr>
-        <td>
-          <button data-add-tab onclick='shadowPwa.install()'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.500-23.500T160-240v-120h80v120h480v-120h80v120q0 33-23.500 56.500T720-160H240Z" />
-            </svg>
-            Install Shadow
+            More
           </button>
         </td>
       </tr>

@@ -1551,6 +1551,25 @@ class Tab {
     showToolsMenu(this, x, y);
   }
 
+  /** The toolbar menu's "More" entry: the less-used destinations and window actions. */
+  showMoreMenu(x, y) {
+    const pwa = window.shadowPwa;
+    showMenu(x, y, [
+      { label: "Store", onclick: () => this.createTab("shadow://store") },
+      { label: "AI", onclick: () => this.createTab("shadow://ai") },
+      { label: "Chat", onclick: () => toast("Coming in Shadow 3.1.1", { timeout: 2500 }) },
+      { label: "Discord", onclick: () => this.createTab("discord.gg/goshadow") },
+      { separator: true },
+      { label: "Fullscreen", onclick: () => window.iframefullscreen?.() },
+      { label: "Open in about:blank", onclick: () => window.abtblank?.() },
+      { label: "Open tab in about:blank", onclick: () => window.iframeabtblank?.() },
+      ...(pwa?.canInstall ? [{ label: "Install Shadow", onclick: () => pwa.install() }] : []),
+      { separator: true },
+      { label: "Devtools", onclick: () => this.toggleDevTools() },
+      { label: "Copy debug info", onclick: () => navigator.clipboard.writeText(window.dewasper.dump()).then(() => toast("Debug info copied.", { timeout: 1500 })) },
+    ]);
+  }
+
   // ---------------------------------------------------------------- prewarm
 
   /**
