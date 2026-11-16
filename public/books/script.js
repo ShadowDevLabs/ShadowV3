@@ -7,7 +7,6 @@ const settings = new SettingsManager();
 
 let allGames     = [];
 let visible      = [];
-let previousVisible = new Set();
 let activeFilter = 'all';
 let searchQuery  = '';
 let favorites    = new Set();
@@ -130,29 +129,41 @@ function buildCard(game) {
   return a;
 }
 
-function renderVisible() {
+// Windowed rendering: with ~900 games, building every card up front is the main
+// jank source on weak hardware. Render in batches and grow as the user scrolls
+// (a sentinel near the bottom pulls the next batch in).
+const BATCH = 60;
+let rendered = 0;
+let sentinel = null;
+let io = null;
+
+function renderMore() {
   const grid = document.getElementById('grid');
+  if (rendered >= visible.length) return;
   const frag = document.createDocumentFragment();
-  for (let i = 0; i < visible.length; i++) frag.appendChild(buildCard(visible[i]));
-  grid.appendChild(frag);
+  const end = Math.min(rendered + BATCH, visible.length);
+  for (let i = rendered; i < end; i++) frag.appendChild(buildCard(visible[i]));
+  rendered = end;
+  grid.insertBefore(frag, sentinel);
+  // Re-arm: if the sentinel is still on screen, this fires again and keeps
+  // filling until the viewport is covered or every game is rendered.
+  if (rendered < visible.length) { io.unobserve(sentinel); io.observe(sentinel); }
 }
 
-function updateDisplay() {
+function renderVisible() {
   const grid = document.getElementById('grid');
-  const visibleLabels = new Set(visible.map(g => g.label));
-  
-  grid.querySelectorAll('.card').forEach(card => {
-    const label = card.dataset.gameLabel;
-    const shouldBeVisible = visibleLabels.has(label);
-    const wasVisible = previousVisible.has(label);
-    
-    // Only update if visibility changed
-    if (shouldBeVisible !== wasVisible) {
-      card.style.display = shouldBeVisible ? '' : 'none';
-    }
-  });
-  
-  previousVisible = visibleLabels;
+  grid.querySelectorAll('.card').forEach(c => c.remove());
+  rendered = 0;
+  if (!sentinel) {
+    sentinel = document.createElement('div');
+    sentinel.className = 'grid-sentinel';
+    io = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) renderMore();
+    }, { rootMargin: '800px' });
+  }
+  grid.appendChild(sentinel); // keep it last
+  io.observe(sentinel);
+  renderMore();
 
   let emptyMsg = grid.querySelector('.empty');
   if (visible.length === 0) {
@@ -190,7 +201,7 @@ function applyFilters() {
   document.getElementById('countDisplay').textContent =
     `${visible.length} game${visible.length !== 1 ? 's' : ''}`;
 
-  updateDisplay();
+  renderVisible();
 }
 
 function buildFilters(games) {
@@ -233,8 +244,6 @@ async function init() {
     document.getElementById('grid').style.display = 'grid';
     buildFilters(allGames);
     visible = allGames;
-    previousVisible = new Set(allGames.map(g => g.label));
-    renderVisible();
     applyFilters();
     document.getElementById('searchInput').addEventListener('input',
       debounce(e => { searchQuery = e.target.value; applyFilters(); }, 150));

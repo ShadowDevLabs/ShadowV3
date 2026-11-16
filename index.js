@@ -183,6 +183,55 @@ app.get("/v1/api/crx/:id", async (req, res) => {
   }
 });
 
+// Live metadata (name, icon, description) for a Web Store extension, scraped from
+// its public detail page so the storefront can sync with the real store instead
+// of relying on a hand-written catalog. Cached in memory so 30k users don't turn
+// into 30k scrapes.
+const extMetaCache = new Map(); // id -> { at, data }
+const EXT_META_TTL = 6 * 60 * 60 * 1000; // 6h
+app.get("/v1/api/ext-meta/:id", async (req, res) => {
+  const id = req.params.id;
+  if (!/^[a-p]{32}$/.test(id)) return res.status(400).json({ error: "Bad extension ID" });
+
+  const hit = extMetaCache.get(id);
+  if (hit && Date.now() - hit.at < EXT_META_TTL) {
+    res.set("Cache-Control", "public, max-age=21600");
+    return res.json(hit.data);
+  }
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+    const page = await fetch(`https://chromewebstore.google.com/detail/${id}`, {
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; ShadowStore/1.0)", "Accept-Language": "en" },
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timer));
+    if (!page.ok) return res.status(page.status === 404 ? 404 : 502).json({ error: "Not found in the Web Store" });
+
+    const $ = cheerio.load(await page.text());
+    const pick = (sel, attr) => $(sel).attr(attr)?.trim() || "";
+    const metaName = pick('meta[property="og:title"]', "content").replace(/\s*-\s*Chrome Web Store\s*$/i, "");
+    const data = {
+      id,
+      name: metaName || null,
+      icon: pick('meta[property="og:image"]', "content") || null,
+      description: pick('meta[property="og:description"]', "content") || null,
+      url: pick('meta[property="og:url"]', "content") || `https://chromewebstore.google.com/detail/${id}`,
+    };
+    if (!data.name && !data.icon) return res.status(502).json({ error: "Could not parse store page" });
+    // A removed/invalid item redirects to the store home, whose og: tags are
+    // generic. Treat that as not-found so the client keeps its catalog data.
+    if (data.name === "Chrome Web Store" || /chromewebstore\.google\.com\/?$/.test(data.url)) {
+      return res.status(404).json({ error: "Not found in the Web Store" });
+    }
+    extMetaCache.set(id, { at: Date.now(), data });
+    res.set("Cache-Control", "public, max-age=21600");
+    res.json(data);
+  } catch (error) {
+    console.error("[ext-meta]", error?.name || error);
+    res.status(502).json({ error: "Could not reach the Chrome Web Store" });
+  }
+});
+
 // AI STUFF
 
 app.use(cookieParser());

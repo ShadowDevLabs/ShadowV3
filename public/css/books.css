@@ -358,3 +358,4 @@ input[type="search"]::placeholder { color: var(--text-muted); opacity: .4; }
 .pill.active .pill-heart {
   color: #ff4d6d;
 }
+.grid-sentinel { grid-column: 1 / -1; height: 1px; }

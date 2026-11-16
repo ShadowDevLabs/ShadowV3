@@ -37,6 +37,66 @@ function iconFor(entry) {
   return `<span>${CATEGORY_ICON[entry.category] || CATEGORY_ICON.Other}</span>`;
 }
 
+// --- live sync with the Chrome Web Store -----------------------------------
+// Each catalog entry is enriched with the real name/icon/description from the
+// store (server-cached at /v1/api/ext-meta/:id). Cards show catalog data
+// instantly and upgrade in place as metadata arrives, lazily per visible card.
+const metaCache = new Map();
+async function fetchMeta(id) {
+  if (metaCache.has(id)) return metaCache.get(id);
+  const ssKey = `extmeta:${id}`;
+  try {
+    const cached = sessionStorage.getItem(ssKey);
+    if (cached) { const d = JSON.parse(cached); metaCache.set(id, d); return d; }
+  } catch {}
+  const promise = fetch(`/v1/api/ext-meta/${id}`)
+    .then((r) => (r.ok ? r.json() : null))
+    .then((d) => {
+      if (d) { try { sessionStorage.setItem(ssKey, JSON.stringify(d)); } catch {} }
+      return d;
+    })
+    .catch(() => null);
+  metaCache.set(id, promise);
+  const data = await promise;
+  metaCache.set(id, data);
+  return data;
+}
+
+function applyMeta(entry, meta) {
+  if (!meta) return;
+  if (meta.name) entry.name = meta.name;
+  if (meta.icon) entry.icon = meta.icon;
+  if (meta.description) entry.description = meta.description;
+}
+
+// Fetch (cached by id) and apply live data. The same catalog object can back
+// several cards (featured + grid), so each card updates itself — the flag only
+// gates the network call, not the per-card DOM update.
+async function enrich(entry) {
+  if (!entry.id) return null;
+  const meta = await fetchMeta(entry.id);
+  applyMeta(entry, meta);
+  entry._enriched = true;
+  return meta;
+}
+
+const enrichObserver = new IntersectionObserver((entries, obs) => {
+  for (const e of entries) {
+    if (!e.isIntersecting) continue;
+    obs.unobserve(e.target);
+    const entry = e.target.__entry;
+    if (entry) enrich(entry).then((m) => { if (m) updateCard(e.target, entry); });
+  }
+}, { rootMargin: "200px" });
+
+function updateCard(node, entry) {
+  const idx = installedIndex();
+  node.querySelector(".card-ico").innerHTML = iconFor(entry);
+  node.querySelector(".card-name").textContent = entry.name;
+  node.querySelector(".card-desc").textContent = entry.description || "";
+  wireInstallButton(node.querySelector(".card-btn"), entry, idx);
+}
+
 async function load() {
   try {
     const data = await fetch("catalog.json").then((r) => r.json());
@@ -101,6 +161,12 @@ function card(entry, idx) {
   const open = (e) => { if (!e.target.closest(".card-btn")) openModal(entry); };
   node.addEventListener("click", open);
   node.addEventListener("keydown", (e) => { if (e.key === "Enter") openModal(entry); });
+
+  node.__entry = entry;
+  if (entry.id) {
+    if (entry._enriched) updateCard(node, entry); // data already fetched for a sibling card
+    else enrichObserver.observe(node);
+  }
   return node;
 }
 
@@ -143,12 +209,18 @@ async function installEntry(ext, entry) {
 
 // ---- modal ----------------------------------------------------------------
 
-function openModal(entry) {
-  const idx = installedIndex();
+function fillModal(entry) {
   $("modal-ico").innerHTML = iconFor(entry);
   $("modal-name").textContent = entry.name;
   $("modal-meta").textContent = [entry.author, entry.category].filter(Boolean).join(" · ");
   $("modal-desc").textContent = entry.longDescription || entry.description || "";
+}
+
+function openModal(entry) {
+  const idx = installedIndex();
+  fillModal(entry);
+  // Pull live store data (cached) and refresh the modal in place.
+  if (entry.id) enrich(entry).then((m) => { if (m && !$("modal").hidden) fillModal(entry); });
   $("modal-perms").textContent = entry.id
     ? `Chrome Web Store ID: ${entry.id}`
     : "Self-hosted package";

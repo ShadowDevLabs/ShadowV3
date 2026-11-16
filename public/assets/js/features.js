@@ -52,12 +52,23 @@ function actionsFor(tabs) {
     { label: "Zoom out", hint: "Alt −", run: () => tabs.setZoom(tabs.activeTabIndex, "out") },
     { label: "Reset zoom", hint: "Alt 0", run: () => tabs.setZoom(tabs.activeTabIndex, "reset") },
     { label: "Open devtools", run: () => tabs.toggleDevTools() },
+    { label: "Bookmark this page", run: () => window.bookmarksManager?.newBookmark() },
     { label: "Settings", run: () => tabs.createTab("shadow://settings") },
+    { label: "Store", run: () => tabs.createTab("shadow://store") },
     { label: "Extensions", run: () => tabs.createTab("shadow://extensions") },
     { label: "Games", run: () => tabs.createTab("shadow://books") },
     { label: "History", run: () => tabs.createTab("shadow://history") },
     { label: "Home", run: () => tabs.createTab("shadow://home") },
   ];
+  // Saved bookmarks, so the palette is also a bookmark launcher.
+  const bookmarks = window.bookmarksManager?.container?.children;
+  if (bookmarks) {
+    for (const el of bookmarks) {
+      const url = el.getAttribute("data-url");
+      const title = el.getAttribute("data-title") || url;
+      if (url) a.push({ label: title, kind: "Bookmark", run: () => tabs.load(url) });
+    }
+  }
   // Open tabs, so the palette doubles as a tab switcher.
   tabs.tabsArr.forEach((tab, i) => {
     if (i === tabs.activeTabIndex) return;
