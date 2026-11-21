@@ -41,6 +41,180 @@
   }
 }
 
+/* The title gives way first when a tab gets narrow or gains a speaker button. */
+.tab .tab-title {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Speaker button: there while the tab is making sound, or muted. */
+.tab .tab-audio {
+  display: none;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.tab.audible .tab-audio,
+.tab.muted .tab-audio {
+  display: flex;
+}
+
+.tab .tab-audio svg {
+  display: block;
+  fill: var(--accent-light);
+}
+
+.tab.muted .tab-audio svg {
+  fill: var(--text-muted);
+  opacity: 0.8;
+}
+
+.tab .tab-audio:hover {
+  background: var(--accent-glow);
+}
+
+/* ---- tab groups ------------------------------------------------------------ */
+
+/* The chip is a small tab-strip card of its own: same fill, border and corner
+   radius as a tab, with the group's colour as a dot and as the outline. Its
+   tabs carry that colour in their outline and a faint wash, and sit closer
+   together than ungrouped tabs so the group reads as one block. */
+.tab-group-chip {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 170px;
+  box-sizing: border-box;
+  padding: 8px 10px 8px 11px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--group-color) 22%, var(--primary)), var(--secondary));
+  border: 1px solid color-mix(in srgb, var(--group-color) 65%, transparent);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.2s ease;
+}
+
+.tab-group-chip:hover {
+  border-color: var(--group-color);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--group-color) 35%, transparent);
+  transform: translateY(-2px);
+}
+
+.tab-group-chip:focus-visible {
+  outline: 2px solid var(--group-color);
+  outline-offset: 2px;
+}
+
+.tab-group-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--group-color);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--group-color) 70%, transparent);
+}
+
+.tab-group-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tab-group-name:empty,
+.tab-group-count:empty {
+  display: none;
+}
+
+.tab-group-count {
+  flex: 0 0 auto;
+  min-width: 18px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--group-color) 28%, transparent);
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.tab-group-chip svg {
+  flex: 0 0 auto;
+  display: block;
+  margin-left: -2px;
+  fill: currentColor;
+  opacity: 0.6;
+  transition: transform 0.15s ease;
+}
+
+.tab-group-chip.collapsed svg {
+  transform: rotate(-90deg);
+}
+
+.tab.grouped {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--group-color) 13%, var(--primary)), var(--secondary));
+  border-color: color-mix(in srgb, var(--group-color) 50%, transparent);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--group-color) 18%, transparent);
+}
+
+.tab.grouped.active {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--group-color) 38%, var(--primary)), var(--secondary));
+  border-color: var(--group-color);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--group-color) 40%, transparent);
+}
+
+.tab.group-collapsed {
+  display: none;
+}
+
+/* Half the usual gap inside a group. */
+body:not(.vertical-tabs) .tab-group-chip + .tab.grouped,
+body:not(.vertical-tabs) .tab.grouped + .tab.grouped {
+  margin-left: -6px;
+}
+
+body.vertical-tabs .tab-group-chip {
+  max-width: none;
+  margin-top: 4px;
+}
+
+body.vertical-tabs .tab-group-chip:hover {
+  transform: translateX(2px);
+}
+
+body.vertical-tabs .tab-group-chip + .tab.grouped,
+body.vertical-tabs .tab.grouped + .tab.grouped {
+  margin-top: -4px;
+}
+
+/* Indented under their chip, like items in a folder. */
+body.vertical-tabs .tab.grouped {
+  margin-left: 12px;
+}
+
+/* ---- back / forward ---------------------------------------------------------- */
+
+.control-button.disabled {
+  opacity: 0.4;
+  cursor: default;
+  box-shadow: none;
+}
+
+.control-button.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
 /* Pinned tabs collapse to just their icon. */
 .tab.pinned {
   flex: 0 0 auto;
@@ -146,33 +320,114 @@
   background: #fff;
 }
 
-/* ---- floating menu (tab menu, extension menus) ------------------------------- */
+/* ---- menus (toolbar menu, its submenus, right-click menus) ------------------- */
 
 .shadow-menu {
   position: fixed;
-  z-index: 10001;
-  min-width: 190px;
-  max-width: 320px;
+  z-index: 10030;
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: min(340px, calc(100vw - 12px));
+  max-height: calc(100vh - 12px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
   padding: 6px;
   background: var(--primary);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
   font-size: 13px;
+  line-height: 1.3;
   user-select: none;
+  animation: shadow-menu-in 0.09s ease-out;
+}
+
+@keyframes shadow-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+}
+
+.shadow-menu-item,
+.shadow-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 30px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  border-radius: 6px;
+  white-space: nowrap;
 }
 
 .shadow-menu-item {
-  padding: 6px 12px;
-  border-radius: 5px;
   cursor: pointer;
-  white-space: pre;
+}
+
+/* The leading slot (icon or check mark) only takes space in menus that use it,
+   so every label in a menu starts on the same line. */
+.shadow-menu-lead {
+  display: none;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+}
+
+.shadow-menu.has-lead > * > .shadow-menu-lead {
+  display: flex;
+}
+
+.shadow-menu svg {
+  display: block;
+  fill: currentColor;
+}
+
+.shadow-menu-lead svg {
+  opacity: 0.85;
+}
+
+.shadow-menu-lead img {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  object-fit: contain;
+}
+
+.shadow-menu-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.shadow-menu-label {
+  flex: 1 1 auto;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.shadow-menu-item:hover {
+.shadow-menu-hint {
+  flex: 0 0 auto;
+  margin-left: 18px;
+  color: var(--text-muted);
+  opacity: 0.65;
+  font-size: 12px;
+}
+
+.shadow-menu-arrow {
+  flex: 0 0 auto;
+  margin-right: -4px;
+  opacity: 0.7;
+}
+
+.shadow-menu-item.active,
+.shadow-menu-item.open {
   background: var(--accent-glow);
 }
 
@@ -181,24 +436,63 @@
   cursor: default;
 }
 
-.shadow-menu-item.disabled:hover {
-  background: none;
+.shadow-menu-controls {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-right: -6px;
+}
+
+.shadow-menu-controls button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 26px;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  border: 0;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.shadow-menu-controls button:hover {
+  background: var(--accent-glow);
+}
+
+.shadow-menu-readout {
+  min-width: 44px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .shadow-menu-header {
-  padding: 4px 12px 2px;
+  padding: 6px 10px 2px;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--text-muted);
+  opacity: 0.75;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* Full-bleed rule, edge to edge of the menu. */
 .shadow-menu-separator {
-  margin: 4px 0;
+  margin: 5px -6px;
   border-top: 1px solid var(--border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shadow-menu {
+    animation: none;
+  }
 }
 
 /* ---- toasts ------------------------------------------------------------------ */

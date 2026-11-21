@@ -1,7 +1,9 @@
 // Bookmarks: the bar under the address bar, the star in the address bar, and
 // the stored list ([{title, url}] under the "bookmarks" setting).
 import { SettingsManager } from "./settings_manager.js";
-import { showMenu, dialog, toast, h, faviconFor } from "/assets/js/ui.js";
+import { showMenu, menuOpenFor, hideMenu, svgIcon, dialog, toast, h, faviconFor } from "/assets/js/ui.js";
+
+const iconFor = (url) => (url.startsWith("shadow://") ? `/assets/imgs/icons/pages/${url.slice(9).split("/")[0]}.png` : faviconFor(url));
 
 class BookmarksManager {
   constructor() {
@@ -55,6 +57,11 @@ class BookmarksManager {
 
   indexOf(url) {
     return this.list.findIndex((b) => b.url === url);
+  }
+
+  /** Whether the active tab's page is bookmarked. */
+  isBookmarked(url = window.tabs?.getTabInfo?.().src) {
+    return !!url && this.indexOf(url) !== -1;
   }
 
   addBookmark(title, url) {
@@ -140,7 +147,7 @@ class BookmarksManager {
       const el = h(
         "div",
         { class: "bookmark", title: `${bookmark.title}\n${bookmark.url}`, draggable: true, dataset: { title: bookmark.title, url: bookmark.url, index: String(index) } },
-        h("img", { src: bookmark.url.startsWith("shadow://") ? `/assets/imgs/icons/pages/${bookmark.url.slice(9).split("/")[0]}.png` : faviconFor(bookmark.url), alt: "", draggable: false, onerror: (e) => !e.target.src.endsWith("/logo.png") && (e.target.src = "/assets/imgs/icons/logo.png") }),
+        h("img", { src: iconFor(bookmark.url), alt: "", loading: "lazy", decoding: "async", draggable: false, onerror: (e) => !e.target.src.endsWith("/logo.png") && (e.target.src = "/assets/imgs/icons/logo.png") }),
         h("span", {}, bookmark.title),
       );
       el.addEventListener("click", (e) => this.open(bookmark, e));
@@ -170,13 +177,21 @@ class BookmarksManager {
         e.dataTransfer.setData("text/uri-list", bookmark.url);
         e.dataTransfer.setData("text/plain", bookmark.url);
       });
+      const clearDrop = () => el.classList.remove("drop-before", "drop-after");
       el.addEventListener("dragover", (e) => {
         if (this.dragIndex === undefined) return;
         e.preventDefault();
+        // Show which side of this bookmark the dragged one will land on.
+        const rect = el.getBoundingClientRect();
+        const after = e.clientX > rect.left + rect.width / 2;
+        el.classList.toggle("drop-before", !after && this.dragIndex !== index);
+        el.classList.toggle("drop-after", after && this.dragIndex !== index);
       });
+      el.addEventListener("dragleave", clearDrop);
       el.addEventListener("drop", (e) => {
         if (this.dragIndex === undefined) return;
         e.preventDefault();
+        clearDrop();
         const rect = el.getBoundingClientRect();
         const after = e.clientX > rect.left + rect.width / 2;
         let to = index + (after ? 1 : 0);
@@ -188,7 +203,12 @@ class BookmarksManager {
       el.addEventListener("dragend", () => (this.dragIndex = undefined));
       bar.append(el);
     });
-    this.overflow = h("button", { type: "button", class: "bookmark-overflow", title: "More bookmarks", hidden: true, onclick: (e) => this.showOverflow(e) }, "»");
+    this.overflow = h(
+      "button",
+      { type: "button", class: "bookmark-overflow", title: "More bookmarks", hidden: true, onclick: () => this.showOverflow() },
+      // Double chevron, like the overflow button of any bookmarks bar.
+      svgIcon("M383-480 200-664l56-56 240 240-240 240-56-56 183-184Zm264 0L464-664l56-56 240 240-240 240-56-56 183-184Z", 18),
+    );
     bar.append(this.overflow);
     this.layout();
     this.updateStar();
@@ -201,7 +221,7 @@ class BookmarksManager {
     const items = [...bar.querySelectorAll(".bookmark")];
     for (const el of items) el.hidden = false;
     this.overflow.hidden = true;
-    const available = bar.clientWidth - 16;
+    const available = bar.clientWidth - 32; // minus the 16px gutters
     let used = 0;
     let hiddenFrom = -1;
     items.forEach((el, i) => {
@@ -224,12 +244,13 @@ class BookmarksManager {
     this.hiddenFrom = hiddenFrom;
   }
 
-  showOverflow(e) {
-    const rect = e.currentTarget.getBoundingClientRect();
+  showOverflow() {
+    if (menuOpenFor(this.overflow)) return hideMenu();
     showMenu(
-      rect.left,
-      rect.bottom + 4,
-      this.list.slice(this.hiddenFrom ?? 0).map((bookmark) => ({ label: bookmark.title, onclick: () => window.tabs.load(bookmark.url) })),
+      0,
+      0,
+      this.list.slice(this.hiddenFrom ?? 0).map((bookmark) => ({ label: bookmark.title, title: bookmark.url, image: iconFor(bookmark.url), onclick: () => window.tabs.load(bookmark.url) })),
+      { anchor: this.overflow },
     );
   }
 

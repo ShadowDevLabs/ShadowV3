@@ -15,7 +15,6 @@
 - 🖼️ Real site favicons, live tab titles, per-tab loading spinner, and an omnibox that follows in-page navigation without polling.
 - 🛠️ Devtools (Eruda) is served locally instead of from a CDN.
 
-- 🕹️ **Six built-in games** that need no assets or network — 2048, Snake, Brick Breaker, Minefield (minesweeper), Blocks, and Memory Match — bundled under `public/arcade/` and listed first in the arcade (`shadow://books`). They run self-contained, so they work even when the games-asset submodule isn't checked out.
 - 🚨 **Panic key** (Settings → General): pick a key that instantly sends the whole window to a safe site. It works from inside proxied pages too and is ignored while you're typing.
 
 - 🗂️ **Workspaces**: save the open tabs as a named set and bring it back later (menu → Workspaces, or the palette).
@@ -26,13 +25,18 @@
 - 🎚️ **Per-site settings** (the tune button in the address bar): zoom, JavaScript on/off, dark mode and user agent, remembered per domain.
 - 🎨 **Theme customizer** (accent color, wallpaper, custom CSS) and **dark mode for every site**.
 - ☁️ **Cloud sync** of settings, bookmarks, shortcuts, workspaces and open tabs, end-to-end encrypted with a sync code (see below).
-- ⚡ Scramjet now **boots lazily** on the first proxied page, the address bar **prewarms** connections, and the service worker **precaches** the shell and the built-in games.
-- 📲 **Installable PWA** with an **offline mode**: the built-in games keep working with no connection.
+- 🧩 **Tab groups**: right-click a tab → *Add to new group*. Groups have a name and a colour, collapse when you click their chip, and are saved with the session. Drop a tab between two of a group's tabs (or on its chip) to add it.
+- ↩️ **Per-tab Back/Forward**: every tab keeps its own history, so Back never changes a different tab. Right-click Back or Forward for the list of pages.
+- 🔊 **Tab sound indicator and mute**: a speaker appears on tabs that are playing audio; click it (or `Alt+M`) to mute the tab. Works on websites; games from the built-in library are best effort.
+- 🕘 **Recently closed tabs** under menu → History.
+- ⚡ Scramjet now **boots lazily** on the first proxied page, the address bar **prewarms** connections, and the service worker **precaches** the shell.
+- 📲 **Installable PWA**: the shell and Shadow's own pages still open with no connection.
 
 ### Keyboard shortcuts
 | Keys | Action |
 |---|---|
 | `Alt+Shift+N` | New private tab |
+| `Alt+M` | Mute / unmute tab |
 | `Alt+S` | Split view on / off |
 | `Alt+V` / `Alt+B` | Vertical tabs / bookmarks bar |
 | `Alt+J` | Downloads |

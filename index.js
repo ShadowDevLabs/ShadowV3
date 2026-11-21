@@ -1,7 +1,8 @@
 import express from "express";
 import basicAuth from "express-basic-auth";
 import { server as wisp } from "@mercuryworkshop/wisp-js/server";
-import http from "http";
+import https from "https";
+import compression from "compression";
 import cookieParser from "cookie-parser";
 import * as cheerio from "cheerio";
 import { doubleCsrf } from "csrf-csrf";
@@ -39,6 +40,40 @@ if (!isBuilt()) {
 }
 const app = express();
 const server = createServer(app);
+app.disable("x-powered-by");
+// gzip/brotli for text responses (scripts, styles, pages, JSON, wasm): the shell's
+// JavaScript and the Scramjet runtime go out at roughly a quarter of their size.
+app.use(compression());
+
+/**
+ * Small in-memory cache with a time limit and a size cap, for upstream lookups
+ * that many users ask for at once (suggestions, extension metadata, …).
+ */
+function ttlCache(ttl, max) {
+  const map = new Map();
+  return {
+    get(key) {
+      const hit = map.get(key);
+      if (!hit) return undefined;
+      if (Date.now() - hit.at > ttl) {
+        map.delete(key);
+        return undefined;
+      }
+      return hit.value;
+    },
+    set(key, value) {
+      map.delete(key);
+      map.set(key, { at: Date.now(), value });
+      // Map keeps insertion order, so the first key is the oldest entry.
+      while (map.size > max) map.delete(map.keys().next().value);
+    },
+  };
+}
+
+/** fetch() that gives up instead of holding a request open on a slow upstream. */
+function fetchWithTimeout(url, options = {}, ms = 5000) {
+  return fetch(url, { ...options, signal: AbortSignal.timeout(ms) });
+}
 if (Object.keys(users).length > 0)
   app.use(basicAuth({ users, challenge: true }));
 app.use((req, res, next) => {
@@ -69,9 +104,29 @@ app.get("/sw.js", (req, res) => {
 });
 app.use("/privacy", express.static(publicPath + "/privacy.html"));
 
-app.use(express.static(publicPath, { maxAge: 604800000 })); //1 week
+// Shadow's own files. Images and fonts rarely change, so they're cached for a
+// week. Pages, scripts, styles and data are revalidated instead (a cheap 304
+// when nothing changed): the service worker already serves them instantly from
+// its own cache and refreshes in the background, and a long max-age here would
+// make that refresh read the browser's stale copy, hiding a deploy for days.
+app.use(
+  express.static(publicPath, {
+    maxAge: 604800000,
+    setHeaders(res, filePath) {
+      if (/\.(html?|js|mjs|css|json|webmanifest)$/i.test(filePath)) {
+        res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+      }
+    },
+  }),
+);
+// Game assets, for deployments that don't have the games submodule checked out
+// (when it is, express.static above has already answered). Fetched over https:
+// the plain-http address only answers with a redirect to https, which sent every
+// visitor's browser to phantom.lol directly instead of through this mirror.
+const gamesAgent = new https.Agent({ keepAlive: true, maxSockets: 64 });
 app.use("/books/files/", (req, res) => {
-  const baseUrl = new URL("http://phantom.lol/books/files/");
+  if (req.method !== "GET" && req.method !== "HEAD") return res.status(405).end();
+  const baseUrl = new URL("https://phantom.lol/books/files/");
 
   const mountPath = "/books/files/";
   const originalUrl = req.originalUrl || req.url || "";
@@ -92,15 +147,31 @@ app.use("/books/files/", (req, res) => {
 
   const sourceUrl = baseUrl.toString();
 
-  http
-    .get(sourceUrl, (sourceResponse) => {
-      res.writeHead(sourceResponse.statusCode, sourceResponse.headers);
+  // Pass along what lets the upstream answer cheaply (ranges, 304s).
+  const headers = {};
+  for (const name of ["range", "if-none-match", "if-modified-since", "accept"]) {
+    if (req.headers[name]) headers[name] = req.headers[name];
+  }
+  const upstream = https
+    .get(sourceUrl, { headers, timeout: 20000, agent: gamesAgent, method: req.method }, (sourceResponse) => {
+      const outHeaders = { ...sourceResponse.headers };
+      // Game assets never change in place: let browsers (and any CDN in front)
+      // keep them instead of pulling every file through this server again.
+      if (sourceResponse.statusCode === 200 && !outHeaders["cache-control"]) {
+        outHeaders["cache-control"] = "public, max-age=86400";
+      }
+      res.writeHead(sourceResponse.statusCode, outHeaders);
       sourceResponse.pipe(res);
+      sourceResponse.on("error", () => res.destroy());
     })
+    .on("timeout", () => upstream.destroy(new Error("upstream timed out")))
     .on("error", (err) => {
-      res.statusCode = 500;
+      if (res.headersSent) return res.destroy();
+      res.statusCode = 502;
       res.end(`Error fetching file: ${err.message}`);
     });
+  // The visitor left: stop downloading on their behalf.
+  res.on("close", () => upstream.destroy());
 });
 
 app.get("/v1/api/version", (req, res) => {
@@ -114,42 +185,63 @@ app.get("/v1/api/version", (req, res) => {
 // Encrypted settings/bookmarks/tabs sync between a user's devices (src/server/sync.js).
 app.use("/v1/api/sync", syncRouter());
 
+// Asked for by every page load; the file behind it is read at most once a minute.
+let brokenSitesCache = null;
 app.get("/v1/api/broken-sites", async (req, res) => {
-  res.status(200).send(await brokenSites());
+  if (!brokenSitesCache || Date.now() - brokenSitesCache.at > 60000) {
+    try {
+      brokenSitesCache = { at: Date.now(), value: await brokenSites() };
+    } catch (error) {
+      console.error("[broken-sites]", error?.message ?? error);
+      brokenSitesCache = { at: Date.now(), value: brokenSitesCache?.value ?? {} };
+    }
+  }
+  res.set("Cache-Control", "public, max-age=300");
+  res.status(200).send(brokenSitesCache.value);
 });
 
+// Address-bar suggestions: one request per keystroke per user, so answers are
+// cached here (the same prefixes are typed over and over) and in the browser.
+const suggestionCache = ttlCache(10 * 60 * 1000, 5000);
+const SUGGEST_SOURCES = {
+  duckduckgo: {
+    url: (q) => `https://duckduckgo.com/ac/?q=${q}&type=list`,
+    pick: (body) => (Array.isArray(body?.[1]) ? body[1] : Array.isArray(body) ? body.map((r) => r?.phrase) : []),
+  },
+  google: {
+    url: (q) => `https://suggestqueries.google.com/complete/search?client=firefox&q=${q}`,
+    pick: (body) => body?.[1] ?? [],
+  },
+  yandex: {
+    url: (q) => `https://suggest.yandex.com/suggest?part=${q}`,
+    pick: (body) => body?.[1] ?? [],
+  },
+};
 app.get("/v1/api/search-suggestions", async (req, res) => {
-  let response;
-  let results = [];
-  const query = encodeURIComponent(String(req.query.query ?? ""));
-  switch (req.headers.engine ?? "google") {
-    case "duckduckgo":
-      response = await fetch(
-        `http://api.duckduckgo.com/ac?q=${query}&format=json`,
-      ).then((i) => i.json());
-      results = response.map((result) => result.phrase);
-      break;
+  const engine = String(req.headers.engine ?? "google");
+  const source = SUGGEST_SOURCES[engine];
+  if (!source) return res.status(400).send("How?");
+  const text = String(req.query.query ?? "").trim().slice(0, 200);
+  res.set("Vary", "engine");
+  if (!text) return res.json([]);
 
-    case "google":
-      response = await fetch(
-        `http://suggestqueries.google.com/complete/search?client=firefox&q=${query}`,
-      ).then((i) => i.json());
-      results = response[1];
-      break;
-
-    case "yandex":
-      response = await fetch(
-        `https://suggest.yandex.com/suggest?part=${query}`,
-      ).then((i) => i.json());
-      results = response[1].map((suggestion) => suggestion);
-      break;
-
-    default:
-      res.status(400).send("How?");
-      return;
+  const key = `${engine}|${text.toLowerCase()}`;
+  let results = suggestionCache.get(key);
+  if (!results) {
+    try {
+      const body = await fetchWithTimeout(source.url(encodeURIComponent(text)), {}, 3000).then((r) => r.json());
+      results = source
+        .pick(body)
+        .filter((entry) => typeof entry === "string")
+        .slice(0, 10);
+      suggestionCache.set(key, results);
+    } catch {
+      // Suggestions are a nicety: a slow or failing upstream means none, not a 500.
+      return res.json([]);
+    }
   }
-
-  res.send(results);
+  res.set("Cache-Control", "private, max-age=300");
+  res.json(results);
 });
 
 // Downloads an extension package from the Chrome Web Store so the client can
@@ -161,13 +253,20 @@ app.get("/v1/api/crx/:id", async (req, res) => {
     return res.status(400).json({ error: "Not a Chrome Web Store extension ID" });
   }
   try {
-    const upstream = await fetch(
+    const upstream = await fetchWithTimeout(
       `https://clients2.google.com/service/update2/crx?response=redirect&prodversion=138.0&acceptformat=crx2,crx3&x=id%3D${id}%26uc`,
+      {},
+      30000,
     );
     if (!upstream.ok) {
       return res
         .status(upstream.status === 204 ? 404 : 502)
         .json({ error: "The Chrome Web Store has no package for that ID" });
+    }
+    // Refuse oversized packages before buffering them.
+    if (Number(upstream.headers.get("content-length")) > CRX_MAX_BYTES) {
+      await upstream.body?.cancel().catch(() => {});
+      return res.status(413).json({ error: "Extension package is too large" });
     }
     const body = Buffer.from(await upstream.arrayBuffer());
     if (body.length === 0) {
@@ -191,16 +290,16 @@ app.get("/v1/api/crx/:id", async (req, res) => {
 // its public detail page so the storefront can sync with the real store instead
 // of relying on a hand-written catalog. Cached in memory so 30k users don't turn
 // into 30k scrapes.
-const extMetaCache = new Map(); // id -> { at, data }
 const EXT_META_TTL = 6 * 60 * 60 * 1000; // 6h
+const extMetaCache = ttlCache(EXT_META_TTL, 5000); // id -> data
 app.get("/v1/api/ext-meta/:id", async (req, res) => {
   const id = req.params.id;
   if (!/^[a-p]{32}$/.test(id)) return res.status(400).json({ error: "Bad extension ID" });
 
   const hit = extMetaCache.get(id);
-  if (hit && Date.now() - hit.at < EXT_META_TTL) {
+  if (hit) {
     res.set("Cache-Control", "public, max-age=21600");
-    return res.json(hit.data);
+    return res.json(hit);
   }
   try {
     const controller = new AbortController();
@@ -227,7 +326,7 @@ app.get("/v1/api/ext-meta/:id", async (req, res) => {
     if (data.name === "Chrome Web Store" || /chromewebstore\.google\.com\/?$/.test(data.url)) {
       return res.status(404).json({ error: "Not found in the Web Store" });
     }
-    extMetaCache.set(id, { at: Date.now(), data });
+    extMetaCache.set(id, data);
     res.set("Cache-Control", "public, max-age=21600");
     res.json(data);
   } catch (error) {
@@ -238,13 +337,17 @@ app.get("/v1/api/ext-meta/:id", async (req, res) => {
 
 // AI STUFF
 
-app.use(cookieParser());
-
-app.use(
+// Sessions exist only for the AI endpoints below. They used to be mounted for
+// every request that got this far with saveUninitialized on, so each stray 404
+// left a session behind in memory for half an hour.
+const sessionStore = new session.MemoryStore();
+const aiSession = [
+  cookieParser(),
   session({
+    store: sessionStore,
     secret: process.env.SESSION_SECRET || "putyoursecretkeyhere",
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -252,7 +355,10 @@ app.use(
       maxAge: 1000 * 60 * 30,
     },
   }),
-);
+];
+// The memory store only drops an expired session when that session is asked for
+// again; listing them is what sweeps out the ones nobody came back for.
+setInterval(() => sessionStore.all(() => {}), 10 * 60 * 1000).unref();
 
 const { generateToken, validateRequest } = doubleCsrf({
   getSecret: () => process.env.CSRF_SECRET || "your-secret-key",
@@ -280,12 +386,12 @@ function requireSession(req, res, next) {
 }
 
 // Route to get CSRF token
-app.get("/csrf-token", (req, res) => {
+app.get("/csrf-token", aiSession, (req, res) => {
   req.session.hasSession = true;
   res.json({ csrfToken: generateToken(req, res) });
 });
 
-app.post("/ask", express.json({ limit: "12mb" }), requireSession, csrfProtection, async (req, res) => {
+app.post("/ask", aiSession, express.json({ limit: "12mb" }), requireSession, csrfProtection, async (req, res) => {
   const { messages, model } = req.body;
 
   if (!Array.isArray(messages)) {
@@ -298,7 +404,7 @@ app.post("/ask", express.json({ limit: "12mb" }), requireSession, csrfProtection
     typeof model === "string" && model.trim() ? model.trim() : "shuttleai/auto";
 
   try {
-    const response = await fetch(
+    const response = await fetchWithTimeout(
       "https://api.shuttleai.com/v1/chat/completions",
       {
         method: "POST",
@@ -311,6 +417,7 @@ app.post("/ask", express.json({ limit: "12mb" }), requireSession, csrfProtection
           messages,
         }),
       },
+      120000,
     );
 
     const data = await response.json();
@@ -336,13 +443,23 @@ app.post("/ask", express.json({ limit: "12mb" }), requireSession, csrfProtection
   }
 });
 
+// The list changes about weekly; scrape it once a day, not once per visitor.
+let userAgentsCache = null;
 app.get("/v1/api/user-agents", async (req, res) => {
-  let text = await fetch("https://useragents.me/");
-  text = await text.text();
-  const $ = cheerio.load(text);
-  res.send(
-    $("#most-common-desktop-useragents-json-csv > div:eq(0) > textarea").val(),
-  );
+  if (!userAgentsCache || Date.now() - userAgentsCache.at > 24 * 60 * 60 * 1000) {
+    try {
+      const page = await fetchWithTimeout("https://useragents.me/", {}, 8000).then((r) => r.text());
+      const $ = cheerio.load(page);
+      const value = $("#most-common-desktop-useragents-json-csv > div:eq(0) > textarea").val();
+      if (!value) throw new Error("list not found in the page");
+      userAgentsCache = { at: Date.now(), value };
+    } catch (error) {
+      console.error("[user-agents]", error?.message ?? error);
+      if (!userAgentsCache) return res.status(502).send("[]");
+    }
+  }
+  res.set("Cache-Control", "public, max-age=3600");
+  res.send(userAgentsCache.value);
 });
 
 app.use((req, res) => {

@@ -23,9 +23,10 @@ function resolveInput(input, template) {
   if (/^chrome-extension:\/\//i.test(input)) return input;
   // A blob: this page created (a finished download opened in a tab).
   if (/^blob:/i.test(input)) return input;
-  // Site-absolute local path (e.g. /pages/embed/, /arcade/snake/) — a Shadow page,
+  // Site-absolute local path (e.g. /pages/embed/) — a Shadow page,
   // not something to proxy or search for. "//" is protocol-relative, so exclude it.
-  if (/^\/[^/]/.test(input)) return input;
+  // (Browsers read "/\\" as "//" too.)
+  if (/^\/[^/\\]/.test(input)) return input;
 
   if (/^[a-z][a-z0-9+.-]*:\/\//i.test(input)) {
     try {

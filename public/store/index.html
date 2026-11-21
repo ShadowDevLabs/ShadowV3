@@ -20,7 +20,10 @@
       </div>
     </div>
     <div class="search-wrap">
-      <input id="search" type="text" placeholder="Search extensions…" autocomplete="off" spellcheck="false" />
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+      </svg>
+      <input id="search" type="search" placeholder="Search extensions…" autocomplete="off" spellcheck="false" />
     </div>
     <button id="add-url" class="ghost">Add by URL / ID</button>
     <a href="/extensions/" class="manage-link">Manage installed</a>
@@ -41,12 +44,12 @@
   <nav id="categories" class="categories"></nav>
 
   <section id="featured-section" class="featured" hidden>
-    <h2>Featured</h2>
+    <h2 class="section-head">Featured</h2>
     <div id="featured" class="featured-row"></div>
   </section>
 
   <main>
-    <h2 id="grid-title">All extensions</h2>
+    <h2 class="section-head"><span id="grid-title">All extensions</span><span id="count" class="count"></span></h2>
     <div id="grid" class="grid"></div>
     <p id="empty" class="muted" hidden>No extensions match your search.</p>
   </main>
@@ -54,7 +57,7 @@
   <!-- Detail modal -->
   <div id="modal" class="modal" hidden>
     <div class="modal-card">
-      <button id="modal-close" class="modal-close" title="Close">✕</button>
+      <button id="modal-close" class="modal-close" title="Close" aria-label="Close">✕</button>
       <div class="modal-head">
         <div class="ext-ico" id="modal-ico"></div>
         <div>
@@ -77,12 +80,14 @@
 
   <template id="card-tpl">
     <article class="card" tabindex="0">
-      <div class="ext-ico card-ico"></div>
-      <div class="card-body">
-        <h3 class="card-name"></h3>
-        <p class="card-author muted"></p>
-        <p class="card-desc"></p>
+      <div class="card-head">
+        <div class="ext-ico card-ico"></div>
+        <div class="card-titles">
+          <h3 class="card-name"></h3>
+          <p class="card-author muted"></p>
+        </div>
       </div>
+      <p class="card-desc"></p>
       <div class="card-foot">
         <span class="card-cat"></span>
         <button class="card-btn primary">Add</button>

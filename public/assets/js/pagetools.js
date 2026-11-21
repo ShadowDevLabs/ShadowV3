@@ -755,15 +755,16 @@ export function savePage(tabs, tab = activeTab(tabs)) {
   tabs.downloads.start({ url, win: tab.iframe.contentWindow, name });
 }
 
-/** The floating "Page tools" menu (toolbar menu → Page tools). */
-export function showToolsMenu(tabs, x, y) {
+/** Main menu → Page tools. */
+export function toolsMenuItems(tabs) {
   const tab = activeTab(tabs);
   const web = !!tab && /^https?:/i.test(tabs.currentUrl(tab) ?? "");
   const video = web ? findVideo(tabs) : null;
-  showMenu(x, y, [
-    { label: "Reader mode", onclick: () => toggleReader(tabs) },
+  return [
+    { label: "Find in page", shortcut: "Alt+F", onclick: () => tabs.openFind() },
+    { label: "Reader mode", shortcut: "Alt+Shift+R", checked: readerIsOpen(), onclick: () => toggleReader(tabs) },
     { label: "Translate page…", disabled: !web, onclick: () => translatePage(tabs, { ask: true }) },
-    { label: "Take screenshot", onclick: () => screenshot(tabs) },
+    { label: "Take screenshot", shortcut: "Alt+Shift+S", onclick: () => screenshot(tabs) },
     { label: "Save page as…", disabled: !web, onclick: () => savePage(tabs) },
     { separator: true },
     { label: "Picture in picture", disabled: !video, onclick: () => togglePictureInPicture(tabs) },
@@ -771,6 +772,5 @@ export function showToolsMenu(tabs, x, y) {
     { separator: true },
     { label: "Dark mode for every site", checked: !!tabs.forceDark, onclick: () => tabs.setForceDark(!tabs.forceDark) },
     { label: "Site settings…", disabled: !web, onclick: () => tabs.showSitePanel() },
-    { label: "Find in page", onclick: () => tabs.openFind() },
-  ]);
+  ];
 }

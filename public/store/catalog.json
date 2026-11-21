@@ -1,5 +1,5 @@
 {
-  "_note": "Maintainer-curated catalog. 'id' is a Chrome Web Store extension ID; the Add button fetches that package through /v1/api/crx/:id. These IDs were entered from memory and should be verified against the live Web Store before relying on them (a wrong ID just makes that one Add button error). For a self-hosted package instead, drop the file in public/store/packages/ and use { \"name\": \"...\", \"path\": \"/store/packages/file.zip\", ... }. Add an \"icon\" URL per entry for a real logo; otherwise a category glyph is shown.",
+  "_note": "Maintainer-curated catalog. 'id' is a Chrome Web Store extension ID (all checked against the live store on 2026-11-17); the Add button fetches that package through /v1/api/crx/:id. Name, icon and description are refreshed from the store at runtime (/v1/api/ext-meta/:id); the values here are what shows first. For a self-hosted package instead, drop the file in public/store/packages/ and use { \"name\": \"...\", \"path\": \"/store/packages/file.zip\", ... }.",
   "extensions": [
     {
       "id": "ddkjiahejlhfcafbddmgiahcphecmpfh",
@@ -7,29 +7,33 @@
       "author": "Raymond Hill",
       "category": "Ad Blockers",
       "description": "A permission-light, MV3 content blocker that works with declarative rules.",
-      "featured": true
+      "featured": true,
+      "icon": "https://lh3.googleusercontent.com/lsanoOfx5N_t-7gh5Qg9FGIirVEjdCqalZXyLZYRd5d7Fydm83FQhu4Oq0JmlRyMtyF_LfwuQQZyKRTHs6emnFirsA=s128-rj-sc0x00ffffff"
     },
     {
       "id": "bgnkhhnnamicmpeenaelnjfhikgbkllg",
       "name": "AdGuard AdBlocker",
       "author": "AdGuard",
       "category": "Ad Blockers",
-      "description": "Blocks ads and trackers across sites, with cosmetic filtering and anti-adblock handling."
+      "description": "Blocks ads and trackers across sites, with cosmetic filtering and anti-adblock handling.",
+      "icon": "https://lh3.googleusercontent.com/mOms1zOrTTa6cSy0IlGTsl5EUUff7E9C6O3h-g1ScmaBK6H3WdKXnXQI8oIRTAuf5Uh7Zc3IEFlgfusDIo08khi9=s128-rj-sc0x00ffffff"
     },
     {
       "id": "mnjggcdmjocbbbhaepdhchncahnbgone",
       "name": "SponsorBlock for YouTube",
       "author": "Ajay Ramachandran",
-      "category": "Productivity",
+      "category": "YouTube",
       "featured": true,
-      "description": "Skips sponsored segments, intros, and self-promos in YouTube videos using community data."
+      "description": "Skips sponsored segments, intros, and self-promos in YouTube videos using community data.",
+      "icon": "https://lh3.googleusercontent.com/oSoXDpjLX_iytl11_ROa1thmFI0xPk9pL8ttEtnFkBI8Cie0Ge8KxVFaokgBRscvUR1cXH4bVeG_C_Fl6kBw3A3_=s128-rj-sc0x00ffffff"
     },
     {
       "id": "gebbhagfogifgggkldgodflihgfeippi",
       "name": "Return YouTube Dislike",
       "author": "Dmitrii Selivanov",
-      "category": "Productivity",
-      "description": "Brings back the dislike count on YouTube videos using an archived + estimated dataset."
+      "category": "YouTube",
+      "description": "Brings back the dislike count on YouTube videos using an archived + estimated dataset.",
+      "icon": "https://lh3.googleusercontent.com/bVYgRXHiKIDU1EqkGv58alRhXu-SjSqi-I_yZHak8ZvZo_kYxMePoqa3pyIX931tzFkQ3b-EbxT7gSk8M1eOSdpDCQ8=s128-rj-sc0x00ffffff"
     },
     {
       "id": "eimadpbcbfnmbkopoojfekhnkhdbieeh",
@@ -37,63 +41,185 @@
       "author": "Dark Reader Ltd",
       "category": "Appearance",
       "featured": true,
-      "description": "Dark mode for every website, with brightness, contrast, and sepia controls."
+      "description": "Dark mode for every website, with brightness, contrast, and sepia controls.",
+      "icon": "https://lh3.googleusercontent.com/T66wTLk-gpBBGsMm0SDJJ3VaI8YM0Utr8NaGCSANmXOfb84K-9GmyXORLKoslfxtasKtQ4spDCdq_zlp_t3QQ6SI0A=s128-rj-sc0x00ffffff"
     },
     {
       "id": "clngdbkpkpeebahjckkjfobafhncgmne",
       "name": "Stylus",
       "author": "Stylus Team",
       "category": "Appearance",
-      "description": "Install and write custom themes (userstyles) to restyle any site."
+      "description": "Install and write custom themes (userstyles) to restyle any site.",
+      "icon": "https://lh3.googleusercontent.com/2K8pc_5-2DkPam9b3oAWoITZ7IuIz68A5a8Ssg2_MNNHTPWPOPSBVTFdTmeVu9hi8GJxpKbvTekgwpeyGV6vXyBKH80=s128-rj-sc0x00ffffff"
     },
     {
       "id": "dhdgffkkebhmkfjojejmpbldmpobfkfo",
       "name": "Tampermonkey",
       "author": "Jan Biniok",
       "category": "Userscripts",
-      "description": "The popular userscript manager — run custom JavaScript on the pages you choose."
+      "description": "The popular userscript manager — run custom JavaScript on the pages you choose.",
+      "icon": "https://lh3.googleusercontent.com/zoY8FwoOqPlBgFxcmFdNSK2Q4CcLmv-gw7vTjF2KMR9cEabwBsGNrHBTEMitn0Ba6OmCVJ0NcLnFGu3N97BP8Phu0g=s128-rj-sc0x00ffffff"
     },
     {
       "id": "jinjaccalgkegednnccohejagnlnfdag",
       "name": "Violentmonkey",
       "author": "violentmonkey",
       "category": "Userscripts",
-      "description": "Open-source userscript manager with a clean editor and sync."
+      "description": "Open-source userscript manager with a clean editor and sync.",
+      "icon": "https://lh3.googleusercontent.com/wAjIhsb6UfVOYybA5DQBgKZ5dFx45Glf44OywmAkgcGKwaChRPpABYZq4cjlfNdt8kvxUHhIDbjgk8NTLpHl0i-EKA=s128-rj-sc0x00ffffff"
     },
     {
       "id": "pkehgijcmpdhfbdbbnkijodmdjhbjlgp",
       "name": "Privacy Badger",
       "author": "EFF Technologists",
       "category": "Privacy",
-      "description": "Automatically learns to block invisible trackers as you browse."
+      "description": "Automatically learns to block invisible trackers as you browse.",
+      "icon": "https://lh3.googleusercontent.com/LzhiFbFNvTwkOM7XX4K3wkwSlTkMj6NLyixs1yLPaYGIzXaiFGsfi6qcwzKzQcLR-6jtIVnFPRlQWUZC-OlnHpROcg=s128-rj-sc0x00ffffff"
     },
     {
       "id": "nngceckbapebfimnlniiiahkandclblb",
       "name": "Bitwarden",
       "author": "Bitwarden Inc.",
       "category": "Passwords",
-      "description": "Open-source password manager that stores and autofills your logins."
+      "description": "Open-source password manager that stores and autofills your logins.",
+      "icon": "https://lh3.googleusercontent.com/J_l8abQyJgx7POjRoDfGaFYWFnYQNpRSy4kH5IlbwSdM-l_gZf2rJlk2NLSQTY8g-U2vrclpb0EZApHyOe6sjzbKcUc=s128-rj-sc0x00ffffff"
     },
     {
       "id": "chklaanhfefbnpoihckbnefhakgolnmc",
       "name": "JSON Viewer",
       "author": "tulios",
       "category": "Developer",
-      "description": "Pretty-prints and collapses JSON responses in the browser."
+      "description": "Pretty-prints and collapses JSON responses in the browser.",
+      "icon": "https://lh3.googleusercontent.com/4rEXe8coLpWkeFvKwS3lnNuqev5jHuz782UOPIgfubs-e_wPitMALrGUY1j6gwrlM7yTjzMkTP26DeIgGuzFZZyn0A=s128-rj-sc0x00ffffff"
     },
     {
       "id": "gppongmhjkpfnbhagpmjfkannfbllamg",
       "name": "Wappalyzer",
       "author": "Wappalyzer",
       "category": "Developer",
-      "description": "Identifies the frameworks, libraries, and tools a website is built with."
+      "description": "Identifies the frameworks, libraries, and tools a website is built with.",
+      "icon": "https://lh3.googleusercontent.com/YssvlGeiyyXJhYYV8Fh4aeW_kuQ7zC-ap7kygvyLT59TZwnFWYy-9aHCfXpyKgBEwJhFajvSUFqpjiG_42yfQXIw2Q=s128-rj-sc0x00ffffff"
     },
     {
       "id": "fmkadmapgofadopljbjfkapdkoienihi",
       "name": "React Developer Tools",
       "author": "Meta",
       "category": "Developer",
-      "description": "Inspect the React component tree, props, and state in page devtools."
+      "description": "Inspect the React component tree, props, and state in page devtools.",
+      "icon": "https://lh3.googleusercontent.com/TNijZW_Gp9MZ3eqXkve0YWDEiHV-a2IpSpD6IJzrV3Y76GJcLEyzX2regTLemXzBHbHVqkKuxnnWDT34Cp4sNh-Y=s128-rj-sc0x00ffffff"
+    },
+    {
+      "id": "kbfnbcaeplbcioakkpcpgfkobkghlhen",
+      "name": "Grammarly",
+      "author": "Grammarly",
+      "category": "Writing",
+      "description": "Checks grammar, spelling and tone as you type in almost any text box.",
+      "featured": true,
+      "icon": "https://lh3.googleusercontent.com/Ywdz5mn9q2Mx76DU45LSH-Pv5OGpqk8QAOY3lT1AWScMTZYQtAhqhVjtY5I2JZK530QIycLZooe2a0k3quGqYUaZ=s128-rj-sc0x00ffffff"
+    },
+    {
+      "id": "aapbdbdomjkkjkaonfhkkikfgjllcleb",
+      "name": "Google Translate",
+      "author": "Google",
+      "category": "Writing",
+      "description": "Select text on any page to see its translation in a pop-up.",
+      "icon": "https://lh3.googleusercontent.com/3ZU5aHnsnQUl9ySPrGBqe5LXz_z9DK05DEfk10tpKHv5cvG19elbOr0BdW_k8GjLMFDexT2QHlDwAmW62iLVdek--Q=s128-rj-sc0x00ffffff"
+    },
+    {
+      "id": "mgijmajocgfcbeboacabfgobmjgjcoja",
+      "name": "Google Dictionary",
+      "author": "Google",
+      "category": "Writing",
+      "description": "Double-click any word to see its definition without leaving the page.",
+      "icon": "https://lh3.googleusercontent.com/R2e7I-0MQgxeJ-dkkGfDxL2PWPcR3DTGhttSloJO70ax2N0TEtcT-AlmLcMAJZyHOhhqRTTpuJjO9qVs24DUDIMYVsk=s128-rj-sc0x00ffffff"
+    },
+    {
+      "id": "hdhinadidafjejdhmfkjgnolgimiaplp",
+      "name": "Read Aloud",
+      "author": "LSD Software",
+      "category": "Writing",
+      "description": "Reads the current page or your selection out loud with text-to-speech voices.",
+      "icon": "https://lh3.googleusercontent.com/_l4UaD5Gwub2AwFZdomRpfMD2737y0Ow6k2sfVuWdm0fQ0iGSdEfhd9X77taeQ-0VM6Wi3HnpecLWUAI9uHq11TSktw=s128-rj-sc0x00ffffff"
+    },
+    {
+      "id": "ponfpcnoihfmfllpaingbgckeeldkhle",
+      "name": "Enhancer for YouTube",
+      "author": "Maxime RF",
+      "category": "YouTube",
+      "description": "Volume boost, playback speed, cinema mode, ad skipping and dozens of YouTube player tweaks.",
+      "icon": "https://lh3.googleusercontent.com/6PBcKpsoS15e2SUqMi6_KGBHsnvUdaRrRYXkHM3zkn5Zzj8TAEJp1_RtykaCfn1DCmyH9PJOKHrMbmtAOnQqtAU8aLs=s128-rj-sc0x00ffffff"
+    },
+    {
+      "id": "khncfooichmfjbepaaaebmommgaepoid",
+      "name": "Unhook",
+      "author": "Unhook",
+      "category": "YouTube",
+      "description": "Hides YouTube recommendations, Shorts, comments and the home feed so you only see what you came for.",
+      "icon": "https://lh3.googleusercontent.com/GI6o93ckEhswmuKfPJi8fgSLE74kCGE37KvyaSg4axeBurp2jy6Ec6Pn6DA5eWDeUvrmpuke0gs8EguFDztIx6tp2Uc=s128-rj-sc0x00ffffff"
+    },
+    {
+      "id": "enamippconapkdmgfgjchkhakpfinmaj",
+      "name": "DeArrow",
+      "author": "Ajay Ramachandran",
+      "category": "YouTube",
+      "description": "Replaces clickbait YouTube titles and thumbnails with accurate, crowdsourced ones.",
+      "icon": "https://lh3.googleusercontent.com/JvjyVLTtzD51eHi1GYSnzqpt0QJRIAvOthnF_vQG7hi50Qyp7HRj20A1ShJF5DR215VcaAnULr6QjmwQMkD_-OZ8aF4=s128-rj-sc0x00ffffff"
+    },
+    {
+      "id": "jghecgabfgfdldnmbfkhmffcabddioke",
+      "name": "Volume Master",
+      "author": "Volume Master",
+      "category": "Media",
+      "description": "Boosts the volume of a tab up to 600% when a video is too quiet.",
+      "icon": "https://lh3.googleusercontent.com/KVGRNfHgQNl3RtCAnq4bTHM23198SfyCES7LnrxnSp21B5xQ2WKRLpIMxaPSYYH0Xp99auk5OQQ6QHjpOL3OvqUi=s128-rj-sc0x00ffffff"
+    },
+    {
+      "id": "nffaoalbilbmmfgbnbgppjihopabppdk",
+      "name": "Video Speed Controller",
+      "author": "igrigorik",
+      "category": "Media",
+      "description": "Speed up, slow down and skip through any HTML5 video with keyboard shortcuts.",
+      "icon": "https://lh3.googleusercontent.com/5yY1QQ__b0c2ZLmmi6mcdjX-9V3LAgXhgUaZtsICFTjeQV0S6xkVncmV99oEtU-H8WN8dZpWh_cycXSXoyffADsoYg=s128-rj-sc0x00ffffff"
+    },
+    {
+      "id": "hkgfoiooedgoejojocmhlaklaeopbecg",
+      "name": "Picture-in-Picture Extension",
+      "author": "Google",
+      "category": "Media",
+      "description": "Pops any video out into a floating window that stays on top.",
+      "icon": "https://lh3.googleusercontent.com/cvfpnTKw3B67DtM1ZpJG2PNAIjP6hVMOyYy403X4FMkOuStgG1y4cjCn21vmTnnsip1dTZSVsWBA9IxutGuA3dVDWhg=s128-rj-sc0x00ffffff"
+    },
+    {
+      "id": "hoombieeljmmljlkjmnheibnpciblicm",
+      "name": "Language Reactor",
+      "author": "Language Reactor",
+      "category": "Media",
+      "description": "Dual subtitles and instant word lookups on YouTube and Netflix, for learning languages.",
+      "icon": "https://lh3.googleusercontent.com/aPSUr3UYCdrkrGEIJu_5RubORwHcRiQEaiRKAPx68BeJ7963d31hIzZamn8HninChHNh-CIFWuRFj2cocG-2ojxl7oE=s128-rj-sc0x00ffffff"
+    },
+    {
+      "id": "fihnjjcciajhdojfnbdddfaoknhalnja",
+      "name": "I don't care about cookies",
+      "author": "Avast",
+      "category": "Privacy",
+      "description": "Gets rid of cookie consent banners on almost every website.",
+      "icon": "https://lh3.googleusercontent.com/sCLTYpGX0VcVootQ_XaFQ9saRIhVWu79ngSzY5eTZ5evRpJ_Q27OdvxA4RrOoZXP7Q4enFh-u6VhxObcJLfARw1g=s128-rj-sc0x00ffffff"
+    },
+    {
+      "id": "mlomiejdfkolichcflejclcbmpeaniij",
+      "name": "Ghostery",
+      "author": "Ghostery",
+      "category": "Ad Blockers",
+      "description": "Blocks ads, trackers and cookie pop-ups, and shows who is tracking you on each site.",
+      "icon": "https://lh3.googleusercontent.com/cq9rmt9Qgky6HvDQxvS1BUr1j5pdnpJOVYn0fMOjRxUAJMXBcRi8D-hajtyK1Ztc5ePi_mQUnsvMInpJUG5rpkWM=s128-rj-sc0x00ffffff"
+    },
+    {
+      "id": "bhlhnicpbhignbdhedgjhgdocnmhomnp",
+      "name": "ColorZilla",
+      "author": "ColorZilla",
+      "category": "Developer",
+      "description": "Eyedropper and colour picker for grabbing any colour on a page, plus a gradient generator.",
+      "icon": "https://lh3.googleusercontent.com/dqKrPk33LRO7ZFvKvSJv0q-rofymwBRJDiA3fuAZEXydo_tTS-959G0ZZKjLet9xVoVEWmD0FTYTZMEFx1mzbPzuOQ=s128-rj-sc0x00ffffff"
     }
   ]
 }

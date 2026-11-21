@@ -1,42 +1,6 @@
-const menuButton = document.getElementById("menu-button");
-const dropdown = document.getElementById("menu-dropdown");
-let isDropdownVisible = false;
-let menuButtons = [];
-try { menuButtons = dropdown.querySelectorAll("button[data-add-tab]"); } catch (_) { };
-const iframesContainer = document.getElementById("iframes-container");
+// Window actions used by the toolbar menu (built in tabs.js): fullscreen and the
+// about:blank cloaks.
 
-menuButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    dropdown.style.display = "none";
-    isDropdownVisible = false;
-  });
-});
-
-function toggleDropdown() {
-  if (isDropdownVisible) {
-    dropdown.style.display = "none";
-  } else {
-    dropdown.style.display = "block";
-  }
-  isDropdownVisible = !isDropdownVisible;
-}
-
-function closeMenu(event) {
-  if (isDropdownVisible) {
-    // contains(): a click on the dots lands on the <svg>/<path> inside the button,
-    // and comparing with === closed the menu the same instant it opened.
-    if (!menuButton.contains(event.target) && !dropdown.contains(event.target)) {
-      dropdown.style.display = "none";
-      isDropdownVisible = false;
-    }
-  }
-}
-
-try { menuButton.addEventListener("click", toggleDropdown); } catch (_) { }
-// Clicking anywhere else closes the menu.
-document.addEventListener("click", closeMenu);
-
-// Menu Buttons
 
 function iframefullscreen() {
   // Look the iframe up through the tab list: tabs can be reordered, iframes are not.

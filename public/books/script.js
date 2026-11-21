@@ -20,17 +20,12 @@ async function saveFavorites() {
   await settings.set(FAV_KEY, [...favorites]);
 }
 
-// Games shipped with Shadow itself (public/arcade/): playable with no connection.
-function isBundled(game) {
-  return typeof game.url === 'string' && game.url.startsWith('/arcade/');
-}
-
 function isHot(game) {
   return (game.categories || []).some(c => c.toLowerCase() === 'hot');
 }
 
-// Submodule games are relative to BASE_PATH; bundled originals and external
-// games give an absolute path (/arcade/…) or full URL, used as-is.
+// Submodule games are relative to BASE_PATH; anything else gives an absolute
+// path or a full URL, used as-is.
 function resolveAsset(u) {
   return !u ? '' : /^(https?:)?\/\//i.test(u) || u.startsWith('/') ? u : BASE_PATH + u;
 }
@@ -187,14 +182,11 @@ function renderVisible() {
 function applyFilters() {
   const q = searchQuery.toLowerCase();
 
-  // Without a connection only the bundled games can run (the service worker
-  // keeps them cached), so the rest are hidden until the network is back.
-  const offline = !navigator.onLine;
+  // Games are fetched when they're opened, so say so while there's no connection.
   const notice = document.getElementById('offlineNotice');
-  if (notice) notice.hidden = !offline;
+  if (notice) notice.hidden = navigator.onLine;
 
   let filtered = allGames.filter(g => {
-    if (offline && !isBundled(g)) return false;
     const searchOk = !q || g.label.toLowerCase().includes(q);
     if (activeFilter === 'favorites') return favorites.has(g.label) && searchOk;
     const catOk = activeFilter === 'all' ||

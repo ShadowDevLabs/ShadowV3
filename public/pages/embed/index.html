@@ -109,54 +109,30 @@ function applyGameMeta(gameLabel, iconUrl) {
 
   const { tabsApi, tab } = ctx;
 
-  if (gameLabel && tab.title !== gameLabel) {
-    tab.title = gameLabel;
-    tab.tab.querySelector('.tab-title').textContent = gameLabel;
-  }
+  // The shell keeps a fixed title/icon for a tab for as long as it stays on the
+  // page that set them (tabs.js: tab.fixedFor), and drops them when it navigates.
+  if (gameLabel) tab.title = gameLabel;
+  if (safeIconUrl) tab.icon = safeIconUrl;
+  tab.fixedFor = tab.url;
+  tabsApi.renderTab(tab);
+}
 
-  if (safeIconUrl) {
-    if (!tab.img.dataset.booksIconSrcPatched) {
-      Object.defineProperty(tab.img, 'src', {
-        get() { return this._src; },
-        set(v) {
-          if (v && v.includes('/assets/imgs/icons/pages/')) return;
-          this._src = v;
-          this.setAttribute('src', v);
-        },
-        configurable: true
-      });
-      tab.img.dataset.booksIconSrcPatched = '1';
-      tab.img.onerror = () => {};
-    }
-
-    if (tab.img.getAttribute('src') !== safeIconUrl) {
-      tab.img.src = safeIconUrl;
-    }
-    if (tab.img.style.display === 'none') {
-      tab.img.style.display = '';
-    }
-  }
-
-  if (!tabsApi.__booksEmbedGetTabInfoPatched) {
-    tabsApi.getTabInfo = function(i = this.activeTabIndex) {
-      const src = this.parseUrl(i);
-      let icon;
-      if (src.startsWith('shadow://')) {
-        icon = `/assets/imgs/icons/pages/${src.replace('shadow://', '')}.png`;
-      } else {
-        icon = `https://www.google.com/s2/favicons/imgs/icons?domain=${src}&sz=24`;
-      }
-      const title = this.tabsArr[i].title || this.tabsArr[i].iframe.contentDocument.title;
-      return { title, icon, src };
-    };
-    tabsApi.__booksEmbedGetTabInfoPatched = true;
+// Only pages can be embedded: a javascript: or data: address here would run
+// with Shadow's own origin (settings, bookmarks, the sync code).
+function safeFrameUrl(value) {
+  try {
+    const parsed = new URL(value, location.origin);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : '';
+  } catch {
+    return '';
   }
 }
+
+url = url && safeFrameUrl(url.replace(/\.html\.html$/i, '.html'));
 
 if (!url) {
   document.body.innerHTML = '<p style="color:#fff;padding:20px">No URL provided.</p>';
 } else {
-  url = url.replace(/\.html\.html$/i, '.html');
   gameFrame.src = url;
 
   const queryLabel = params.get('title') || '';

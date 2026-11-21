@@ -5,11 +5,6 @@
 
 const $ = (id) => document.getElementById(id);
 
-const CATEGORY_ICON = {
-  "Ad Blockers": "🛡️", Privacy: "🔒", Productivity: "⚡", Developer: "🧰",
-  Appearance: "🎨", Userscripts: "📜", Passwords: "🔑", Other: "🧩",
-};
-
 let catalog = [];
 let activeCategory = "All";
 let query = "";
@@ -32,9 +27,23 @@ function isInstalled(entry, idx) {
   return idx.has(entry.id) || idx.has(entry.name.toLowerCase());
 }
 
-function iconFor(entry) {
-  if (entry.icon) return `<img src="${entry.icon}" alt="" onerror="this.remove()">`;
-  return `<span>${CATEGORY_ICON[entry.category] || CATEGORY_ICON.Other}</span>`;
+/** The extension's logo, or its initial on an accent tile (like the page's own "S"). */
+function setIcon(box, entry) {
+  const letter = () => {
+    const tile = document.createElement("span");
+    tile.className = "letter";
+    tile.textContent = ((entry.name || "").match(/[\p{L}\p{N}]/u)?.[0] ?? "?").toUpperCase();
+    return tile;
+  };
+  // Built as nodes: the icon URL comes from the scraped store page.
+  if (!entry.icon) return box.replaceChildren(letter());
+  const img = document.createElement("img");
+  img.alt = "";
+  img.loading = "lazy";
+  img.decoding = "async";
+  img.onerror = () => img.replaceWith(letter());
+  img.src = entry.icon;
+  box.replaceChildren(img);
 }
 
 // --- live sync with the Chrome Web Store -----------------------------------
@@ -91,7 +100,7 @@ const enrichObserver = new IntersectionObserver((entries, obs) => {
 
 function updateCard(node, entry) {
   const idx = installedIndex();
-  node.querySelector(".card-ico").innerHTML = iconFor(entry);
+  setIcon(node.querySelector(".card-ico"), entry);
   node.querySelector(".card-name").textContent = entry.name;
   node.querySelector(".card-desc").textContent = entry.description || "";
   wireInstallButton(node.querySelector(".card-btn"), entry, idx);
@@ -138,9 +147,12 @@ function render() {
   $("featured").innerHTML = "";
   featured.forEach((e) => $("featured").appendChild(card(e, idx)));
 
-  const list = catalog.filter(matches);
+  // Featured extensions aren't listed a second time while the Featured row shows.
+  const showingFeatured = !$("featured-section").hidden;
+  const list = catalog.filter((e) => matches(e) && !(showingFeatured && e.featured));
   $("grid-title").textContent =
-    activeCategory === "All" ? (query ? "Results" : "All extensions") : activeCategory;
+    activeCategory === "All" ? (query ? "Results" : showingFeatured ? "More extensions" : "All extensions") : activeCategory;
+  $("count").textContent = `${list.length} extension${list.length === 1 ? "" : "s"}`;
   const grid = $("grid");
   grid.innerHTML = "";
   list.forEach((e) => grid.appendChild(card(e, idx)));
@@ -149,7 +161,7 @@ function render() {
 
 function card(entry, idx) {
   const node = $("card-tpl").content.firstElementChild.cloneNode(true);
-  node.querySelector(".card-ico").innerHTML = iconFor(entry);
+  setIcon(node.querySelector(".card-ico"), entry);
   node.querySelector(".card-name").textContent = entry.name;
   node.querySelector(".card-author").textContent = entry.author || "";
   node.querySelector(".card-desc").textContent = entry.description || "";
@@ -172,9 +184,12 @@ function card(entry, idx) {
 
 function wireInstallButton(btn, entry, idx) {
   const installed = isInstalled(entry, idx);
-  btn.textContent = installed ? "Remove" : "Add";
+  // Installed: a quiet "Installed" that turns into "Remove" on hover.
+  btn.textContent = installed ? "Installed" : "Add";
   btn.classList.toggle("primary", !installed);
-  btn.classList.toggle("danger", installed);
+  btn.classList.toggle("installed", installed);
+  btn.onmouseenter = () => { if (installed && !btn.disabled) btn.textContent = "Remove"; };
+  btn.onmouseleave = () => { if (installed && !btn.disabled) btn.textContent = "Installed"; };
   btn.onclick = async (e) => {
     e.stopPropagation();
     const ext = api();
@@ -182,6 +197,7 @@ function wireInstallButton(btn, entry, idx) {
     btn.disabled = true;
     try {
       if (installed) {
+        btn.textContent = "Removing…";
         const found = idx.get(entry.id) || idx.get(entry.name.toLowerCase());
         if (found) await ext.remove(found.id);
       } else {
@@ -189,8 +205,10 @@ function wireInstallButton(btn, entry, idx) {
         await installEntry(ext, entry);
       }
     } catch (err) {
+      // Shown in the details window: alert() would freeze every tab.
       console.error("[store]", err);
-      alert(err?.message || "Install failed.");
+      openModal(entry);
+      $("modal-status").textContent = err?.message || "Install failed.";
     } finally {
       btn.disabled = false;
       render();
@@ -210,7 +228,7 @@ async function installEntry(ext, entry) {
 // ---- modal ----------------------------------------------------------------
 
 function fillModal(entry) {
-  $("modal-ico").innerHTML = iconFor(entry);
+  setIcon($("modal-ico"), entry);
   $("modal-name").textContent = entry.name;
   $("modal-meta").textContent = [entry.author, entry.category].filter(Boolean).join(" · ");
   $("modal-desc").textContent = entry.longDescription || entry.description || "";
@@ -269,9 +287,13 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape") $("modal")
 $("add-url").onclick = () => {
   const box = $("url-box");
   box.hidden = !box.hidden;
+  $("add-url").classList.toggle("active", !box.hidden);
   if (!box.hidden) $("url-input").focus();
 };
-$("url-cancel").onclick = () => ($("url-box").hidden = true);
+$("url-cancel").onclick = () => {
+  $("url-box").hidden = true;
+  $("add-url").classList.remove("active");
+};
 $("url-install").onclick = installFromUrl;
 $("url-input").addEventListener("keydown", (e) => { if (e.key === "Enter") installFromUrl(); });
 
@@ -292,9 +314,13 @@ async function installFromUrl() {
 
 // ---- search + live updates ------------------------------------------------
 
+let searchTimer;
 $("search").addEventListener("input", (e) => {
-  query = e.target.value.trim().toLowerCase();
-  render();
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    query = e.target.value.trim().toLowerCase();
+    render();
+  }, 120);
 });
 
 const ext = api();

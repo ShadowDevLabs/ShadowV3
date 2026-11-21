@@ -1,7 +1,9 @@
 import { HistoryHelper } from "/assets/js/history_helper.js";
 import { SettingsManager } from "/assets/js/settings_manager.js";
 import { ExtensionUI } from "/assets/js/extension_ui.js";
-import { showMenu, hideMenu, hidePopover, toast } from "/assets/js/ui.js";
+import { showMenu, hideMenu, menuOpenFor, hidePopover, toast, svgIcon, faviconFor } from "/assets/js/ui.js";
+import { TabGroups } from "/assets/js/tabgroups.js";
+import { watchAudio, setTabMuted, forgetAudio, sameOriginFrames, ICON_SOUND, ICON_MUTED } from "/assets/js/tabaudio.js";
 import { applySitePatches } from "/assets/js/site-patches.js";
 import { openCommandPalette, openFind, closeFind, resetFind } from "/assets/js/features.js";
 import { Downloads, isInlineType, filenameFromDisposition } from "/assets/js/downloads.js";
@@ -9,7 +11,7 @@ import { SiteSettings, showSitePanel } from "/assets/js/sitesettings.js";
 import { Workspaces } from "/assets/js/workspaces.js";
 import {
   showPageMenu,
-  showToolsMenu,
+  toolsMenuItems,
   toggleReader,
   closeReader,
   readerIsOpen,
@@ -24,7 +26,7 @@ import {
 
 // Scramjet, its controller and /dist/shadow-proxy.js (Sapphire + ShadowPlugin) are
 // only loaded when the first proxied page is opened — see Tab.bootProxy(). A visit
-// that only plays the built-in games never downloads or boots any of it.
+// that never opens a website never downloads or boots any of it.
 let Controller, Sapphire, ShadowPlugin;
 
 function loadScript(src) {
@@ -49,6 +51,10 @@ const iframesContainer = document.getElementById("iframes-container");
 
 const DEFAULT_ICON = "/assets/imgs/icons/logo.png";
 const MAX_CLOSED_TABS = 25;
+// Recently closed tabs survive a reload of the shell (but not the browser tab closing).
+const CLOSED_TABS_KEY = "shadow-closed-tabs";
+// Back/Forward entries kept per tab.
+const MAX_TAB_HISTORY = 50;
 const wsScheme = location.protocol === "https:" ? "wss" : "ws";
 const defaultWisp = `${wsScheme}://${location.host}/wisp/`;
 
@@ -91,10 +97,29 @@ globalThis.__shadowUnproxy = (ref) => {
   return encoded ? proxyConfig.codec.decode(encoded) : ref;
 };
 
+// Material Symbols path data for the toolbar menu (see showMainMenu).
+const ICON = {
+  newTab: "M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z",
+  private: "M240-80q-33 0-56.5-23.500T160-160v-400q0-33 23.500-56.5T240-640h40v-80q0-83 58.500-141.500T480-920q83 0 141.500 58.500T680-720v80h40q33 0 56.5 23.500T800-560v400q0 33-23.500 56.5T720-80H240Zm0-80h480v-400H240v400Zm240-120q33 0 56.5-23.500T560-360q0-33-23.500-56.5T480-440q-33 0-56.5 23.500T400-360q0 33 23.500 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80ZM240-160v-400 400Z",
+  reopen: "M280-200v-80h284q63 0 109.500-40T720-420q0-60-46.500-100T564-560H312l104 104-56 56-200-200 200-200 56 56-104 104h252q97 0 166.500 63T800-420q0 94-69.500 157T564-200H280Z",
+  downloads: "M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.500-23.500T160-240v-120h80v120h480v-120h80v120q0 33-23.500 56.500T720-160H240Z",
+  history: "M480-120q-138 0-240.500-91.500T122-440h82q14 104 92.500 172T480-200q117 0 198.500-81.500T760-480q0-117-81.500-198.500T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.500-99T480-840q75 0 140.500 28.500t114 77q48.500 48.500 77 114T840-480q0 75-28.500 140.500t-77 114q-48.500 48.500-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z",
+  workspaces: "M480-118 120-398l66-50 294 228 294-228 66 50-360 280Zm0-202L120-600l360-280 360 280-360 280Zm0-280Zm0 178 230-178-230-178-230 178 230 178Z",
+  view: "M160-160q-33 0-56.500-23.500T80-240v-480q0-33 23.500-56.500T160-800h640q33 0 56.500 23.500T880-720v480q0 33-23.500 56.500T800-160H160Zm0-80h280v-480H160v480Zm360 0h280v-480H520v480Z",
+  tools: "M120-520v-320h320v320H120Zm0 400v-320h320v320H120Zm400-400v-320h320v320H520Zm0 400v-320h320v320H520Z",
+  settings: "m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z",
+  extensions: "M352-120H200q-33 0-56.500-23.500T120-200v-152q48 0 84-30.500t36-77.500q0-47-36-77.500T120-568v-152q0-33 23.500-56.500T200-800h160q0-42 29-71t71-29q42 0 71 29t29 71h160q33 0 56.500 23.500T800-720v160q42 0 71 29t29 71q0 42-29 71t-71 29v160q0 33-23.500 56.500T720-120H568q0-50-31.500-85T460-240q-45 0-76.500 35T352-120Zm-152-80h85q24-66 77-93t98-27q45 0 98 27t77 93h85v-240h80q8 0 14-6t6-14q0-8-6-14t-14-6h-80v-240H480v-80q0-8-6-14t-14-6q-8 0-14 6t-6 14v80H200v88q54 20 87 67t33 105q0 57-33 104t-87 68v88Zm260-260Z",
+  games: "M189-160q-60 0-102.5-43T42-307q0-9 1-18t3-18l84-336q14-54 57-87.5t98-33.5h390q55 0 98 33.5t57 87.5l84 336q2 9 3.5 18.5T919-306q0 61-43.5 103.5T771-160q-42 0-78-22t-54-60l-28-58q-5-10-15-15t-21-5H385q-11 0-21 5t-15 15l-28 58q-18 38-54 60t-78 22Zm3-80q19 0 34.5-10t23.5-27l28-57q15-31 44-48.5t63-17.5h190q34 0 63 18t45 48l28 57q8 17 23.5 27t34.5 10q28 0 48-18.5t21-46.5q0 1-2-19l-84-335q-7-27-28-44t-49-17H285q-28 0-49.5 17T208-659l-84 335q-2 6-2 18 0 28 20.5 47t49.5 19Zm348-280q17 0 28.5-11.5T580-560q0-17-11.5-28.5T540-600q-17 0-28.5 11.5T500-560q0 17 11.5 28.5T540-520Zm80-80q17 0 28.5-11.5T660-640q0-17-11.5-28.5T620-680q-17 0-28.5 11.5T580-640q0 17 11.5 28.5T620-600Zm0 160q17 0 28.5-11.5T660-480q0-17-11.5-28.5T620-520q-17 0-28.5 11.5T580-480q0 17 11.5 28.5T620-440Zm80-80q17 0 28.5-11.5T740-560q0-17-11.5-28.5T700-600q-17 0-28.5 11.5T660-560q0 17 11.5 28.5T700-520Zm-360 60q13 0 21.5-8.5T370-490v-40h40q13 0 21.5-8.5T440-560q0-13-8.5-21.5T410-590h-40v-40q0-13-8.5-21.5T340-660q-13 0-21.5 8.5T310-630v40h-40q-13 0-21.5 8.5T240-560q0 13 8.5 21.5T270-530h40v40q0 13 8.5 21.5T340-460Zm140-20Z",
+  more: "M240-400q-33 0-56.500-23.500T160-480q0-33 23.500-56.500T240-560q33 0 56.500 23.500T320-480q0 33-23.500 56.500T240-400Zm240 0q-33 0-56.500-23.500T400-480q0-33 23.500-56.500T480-560q33 0 56.500 23.500T560-480q0 33-23.500 56.500T480-400Zm240 0q-33 0-56.500-23.500T640-480q0-33 23.500-56.500T720-560q33 0 56.500 23.500T800-480q0 33-23.500 56.500T720-400Z",
+  bookmark: "m354-287 126-76 126 77-33-144 111-96-146-13-58-136-58 135-146 13 111 97-33 143ZM233-120l65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Z",
+  zoom: "M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Zm-40-60v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80Z",
+  fullscreen: "M120-120v-200h80v120h120v80H120Zm520 0v-80h120v-120h80v200H640ZM120-640v-200h200v80H200v120h-80Zm640 0v-120H640v-80h200v200h-80Z",
+};
+
 const isInternal = (url) => url.startsWith("shadow://");
 // A same-origin Shadow page loaded straight into the iframe (arcade embed, games),
 // or a blob: this page made (an opened download) — never run through the proxy.
-const isLocalPath = (url) => /^\/[^/]/.test(url) || url.startsWith(`blob:${location.origin}/`);
+const isLocalPath = (url) => /^\/[^/\\]/.test(url) || url.startsWith(`blob:${location.origin}/`);
 // Pages that talk to the extension runtime, so they need the proxy booted first.
 const needsProxy = (url) => /^shadow:\/\/(extensions|store)\b/.test(url);
 const internalPath = (url) => `/pages/${url.slice("shadow://".length)}.html`;
@@ -109,11 +134,24 @@ function hostnameOf(url) {
   }
 }
 
+/** A small icon for a URL in a menu (recently closed, back/forward lists). */
+const menuIconFor = (url) => (isInternal(url) ? internalIcon(url) : /^https?:/i.test(url) ? faviconFor(url) : DEFAULT_ICON);
+
 class Tab {
   constructor() {
     this.activeTabIndex = -1;
     this.tabsArr = [];
     this.closedTabs = [];
+    try {
+      const stored = JSON.parse(sessionStorage.getItem(CLOSED_TABS_KEY) || "[]");
+      if (Array.isArray(stored)) {
+        this.closedTabs = stored
+          .filter((entry) => entry && typeof entry.url === "string" && entry.url)
+          .slice(-MAX_CLOSED_TABS)
+          .map((entry) => ({ url: entry.url, title: String(entry.title ?? ""), pinned: !!entry.pinned, index: Number(entry.index) || 0 }));
+      }
+    } catch {}
+    this.groups = new TabGroups(this, tabStrip);
     this.nextTabId = 1;
     this.controller = null;
     this.sapphire = null;
@@ -197,9 +235,7 @@ class Tab {
   // ---------------------------------------------------------------- startup
 
   async setDefaults() {
-    for (const i of this.defaults) {
-      await this.settings.default(i.key, i.value);
-    }
+    await Promise.all(this.defaults.map((i) => this.settings.default(i.key, i.value)));
   }
 
   async init() {
@@ -371,8 +407,10 @@ class Tab {
       getActiveTabId: () => this.tabsArr[this.activeTabIndex]?.id ?? null,
       getTabWindow: (id) => byId(id)?.iframe.contentWindow ?? null,
       createTab: async (url, { active } = { active: true }) => {
+        // (Not "the last tab": a new tab doesn't always land at the end.)
+        const id = this.nextTabId;
         await this.createTab(url || "shadow://new", undefined, { active: active !== false });
-        return this.tabsArr[this.tabsArr.length - 1].id;
+        return id;
       },
       navigateTab: (id, url) => {
         if (id === null) return void this.createTab(url);
@@ -432,6 +470,8 @@ class Tab {
       active: index === this.activeTabIndex,
       incognito: !!tab.private,
       pinned: tab.pinned,
+      audible: !!tab.audio?.audible,
+      mutedInfo: { muted: !!tab.muted },
       status: tab.loading ? "loading" : "complete",
       favIconUrl: tab.img.src || undefined,
     };
@@ -471,10 +511,19 @@ class Tab {
     this.searchEngine = await this.settings.get("search-engine");
   }
 
-  async load(src, i = this.activeTabIndex) {
+  /**
+   * @param {{history?: boolean}} [options] history=false is Back/Forward revisiting
+   *   an entry (goToHistory), which must not add a new one.
+   */
+  async load(src, i = this.activeTabIndex, { history = true } = {}) {
     this.hideSuggestions();
     const tab = this.tabsArr[i];
     if (!tab || typeof src !== "string" || !src.trim()) return false;
+    if (history) {
+      // Typed, clicked in the shell, or opened by it: a navigation the user asked for.
+      tab.shellNav = true;
+      tab.expecting = false;
+    }
 
     let url = self.resolveInput(src, this.searchEngine);
     if (/^https?:/i.test(url)) {
@@ -484,8 +533,18 @@ class Tab {
       }
     }
 
+    // The tab went away while the broken-site prompt was up.
+    if (!this.tabsArr.includes(tab)) return false;
+    // A fixed title/icon (a game's name, set by createTab or the embed page)
+    // belongs to the page it was given for, not to wherever the tab goes next.
+    if (tab.fixedFor !== url) {
+      tab.title = null;
+      tab.icon = null;
+      tab.fixedFor = null;
+    }
     tab.url = url;
     tab.pendingUrl = null;
+    tab.proxyFailed = false;
     const token = (tab.navToken = (tab.navToken ?? 0) + 1);
     this.setLoading(tab, true);
     if (i === this.activeTabIndex) resetFind();
@@ -504,6 +563,8 @@ class Tab {
       if (!this.tabsArr.includes(tab) || tab.navToken !== token) return false;
     }
 
+    // srcdoc (the "proxy unavailable" notice) wins over src for as long as it's set.
+    tab.iframe.removeAttribute("srcdoc");
     if (isInternal(url)) {
       tab.iframe.src = internalPath(url);
     } else if (!proxied) {
@@ -525,6 +586,7 @@ class Tab {
 <p id="m"></p><p id="u" style="opacity:.6;word-break:break-all"></p>
 <p>Try reloading the page, or use a current version of Chrome, Edge or Firefox.</p></div></body>`;
     this.setLoading(tab, false);
+    tab.proxyFailed = true; // reload retries the address instead of this notice
     tab.iframe.srcdoc = doc;
     tab.iframe.addEventListener(
       "load",
@@ -542,14 +604,16 @@ class Tab {
   /**
    * @param {string} [src] URL / search text / shadow:// page
    * @param {string} [title] fixed title for the tab
-   * @param {{active?: boolean, lazy?: boolean, pinned?: boolean, index?: number, private?: boolean}} [options]
+   * @param {{active?: boolean, lazy?: boolean, pinned?: boolean, index?: number, private?: boolean, groupId?: string|null}} [options]
    *   lazy tabs aren't loaded until they're first shown (used when restoring a session).
    *   private tabs leave no trace in history, the saved session or "reopen closed tab".
+   *   groupId puts the tab in a tab group; left out, a tab opened at a position
+   *   (a link opened beside its page) joins the group of the tab before it.
    */
   async createTab(
     src = this.tabsArr.length === 0 ? "shadow://home" : "shadow://new",
     title,
-    { active = true, lazy = false, pinned = false, index, private: isPrivate = false } = {},
+    { active = true, lazy = false, pinned = false, index, private: isPrivate = false, groupId } = {},
   ) {
     const tab = {
       id: this.nextTabId++,
@@ -565,7 +629,22 @@ class Tab {
       loading: false,
       zoom: 1,
       lastHistoryUrl: null,
+      icon: null,
+      fixedFor: null,
+      proxyFailed: false,
+      groupId: null,
+      muted: false,
+      audio: null,
+      audioEl: null,
+      // Back/Forward: this tab's own list of pages (see recordHistory).
+      hist: [],
+      histIndex: -1,
+      userActed: false,
+      shellNav: false,
+      expecting: false,
+      leavingUrl: null,
     };
+    if (tab.title) tab.fixedFor = tab.url;
 
     tab.tab.classList.add("tab");
     tab.tab.classList.toggle("private", tab.private);
@@ -585,6 +664,15 @@ class Tab {
     if (at <= this.activeTabIndex) this.activeTabIndex++;
     tabStrip.insertBefore(tab.tab, this.tabsArr[at + 1]?.tab ?? addTabButton);
     if (pinned) this.setPinned(at, true, false);
+    else {
+      if (groupId === undefined && typeof index === "number") groupId = this.tabsArr[at - 1]?.groupId ?? null;
+      if (groupId && this.groups.get(groupId)) {
+        if (typeof index === "number") tab.groupId = groupId;
+        else this.groups.add(tab, groupId); // no position asked for: the end of the group
+      }
+      this.groups.settle(tab);
+    }
+    this.groups.render();
     if (this.controller) this.sapphire?.notifyTabCreated(tab.id);
 
     if (lazy && !active) {
@@ -613,6 +701,17 @@ class Tab {
     const titleContainer = document.createElement("div");
     titleContainer.className = "tab-title";
     tab.tab.appendChild(titleContainer);
+
+    // Speaker: shown while the tab is making sound (or muted); click to mute.
+    const audioBtn = document.createElement("span");
+    audioBtn.className = "tab-audio";
+    audioBtn.setAttribute("role", "button");
+    audioBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.toggleMute(this.tabsArr.indexOf(tab));
+    });
+    tab.audioEl = audioBtn;
+    tab.tab.appendChild(audioBtn);
 
     const closeBtn = document.createElement("span");
     closeBtn.className = "close-tab-button";
@@ -648,9 +747,11 @@ class Tab {
 
     const url = tab.pendingUrl ?? this.currentUrl(tab);
     if (remember && !tab.private && url && url !== "shadow://new" && url !== "about:blank" && !url.startsWith("blob:")) {
-      this.closedTabs.push({ url, pinned: tab.pinned, index: i });
+      this.closedTabs.push({ url, title: this.titleFor(tab), pinned: tab.pinned, index: i, groupId: tab.groupId });
       if (this.closedTabs.length > MAX_CLOSED_TABS) this.closedTabs.shift();
+      this.saveClosedTabs();
     }
+    forgetAudio(tab);
 
     readerTabChanged(tab);
     if (this.split && (this.split.left === tab || this.split.right === tab)) {
@@ -668,6 +769,7 @@ class Tab {
       if (at !== -1) this.controller.frames.splice(at, 1);
     }
     if (this.controller) this.sapphire?.notifyTabRemoved(tab.id);
+    this.groups.render(); // a group that just lost its last tab goes with it
 
     if (this.tabsArr.length === 0) {
       this.activeTabIndex = -1;
@@ -680,10 +782,24 @@ class Tab {
     this.saveTabs();
   }
 
-  reopenClosedTab() {
-    const closed = this.closedTabs.pop();
-    if (!closed) return false;
-    this.createTab(closed.url, undefined, { pinned: closed.pinned, index: closed.index });
+  saveClosedTabs() {
+    try {
+      sessionStorage.setItem(CLOSED_TABS_KEY, JSON.stringify(this.closedTabs.map(({ url, title, pinned, index }) => ({ url, title, pinned, index }))));
+    } catch {}
+  }
+
+  /** Reopens the most recently closed tab, or a specific entry of this.closedTabs. */
+  reopenClosedTab(entry) {
+    const at = entry ? this.closedTabs.indexOf(entry) : this.closedTabs.length - 1;
+    if (at < 0) return false;
+    const [closed] = this.closedTabs.splice(at, 1);
+    this.saveClosedTabs();
+    this.createTab(closed.url, undefined, {
+      pinned: closed.pinned,
+      index: closed.index,
+      // Back into its group if that group is still around.
+      groupId: closed.groupId && this.groups.get(closed.groupId) ? closed.groupId : null,
+    });
     return true;
   }
 
@@ -711,13 +827,14 @@ class Tab {
     const tab = this.tabsArr[i];
     if (!tab || tab.pinned === pinned) return;
     tab.pinned = pinned;
+    if (pinned) tab.groupId = null; // pinned tabs live outside groups
     tab.tab.classList.toggle("pinned", pinned);
     const pinnedCount = this.tabsArr.filter((t) => t.pinned && t !== tab).length;
     this.moveTab(i, pinnedCount, save);
   }
 
   /** Reorders the strip only — iframes never move in the DOM, so nothing reloads. */
-  moveTab(from, to, save = true) {
+  moveTab(from, to, save = true, { regroup = true } = {}) {
     if (from === to || !this.tabsArr[from]) return;
     const active = this.tabsArr[this.activeTabIndex];
     const [tab] = this.tabsArr.splice(from, 1);
@@ -728,6 +845,9 @@ class Tab {
     this.tabsArr.splice(to, 0, tab);
     tabStrip.insertBefore(tab.tab, this.tabsArr[to + 1]?.tab ?? addTabButton);
     this.activeTabIndex = this.tabsArr.indexOf(active);
+    // Dropped between two tabs of a group it joins them; away from its own, it leaves.
+    if (regroup) this.groups.settle(tab);
+    this.groups.render();
     if (save) this.saveTabs();
   }
 
@@ -769,6 +889,8 @@ class Tab {
       { label: "Reload", onclick: () => this.refresh(i) },
       { label: "Duplicate", onclick: () => this.duplicateTab(i) },
       { label: tab.pinned ? "Unpin" : "Pin", onclick: () => this.setPinned(i, !tab.pinned) },
+      { label: tab.muted ? "Unmute tab" : "Mute tab", onclick: () => this.toggleMute(this.tabsArr.indexOf(tab)) },
+      ...this.groups.menuItemsFor(tab),
       inSplit
         ? { label: "Exit split view", onclick: () => this.endSplit() }
         : { label: "Open in split view", onclick: () => this.splitWith(i), disabled: this.tabsArr.length < 2 || i === this.activeTabIndex },
@@ -797,6 +919,8 @@ class Tab {
     tab.iframe.classList.add("active");
     tab.tab.classList.add("active");
     this.activeTabIndex = i;
+    // A tab inside a folded group can't be the one on screen: unfold it.
+    if (this.groups.of(tab)?.collapsed) this.groups.setCollapsed(tab.groupId, false);
     this.renderSplit();
     tab.tab.scrollIntoView?.({ block: "nearest", inline: "nearest" });
     this.extensions?.hidePopup();
@@ -893,17 +1017,28 @@ class Tab {
    * that lived in uv.config.js and the 5 second polling loop.
    */
   onDocument(tab, { window: win, isTopLevel, client }) {
-    const refresh = () => this.noteNavigation(tab);
+    const refresh = (how) => this.noteNavigation(tab, typeof how === "string" ? how : undefined);
 
-    win.addEventListener("keydown", (e) => this.handleKey(e), true);
+    win.addEventListener(
+      "keydown",
+      (e) => {
+        tab.userActed = true;
+        this.handleKey(e);
+      },
+      true,
+    );
     win.addEventListener(
       "mousedown",
       () => {
+        tab.userActed = true;
         this.dismissOverlays();
         this.focusPane(tab);
       },
       true,
     );
+    try {
+      watchAudio(this, tab, win);
+    } catch {}
     // Our own right-click menu. Shift+right-click keeps the browser's.
     win.addEventListener(
       "contextmenu",
@@ -958,15 +1093,16 @@ class Tab {
 
     tab.url = String(client.url);
     win.addEventListener("beforeunload", () => this.setLoading(tab, true));
-    win.addEventListener("DOMContentLoaded", refresh);
-    win.addEventListener("popstate", refresh);
-    win.addEventListener("hashchange", refresh);
+    win.addEventListener("DOMContentLoaded", () => refresh());
+    win.addEventListener("popstate", () => refresh("traverse"));
+    win.addEventListener("hashchange", () => refresh());
     for (const method of ["pushState", "replaceState"]) {
       const original = win.history[method];
       if (typeof original !== "function") continue;
+      const how = method === "replaceState" ? "replace" : undefined;
       win.history[method] = function (...args) {
         const result = original.apply(this, args);
-        queueMicrotask(refresh);
+        queueMicrotask(() => refresh(how));
         return result;
       };
     }
@@ -997,16 +1133,27 @@ class Tab {
       // Internal pages aren't run through Scramjet, so wire their shortcuts here.
       if (win && !this.isProxied(tab) && !win.__shadowWired) {
         win.__shadowWired = true;
-        win.addEventListener("keydown", (e) => this.handleKey(e), true);
+        win.addEventListener(
+          "keydown",
+          (e) => {
+            tab.userActed = true;
+            this.handleKey(e);
+          },
+          true,
+        );
         win.addEventListener(
           "mousedown",
           () => {
+            tab.userActed = true;
             this.dismissOverlays();
             this.focusPane(tab);
           },
           true,
         );
       }
+      // Shadow's own pages and the games they embed don't go through Scramjet,
+      // so there's no earlier moment to hook their audio than this.
+      if (win && !this.isProxied(tab)) for (const frame of sameOriginFrames(win)) watchAudio(this, tab, frame);
     } catch {}
     this.noteNavigation(tab);
     this.applyZoom(tab);
@@ -1069,10 +1216,11 @@ class Tab {
   }
 
   /** The tab's URL may have changed: refresh the strip, omnibox, history, saved tabs. */
-  noteNavigation(tab) {
+  noteNavigation(tab, how) {
     if (!this.tabsArr.includes(tab)) return;
     const url = this.currentUrl(tab);
     if (url && url !== "about:blank") tab.url = url;
+    this.recordHistory(tab, url, how);
     // Websites assume a white canvas; Shadow's own pages paint their own background.
     tab.iframe.classList.toggle("proxied", this.isProxied(tab));
     this.renderTab(tab);
@@ -1098,6 +1246,117 @@ class Tab {
     this.saveTabs();
   }
 
+  // ---------------------------------------------------------------- back / forward
+
+  /**
+   * Each tab keeps its own list of pages. (The browser only has one history for
+   * the whole window, shared by every tab's iframe, so history.back() in one tab
+   * would undo whichever tab navigated last.)
+   *
+   * A page becomes a new entry when the user caused the navigation: something
+   * typed or clicked in the shell, or a click / key press in the page since the
+   * last entry. Navigations a page makes on its own (redirects, replaceState)
+   * replace the current entry instead, so Back never bounces off a redirect.
+   *
+   * @param {"replace" | "traverse"} [how] replaceState, or the page moving
+   *   through history itself (popstate)
+   */
+  recordHistory(tab, url, how) {
+    if (!url || url === "about:blank") return;
+    const current = tab.hist[tab.histIndex];
+    if (tab.expecting) {
+      // Our own Back/Forward is on its way; the page being left is still showing.
+      if (url === tab.leavingUrl) return;
+      tab.expecting = false;
+      tab.leavingUrl = null;
+      if (current && current.url !== url) {
+        current.url = url; // the entry redirected somewhere else this time
+        current.title = "";
+      }
+    } else {
+      if (current?.url === url) return;
+      if (how === "traverse") {
+        if (tab.hist[tab.histIndex - 1]?.url === url) tab.histIndex -= 1;
+        else if (tab.hist[tab.histIndex + 1]?.url === url) tab.histIndex += 1;
+        else how = undefined;
+      }
+      if (how !== "traverse") {
+        if (current && (how === "replace" || !(tab.userActed || tab.shellNav))) {
+          current.url = url;
+          current.title = "";
+        } else {
+          tab.hist.length = tab.histIndex + 1; // anything "forward" is gone
+          tab.hist.push({ url, title: "" });
+          if (tab.hist.length > MAX_TAB_HISTORY) tab.hist.shift();
+          tab.histIndex = tab.hist.length - 1;
+        }
+      }
+    }
+    tab.userActed = false;
+    tab.shellNav = false;
+    if (this.tabsArr[this.activeTabIndex] === tab) this.updateNavButtons();
+  }
+
+  /** Revisits entry `to` of a tab's own history. */
+  goToHistory(tab, to) {
+    const entry = tab?.hist[to];
+    const i = this.tabsArr.indexOf(tab);
+    if (!entry || i === -1 || to === tab.histIndex) return;
+    tab.leavingUrl = tab.hist[tab.histIndex]?.url ?? null;
+    tab.histIndex = to;
+    tab.expecting = true;
+    this.updateNavButtons();
+    this.load(entry.url, i, { history: false });
+  }
+
+  updateNavButtons() {
+    const tab = this.tabsArr[this.activeTabIndex];
+    document.getElementById("back-button")?.classList.toggle("disabled", !tab || tab.histIndex <= 0);
+    document.getElementById("forward-button")?.classList.toggle("disabled", !tab || tab.histIndex >= tab.hist.length - 1);
+  }
+
+  /** Right-click on Back / Forward: the pages that button can reach, nearest first. */
+  showHistoryMenu(direction, anchor) {
+    const tab = this.tabsArr[this.activeTabIndex];
+    if (!tab) return;
+    if (menuOpenFor(anchor)) return hideMenu();
+    const indexes = [];
+    if (direction < 0) for (let n = tab.histIndex - 1; n >= 0; n--) indexes.push(n);
+    else for (let n = tab.histIndex + 1; n < tab.hist.length; n++) indexes.push(n);
+    if (indexes.length === 0) return;
+    showMenu(
+      0,
+      0,
+      indexes.slice(0, 15).map((n) => {
+        const entry = tab.hist[n];
+        return { label: entry.title || entry.url, title: entry.url, image: menuIconFor(entry.url), onclick: () => this.goToHistory(tab, n) };
+      }),
+      { anchor, align: "start" },
+    );
+  }
+
+  // ---------------------------------------------------------------- sound
+
+  toggleMute(i = this.activeTabIndex) {
+    const tab = this.tabsArr[i];
+    if (!tab) return;
+    setTabMuted(this, tab, !tab.muted);
+    toast(tab.muted ? "Tab muted." : "Tab unmuted.", { timeout: 1200 });
+  }
+
+  /** Shows / hides a tab's speaker button (tabaudio.js calls this when its state changes). */
+  renderAudio(tab) {
+    const audible = !!tab.audio?.audible;
+    const state = tab.muted ? "muted" : audible ? "sound" : "";
+    tab.tab.classList.toggle("audible", state === "sound");
+    tab.tab.classList.toggle("muted", state === "muted");
+    const button = tab.audioEl;
+    if (!button || button.dataset.state === state) return;
+    button.dataset.state = state;
+    button.replaceChildren(...(state ? [svgIcon(state === "muted" ? ICON_MUTED : ICON_SOUND, 16)] : []));
+    button.title = state === "muted" ? "Unmute tab" : "Mute tab";
+  }
+
   dismissOverlays({ keepReader = false } = {}) {
     this.hideSuggestions();
     hideMenu();
@@ -1106,7 +1365,6 @@ class Tab {
     closeFind();
     if (!keepReader && readerIsOpen()) closeReader();
     if (this.immersive) this.toggleImmersive(false);
-    window.closeMenu?.({ target: document.body });
   }
 
   setLoading(tab, loading) {
@@ -1173,6 +1431,7 @@ class Tab {
   }
 
   iconFor(tab) {
+    if (tab.icon) return tab.icon;
     const url = tab.pendingUrl ?? this.currentUrl(tab) ?? "";
     if (isInternal(url)) return internalIcon(url);
     if (!tab.pendingUrl && this.isProxied(tab)) {
@@ -1204,6 +1463,9 @@ class Tab {
     const titleEl = tab.tab.querySelector(".tab-title");
     if (titleEl.textContent !== title) titleEl.textContent = title;
     tab.tab.title = title;
+    // The Back/Forward list shows page titles; a page's title is only known once it has loaded.
+    const entry = tab.hist[tab.histIndex];
+    if (entry && !tab.loading && !tab.expecting && !tab.pendingUrl) entry.title = title;
     const icon = this.iconFor(tab);
     if (tab.iconUrl !== icon) {
       tab.iconUrl = icon;
@@ -1213,6 +1475,7 @@ class Tab {
 
   updateOmni() {
     const tab = this.tabsArr[this.activeTabIndex];
+    this.updateNavButtons();
     if (!tab || document.activeElement === searchInput) return;
     const url = this.currentUrl(tab) ?? "";
     searchInput.value = url === "shadow://new" || url === "shadow://home" || url.startsWith("blob:") ? "" : url;
@@ -1255,6 +1518,12 @@ class Tab {
       container.classList.add("hidden");
       return;
     }
+    // Hang the list from the address bar itself, wherever the layout has put it
+    // (vertical tabs, extension buttons and the downloads button all move it).
+    const form = document.getElementById("uv-form").getBoundingClientRect();
+    const wrap = container.parentElement.getBoundingClientRect();
+    container.style.marginLeft = `${Math.round(form.left - wrap.left + 16)}px`;
+    container.style.width = `${Math.round(form.width - 32)}px`;
     container.classList.remove("hidden");
     [...container.children].forEach((elem, i) => {
       const text = suggestions[i];
@@ -1280,6 +1549,7 @@ class Tab {
     const entries = saved.map((tab) => ({
       url: tab.pendingUrl ?? tab.url,
       pinned: tab.pinned,
+      group: this.groups.serialize(tab),
     }));
     const active = Math.max(0, saved.indexOf(this.tabsArr[this.activeTabIndex]));
     try {
@@ -1313,11 +1583,15 @@ class Tab {
     if (!Number.isInteger(active) || active < 0 || active >= entries.length) active = 0;
 
     this.restoring = true;
+    const restored = [];
     try {
       for (const entry of entries) {
         // Only the active tab loads now; the rest load when first clicked.
+        const id = this.nextTabId;
         await this.createTab(entry.url, undefined, { active: false, lazy: true, pinned: !!entry.pinned });
+        restored.push(this.tabsArr.find((tab) => tab.id === id));
       }
+      this.groups.restore(restored, entries.map((entry) => entry.group));
     } finally {
       this.restoring = false;
     }
@@ -1347,16 +1621,23 @@ class Tab {
     const tab = this.tabsArr[i];
     if (!tab) return;
     if (tab.pendingUrl) return void this.load(tab.pendingUrl, i);
+    if (tab.proxyFailed) return void this.load(tab.url, i);
     this.setLoading(tab, true);
-    tab.iframe.contentWindow.location.reload();
+    try {
+      tab.iframe.contentWindow.location.reload();
+    } catch {
+      this.load(tab.url, i);
+    }
   }
 
   forward(i = this.activeTabIndex) {
-    this.tabsArr[i]?.iframe.contentWindow.history.forward();
+    const tab = this.tabsArr[i];
+    if (tab) this.goToHistory(tab, tab.histIndex + 1);
   }
 
   backward(i = this.activeTabIndex) {
-    this.tabsArr[i]?.iframe.contentWindow.history.back();
+    const tab = this.tabsArr[i];
+    if (tab) this.goToHistory(tab, tab.histIndex - 1);
   }
 
   async checkSite(url) {
@@ -1422,7 +1703,7 @@ class Tab {
   // ---------------------------------------------------------------- view
 
   /** Page zoom for one tab. action: "in" | "out" | "reset" | a number. */
-  setZoom(i, action) {
+  setZoom(i, action, { quiet = false } = {}) {
     const tab = this.tabsArr[i];
     if (!tab) return;
     const steps = [0.3, 0.5, 0.67, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3];
@@ -1445,7 +1726,8 @@ class Tab {
         }
       }
     }
-    if (tab.zoom !== 1) toast(`Zoom ${Math.round(tab.zoom * 100)}%`, { timeout: 1000 });
+    // The menu's zoom row shows the level itself.
+    if (!quiet) toast(`Zoom ${Math.round(tab.zoom * 100)}%`, { timeout: 1000 });
   }
 
   // ---------------------------------------------------------------- per-site state
@@ -1532,42 +1814,103 @@ class Tab {
     window.bookmarksManager?.layout();
   }
 
-  /** The toolbar menu's "View" entry. */
-  showViewMenu(x, y) {
+  /**
+   * The toolbar (three dots) menu. Drops from the button, right edges aligned;
+   * View, Page tools and More open beside their row.
+   */
+  showMainMenu(anchor = document.getElementById("menu-button")) {
+    if (menuOpenFor(anchor)) return hideMenu();
+    hidePopover();
+    this.hideSuggestions();
     const bookmarks = window.bookmarksManager;
-    showMenu(x, y, [
-      { label: "Split view", checked: !!this.split, onclick: () => this.toggleSplit() },
-      { label: "Vertical tabs", checked: this.verticalTabs, onclick: () => this.setVerticalTabs(!this.verticalTabs) },
-      { label: "Bookmarks bar", checked: !!bookmarks?.visible, onclick: () => bookmarks?.setVisible(!bookmarks.visible) },
-      { label: "Immersive mode", checked: !!this.immersive, onclick: () => this.toggleImmersive() },
+    const zoomed = () => `${Math.round((this.tabsArr[this.activeTabIndex]?.zoom ?? 1) * 100)}%`;
+    const zoom = (action) => this.setZoom(this.activeTabIndex, action, { quiet: true });
+    showMenu(
+      0,
+      0,
+      [
+        { label: "New tab", icon: ICON.newTab, shortcut: "Alt+T", onclick: () => this.createTab("shadow://new") },
+        { label: "New private tab", icon: ICON.private, shortcut: "Alt+Shift+N", onclick: () => this.createTab("shadow://new", undefined, { private: true }) },
+        { label: "Reopen closed tab", icon: ICON.reopen, shortcut: "Alt+Shift+T", disabled: this.closedTabs.length === 0, onclick: () => this.reopenClosedTab() },
+        { separator: true },
+        { label: bookmarks?.isBookmarked() ? "Remove bookmark" : "Bookmark this page", icon: ICON.bookmark, onclick: () => bookmarks?.toggleCurrent() },
+        { label: "Downloads", icon: ICON.downloads, shortcut: "Alt+J", onclick: () => this.downloads.togglePanel(true) },
+        { label: "History", icon: ICON.history, submenu: () => this.historyMenuItems() },
+        { label: "Workspaces", icon: ICON.workspaces, onclick: () => this.workspaces.showPanel(anchor) },
+        { separator: true },
+        {
+          label: "Zoom",
+          icon: ICON.zoom,
+          controls: [
+            { label: "\u2212", title: "Zoom out (Alt+-)", onclick: () => zoom("out") },
+            { text: zoomed },
+            { label: "+", title: "Zoom in (Alt+=)", onclick: () => zoom("in") },
+            { icon: ICON.fullscreen, title: "Fullscreen", close: true, onclick: () => window.iframefullscreen?.() },
+          ],
+        },
+        { separator: true },
+        { label: "View", icon: ICON.view, submenu: () => this.viewMenuItems() },
+        { label: "Page tools", icon: ICON.tools, submenu: () => toolsMenuItems(this) },
+        { separator: true },
+        { label: "Settings", icon: ICON.settings, onclick: () => this.createTab("shadow://settings") },
+        { label: "Extensions", icon: ICON.extensions, onclick: () => this.createTab("shadow://extensions") },
+        { label: "G@me$", icon: ICON.games, onclick: () => this.createTab("shadow://books") },
+        { label: "More", icon: ICON.more, submenu: () => this.moreMenuItems() },
+      ],
+      { anchor, width: 290 },
+    );
+  }
+
+  /** Main menu → History: the history page and the tabs closed most recently. */
+  historyMenuItems() {
+    const closed = this.closedTabs.slice(-8).reverse();
+    return [
+      { label: "Show full history", icon: ICON.history, onclick: () => this.createTab("shadow://history") },
       { separator: true },
-      { label: "Zoom in", onclick: () => this.setZoom(this.activeTabIndex, "in") },
-      { label: "Zoom out", onclick: () => this.setZoom(this.activeTabIndex, "out") },
-      { label: "Reset zoom", onclick: () => this.setZoom(this.activeTabIndex, "reset") },
-    ]);
+      { header: true, label: "Recently closed" },
+      ...(closed.length
+        ? closed.map((entry) => ({ label: entry.title || entry.url, title: entry.url, image: menuIconFor(entry.url), onclick: () => this.reopenClosedTab(entry) }))
+        : [{ label: "No tabs closed yet", disabled: true }]),
+    ];
   }
 
-  showToolsMenu(x, y) {
-    showToolsMenu(this, x, y);
+  /** Main menu → View. */
+  viewMenuItems() {
+    const bookmarks = window.bookmarksManager;
+    return [
+      { label: "Split view", shortcut: "Alt+S", checked: !!this.split, onclick: () => this.toggleSplit() },
+      { label: "Vertical tabs", shortcut: "Alt+V", checked: this.verticalTabs, onclick: () => this.setVerticalTabs(!this.verticalTabs) },
+      { label: "Bookmarks bar", shortcut: "Alt+B", checked: !!bookmarks?.visible, onclick: () => bookmarks?.setVisible(!bookmarks.visible) },
+      { label: "Immersive mode", shortcut: "Alt+Enter", checked: !!this.immersive, onclick: () => this.toggleImmersive() },
+      { separator: true },
+      { label: "Reset zoom", shortcut: "Alt+0", checked: false, disabled: (this.tabsArr[this.activeTabIndex]?.zoom ?? 1) === 1, onclick: () => this.setZoom(this.activeTabIndex, "reset") },
+    ];
   }
 
-  /** The toolbar menu's "More" entry: the less-used destinations and window actions. */
-  showMoreMenu(x, y) {
+  /** Main menu → More: the less-used destinations and window actions. */
+  moreMenuItems() {
     const pwa = window.shadowPwa;
-    showMenu(x, y, [
+    return [
       { label: "Store", onclick: () => this.createTab("shadow://store") },
       { label: "AI", onclick: () => this.createTab("shadow://ai") },
       { label: "Chat", onclick: () => toast("Coming in Shadow 3.1.1", { timeout: 2500 }) },
       { label: "Discord", onclick: () => this.createTab("discord.gg/goshadow") },
       { separator: true },
-      { label: "Fullscreen", onclick: () => window.iframefullscreen?.() },
+      { label: "Command palette", shortcut: "Alt+K", onclick: () => openCommandPalette(this) },
       { label: "Open in about:blank", onclick: () => window.abtblank?.() },
       { label: "Open tab in about:blank", onclick: () => window.iframeabtblank?.() },
       ...(pwa?.canInstall ? [{ label: "Install Shadow", onclick: () => pwa.install() }] : []),
       { separator: true },
       { label: "Devtools", onclick: () => this.toggleDevTools() },
-      { label: "Copy debug info", onclick: () => navigator.clipboard.writeText(window.dewasper.dump()).then(() => toast("Debug info copied.", { timeout: 1500 })) },
-    ]);
+      {
+        label: "Copy debug info",
+        onclick: () =>
+          navigator.clipboard.writeText(window.dewasper.dump()).then(
+            () => toast("Debug info copied.", { timeout: 1500 }),
+            () => toast("Couldn't reach the clipboard.", { timeout: 2000 }),
+          ),
+      },
+    ];
   }
 
   // ---------------------------------------------------------------- prewarm
@@ -1651,6 +1994,7 @@ class Tab {
       else if (key === "v") this.setVerticalTabs(!this.verticalTabs);
       else if (key === "d") this.duplicateTab();
       else if (key === "p") this.setPinned(this.activeTabIndex, !this.tabsArr[this.activeTabIndex]?.pinned);
+      else if (key === "m") this.toggleMute();
       else if (key === "k") openCommandPalette(this);
       else if (key === "f") openFind(this);
       else if (key === "Enter") this.toggleImmersive();
@@ -1714,6 +2058,22 @@ document.getElementById("suggestions").addEventListener("mouseover", (e) => {
   if (item?.dataset.url) tabs.prewarm(item.dataset.url);
 });
 document.getElementById("site-button")?.addEventListener("click", () => tabs.showSitePanel());
+// Right-click Back / Forward for the list of pages behind them.
+for (const [id, direction] of [["back-button", -1], ["forward-button", 1]]) {
+  const button = document.getElementById(id);
+  button?.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    tabs.showHistoryMenu(direction, button);
+  });
+}
+const menuButton = document.getElementById("menu-button");
+menuButton?.addEventListener("click", () => tabs.showMainMenu(menuButton));
+menuButton?.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" && e.key !== " " && e.key !== "ArrowDown") return;
+  e.preventDefault();
+  e.stopPropagation();
+  tabs.showMainMenu(menuButton);
+});
 document.addEventListener("click", (e) => {
   if (e.target !== searchInput) tabs.hideSuggestions();
 });

@@ -53,11 +53,7 @@ function reflectConnection(announce) {
   document.body.classList.toggle("offline", offline);
   if (!announce) return;
   if (offline) {
-    toast("You're offline. The built-in games still work.", {
-      title: "No connection",
-      timeout: 6000,
-      buttons: [{ label: "Open games", onclick: () => window.tabs?.createTab("shadow://books") }],
-    });
+    toast("You're offline. Pages will load again once the connection is back.", { title: "No connection", timeout: 6000 });
   } else {
     toast("Back online.", { timeout: 2000 });
   }

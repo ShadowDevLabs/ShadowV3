@@ -7,7 +7,6 @@
   <title>IXL | Math, Language Arts, Science, Social Studies, and Spanish</title>
 
   <!-- Meta Tags-->
-  <title>IXL | Math, Language Arts, Science, Social Studies, and Spanish</title>
   <meta name="description"
     content="IXL is the world's most popular subscription-based learning site for K–12. Used by over 17 million students, IXL provides personalized learning in more than 17,000 topics, covering math, language arts, science, social studies, and Spanish. Interactive questions, awards, and certificates keep kids motivated as they master skills." />
   <meta property="og:title" content="IXL | Math, Language Arts, Science, Social Studies, and Spanish" />
@@ -40,9 +39,10 @@
   <link rel="stylesheet" href="/css/features.css" />
   <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" content="#01031d" />
-  <link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&display=swap" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <!-- One font request (the shell only uses Poppins), on a connection opened early. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" />
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <script src="/assets/js/settings.js" type="module"></script>
   <script src="/assets/js/debugger.js"></script>
@@ -151,7 +151,8 @@
       </svg>
     </button>
 
-    <div id="menu-button" class="menu-button" style="margin-left: 7px"><svg xmlns="http://www.w3.org/2000/svg"
+    <!-- The menu itself is built in assets/js/tabs.js (showMainMenu) -->
+    <div id="menu-button" class="menu-button" style="margin-left: 7px" role="button" tabindex="0" title="Menu" aria-haspopup="menu"><svg xmlns="http://www.w3.org/2000/svg"
         height="24px" viewBox="0 -960 960 960" width="24px" class="icons">
         <path
           d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
@@ -182,173 +183,6 @@
 
   <!-- BG OVERLAY -->
   <div id="overlay" class="overlay" style="display: none;"></div>
-
-  <!-- Dropdown Menu -->
-  <div id="menu-dropdown" class="dropdown-content" style="display: none">
-    <!-- Kept short on purpose: everything else lives behind View, Page tools and More
-         (floating menus built in tabs.js / pagetools.js). -->
-    <table>
-      <tr>
-        <td id="new-tab" onclick='tabs.createTab("shadow:/\/new");'>
-          <button data-add-tab>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
-            </svg>
-            New tab
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick='tabs.createTab("shadow://new", undefined, { private: true })'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path d="M240-80q-33 0-56.500-23.500T160-160v-400q0-33 23.500-56.500T240-640h40v-80q0-83 58.500-141.500T480-920q83 0 141.500 58.500T680-720v80h40q33 0 56.500 23.500T800-560v400q0 33-23.500 56.500T720-80H240Zm0-80h480v-400H240v400Zm240-120q33 0 56.500-23.500T560-360q0-33-23.500-56.500T480-440q-33 0-56.500 23.500T400-360q0 33 23.500 56.500T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80ZM240-160v-400 400Z" />
-            </svg>
-            New private tab
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick="tabs.reopenClosedTab()">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path d="M280-200v-80h284q63 0 109.500-40T720-420q0-60-46.500-100T564-560H312l104 104-56 56-200-200 200-200 56 56-104 104h252q97 0 166.500 63T800-420q0 94-69.500 157T564-200H280Z" />
-            </svg>
-            Reopen closed tab
-          </button>
-        </td>
-      </tr>
-    </table>
-    <div class="separator"></div>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick="bookmarksManager.toggleCurrent()">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
-            </svg>
-            Bookmark this page
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick='tabs.downloads.togglePanel(true)'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.500-23.500T160-240v-120h80v120h480v-120h80v120q0 33-23.500 56.500T720-160H240Z" />
-            </svg>
-            Downloads
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick='tabs.createTab("shadow://history")'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path d="M480-120q-138 0-240.500-91.500T122-440h82q14 104 92.500 172T480-200q117 0 198.500-81.500T760-480q0-117-81.500-198.500T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.500-99T480-840q75 0 140.500 28.500t114 77q48.500 48.500 77 114T840-480q0 75-28.500 140.500t-77 114q-48.500 48.500-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z" />
-            </svg>
-            History
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick='tabs.workspaces.showPanel(document.getElementById("menu-button"))'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path d="M480-118 120-398l66-50 294 228 294-228 66 50-360 280Zm0-202L120-600l360-280 360 280-360 280Zm0-280Zm0 178 230-178-230-178-230 178 230 178Z" />
-            </svg>
-            Workspaces
-          </button>
-        </td>
-      </tr>
-    </table>
-    <div class="separator"></div>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick='tabs.showViewMenu(event.clientX, event.clientY)'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path d="M160-160q-33 0-56.500-23.500T80-240v-480q0-33 23.500-56.500T160-800h640q33 0 56.500 23.500T880-720v480q0 33-23.500 56.500T800-160H160Zm0-80h280v-480H160v480Zm360 0h280v-480H520v480Z" />
-            </svg>
-            View
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick='tabs.showToolsMenu(event.clientX, event.clientY)'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path d="M120-520v-320h320v320H120Zm0 400v-320h320v320H120Zm400-400v-320h320v320H520Zm0 400v-320h320v320H520Z" />
-            </svg>
-            Page tools
-          </button>
-        </td>
-      </tr>
-    </table>
-    <div class="separator"></div>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick='tabs.createTab("shadow:/\/settings")'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path
-                d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z" />
-            </svg>
-            Settings
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick='tabs.createTab("shadow://extensions")'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path d="M352-120H200q-33 0-56.500-23.500T120-200v-152q48 0 84-30.500t36-77.500q0-47-36-77.500T120-568v-152q0-33 23.500-56.500T200-800h160q0-42 29-71t71-29q42 0 71 29t29 71h160q33 0 56.500 23.500T800-720v160q42 0 71 29t29 71q0 42-29 71t-71 29v160q0 33-23.500 56.500T720-120H568q0-50-31.500-85T460-240q-45 0-76.500 35T352-120Zm-152-80h85q24-66 77-93t98-27q45 0 98 27t77 93h85v-240h80q8 0 14-6t6-14q0-8-6-14t-14-6h-80v-240H480v-80q0-8-6-14t-14-6q-8 0-14 6t-6 14v80H200v88q54 20 87 67t33 105q0 57-33 104t-87 68v88Zm260-260Z" />
-            </svg>
-            Extensions
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick='tabs.createTab("shadow:/\/books")'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path
-                d="M189-160q-60 0-102.5-43T42-307q0-9 1-18t3-18l84-336q14-54 57-87.5t98-33.5h390q55 0 98 33.5t57 87.5l84 336q2 9 3.5 18.5T919-306q0 61-43.5 103.5T771-160q-42 0-78-22t-54-60l-28-58q-5-10-15-15t-21-5H385q-11 0-21 5t-15 15l-28 58q-18 38-54 60t-78 22Zm3-80q19 0 34.5-10t23.5-27l28-57q15-31 44-48.5t63-17.5h190q34 0 63 18t45 48l28 57q8 17 23.5 27t34.5 10q28 0 48-18.5t21-46.5q0 1-2-19l-84-335q-7-27-28-44t-49-17H285q-28 0-49.5 17T208-659l-84 335q-2 6-2 18 0 28 20.5 47t49.5 19Zm348-280q17 0 28.5-11.5T580-560q0-17-11.5-28.5T540-600q-17 0-28.5 11.5T500-560q0 17 11.5 28.5T540-520Zm80-80q17 0 28.5-11.5T660-640q0-17-11.5-28.5T620-680q-17 0-28.5 11.5T580-640q0 17 11.5 28.5T620-600Zm0 160q17 0 28.5-11.5T660-480q0-17-11.5-28.5T620-520q-17 0-28.5 11.5T580-480q0 17 11.5 28.5T620-440Zm80-80q17 0 28.5-11.5T740-560q0-17-11.5-28.5T700-600q-17 0-28.5 11.5T660-560q0 17 11.5 28.5T700-520Zm-360 60q13 0 21.5-8.5T370-490v-40h40q13 0 21.5-8.5T440-560q0-13-8.5-21.5T410-590h-40v-40q0-13-8.5-21.5T340-660q-13 0-21.5 8.5T310-630v40h-40q-13 0-21.5 8.5T240-560q0 13 8.5 21.5T270-530h40v40q0 13 8.5 21.5T340-460Zm140-20Z" />
-            </svg>
-            G@me$
-          </button>
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td>
-          <button data-add-tab onclick='tabs.showMoreMenu(event.clientX, event.clientY)'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="menu-icons">
-              <path d="M240-400q-33 0-56.500-23.500T160-480q0-33 23.500-56.500T240-560q33 0 56.500 23.500T320-480q0 33-23.500 56.500T240-400Zm240 0q-33 0-56.500-23.500T400-480q0-33 23.500-56.500T480-560q33 0 56.500 23.500T560-480q0 33-23.500 56.500T480-400Zm240 0q-33 0-56.500-23.500T640-480q0-33 23.500-56.500T720-560q33 0 56.500 23.500T800-480q0 33-23.500 56.500T720-400Z" />
-            </svg>
-            More
-          </button>
-        </td>
-      </tr>
-    </table>
-  </div>
 
   <!-- Bookmarks Container -->
   <div id="bookmarks-container"></div>
@@ -393,7 +227,7 @@
     // shell didn't come up as this page expects, reload once to pick up the new files.
     window.addEventListener("load", () => {
       setTimeout(() => {
-        const ok = window.tabs && typeof window.tabs.ensureProxy === "function" && window.bookmarksManager?.toggleCurrent;
+        const ok = window.tabs && typeof window.tabs.showMainMenu === "function" && window.bookmarksManager?.isBookmarked;
         if (ok) return sessionStorage.removeItem("shadow-stale-reload");
         if (sessionStorage.getItem("shadow-stale-reload")) return;
         sessionStorage.setItem("shadow-stale-reload", "1");
@@ -462,70 +296,28 @@
 
   </script>
   <script>
+    // Splash screen: stays up only until the shell has its first tab (tabs.ready),
+    // never longer than a few seconds if something in startup hangs.
     document.addEventListener('DOMContentLoaded', () => {
       const loadingBar = document.querySelector('.loading-bar');
       const loadingScreen = document.getElementById('loading-screen');
       const searchBar = document.getElementById('__shadow-search-bar');
-
-      let totalFetches = 0, completedFetches = 0, progress = 0, rafId, finishTimeout;
-
-      const setWidth = w => loadingBar.style.width = w.toFixed(2) + '%';
-
-      const animateTo = target => {
-        if (progress >= target) return;
-        const step = () => {
-          progress += (target - progress) * 0.15;
-          if (progress > target) progress = target;
-          setWidth(progress);
-          if (progress < target) rafId = requestAnimationFrame(step);
-        };
-        cancelAnimationFrame(rafId);
-        rafId = requestAnimationFrame(step);
-      };
-
-      const update = () => {
-        if (!totalFetches) {
-          animateTo(100);
-          clearTimeout(finishTimeout);
-          finishTimeout = setTimeout(() => {
-            loadingScreen.style.opacity = '0';
-            setTimeout(() => loadingScreen.style.display = 'none', 500);
-          }, 1300);
-          return;
-        }
-        animateTo((completedFetches / totalFetches) * 90);
-      };
-
-      const finish = () => {
-        clearTimeout(finishTimeout);
-        finishTimeout = setTimeout(() => {
-          animateTo(100);
-          setTimeout(() => {
-            loadingScreen.style.opacity = '0';
-            setTimeout(() => loadingScreen.style.display = 'none', 500);
-          }, 500);
-        }, 1000);
-      };
-
-      const originalFetch = window.fetch;
-      window.fetch = (...args) => {
-        totalFetches++;
-        update();
-        return originalFetch(...args).then(res => {
-          completedFetches++;
-          update();
-          if (completedFetches >= totalFetches) finish();
-          return res;
-        }).catch(err => {
-          completedFetches++;
-          update();
-          if (completedFetches >= totalFetches) finish();
-          throw err;
-        });
-      };
-
-      setWidth(0);
       if (searchBar) searchBar.addEventListener('focus', e => e.target.select());
+      if (!loadingScreen) return;
+
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        if (loadingBar) loadingBar.style.width = '100%';
+        loadingScreen.style.transition = 'opacity 0.25s ease';
+        loadingScreen.style.opacity = '0';
+        loadingScreen.style.pointerEvents = 'none';
+        setTimeout(() => loadingScreen.remove(), 300);
+      };
+      if (loadingBar) requestAnimationFrame(() => (loadingBar.style.width = '70%'));
+      Promise.resolve(window.tabs?.ready).then(finish, finish);
+      setTimeout(finish, 3000);
     });
   </script>
 

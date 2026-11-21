@@ -45,6 +45,8 @@ function actionsFor(tabs) {
     { label: "Close tab", hint: "Alt+W", run: () => tabs.closeTab() },
     { label: "Duplicate tab", hint: "Alt+D", run: () => tabs.duplicateTab() },
     { label: (t && t.pinned ? "Unpin tab" : "Pin tab"), hint: "Alt+P", run: () => tabs.setPinned(tabs.activeTabIndex, !t?.pinned) },
+    { label: t?.muted ? "Unmute tab" : "Mute tab", hint: "Alt+M", run: () => tabs.toggleMute() },
+    ...(t && !t.pinned && !t.groupId ? [{ label: "Add tab to new group", run: () => tabs.groups.createWith(t) }] : []),
     { label: "Reload", hint: "Alt+R", run: () => tabs.refresh() },
     { label: "Find in page", hint: "Alt+F", run: () => openFind(tabs) },
     { label: "Immersive mode", hint: "Alt+Enter", run: () => tabs.toggleImmersive() },
@@ -113,13 +115,26 @@ function renderPalette() {
   paletteItems.forEach((it, i) => {
     const row = document.createElement("div");
     row.className = "cmd-item" + (i === paletteActive ? " active" : "");
-    row.innerHTML =
-      (it.icon ? `<img src="${it.icon}" onerror="this.remove()">` : `<span class="cmd-dot"></span>`) +
-      `<span class="cmd-label"></span>` +
-      (it.kind ? `<span class="cmd-kind"></span>` : "") +
-      (it.hint ? `<span class="cmd-hint">${it.hint}</span>` : "");
-    row.querySelector(".cmd-label").textContent = it.label;
-    if (it.kind) row.querySelector(".cmd-kind").textContent = it.kind; // may be a device name from sync
+    // Built node by node: labels, kinds (device names from sync) and icon URLs
+    // all come from pages or other devices.
+    const add = (tag, className, text) => {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text !== undefined) node.textContent = text;
+      row.appendChild(node);
+      return node;
+    };
+    if (it.icon) {
+      const img = add("img");
+      img.alt = "";
+      img.onerror = () => img.remove();
+      img.src = it.icon;
+    } else {
+      add("span", "cmd-dot");
+    }
+    add("span", "cmd-label", it.label);
+    if (it.kind) add("span", "cmd-kind", it.kind);
+    if (it.hint) add("span", "cmd-hint", it.hint);
     row.addEventListener("mousedown", (e) => { e.preventDefault(); runPalette(i); });
     row.addEventListener("mousemove", () => setActive(i));
     paletteList.appendChild(row);
@@ -181,7 +196,12 @@ function buildFind() {
   document.body.appendChild(findEl);
   findInput = findEl.querySelector("#find-input");
   findCount = findEl.querySelector("#find-count");
-  findInput.addEventListener("input", () => search(findInput.value));
+  // Searching rewrites the page's text nodes, so wait for a pause in typing.
+  let findTimer;
+  findInput.addEventListener("input", () => {
+    clearTimeout(findTimer);
+    findTimer = setTimeout(() => search(findInput.value), 140);
+  });
   findInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") { e.preventDefault(); step(e.shiftKey ? -1 : 1); }
     else if (e.key === "Escape") { e.preventDefault(); closeFind(); }
@@ -193,18 +213,28 @@ function buildFind() {
 
 function clearMarks() {
   if (!findState) return;
+  // Put the text back, then merge the split text nodes once per parent (doing
+  // it per mark made clearing a few thousand matches visibly slow).
+  const parents = new Set();
   for (const m of findState.marks) {
     const parent = m.parentNode;
     if (!parent) continue;
-    parent.replaceChild(document.createTextNode(m.textContent), m);
-    parent.normalize();
+    try {
+      parent.replaceChild(m.ownerDocument.createTextNode(m.textContent), m);
+      parents.add(parent);
+    } catch {}
+  }
+  for (const parent of parents) {
+    try {
+      parent.normalize();
+    } catch {}
   }
   findState.marks = [];
 }
 
 function search(query) {
   const ctx = activeDoc(window.tabs);
-  if (!ctx || !ctx.doc) return;
+  if (!ctx || !ctx.doc || !ctx.doc.body) return;
   clearMarks();
   findState = { doc: ctx.doc, marks: [], current: -1 };
   query = query.trim();
@@ -229,7 +259,7 @@ function search(query) {
     let i = 0, idx;
     const lower = text.toLowerCase();
     while ((idx = lower.indexOf(needle, i)) !== -1) {
-      if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+      if (idx > i) frag.appendChild(ctx.doc.createTextNode(text.slice(i, idx)));
       const mark = ctx.doc.createElement("mark");
       mark.className = "__shadow-find";
       mark.textContent = text.slice(idx, idx + needle.length);
@@ -238,8 +268,8 @@ function search(query) {
       i = idx + needle.length;
       if (findState.marks.length >= 2000) break;
     }
-    if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
-    node.parentNode.replaceChild(frag, node);
+    if (i < text.length) frag.appendChild(ctx.doc.createTextNode(text.slice(i)));
+    node.parentNode?.replaceChild(frag, node);
   }
   if (findState.marks.length) step(1);
   else findCount.textContent = "0/0";

@@ -36,12 +36,38 @@ class HistoryHelper {
     await this.set([...arr], "open-tabs");
   }
 
+  /**
+   * Adds a visit to the front of the list. Read and write happen in one
+   * transaction, so two tabs finishing a page load at the same moment can't
+   * overwrite each other's entry (and the list is only read once per visit).
+   */
   async add(obj) {
-    let arr = await this.get() ?? [];
-    arr.unshift(obj);
-    // The whole list is read and rewritten on every visit, so keep it bounded.
-    if (arr.length > 5000) arr.length = 5000;
-    this.set(arr);
+    try {
+      const db = await this.dbPromise;
+      await new Promise((resolve, reject) => {
+        const transaction = db.transaction([this.storeName], "readwrite");
+        const store = transaction.objectStore(this.storeName);
+        const read = store.get("history-array");
+        read.onsuccess = () => {
+          const arr = Array.isArray(read.result) ? read.result : [];
+          // Reloading or bouncing back to the same page isn't a new visit.
+          if (arr[0]?.url === obj.url && obj.time - (arr[0].time ?? 0) < 30000) {
+            arr[0] = { ...arr[0], ...obj };
+          } else {
+            arr.unshift(obj);
+          }
+          // The whole list is rewritten on every visit, so keep it bounded.
+          if (arr.length > 5000) arr.length = 5000;
+          store.put(arr, "history-array");
+        };
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+        transaction.onabort = () => reject(transaction.error);
+      });
+      self.dispatchEvent(new CustomEvent("historyupdate", { detail: { key: "history-array", database: this.dbName, success: true } }));
+    } catch (error) {
+      console.error("Error adding history entry:", error);
+    }
   }
 
   async set(value, key = "history-array") {

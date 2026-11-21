@@ -5,9 +5,9 @@
 // the rewriting and the network I/O. Extension resources (chrome-extension://…)
 // are served by Sapphire. On top of that, it stale-while-revalidate caches
 // Shadow's own static assets so repeat visits are instant and the origin (and
-// the mirror fleet) take far fewer hits, precaches the shell and the built-in
-// games at install, and falls back to cached pages when the network is gone —
-// which is what makes Shadow installable and the arcade playable offline.
+// the mirror fleet) take far fewer hits, precaches the shell at install, and
+// falls back to cached pages when the network is gone — which is what makes
+// Shadow installable.
 importScripts("/dist/sapphire-sw-router.js");
 importScripts("/controller/controller.sw.js");
 importScripts("/assets/js/settings_manager_sw.js");
@@ -18,7 +18,7 @@ self.history = new HistoryHelper();
 
 // Bump to invalidate the static cache after a shell asset change that can't wait
 // for the background refresh (rare — SWR already keeps assets fresh within a load).
-const STATIC_CACHE = "shadow-static-v2";
+const STATIC_CACHE = "shadow-static-v3";
 // Shadow's own HTML pages, kept for offline use (network first, see pageRequest()).
 const PAGE_CACHE = "shadow-pages-v1";
 const CACHEABLE_EXT = /\.(css|js|mjs|png|jpe?g|svg|ico|webp|gif|woff2?|ttf|otf|json|wasm)$/i;
@@ -47,7 +47,7 @@ async function staleWhileRevalidate(request) {
   return cached || network;
 }
 
-// Fetched at install so the shell and the arcade work offline from the first
+// Fetched at install so the shell works offline from the first
 // visit on (the first page load happens before this worker controls anything, so
 // nothing it loaded went through the cache). Missing entries are skipped.
 const PRECACHE_PAGES = [
@@ -66,19 +66,13 @@ const PRECACHE_PAGES = [
   "/pages/history.html",
   "/pages/downloads.html",
   "/pages/settings.html",
-  "/arcade/2048/",
-  "/arcade/blocks/",
-  "/arcade/breakout/",
-  "/arcade/memory/",
-  "/arcade/minesweeper/",
-  "/arcade/snake/",
 ];
 const PRECACHE_ASSETS = [
   ...["index", "loading", "themes", "shell", "features", "main", "home", "books", "history", "settings"].map((n) => `/css/${n}.css`),
   ...[
     "autoblank", "settings", "debugger", "versioncheck", "search", "options", "themes", "tabs", "bookmarks", "sync", "pwa",
     "history_helper", "settings_manager", "extension_ui", "ui", "site-patches", "features", "downloads", "sitesettings",
-    "workspaces", "pagetools", "main", "history",
+    "workspaces", "pagetools", "tabgroups", "tabaudio", "main", "history",
   ].map((n) => `/assets/js/${n}.js`),
   "/assets/data/site-patches.json",
   "/books/script.js",
@@ -88,7 +82,6 @@ const PRECACHE_ASSETS = [
   "/favicon.ico",
   "/assets/imgs/icons/logo.png",
   "/assets/imgs/icons/app/icon-192.png",
-  ...["2048", "blocks", "breakout", "memory", "minesweeper", "snake"].map((n) => `/arcade/${n}/icon.svg`),
 ];
 
 // Shadow's pages are static and only read their query string client-side, so one
