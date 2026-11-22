@@ -83,31 +83,31 @@ import { SettingsManager } from "./settings_manager.js";
     switch (cloak) {
       case "search":
         setTitle("Google Search");
-        setFavicon("/assets/imgs/icons/cloaks/Google Search.ico");
+        setFavicon("/assets/imgs/icons/cloaks/Google Search.png");
         break;
       case "drive":
         setTitle("Google Drive");
-        setFavicon("/assets/imgs/icons/cloaks/Google Drive.ico");
+        setFavicon("/assets/imgs/icons/cloaks/Google Drive.png");
         break;
       case "youtube":
         setTitle("YouTube");
-        setFavicon("/assets/imgs/icons/cloaks/YouTube.ico");
+        setFavicon("/assets/imgs/icons/cloaks/YouTube.png");
         break;
       case "gmail":
         setTitle("Gmail");
-        setFavicon("/assets/imgs/icons/cloaks/Gmail.ico");
+        setFavicon("/assets/imgs/icons/cloaks/Gmail.png");
         break;
       case "calendar":
         setTitle("Google Calendar");
-        setFavicon("/assets/imgs/icons/cloaks/Calendar.ico");
+        setFavicon("/assets/imgs/icons/cloaks/Calendar.png");
         break;
       case "meets":
         setTitle("Google Meet");
-        setFavicon("/assets/imgs/icons/cloaks/Meet.ico");
+        setFavicon("/assets/imgs/icons/cloaks/Meet.png");
         break;
       case "classroom":
         setTitle("Google Classroom");
-        setFavicon("/assets/imgs/icons/cloaks/Classroom.png");
+        setFavicon("/assets/imgs/icons/cloaks/Classroom.svg");
         break;
       case "canvas":
         setTitle("Canvas");
@@ -154,7 +154,10 @@ import { SettingsManager } from "./settings_manager.js";
       document.title = tabItem.title;
       var favicon = document.querySelector('link[rel="icon"]');
       if (favicon) {
-        favicon.href = tabItem.icon;
+        // Cloaks saved before the icons were refreshed point at files that no longer exist.
+        const renamed = { "Google Search.ico": "Google Search.png", "Google Drive.ico": "Google Drive.png", "YouTube.ico": "YouTube.png",
+          "Gmail.ico": "Gmail.png", "Calendar.ico": "Calendar.png", "Meet.ico": "Meet.png", "Classroom.png": "Classroom.svg" };
+        favicon.href = String(tabItem.icon ?? "").replace(/(\/cloaks\/)([^/]+)$/, (m, dir, file) => dir + (renamed[file] ?? file));
       }
     }
   });

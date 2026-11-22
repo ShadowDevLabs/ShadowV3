@@ -64,28 +64,48 @@ const defaultWisp = `${wsScheme}://${location.host}/wisp/`;
 //
 // The codec functions are stringified into every proxied document by the
 // controller, so they must be self-contained (no closures, no imports).
-const proxyConfig = {
-  prefix: "/~/s/",
-  codec: {
-    // Same XOR scheme Ultraviolet used: keeps hostnames out of the URL bar/filters.
-    encode: (url) => {
-      if (!url) return url;
-      let out = "";
-      for (let i = 0; i < url.length; i++)
-        out += i % 2 ? String.fromCharCode(url.charCodeAt(i) ^ 2) : url[i];
-      return encodeURIComponent(out);
-    },
-    decode: (url) => {
-      if (!url) return url;
-      const [input, ...search] = url.split("?");
-      const dec = decodeURIComponent(input);
-      let out = "";
-      for (let i = 0; i < dec.length; i++)
-        out += i % 2 ? String.fromCharCode(dec.charCodeAt(i) ^ 2) : dec[i];
-      return out + (search.length ? "?" + search.join("?") : "");
-    },
+// The server usually swaps both for per-deploy ones first (loadProxyConfig).
+const uvCodec = {
+  // Same XOR scheme Ultraviolet used: keeps hostnames out of the URL bar/filters.
+  encode: (url) => {
+    if (!url) return url;
+    let out = "";
+    for (let i = 0; i < url.length; i++)
+      out += i % 2 ? String.fromCharCode(url.charCodeAt(i) ^ 2) : url[i];
+    return encodeURIComponent(out);
+  },
+  decode: (url) => {
+    if (!url) return url;
+    const [input, ...search] = url.split("?");
+    const dec = decodeURIComponent(input);
+    let out = "";
+    for (let i = 0; i < dec.length; i++)
+      out += i % 2 ? String.fromCharCode(dec.charCodeAt(i) ^ 2) : dec[i];
+    return out + (search.length ? "?" + search.join("?") : "");
   },
 };
+const proxyConfig = { prefix: "/~/s/", codec: uvCodec };
+
+/** A codec that XORs character i by key digit i (0-7). The key is inlined so the functions stay self-contained. */
+function keyedCodec(key) {
+  const xor = `for(var k="${key}",o="",i=0;i<s.length;i++)o+=String.fromCharCode(s.charCodeAt(i)^(k.charCodeAt(i%k.length)-48));`;
+  return {
+    encode: new Function("u", `if(!u)return u;var s=u;${xor}return encodeURIComponent(o);`),
+    decode: new Function("u", `if(!u)return u;var p=u.split("?"),s=decodeURIComponent(p[0]);${xor}return p.length>1?o+"?"+p.slice(1).join("?"):o;`),
+  };
+}
+
+/** Takes this deployment's proxy prefix and codec from the server; keeps the built-in ones if it has none. */
+async function loadProxyConfig() {
+  try {
+    const { prefix, codecKey } = await fetch("/v1/api/config", { cache: "no-store" }).then((r) => r.json());
+    // Validated: the key is pasted into function source above.
+    if (/^\/[a-z0-9]+\/$/.test(prefix ?? "")) proxyConfig.prefix = prefix;
+    if (/^[0-7]{4,64}$/.test(codecKey ?? "")) proxyConfig.codec = keyedCodec(codecKey);
+  } catch {
+    // offline or an older server: the defaults work everywhere
+  }
+}
 
 // Sapphire only knows how to undo Scramjet's default codec; scripts/build.mjs
 // patches it to ask us when it sees a URL encoded with ours.
@@ -343,7 +363,7 @@ class Tab {
     const serviceworker = navigator.serviceWorker.controller ?? registration.active;
     if (!serviceworker) throw new Error("The service worker never became active.");
 
-    await this.setTransport();
+    await Promise.all([this.setTransport(), loadProxyConfig()]);
 
     const controller = new Controller({
       serviceworker,
@@ -1578,7 +1598,7 @@ class Tab {
   async loadAllTabs(open) {
     const legacyDecode = (src) => {
       const prefix = "/uv/service/";
-      if (src.startsWith(prefix)) return proxyConfig.codec.decode(src.slice(prefix.length));
+      if (src.startsWith(prefix)) return uvCodec.decode(src.slice(prefix.length));
       if (src.startsWith("/pages/")) return "shadow://" + src.replace("/pages/", "").replace(".html", "");
       return src;
     };

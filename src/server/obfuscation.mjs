@@ -1,177 +1,349 @@
-// Per-deploy anti-fingerprinting for the Shadow shell. Opt-in: nothing here runs
-// until index.js calls installObfuscation(app, { publicPath, express }) — see
-// OBFUSCATION.md for the one-line wiring. Disable at runtime with
-// SHADOW_OBFUSCATE=off (ids become stable again, handy for debugging).
+// Anti-fingerprinting for Shadow's own pages, wired in index.js by
+// installObfuscation(). Three pieces, all derived from one seed (SHADOW_UI_SEED,
+// random per start when unset) so mirrors that share a seed serve the same thing:
 //
-// Three independent pieces, generated once per process so two deployments (and
-// the mirror domains) don't share one static signature a filter can match on:
+//   1. DOM renaming: every id and class the shell's HTML, CSS and JS use gets a
+//      random name, the same in every file (see "Shell DOM renaming" below).
+//      Every CSS/JS file is served minified from a random path (/abcde/k3j9x0q2mz.js),
+//      inline <script>/<style> are minified and HTML comments are dropped.
+//   2. Cloak (SHADOW_CLOAK): the shell's <title>, meta tags, favicon, language and
+//      loading-screen brand are swapped for another site's.
+//   3. Proxy URLs: /v1/api/config gives the page a per-deploy codec key and proxy
+//      prefix (public/assets/js/tabs.js, loadProxyConfig), so proxied URLs differ
+//      between deployments.
 //
-//   1. A random URL-codec key + proxy prefix, served to the client at
-//      /v1/api/config. The client builds its codec from the key (see the
-//      snippet in OBFUSCATION.md), so proxied URLs differ between deployments.
-//   2. A token rewrite: a fixed set of identifying DOM ids / class prefixes /
-//      brand strings in the served HTML/CSS/JS are swapped for random names,
-//      consistently across every text asset. An id and every reference to it
-//      change together, so the page still works.
-//   3. A document cloak: the shell page's <title>, meta and favicon are changed 
-//      for an another present/website to fight against scrapers whether it's a known site or not like (example1, example2).
-//
-// This is evasion, not security — the same category of thing Ultraviolet's cloak
-// and Holy Unblocker's rewriter already do for the same reason.
+// SHADOW_OBFUSCATE=off turns all three off. This is evasion, not security: the same
+// kind of thing Ultraviolet's cloak and Holy Unblocker's rewriter do.
 
 import crypto from "node:crypto";
-import { readFileSync, existsSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { readFileSync, readdirSync } from "node:fs";
+import { join, posix } from "node:path";
+import { transformSync } from "esbuild";
 
-const OBFUSCATE = process.env.SHADOW_OBFUSCATE !== "off";
-
-// DOM signatures a scraper is likely to key on. A prefix like "shadow-menu" also
-// covers "shadow-menu-item" etc. Keep these mutually non-substring; replacement
-// is longest-first so a token that is a prefix of another is handled after it.
-const SIGNATURE_TOKENS = [
-  "__shadow-search-bar",
-  "menu-dropdown",
-  "tabs-container",
-  "iframes-container",
-  "bookmarks-container",
-  "disclaimerSite",
-  "loading-screen",
-  "shadow-menu",
-  "shadow-toast",
-  "ShadowV3",
-];
-
+// Placeholders: replace with the sites you want the shell to pass as.
 const CLOAK_PRESETS = {
   off: null,
-  example1: {
-    title: "Example Site 1",
-    description: "This is an example website.",
-    siteName: "Example Site 1",
-    url: "https://example.com",
-    favicon: "https://example.com/favicon.ico",
-    lang: "en"
-  },
-  example2: {
-    title: "Example Site 2",
-    description: "This is another example website.",
-    siteName: "Example Site 2",
-    url: "https://example.org",
-    favicon: "https://example.org/favicon.ico",
-    lang: "en"
-  },
+  ixl: { title: "IXL | Math, Language Arts, Science, Social Studies, and Spanish",
+    description: "IXL is the world's most popular subscription-based learning site for K-12.",
+    siteName: "IXL Learning", url: "https://www.ixl.com", favicon: "https://www.ixl.com/favicon.ico", lang: "en" },
+  classroom: { title: "Classes", description: "Sign in to continue to Google Classroom.",
+    siteName: "Google Classroom", url: "https://classroom.google.com", favicon: "/assets/imgs/icons/cloaks/Classroom.png", lang: "en" },
+  khan: { title: "Dashboard | Khan Academy",
+    description: "Learn for free about math, art, computer programming, economics, and more.",
+    siteName: "Khan Academy", url: "https://www.khanacademy.org", favicon: "/assets/imgs/icons/cloaks/Khan Academy.ico", lang: "en" },
+  canvas: { title: "Dashboard", description: "Canvas by Instructure.",
+    siteName: "Canvas", url: "https://canvas.instructure.com", favicon: "/assets/imgs/icons/cloaks/Canvas.ico", lang: "en" },
+  drive: { title: "My Drive - Google Drive", description: "Sign in to continue to Google Drive.",
+    siteName: "Google Drive", url: "https://drive.google.com", favicon: "/assets/imgs/icons/cloaks/Google Drive.ico", lang: "en" },
 };
 
-function randToken(length = 8) {
-  const alpha = "abcdefghijklmnopqrstuvwxyz";
-  const alnum = alpha + "0123456789";
-  let out = alpha[crypto.randomInt(alpha.length)];
-  for (let i = 1; i < length; i++) out += alnum[crypto.randomInt(alnum.length)];
+const ALPHA = "abcdefghijklmnopqrstuvwxyz";
+const ALNUM = ALPHA + "0123456789";
+/** A name that starts with a letter, read off hash bytes. */
+const word = (bytes, length) => {
+  let out = ALPHA[bytes[0] % 26];
+  for (let i = 1; out.length < length; i++) out += ALNUM[bytes[i] % 36];
   return out;
-}
-
-function buildTokenMap() {
-  if (!OBFUSCATE) return [];
-  return [...SIGNATURE_TOKENS]
-    .sort((a, b) => b.length - a.length)
-    .map((token) => ({ token, replacement: randToken(token.length > 12 ? 12 : 8) }));
-}
-
-function resolveCloak() {
-  const choice = (process.env.SHADOW_CLOAK ?? "example1").toLowerCase();
-  if (choice === "random") {
-    const names = Object.keys(CLOAK_PRESETS).filter((n) => CLOAK_PRESETS[n]);
-    return CLOAK_PRESETS[names[crypto.randomInt(names.length)]];
-  }
-  return CLOAK_PRESETS[choice] ?? CLOAK_PRESETS.example1;
-}
-
-const state = {
-  enabled: OBFUSCATE,
-  prefix: OBFUSCATE ? `/${randToken(6)}/` : "/~/s/",
-  codecKey: OBFUSCATE ? crypto.randomBytes(12).toString("hex") : "7f3a9c2e5b1d",
-  tokenMap: buildTokenMap(),
-  cloak: resolveCloak(),
 };
+const derive = (seed, label) => crypto.createHmac("sha256", seed).update(label).digest();
 
-/** The subset the browser needs to reproduce the codec and find proxied URLs. */
-export function clientConfig() {
-  return { prefix: state.prefix, codecKey: state.codecKey, obfuscated: state.enabled };
+/** SHADOW_CLOAK: a preset name, "random" (picked by the seed) or "off". Unknown names fall back to example1. */
+export function resolveCloak(choice, seed) {
+  choice = (choice ?? "example1").toLowerCase();
+  if (choice === "off") return null;
+  const names = Object.keys(CLOAK_PRESETS);
+  if (choice === "random") return CLOAK_PRESETS[names[derive(seed, "cloak")[0] % names.length]];
+  return CLOAK_PRESETS[Object.hasOwn(CLOAK_PRESETS, choice) ? choice : "example1"];
 }
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-}
+const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
-function applyCloak(html) {
-  const cloak = state.cloak;
-  if (!cloak) return html;
-  const block = `
-  <title>${escapeHtml(cloak.title)}</title>
+/**
+ * Replaces the <!--CLOAK:START-->…<!--CLOAK:END--> block, the <html lang> and the
+ * "ShadowV3" brand. The markers never reach the browser: they'd be a signature.
+ */
+export function applyCloak(html, cloak) {
+  const markers = /[ \t]*<!--CLOAK:START-->\n?([\s\S]*?)[ \t]*<!--CLOAK:END-->\n?/;
+  if (!cloak) return html.replace(markers, (m, original) => original);
+  const block = `  <title>${escapeHtml(cloak.title)}</title>
   <meta name="description" content="${escapeHtml(cloak.description)}" />
   <meta property="og:title" content="${escapeHtml(cloak.title)}" />
   <meta property="og:description" content="${escapeHtml(cloak.description)}" />
   <meta property="og:site_name" content="${escapeHtml(cloak.siteName)}" />
   <meta property="og:url" content="${escapeHtml(cloak.url)}" />
   <meta property="og:type" content="website" />
-  <link rel="icon" href="${escapeHtml(cloak.favicon)}" />`;
-  const replaced = html.replace(/<!--CLOAK:START-->[\s\S]*?<!--CLOAK:END-->/, `<!--CLOAK:START-->${block}\n  <!--CLOAK:END-->`);
-  return cloak.lang ? replaced.replace(/<html lang="[^"]*"/, `<html lang="${escapeHtml(cloak.lang)}"`) : replaced;
+  <link rel="icon" href="${escapeHtml(cloak.favicon)}" />
+`;
+  return html
+    .replace(markers, () => block)
+    .replace(/<html lang="[^"]*"/, () => `<html lang="${escapeHtml(cloak.lang ?? "en")}"`)
+    .replaceAll("ShadowV3", () => escapeHtml(cloak.siteName));
 }
 
-/** Rewrites a served text asset: signature tokens, then (for index.html) the cloak. */
-export function rewriteText(relPath, text) {
-  let out = text;
-  for (const { token, replacement } of state.tokenMap) out = out.split(token).join(replacement);
-  if (relPath === "index.html") out = applyCloak(out);
-  return out;
+/** The proxy prefix and codec key the page builds its codec from (served at /v1/api/config). */
+export function proxyConfig(seed, reserved = new Set()) {
+  let prefix;
+  for (let n = 0; !prefix || reserved.has(prefix); n++) prefix = word(derive(seed, `prefix${n}`), 6);
+  // One XOR amount (0-7) per character: keeps proxied URLs short and mostly printable.
+  const codecKey = [...derive(seed, "codec").subarray(0, 11)].map((b) => b % 8).join("");
+  return { prefix: `/${prefix}/`, codecKey };
 }
 
-export const isObfuscated = () => state.enabled;
-const needsRewrite = () => state.tokenMap.length > 0 || !!state.cloak;
-export { CLOAK_PRESETS };
+// ---------------------------------------------------------------------------
+// Shell DOM renaming. Every id and class the shell's own
+// HTML, CSS and JS use is discovered at startup and given a random name, the
+// same in every file. A name is renamed only where it is certainly a DOM name:
+//   CSS   .name / #name in selectors (never in property values)
+//   HTML  id, class, for, aria-* references, href="#name", inline <style>/<script>/on*
+//   JS    string literals passed to getElementById, classList.*, querySelector*,
+//         closest, matches, assigned to .className, under a `class:` key, a literal
+//         that is itself a selector (".x"/"#x"), and class=/id= inside markup strings
+// A name that also shows up as plain data (any other bare JS literal, an HTML
+// value=/data-* attribute, a JSON string, a "-suffix"/"prefix-" fragment that is
+// concatenated into ids) keeps its original name everywhere, so it can't break.
+
+const IDENT = /^-?[A-Za-z_][\w-]*$/;
+const skipDirectories = new Set(["/dist", "/books/files", "/assets/imgs"]);
+const externalName = /^fa(?:-|$)/; // Font Awesome: styled by a stylesheet we don't serve
+
+function readUiSources(directory, urlPath, files) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    if (entry.name.startsWith(".")) continue;
+    const url = `${urlPath}/${entry.name}`;
+    const file = join(directory, entry.name);
+    if (entry.isDirectory() && !skipDirectories.has(url)) readUiSources(file, url, files);
+    else if (entry.isFile() && /\.(?:html|css|m?js|json)$/.test(url)) files.set(url, readFileSync(file, "utf8"));
+  }
+}
+
+const swapList = (list, swap) => list.replace(/[^\s]+/g, (n) => (IDENT.test(n) ? swap(n) : n));
+const swapSelector = (sel, swap) => sel.replace(/([.#])(-?[A-Za-z_][\w-]*)/g, (m, sigil, n) => sigil + swap(n));
+
+function rewriteCss(text, swap) {
+  // A selector is the text before a "{", back to the previous "{", "}" or ";".
+  return text.replace(/(^|[{};])([^{};]*)(?=\{)/g, (m, lead, prelude) =>
+    lead + (prelude.trimStart().startsWith("@") ? prelude : swapSelector(prelude, swap)));
+}
+
+const markupAttr = /(\s)(id|class|for|aria-(?:controls|labelledby|describedby|owns|activedescendant)|href|xlink:href)=(["'])([^"'<>]*)/gi;
+function rewriteMarkupAttrs(text, swap) {
+  return text.replace(markupAttr, (m, space, attr, quote, value) => {
+    const name = attr.toLowerCase();
+    if (name.endsWith("href")) return value.startsWith("#") ? `${space}${attr}=${quote}${swapSelector(value, swap)}` : m;
+    return `${space}${attr}=${quote}${swapList(value, swap)}`;
+  });
+}
+
+function rewriteHtml(text, swap, keep) {
+  if (keep) for (const m of text.matchAll(/\s(?:value|data-[\w-]+)=["']([^"']*)["']/g)) keep.add(m[1].trim());
+  return rewriteMarkupAttrs(text, swap)
+    .replace(/(<style\b[^>]*>)([\s\S]*?)(<\/style>)/gi, (m, a, body, c) => a + rewriteCss(body, swap) + c)
+    .replace(/(<script\b(?![^>]*\bsrc=)[^>]*>)([\s\S]*?)(<\/script>)/gi, (m, a, body, c) => a + rewriteJs(body, swap, keep) + c)
+    .replace(/(\son\w+=)(?:"([^"]*)"|'([^']*)')/gi, (m, a, dq, sq) =>
+      dq !== undefined ? `${a}"${rewriteJs(dq, swap, keep)}"` : `${a}'${rewriteJs(sq, swap, keep)}'`);
+}
+
+/** [start, end) of every string literal and template-literal chunk in a script. */
+function stringSpans(src) {
+  const spans = [], templates = [];
+  let depth = 0, last = "", i = 0;
+  while (i < src.length) {
+    const c = src[i];
+    if (c === "/" && src[i + 1] === "/") { i = src.indexOf("\n", i); if (i < 0) break; continue; }
+    if (c === "/" && src[i + 1] === "*") { i = src.indexOf("*/", i + 2); if (i < 0) break; i += 2; continue; }
+    if (c === '"' || c === "'") {
+      const start = ++i;
+      while (i < src.length && src[i] !== c && src[i] !== "\n") i += src[i] === "\\" ? 2 : 1;
+      spans.push([start, i++]);
+      last = c;
+      continue;
+    }
+    if (c === "`" || (c === "}" && templates.at(-1) === depth)) {
+      if (c === "}") templates.pop();
+      const start = ++i;
+      while (i < src.length && src[i] !== "`" && !(src[i] === "$" && src[i + 1] === "{")) i += src[i] === "\\" ? 2 : 1;
+      spans.push([start, i]);
+      if (src[i] === "$") { templates.push(depth); i += 2; last = "{"; } else { i++; last = "`"; }
+      continue;
+    }
+    const regexAllowed = last === "" || /[(,=:[!&|?{};+\-*%<>~^]/.test(last) ||
+      /\b(?:return|typeof|case|do|else|in|of|void|yield|await)$/.test(src.slice(Math.max(0, i - 7), i).trimEnd());
+    if (c === "/" && regexAllowed) {
+      let inClass = false;
+      for (i++; i < src.length && src[i] !== "\n" && (inClass || src[i] !== "/"); i++) {
+        if (src[i] === "\\") i++;
+        else if (src[i] === "[") inClass = true;
+        else if (src[i] === "]") inClass = false;
+      }
+      i++;
+      last = ")";
+      continue;
+    }
+    if (c === "{") depth++;
+    else if (c === "}") depth--;
+    if (!/\s/.test(c)) last = c;
+    i++;
+  }
+  return spans;
+}
+
+const listContext = /(?:getElementById|classList\.(?:add|remove|toggle|contains|replace))\(\s*(?:(["'`])[\w\s-]*\1\s*,\s*)*$|(?:\.className\s*[+]?=|\bclass(?:Name)?["']?\s*:)\s*$|setAttribute\(\s*(["'])(?:id|class)\2\s*,\s*$/;
+const selectorContext = /(?:querySelector(?:All)?|closest|matches)\(\s*$/;
+// "sel { prop: value; … }": CSS built in a script (style.textContent = `…`).
+const cssRule = /[.#][A-Za-z_-][^{};]*\{\s*(?:[\w-]+\s*:[^{};]+;?\s*)+\}/;
+
+function rewriteJs(src, swap, keep) {
+  let out = "", at = 0;
+  const weak = keep ? (n) => n : swap; // a bare ".x" literal renames x but isn't proof that x is a DOM name
+  for (const [start, end] of stringSpans(src)) {
+    const value = src.slice(start, end);
+    const before = src.slice(Math.max(0, start - 81), start - 1);
+    let next = value;
+    if (listContext.test(before)) next = swapList(value, swap);
+    else if (selectorContext.test(before)) next = swapSelector(value, swap);
+    else if (cssRule.test(value)) next = rewriteMarkupAttrs(rewriteCss(value, swap), swap); // a stylesheet, maybe inside markup
+    else if (/^\s*[.#][A-Za-z_-]/.test(value) && !value.includes("/")) next = swapSelector(value, weak);
+    else if (value.includes("<")) next = rewriteMarkupAttrs(value, swap);
+    else if (keep) {
+      const parts = value.trim().split(/\s+/);
+      if (parts.every((p) => IDENT.test(p))) parts.forEach((p) => keep.add(p));
+      if (/^-[\w-]+$|^[\w-]+-$/.test(value)) keep.add(`fragment:${value}`);
+    }
+    out += src.slice(at, start) + next;
+    at = end;
+  }
+  return out + src.slice(at);
+}
+
+function rewriteUiText(path, text, swap, keep) {
+  if (path.endsWith(".css")) return rewriteCss(text, swap);
+  if (path.endsWith(".html")) return rewriteHtml(text, swap, keep);
+  if (path.endsWith(".json")) {
+    if (keep) for (const m of text.matchAll(/"([^"\\]*)"/g)) keep.add(m[1].trim());
+    return text;
+  }
+  return rewriteJs(text, swap, keep);
+}
+
+function randomNames(names, taken, seed) {
+  const map = new Map(), used = new Set(taken);
+  for (const original of [...names].sort()) {
+    for (let attempt = 0; !map.has(original); attempt++) {
+      const h = derive(seed, `${original}\0${attempt}`);
+      const name = word(h.subarray(1), 5 + (h[0] % 5));
+      if (!used.has(name)) { used.add(name); map.set(original, name); }
+    }
+  }
+  return map;
+}
 
 /**
- * Wire obfuscation into the Express app: the /v1/api/config endpoint and the
- * HTML/CSS/JS rewrite middleware. Call this once, immediately BEFORE the generic
- * `app.use(express.static(publicPath, …))` so it wins for the same paths. The
- * runtime bundles (/dist, /scramjet, /controller, /epoxy, /libcurl, /eruda) are
- * mounted earlier and never reach here.
+ * Discovers every DOM name in `sources` (url path -> text) and returns the random
+ * map, each CSS/JS file's random path (`assetPath`) and a renderer that applies both.
+ * `reserved` holds top-level names the asset folder must not take.
  */
-export function installObfuscation(app, { publicPath, express }) {
+export function buildUiRewrite(sources, seed, reserved = new Set()) {
+  const found = new Set(), keep = new Set();
+  const record = (n) => (found.add(n), n);
+  for (const [path, text] of sources) rewriteUiText(path, text, record, keep);
+  const fragments = [...keep].filter((k) => k.startsWith("fragment:")).map((k) => k.slice(9));
+  const renamable = [...found].filter((n) =>
+    !keep.has(n) && !externalName.test(n) && !fragments.some((f) => (f.startsWith("-") ? n.endsWith(f) : n.startsWith(f))));
+  const map = randomNames(renamable, found, seed);
+  const swap = (n) => map.get(n) ?? n;
+  // The content hash is in every asset path, so a changed file gets a new URL.
+  const build = crypto.createHash("sha256").update(seed).update(JSON.stringify([...sources])).digest("hex");
+  let assetDir;
+  for (let n = 0; !assetDir || reserved.has(assetDir); n++) assetDir = word(derive(seed, `assets${n}`), 5);
+  const assetPath = (path) => `/${assetDir}/${word(derive(build, path), 10)}.${path.endsWith(".css") ? "css" : "js"}`;
+  const render = (path, text) => rewriteUiText(path, text, swap, null).replace(assetReference, (original, quote, reference) => {
+    const url = new URL(reference, new URL(path, "http://shadow.invalid"));
+    if (!sources.has(url.pathname)) return original;
+    return `${quote}${assetPath(url.pathname)}${url.search}${url.hash}${quote}`;
+  });
+  return { map, assetPath, render };
+}
+
+// Quoted references to the shell's own CSS/JS (link/script tags, imports, the
+// service worker): rendered pages load them from their random paths instead.
+const assetReference = /(["'`])((?!\/\/)[\w./%-]+\.(?:css|m?js)(?:\?[^"'\s`#]*)?(?:#[^"'\s`]*)?)\1/g;
+
+/** Minifies CSS/JS (and the scripts, styles and comments in HTML) so served files don't read like their source. */
+export function minifyAsset(path, text) {
+  const minify = (code, loader) => {
+    try {
+      return transformSync(code, { loader, minify: true, legalComments: "none" }).code.trim();
+    } catch (e) {
+      console.warn(`[obfuscation] left ${path} unminified: ${e.message.split("\n")[0]}`);
+      return code;
+    }
+  };
+  if (path.endsWith(".css")) return minify(text, "css");
+  if (!path.endsWith(".html")) return minify(text, "js");
+  return text
+    .replace(/(<script\b([^>]*)>)([\s\S]*?)(<\/script>)/gi, (m, open, attrs, body, close) => {
+      const type = attrs.match(/\btype=["']?([^"'\s>]+)/i)?.[1];
+      const isJs = !type || /^(?:module|text\/javascript)$/i.test(type); // not JSON-LD, templates, …
+      return /\bsrc=/i.test(attrs) || !isJs || !body.trim() ? m : open + minify(body, "js") + close;
+    })
+    .replace(/(<style\b[^>]*>)([\s\S]*?)(<\/style>)/gi, (m, open, body, close) => open + minify(body, "css") + close)
+    .replace(/(<script\b[\s\S]*?<\/script>)|<!--(?!\[if)[\s\S]*?-->\n?/gi, (m, script) => script ?? "");
+}
+
+/**
+ * Wires all three pieces into the app. Call it after the runtime mounts (/dist,
+ * /scramjet, /controller, …, which it never touches) and before the generic
+ * express.static(publicPath), so it wins for the same paths.
+ */
+export function installObfuscation(app, { publicPath }) {
+  const enabled = process.env.SHADOW_OBFUSCATE !== "off";
+  const seed = process.env.SHADOW_UI_SEED || crypto.randomBytes(16).toString("hex");
+  const reserved = new Set(readdirSync(publicPath));
+  const config = enabled ? proxyConfig(seed, reserved) : {}; // {} = the page keeps its built-in codec
   app.get("/v1/api/config", (req, res) => {
     res.set("Cache-Control", "no-store");
-    res.json(clientConfig());
+    res.json(config);
   });
+  if (!enabled) return;
 
-  if (!needsRewrite()) return;
+  const cloak = resolveCloak(process.env.SHADOW_CLOAK, seed);
+  const sources = new Map();
+  readUiSources(publicPath, "", sources);
+  sources.set("/index.html", applyCloak(sources.get("/index.html") ?? "", cloak));
+  const { render, assetPath } = buildUiRewrite(sources, seed, new Set([...reserved, config.prefix.slice(1, -1)]));
+  const assets = [...sources.keys()].filter((path) => /\.(?:css|m?js)$/.test(path));
+  // The worker precaches every current CSS/JS path and drops older ones.
+  const swSource = sources.get("/sw.js")?.replace("const UI_ASSETS = null;", () => `const UI_ASSETS = ${JSON.stringify(assets.map(assetPath))};`);
 
-  const REWRITE_EXT = new Set([".html", ".css", ".js"]);
-  const cache = new Map(); // relPath -> { body, etag }
+  const served = new Map(); // request path -> { body, etag, cache, worker }
+  const add = (url, body, cache, worker = false) =>
+    served.set(url, { body, cache, worker, etag: `W/"${crypto.createHash("sha256").update(body).digest("hex").slice(0, 32)}"` });
+  for (const [path, source] of sources) {
+    if (path.endsWith(".json")) continue;
+    const body = minifyAsset(path, render(path, path === "/sw.js" ? swSource : source));
+    if (path.endsWith(".html")) add(path, body, "public, max-age=0, must-revalidate");
+    else if (path === "/sw.js") add(assetPath(path), body, "no-cache", true); // /sw.js itself stays the unmodified original
+    else {
+      add(assetPath(path), body, "public, max-age=31536000, immutable"); // the path changes whenever the file does
+      add(path, body, "public, max-age=0, must-revalidate"); // the original URL gets the same renamed copy, never a mismatched one
+    }
+  }
 
   app.use((req, res, next) => {
     if (req.method !== "GET" && req.method !== "HEAD") return next();
-    let rel = decodeURIComponent(req.path.replace(/^\/+/, ""));
-    if (rel === "" || rel.endsWith("/")) rel += "index.html";
-    if (rel.includes("..")) return next();
-    const dot = rel.lastIndexOf(".");
-    const ext = dot === -1 ? "" : rel.slice(dot).toLowerCase();
-    if (!REWRITE_EXT.has(ext)) return next();
-
-    const abs = join(publicPath, rel);
-    if (!abs.startsWith(publicPath) || !existsSync(abs) || !statSync(abs).isFile()) return next();
-
-    let entry = cache.get(rel);
-    if (!entry) {
-      const body = rewriteText(rel, readFileSync(abs, "utf8"));
-      const etag = '"' + crypto.createHash("sha1").update(body).digest("hex").slice(0, 16) + '"';
-      entry = { body, etag };
-      cache.set(rel, entry);
+    let path;
+    try {
+      path = posix.normalize(decodeURIComponent(req.path));
+    } catch {
+      return next();
     }
-    const type = ext === ".html" ? "text/html" : ext === ".css" ? "text/css" : "application/javascript";
-    res.set("Content-Type", `${type}; charset=utf-8`);
-    res.set("Cache-Control", rel === "index.html" ? "no-cache" : "public, max-age=3600");
-    res.set("ETag", entry.etag);
-    if (req.headers["if-none-match"] === entry.etag) return res.status(304).end();
-    res.send(req.method === "HEAD" ? undefined : entry.body);
+    if (path.endsWith("/")) path += "index.html";
+    if (path === "/privacy") path = "/privacy.html";
+    const asset = served.get(path);
+    if (!asset) return next();
+    res.set("Cache-Control", asset.cache);
+    if (asset.worker) res.set("Service-Worker-Allowed", "/"); // registered with scope "/" from outside its folder
+    res.set("ETag", asset.etag);
+    res.type(posix.extname(path)).send(asset.body);
   });
 }

@@ -88,6 +88,11 @@ const PRECACHE_ASSETS = [
 // cached copy per path serves every ?url=… variant.
 const pageKey = (url) => url.origin + url.pathname;
 
+// When the server randomises asset paths (src/server/obfuscation.mjs) it fills this
+// in with the CSS/JS paths its pages use; they replace PRECACHE_ASSETS' CSS/JS, and
+// cached CSS/JS from an older run are dropped on activate.
+const UI_ASSETS = null;
+
 async function precache() {
   const pages = await caches.open(PAGE_CACHE);
   const assets = await caches.open(STATIC_CACHE);
@@ -99,7 +104,8 @@ async function precache() {
   };
   await Promise.all([
     ...PRECACHE_PAGES.map((path) => add(pages, path, self.location.origin + path)),
-    ...PRECACHE_ASSETS.map((path) => add(assets, path, path)),
+    ...(UI_ASSETS ? [...UI_ASSETS, ...PRECACHE_ASSETS.filter((path) => !/\.(?:css|m?js)$/.test(path))] : PRECACHE_ASSETS)
+      .map((path) => add(assets, path, path)),
   ]);
 }
 
@@ -127,6 +133,14 @@ self.addEventListener("activate", (event) => {
     (async () => {
       const keys = await caches.keys();
       await Promise.all(keys.filter((k) => k.startsWith("shadow-static-") && k !== STATIC_CACHE).map((k) => caches.delete(k)));
+      if (UI_ASSETS) {
+        const current = new Set(UI_ASSETS);
+        const assets = await caches.open(STATIC_CACHE);
+        for (const request of await assets.keys()) {
+          const { pathname } = new URL(request.url);
+          if (/\.(?:css|m?js)$/.test(pathname) && !current.has(pathname)) await assets.delete(request);
+        }
+      }
       await self.clients.claim();
     })(),
   );

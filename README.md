@@ -60,8 +60,9 @@ Settings → Sync creates a sync code on one device; entering it on another link
 ## Per-site compatibility patches
 `public/assets/js/site-patches.js` applies fixups to proxied pages by hostname, so a site that needs a nudge (a bit of CSS, a small script) can be handled without touching the proxy engine. CSS-only fixes live in `public/assets/data/site-patches.json` and load live — add `{ "match": "example.com", "css": "...", "note": "why" }` and reload, no rebuild. `match` accepts `example.com` (domain + subdomains), `*.example.com` (subdomains only), or `~text` (hostname contains text). Script fixes go in the `JS_PATCHES` array in `site-patches.js`. It ships with no site fixes — real ones have to be written against live sites — but the framework is wired and runs whatever you add.
 
-## Anti-fingerprinting
-Optional per-deploy obfuscation (random DOM ids, page cloak, custom URL codec) lives in `src/server/obfuscation.mjs` and ships un-wired. See `OBFUSCATION.md` to switch it on.
+## DOM obfuscation
+
+`npm start` gives every id and class it can safely rename a random name, serves every CSS/JS file minified from a random path, disguises the shell's title, meta tags and favicon as another site (`SHADOW_CLOAK`), and gives each deploy its own proxy URL prefix and codec. `SHADOW_UI_SEED` keeps all of that the same across restarts (mirrors behind one load balancer must share it). `SHADOW_OBFUSCATE=off` turns it all off for debugging. [Configuration and verification](OBFUSCATION.md)
 
 ## Building
 `npm install` builds `public/dist/` automatically (and `npm start` rebuilds it if it's missing). To rebuild by hand: `npm run build`.

@@ -13,6 +13,7 @@ import { dirname, join } from "path";
 import { users, port, brokenSites } from "./config.js";
 import session from "express-session";
 import { build, isBuilt } from "./scripts/build.mjs";
+import { installObfuscation } from "./src/server/obfuscation.mjs";
 import { syncRouter } from "./src/server/sync.js";
 
 import dotenv from "dotenv";
@@ -102,6 +103,7 @@ app.get("/sw.js", (req, res) => {
   res.set("Cache-Control", "no-cache");
   res.sendFile(join(publicPath, "sw.js"));
 });
+installObfuscation(app, { publicPath });
 app.use("/privacy", express.static(publicPath + "/privacy.html"));
 
 // Shadow's own files. Images and fonts rarely change, so they're cached for a
