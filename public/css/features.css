@@ -148,21 +148,16 @@ body.vertical-tabs:not(.immersive) > * {
   grid-column: 2;
 }
 
-/* A real sidebar panel, not the top strip turned on its side: flat rows,
-   the active tab marked by a fill and an accent edge, "New tab" on top. */
 body.vertical-tabs:not(.immersive) > #tabs-container {
   grid-column: 1;
   grid-row: 1 / -1;
   flex-direction: column;
   align-items: stretch;
-  gap: 2px;
-  padding: 10px 8px;
+  gap: 8px;
+  padding: 12px 6px 12px 12px;
   overflow-y: auto;
   overflow-x: hidden;
   border-radius: 0;
-  background: var(--primary);
-  border-right: 1px solid var(--border);
-  backdrop-filter: none;
 }
 
 body.vertical-tabs:not(.immersive) > #header {
@@ -187,40 +182,11 @@ body.vertical-tabs .tab.pinned {
   flex: 0 0 auto;
   max-width: none;
   min-width: 0;
-  padding: 7px 10px;
-  background: transparent;
-  border-color: transparent;
-  border-radius: 8px;
-  box-shadow: none;
-  transition: background-color 0.12s ease;
+  padding: 8px 12px;
 }
 
 body.vertical-tabs .tab:hover {
-  transform: none;
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
-}
-
-body.vertical-tabs .tab.active {
-  background: color-mix(in srgb, var(--accent) 20%, transparent);
-  box-shadow: inset 3px 0 0 var(--accent);
-}
-
-body.vertical-tabs .tab.private {
-  border-color: var(--border);
-}
-
-body.vertical-tabs .tab .tab-icon {
-  filter: none;
-}
-
-/* Close buttons appear on the row you're pointing at, and on the open tab. */
-body.vertical-tabs .tab .close-tab-button {
-  opacity: 0;
-}
-
-body.vertical-tabs .tab:hover .close-tab-button,
-body.vertical-tabs .tab.active .close-tab-button {
-  opacity: 1;
+  transform: translateX(2px);
 }
 
 body.vertical-tabs .tab .tab-title {
@@ -228,45 +194,17 @@ body.vertical-tabs .tab .tab-title {
   flex: 1 1 auto;
 }
 
-/* Pinned tabs keep their title here (there's room), marked by a faint edge. */
+/* Pinned tabs keep their title here (there's room), marked by the accent edge. */
 body.vertical-tabs .tab.pinned .tab-title {
   display: inline-block;
 }
 
-body.vertical-tabs .tab.pinned:not(.active) {
-  box-shadow: inset 2px 0 0 var(--border);
+body.vertical-tabs .tab.pinned {
+  border-left: 3px solid var(--accent);
 }
 
 body.vertical-tabs .addtab-btn {
-  order: -1;
-  justify-content: flex-start;
-  gap: 8px;
-  padding: 7px 10px;
-  margin-bottom: 8px;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: none;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
-body.vertical-tabs .addtab-btn::before {
-  display: none;
-}
-
-body.vertical-tabs .addtab-btn::after {
-  content: "New tab";
-}
-
-body.vertical-tabs .addtab-btn:hover {
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
-  box-shadow: none;
-}
-
-body.vertical-tabs .addtab-btn .icons {
-  width: 20px;
-  height: 20px;
+  align-self: flex-start;
 }
 
 /* The suggestions box is positioned for the horizontal layout's toolbar. */

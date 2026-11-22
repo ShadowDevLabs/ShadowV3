@@ -5,7 +5,7 @@ import { buildUiRewrite, minifyAsset, applyCloak, resolveCloak, proxyConfig, CLO
 
 test("cloak swaps the head block, lang and brand, and never leaks its markers", () => {
   const page = `<html lang="en"><head>\n  <!--CLOAK:START-->\n  <title>Shadow</title>\n  <!--CLOAK:END-->\n</head><span>ShadowV3</span>`;
-  const cloak = { ...CLOAK_PRESETS.example1, title: 'A "quoted" <title>', lang: "fr" };
+  const cloak = { ...CLOAK_PRESETS.ixl, title: 'A "quoted" <title>', lang: "fr" };
   const out = applyCloak(page, cloak);
   assert.ok(out.includes("<title>A &quot;quoted&quot; &lt;title&gt;</title>") && out.includes('<html lang="fr"'));
   assert.ok(!out.includes("CLOAK") && !out.includes("ShadowV3") && !out.includes("<title>Shadow</title>"));
@@ -85,3 +85,4 @@ test("minifying strips comments and readable code but leaves data scripts alone"
   assert.equal(minifyAsset("/a.css", ".a {\n  color: red;\n}\n"), ".a{color:red}");
   assert.equal(minifyAsset("/broken.js", "let = ;"), "let = ;", "a file esbuild can't parse is served as is");
 });
+

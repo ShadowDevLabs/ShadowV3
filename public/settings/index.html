@@ -55,9 +55,7 @@
   <div id="content">
     <div id="general-content">
       <div class="content-title">General</div>
-
-      <div class="settings-group">
-        <h2 class="group-title">Privacy &amp; Cloaking</h2>
+      <!-- Tabs Cloak -->
       <div class="settings-section">
         <h2 class="section-title">Tab Cloak</h2>
         <div class="section-content">
@@ -99,6 +97,9 @@
           </div>
         </div>
       </div>
+
+      <br /><br />
+      <!-- About:blank -->
       <div class="settings-section">
         <h2 class="section-title">About:Blank</h2>
         <div class="section-content">
@@ -115,26 +116,66 @@
           </button>
         </div>
       </div>
-        <div class="setting-row">
-          <div class="setting-info">
-            <h3 class="setting-name">Auto Blank</h3>
-            <p class="setting-desc">Open Shadow inside about:blank automatically, keeping it out of your history and away from some blockers.</p>
-          </div>
+      <br /><br />
+      <div class="settings-section">
+        <h2 class="section-title">Auto Blank</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Enable automatic about:blank cloaking. This can help prevent the site from showing up in your search
+            history, and hides the site from some blockers.
+          </p>
           <div class="switch">
             <input type="checkbox" class="switch" id="autoBlankSwitch" onclick="setAutoBlank();" />
             <label for="autoBlankSwitch" class="slider"></label>
           </div>
         </div>
-        <div class="setting-row">
-          <div class="setting-info">
-            <h3 class="setting-name">Close Protection</h3>
-            <p class="setting-desc">Ask for confirmation whenever something tries to close the page.</p>
+      </div>
+      <br />
+      <!--Toggle auto save/load tabs-->
+      <div class="settings-section">
+        <h2 class="section-title">Auto Save/Load Tabs</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Automatically reload tabs from older sessions, toggle auto saving
+            and loading here.
+          </p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="saveTabsSwitch" onclick="setSaveTabs();" />
+            <label for="saveTabsSwitch" class="slider"></label>
           </div>
+        </div>
+      </div>
+      <br />
+      <div class="settings-section">
+        <h2 class="section-title">History</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Save your history! History is accessibly at <span style="cursor: pointer; color: var(--accent);"
+              onclick="top.tabs.createTab('shadow:/\/history')">shadow://history</span>
+          </p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="historySwitch" onclick="toggleHistory();" />
+            <label for="historySwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
+      <br />
+      <!-- Close Protection -->
+      <div class="settings-section">
+        <h2 class="section-title">Close Protection</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Prevent extensions and teachers from closing tabs! Will present a confirmation popup whenever an attempt to
+            close the page occurs.
+          </p>
           <div class="switch">
             <input type="checkbox" class="switch" id="closeProtSwitch" onclick="toggleCloseProt()" />
             <label for="closeProtSwitch" class="slider"></label>
           </div>
         </div>
+      </div>
+
+      <!-- Panic Key -->
       <div class="settings-section">
         <h2 class="section-title">Panic Key</h2>
         <div class="section-content">
@@ -152,72 +193,45 @@
             onchange="savePanicUrl()" />
         </div>
       </div>
-      </div>
-
-      <div class="settings-group">
-        <h2 class="group-title">Tabs &amp; Browsing</h2>
-        <div class="setting-row">
-          <div class="setting-info">
-            <h3 class="setting-name">Restore Tabs</h3>
-            <p class="setting-desc">Reopen the tabs from your last session.</p>
-          </div>
-          <div class="switch">
-            <input type="checkbox" class="switch" id="saveTabsSwitch" onclick="setSaveTabs();" />
-            <label for="saveTabsSwitch" class="slider"></label>
-          </div>
-        </div>
-        <div class="setting-row">
-          <div class="setting-info">
-            <h3 class="setting-name">History</h3>
-            <p class="setting-desc">Keep a history of visited pages at <span style="cursor: pointer; color: var(--accent);" onclick="top.tabs.createTab('shadow:/\/history')">shadow://history</span>.</p>
-          </div>
-          <div class="switch">
-            <input type="checkbox" class="switch" id="historySwitch" onclick="toggleHistory();" />
-            <label for="historySwitch" class="slider"></label>
-          </div>
-        </div>
-        <div class="setting-row">
-          <div class="setting-info">
-            <h3 class="setting-name">Dark Mode For Every Site</h3>
-            <p class="setting-desc">Darken light websites. Override it per site from the site settings button in the address bar.</p>
-          </div>
-          <div class="switch">
-            <input type="checkbox" class="switch" id="forceDarkSwitch" />
-            <label for="forceDarkSwitch" class="slider"></label>
-          </div>
-        </div>
-        <div class="setting-row">
-          <div class="setting-info">
-            <h3 class="setting-name">Save Downloads Automatically</h3>
-            <p class="setting-desc">Hand finished downloads straight to your device instead of holding them in the downloads list.</p>
-          </div>
-          <div class="switch">
-            <input type="checkbox" class="switch" id="downloadsAutosaveSwitch" />
-            <label for="downloadsAutosaveSwitch" class="slider"></label>
-          </div>
-        </div>
-      </div>
-
-      <div class="settings-group">
-        <h2 class="group-title">Layout</h2>
-        <div class="setting-row">
-          <div class="setting-info">
-            <h3 class="setting-name">Vertical Tabs</h3>
-            <p class="setting-desc">Show tabs in a sidebar on the left instead of a strip along the top. (Alt+V)</p>
-          </div>
+      <br /><br />
+      <!-- Browser layout and page behaviour (settings/features.js) -->
+      <div class="settings-section">
+        <h2 class="section-title">Vertical Tabs</h2>
+        <div class="section-content">
+          <p class="section-text">Show tabs in a column down the left side instead of a strip along the top. (Alt+V)</p>
           <div class="switch">
             <input type="checkbox" class="switch" id="verticalTabsSwitch" />
             <label for="verticalTabsSwitch" class="slider"></label>
           </div>
         </div>
-        <div class="setting-row">
-          <div class="setting-info">
-            <h3 class="setting-name">Bookmarks Bar</h3>
-            <p class="setting-desc">Show your bookmarks under the address bar. (Alt+B)</p>
-          </div>
+      </div>
+      <div class="settings-section">
+        <h2 class="section-title">Bookmarks Bar</h2>
+        <div class="section-content">
+          <p class="section-text">Show your bookmarks under the address bar. Use the star in the address bar to add the page you're on. (Alt+B)</p>
           <div class="switch">
             <input type="checkbox" class="switch" id="bookmarksBarSwitch" />
             <label for="bookmarksBarSwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h2 class="section-title">Dark Mode For Every Site</h2>
+        <div class="section-content">
+          <p class="section-text">Darken light websites automatically. Sites that are already dark are left alone, and you can override it per site from the site settings button in the address bar.</p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="forceDarkSwitch" />
+            <label for="forceDarkSwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h2 class="section-title">Save Downloads Automatically</h2>
+        <div class="section-content">
+          <p class="section-text">Hand finished downloads straight to your device. When off, files wait in the downloads list until you save them.</p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="downloadsAutosaveSwitch" />
+            <label for="downloadsAutosaveSwitch" class="slider"></label>
           </div>
         </div>
       </div>

@@ -189,25 +189,12 @@ body.vertical-tabs .tab-group-chip:hover {
 
 body.vertical-tabs .tab-group-chip + .tab.grouped,
 body.vertical-tabs .tab.grouped + .tab.grouped {
-  margin-top: 0;
+  margin-top: -4px;
 }
 
 /* Indented under their chip, like items in a folder. */
 body.vertical-tabs .tab.grouped {
   margin-left: 12px;
-}
-
-/* The flat vertical-tab rows (features.css) would otherwise strip the group's wash and glow. */
-body.vertical-tabs .tab.grouped {
-  background: linear-gradient(145deg, color-mix(in srgb, var(--group-color) 13%, var(--primary)), var(--secondary));
-  border-color: color-mix(in srgb, var(--group-color) 50%, transparent);
-  box-shadow: 0 0 6px color-mix(in srgb, var(--group-color) 18%, transparent);
-}
-
-body.vertical-tabs .tab.grouped.active {
-  background: linear-gradient(145deg, color-mix(in srgb, var(--group-color) 38%, var(--primary)), var(--secondary));
-  border-color: var(--group-color);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--group-color) 40%, transparent);
 }
 
 /* ---- back / forward ---------------------------------------------------------- */

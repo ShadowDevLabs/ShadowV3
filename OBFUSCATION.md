@@ -5,13 +5,14 @@ or filter. `index.js` wires it in with one call, `installObfuscation(app, { publ
 placed after the runtime mounts (`/dist`, `/scramjet`, `/controller`, `/epoxy`,
 `/libcurl`, `/eruda`) and before the generic `express.static(publicPath)`.
 
-It does four things:
+It does five things:
 
 | Piece | What a visitor gets |
 |---|---|
 | Random DOM names | Every id and class in the shell gets a random 5–9 character name, the same in every file |
 | Random, minified assets | Every CSS/JS file loads from a random path (`/upb5f/k2q521cu3k.js` instead of `/assets/js/tabs.js`), minified; inline `<script>`/`<style>` are minified and HTML comments removed |
 | Cloak | The shell's `<title>`, meta tags, favicon, `<html lang>` and the `ShadowV3` loading text come from another site |
+| Font cipher | The pages' text is served as gibberish (`Tuoh Oporqvb`) that a per-deploy font draws as the real text (`Khan Academy`) |
 | Proxy URLs | Proxied pages live under a random prefix (`/i7qu2c/…` instead of `/~/s/…`) and use a per-deploy codec |
 
 ## Settings
@@ -58,6 +59,30 @@ removes the markers even when the cloak is `off`, so they never reach the browse
 The tab cloak users pick in Settings still runs in the browser after the page loads.
 The server cloak is what visitors without JS (scrapers, link previews) see.
 
+**Font cipher.** `src/server/fontcipher.mjs`. The seed picks a swap of a–z (the same
+swap for A–Z, so CSS `text-transform` still works) and 0–9, with no letter left in place.
+Every text run in a served HTML page is swapped and wrapped in a seeded custom element
+(`<ovk-una>Tuoh Oporqvb</ovk-una>`), so the HTML and the live DOM (Inspect Element) show
+gibberish. At startup the server copies each web font the pages load (Poppins, Roboto, DM
+Sans, Open Sans, Rubik, Bebas Neue: the exact TTFs Google Fonts serves, in
+`src/server/fonts/`, OFL) and rewrites only its character map so each swapped letter
+points at the real letter's glyph. Glyphs, kerning and ligatures are keyed by glyph, so
+they stay right. The fonts are served from random immutable paths.
+
+Each page declares a ciphered copy of every Google font it loads (in its HTML or its
+stylesheets' `@import`), with only the weights it loads, so weights fall back as before.
+A short script at the end of `<body>` gives each wrapper the ciphered copy of the font
+its parent really draws in: the first font in the parent's stack that is ciphered (for
+`"Inter", "Poppins"` that's Poppins, since Inter isn't loaded). Only text whose stack
+reaches a generic or icon font first (monospace, system-ui, Material Symbols), or that is
+italic, is put back as real text. `<script>`, `<style>`, `<title>`, `<textarea>`,
+`<select>`, `<code>`/`<pre>`, `<svg>`, comments, entities and attributes are left
+alone. Text that scripts set replaces the wrapper and shows normally.
+
+To cipher a new Google font: add it to `FONTS` in `fontcipher.mjs` and drop
+`<Name>-<weight>.ttf` into `src/server/fonts/` (the TTF that
+`curl "https://fonts.googleapis.com/css2?family=<Name>:wght@<weight>"` links to).
+
 **Proxy URLs.** `GET /v1/api/config` returns `{ prefix, codecKey }` (an empty
 object when obfuscation is off). Before the proxy boots, `loadProxyConfig()` in
 `public/assets/js/tabs.js` builds a codec from the key: character *i* is XORed with
@@ -74,13 +99,20 @@ store real URLs, so a new key after a restart loses nothing.
 - Without `SHADOW_UI_SEED`, a page left open across a server restart can't load
   assets it hasn't fetched yet (their paths changed) until it is reloaded.
 - Page URLs (`/settings/`, `/pages/new.html`) and images keep their real paths.
+- The font cipher hides the text from people too, not only from scrapers: copy/paste,
+  find-in-page, translation and screen readers get the gibberish. If the font fails to
+  load, people see gibberish as well.
+- Text in a font that isn't ciphered (system, monospace, icon fonts) or in italic is put
+  back as real text by that script, so a scraper that runs JS sees it.
+- The font cipher doesn't cover attributes (`title`, `placeholder`, `aria-label`), the
+  `<title>`, or text that scripts add.
 - Minifying isn't encryption: the code still runs in the browser, so anyone
   determined can read it.
 
 ## Checking it
 
 ```sh
-npm test                                         # rewriter, asset paths, minifier, cloak, prefix and codec
+npm test                                         # font cipher, rewriter, asset paths, minifier, cloak, prefix and codec
 curl -s localhost:PORT/v1/api/config             # random prefix + codecKey
 curl -s localhost:PORT/ | head -20               # cloaked <title>/meta, no CLOAK markers
 curl -s localhost:PORT/ | grep -c ShadowV3       # 0

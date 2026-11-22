@@ -246,61 +246,6 @@ body::before {
   width: 100%;
 }
 
-/* General page: cards of related settings, toggles as label-left/switch-right rows. */
-.settings-group {
-  background: var(--primary);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 6px 22px 10px;
-  margin-bottom: 22px;
-}
-
-.group-title {
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  margin: 14px 0 4px;
-}
-
-.settings-group > .settings-section,
-.setting-row {
-  margin: 0;
-  padding: 16px 0;
-  border-top: 1px solid var(--border);
-}
-
-.settings-group > .settings-section .section-title {
-  font-size: 17px;
-  margin-top: 0;
-}
-
-.setting-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
-
-.setting-name {
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--accent-light);
-  font-family: "Roboto", sans-serif;
-  margin: 0 0 4px;
-}
-
-.setting-desc {
-  margin: 0;
-  font-size: 14px;
-  color: var(--text-muted);
-}
-
-.setting-row .switch {
-  flex: none;
-}
-
 .menu-item.active {
   background: var(--active-tab);
 }

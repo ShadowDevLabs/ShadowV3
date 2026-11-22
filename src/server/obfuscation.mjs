@@ -11,6 +11,8 @@
 //   3. Proxy URLs: /v1/api/config gives the page a per-deploy codec key and proxy
 //      prefix (public/assets/js/tabs.js, loadProxyConfig), so proxied URLs differ
 //      between deployments.
+//   4. Font cipher (fontcipher.mjs): every piece of text is kept as seeded Coptic letters
+//      that copies of the pages' web fonts draw as the real letters.
 //
 // SHADOW_OBFUSCATE=off turns all three off. This is evasion, not security: the same
 // kind of thing Ultraviolet's cloak and Holy Unblocker's rewriter do.
@@ -19,9 +21,10 @@ import crypto from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, posix } from "node:path";
 import { transformSync } from "esbuild";
+import { cipherTable, createFontCipher } from "./fontcipher.mjs";
 
 // Placeholders: replace with the sites you want the shell to pass as.
-const CLOAK_PRESETS = {
+export const CLOAK_PRESETS = {
   off: null,
   ixl: { title: "IXL | Math, Language Arts, Science, Social Studies, and Spanish",
     description: "IXL is the world's most popular subscription-based learning site for K-12.",
@@ -293,7 +296,8 @@ export function minifyAsset(path, text) {
 /**
  * Wires all three pieces into the app. Call it after the runtime mounts (/dist,
  * /scramjet, /controller, …, which it never touches) and before the generic
- * express.static(publicPath), so it wins for the same paths.
+ * express.static(publicPath), so it wins for the same paths. Returns the served body of a
+ * page ("/404.html"), for handlers that send one themselves; undefined when turned off.
  */
 export function installObfuscation(app, { publicPath }) {
   const enabled = process.env.SHADOW_OBFUSCATE !== "off";
@@ -318,10 +322,18 @@ export function installObfuscation(app, { publicPath }) {
   const served = new Map(); // request path -> { body, etag, cache, worker }
   const add = (url, body, cache, worker = false) =>
     served.set(url, { body, cache, worker, etag: `W/"${crypto.createHash("sha256").update(body).digest("hex").slice(0, 32)}"` });
+  // Font cipher: pages carry Coptic letters that only this seed's fonts draw as real text.
+  const table = cipherTable((label) => derive(seed, `cipher${label}`).readUInt32BE(0));
+  const cipher = createFontCipher(table);
+  const fontUrl = (key) => assetPath(`/fonts/${key}.ttf`).replace(/\.js$/, ".ttf");
+  for (const [key, font] of cipher.fonts) add(fontUrl(key), font, "public, max-age=31536000, immutable");
+  // The page's own stylesheets, for the Google Fonts they @import.
+  const linkedCss = (path, html) => [...html.matchAll(/href=["']([^"']+\.css)["']/g)]
+    .map((m) => sources.get(new URL(m[1], new URL(path, "http://shadow.invalid")).pathname) ?? "").join("\n");
   for (const [path, source] of sources) {
     if (path.endsWith(".json")) continue;
     const body = minifyAsset(path, render(path, path === "/sw.js" ? swSource : source));
-    if (path.endsWith(".html")) add(path, body, "public, max-age=0, must-revalidate");
+    if (path.endsWith(".html")) add(path, cipher.render(body, fontUrl, linkedCss(path, source)), "public, max-age=0, must-revalidate");
     else if (path === "/sw.js") add(assetPath(path), body, "no-cache", true); // /sw.js itself stays the unmodified original
     else {
       add(assetPath(path), body, "public, max-age=31536000, immutable"); // the path changes whenever the file does
@@ -346,4 +358,5 @@ export function installObfuscation(app, { publicPath }) {
     res.set("ETag", asset.etag);
     res.type(posix.extname(path)).send(asset.body);
   });
+  return (path) => served.get(path)?.body;
 }

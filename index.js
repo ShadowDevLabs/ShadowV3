@@ -103,7 +103,7 @@ app.get("/sw.js", (req, res) => {
   res.set("Cache-Control", "no-cache");
   res.sendFile(join(publicPath, "sw.js"));
 });
-installObfuscation(app, { publicPath });
+const obfuscatedPage = installObfuscation(app, { publicPath });
 app.use("/privacy", express.static(publicPath + "/privacy.html"));
 
 // Shadow's own files. Images and fonts rarely change, so they're cached for a
@@ -465,6 +465,8 @@ app.get("/v1/api/user-agents", async (req, res) => {
 });
 
 app.use((req, res) => {
+  const page = obfuscatedPage?.("/404.html");
+  if (page) return res.status(404).type("html").send(page);
   res.status(404);
   res.sendFile(join(publicPath, "404.html"));
 });
