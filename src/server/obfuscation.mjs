@@ -24,6 +24,7 @@ import { join, posix } from "node:path";
 import { gunzipSync, gzipSync } from "node:zlib";
 import { transformSync } from "esbuild";
 import { cipherTable, createFontCipher } from "./fontcipher.mjs";
+import { patchRuntime } from "./runtime-patches.mjs";
 
 // Placeholders: replace with the sites you want the shell to pass as.
 export const CLOAK_PRESETS = {
@@ -342,7 +343,7 @@ function prepareShell(publicPath, runtime) {
     sources,
     names: discoverNames(sources),
     runtime: new Map([...runtime].map(([url, file]) =>
-      [url, url.endsWith(".wasm") ? readFileSync(file) : Buffer.from(minifyAsset(url, readFileSync(file, "utf8")))])),
+      [url, url.endsWith(".wasm") ? readFileSync(file) : Buffer.from(minifyAsset(url, patchRuntime(url, readFileSync(file, "utf8"))))])),
   };
 }
 

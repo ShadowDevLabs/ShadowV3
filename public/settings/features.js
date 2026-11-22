@@ -30,6 +30,7 @@ bindSwitch("verticalTabsSwitch", "vertical-tabs");
 bindSwitch("bookmarksBarSwitch", "bookmarks-bar", { fallback: true });
 bindSwitch("forceDarkSwitch", "force-dark");
 bindSwitch("downloadsAutosaveSwitch", "downloads-autosave", { fallback: true });
+bindSwitch("maskTextSwitch", "mask-text", { fallback: true });
 
 // ---------------------------------------------------------------- customizer
 

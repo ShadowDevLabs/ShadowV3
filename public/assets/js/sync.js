@@ -21,7 +21,7 @@ const SYNCED = [
   "theme", "custom", "theme-css",
   "search-engine", "search-suggestions", "search-suggestions-engine",
   "history", "save-tabs", "bookmarks-bar", "vertical-tabs", "force-dark", "translate-lang",
-  "downloads-autosave", "history-group-by-site", "reader",
+  "downloads-autosave", "mask-text", "history-group-by-site", "reader",
   "bookmarks", "shortcuts", "workspaces", "site-settings",
 ];
 const MAX_VALUE_BYTES = 24 * 1024;

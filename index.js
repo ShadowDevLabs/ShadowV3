@@ -16,6 +16,8 @@ import { build, isBuilt } from "./scripts/build.mjs";
 import { domainMatcher, installObfuscation } from "./src/server/obfuscation.mjs";
 import { syncRouter } from "./src/server/sync.js";
 import { rateLimit } from "./src/server/ratelimit.js";
+import { patchRuntime } from "./src/server/runtime-patches.mjs";
+import { readFileSync } from "node:fs";
 import { Readable } from "node:stream";
 
 import dotenv from "dotenv";
@@ -121,6 +123,8 @@ const runtime = new Map([
 const obfuscation = installObfuscation(app, { publicPath, runtime });
 if (!obfuscation) {
   const runtimeStatic = { maxAge: 3600000 }; // 1 hour: these change whenever the packages are bumped
+  const scramjetJs = patchRuntime("/scramjet/scramjet.js", readFileSync(join(scramjetPath, "scramjet.js"), "utf8"));
+  app.get("/scramjet/scramjet.js", (req, res) => res.set("Cache-Control", "public, max-age=3600").type("js").send(scramjetJs));
   app.use("/scramjet/", express.static(scramjetPath, runtimeStatic));
   app.use("/controller/", express.static(controllerPath, runtimeStatic));
   app.use("/epoxy/", express.static(epoxyPath, runtimeStatic));

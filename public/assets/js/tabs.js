@@ -9,6 +9,7 @@ import { openCommandPalette, openFind, closeFind, resetFind } from "/assets/js/f
 import { Downloads, isInlineType, filenameFromDisposition } from "/assets/js/downloads.js";
 import { SiteSettings, showSitePanel } from "/assets/js/sitesettings.js";
 import { Workspaces } from "/assets/js/workspaces.js";
+import { maskDocument } from "/assets/js/textmask.js";
 import {
   showPageMenu,
   toolsMenuItems,
@@ -271,6 +272,7 @@ class Tab {
     this.panicKey = (await this.settings.get("panic-key")) || null;
     this.panicUrl = (await this.settings.get("panic-url")) || "https://www.google.com";
     this.forceDark = !!(await this.settings.get("force-dark"));
+    this.maskText = (await this.settings.get("mask-text")) !== false;
     this.downloads.autoSave = (await this.settings.get("downloads-autosave")) !== false;
     this.setVerticalTabs(!!(await this.settings.get("vertical-tabs")), false);
     await this.siteSettings.ready;
@@ -1059,6 +1061,13 @@ class Tab {
    */
   onDocument(tab, { window: win, isTopLevel, client }) {
     const refresh = (how) => this.noteNavigation(tab, typeof how === "string" ? how : undefined);
+    if (this.maskText) {
+      try {
+        maskDocument(win);
+      } catch (e) {
+        console.warn("[shadow] text masking failed", e);
+      }
+    }
 
     win.addEventListener(
       "keydown",
@@ -1817,6 +1826,9 @@ class Tab {
         }
         break;
       }
+      case "mask-text": // pages loaded from now on
+        this.maskText = (await this.settings.get(key)) !== false;
+        break;
       case "vertical-tabs":
         this.setVerticalTabs(!!(await this.settings.get(key)), false);
         break;
