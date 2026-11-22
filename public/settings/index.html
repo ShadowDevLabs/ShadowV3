@@ -55,6 +55,7 @@
   <div id="content">
     <div id="general-content">
       <div class="content-title">General</div>
+      <h3 class="settings-group-title">Cloaking</h3>
       <!-- Tabs Cloak -->
       <div class="settings-section">
         <h2 class="section-title">Tab Cloak</h2>
@@ -97,8 +98,6 @@
           </div>
         </div>
       </div>
-
-      <br /><br />
       <!-- About:blank -->
       <div class="settings-section">
         <h2 class="section-title">About:Blank</h2>
@@ -116,7 +115,6 @@
           </button>
         </div>
       </div>
-      <br /><br />
       <div class="settings-section">
         <h2 class="section-title">Auto Blank</h2>
         <div class="section-content">
@@ -130,36 +128,7 @@
           </div>
         </div>
       </div>
-      <br />
-      <!--Toggle auto save/load tabs-->
-      <div class="settings-section">
-        <h2 class="section-title">Auto Save/Load Tabs</h2>
-        <div class="section-content">
-          <p class="section-text">
-            Automatically reload tabs from older sessions, toggle auto saving
-            and loading here.
-          </p>
-          <div class="switch">
-            <input type="checkbox" class="switch" id="saveTabsSwitch" onclick="setSaveTabs();" />
-            <label for="saveTabsSwitch" class="slider"></label>
-          </div>
-        </div>
-      </div>
-      <br />
-      <div class="settings-section">
-        <h2 class="section-title">History</h2>
-        <div class="section-content">
-          <p class="section-text">
-            Save your history! History is accessibly at <span style="cursor: pointer; color: var(--accent);"
-              onclick="top.tabs.createTab('shadow:/\/history')">shadow://history</span>
-          </p>
-          <div class="switch">
-            <input type="checkbox" class="switch" id="historySwitch" onclick="toggleHistory();" />
-            <label for="historySwitch" class="slider"></label>
-          </div>
-        </div>
-      </div>
-      <br />
+      <h3 class="settings-group-title">Safety</h3>
       <!-- Close Protection -->
       <div class="settings-section">
         <h2 class="section-title">Close Protection</h2>
@@ -174,7 +143,6 @@
           </div>
         </div>
       </div>
-
       <!-- Panic Key -->
       <div class="settings-section">
         <h2 class="section-title">Panic Key</h2>
@@ -193,7 +161,34 @@
             onchange="savePanicUrl()" />
         </div>
       </div>
-      <br /><br />
+      <h3 class="settings-group-title">Tabs &amp; History</h3>
+      <!--Toggle auto save/load tabs-->
+      <div class="settings-section">
+        <h2 class="section-title">Auto Save/Load Tabs</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Automatically reload tabs from older sessions, toggle auto saving
+            and loading here.
+          </p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="saveTabsSwitch" onclick="setSaveTabs();" />
+            <label for="saveTabsSwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h2 class="section-title">History</h2>
+        <div class="section-content">
+          <p class="section-text">
+            Save your history! History is accessibly at <span style="cursor: pointer; color: var(--accent);"
+              onclick="top.tabs.createTab('shadow:/\/history')">shadow://history</span>
+          </p>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="historySwitch" onclick="toggleHistory();" />
+            <label for="historySwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
       <!-- Browser layout and page behaviour (settings/features.js) -->
       <div class="settings-section">
         <h2 class="section-title">Vertical Tabs</h2>
@@ -215,6 +210,7 @@
           </div>
         </div>
       </div>
+      <h3 class="settings-group-title">Browsing</h3>
       <div class="settings-section">
         <h2 class="section-title">Dark Mode For Every Site</h2>
         <div class="section-content">

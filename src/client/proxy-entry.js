@@ -38,6 +38,26 @@ export class ShadowPlugin extends ManagedPlugin {
       }
     });
 
+    // A Chromium bug crashes YouTube (STATUS_BREAKPOINT) when a proxied page runs a view
+    // transition, so every transition is finished at once. Scramjet's workaround until Chromium
+    // fixes it: https://github.com/MercuryWorkshop/scramjet/issues/222
+    this.tap(frame.hooks.init.post, (ctx) => {
+      const client = ctx?.client;
+      client?.Proxy("Document.prototype.startViewTransition", {
+        apply(call) {
+          call.call()?.skipTransition(); // call() also hands the page its ViewTransition
+        },
+      });
+      // pushState/replaceState without a URL (or with null) keep the current one. Scramjet's own
+      // hook (which runs after this one) turns it into the path "undefined", so DuckDuckGo's
+      // "/?q=hi" showed as "/undefined" in the address bar and history. Pass the current URL instead.
+      client?.Proxy(["History.prototype.pushState", "History.prototype.replaceState"], {
+        apply(call) {
+          if (call.args[2] == null) call.args[2] = client.url.href;
+        },
+      });
+    });
+
     this.tap(frame.hooks.fetch.request, (_ctx, props) => {
       const ua = this.handlers.getUserAgent?.();
       if (!ua || !props?.init) return;

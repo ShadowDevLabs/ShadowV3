@@ -351,10 +351,12 @@ class Tab {
     }
     ({ Controller, Sapphire, ShadowPlugin } = await import("/dist/shadow-proxy.js"));
 
-    await this.registerServiceWorker();
-    const registration = await navigator.serviceWorker.ready;
-    if (!navigator.serviceWorker.controller) {
-      // First visit (or a hard reload): wait for the worker to claim this page.
+    const registration = await this.registerServiceWorker();
+    await navigator.serviceWorker.ready;
+    // First visit (or a hard reload), or a new worker after a deploy or a new seed: it takes over
+    // as soon as it installs (skipWaiting + claim), so wait for it. Otherwise the controller below
+    // binds to the worker that is about to be replaced, and no proxied page loads until a reload.
+    if (!navigator.serviceWorker.controller || registration.installing || registration.waiting) {
       await new Promise((resolve) => {
         navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true });
         setTimeout(resolve, 3000);
@@ -502,7 +504,10 @@ class Tab {
   async setTransport(url, transport) {
     url = url ?? ((await this.settings.get("server")) || defaultWisp);
     transport = transport ?? ((await this.settings.get("transport")) || "/epoxy/index.mjs");
-    if (!/^\/(epoxy|libcurl)\/index\.mjs$/.test(transport)) transport = "/epoxy/index.mjs";
+    // The server may serve these from seeded paths (it rewrites both strings below), so a value
+    // saved before that, or under an older seed, is matched by name.
+    const transports = ["/epoxy/index.mjs", "/libcurl/index.mjs"];
+    if (!transports.includes(transport)) transport = transports[/libcurl/.test(transport) ? 1 : 0];
     // A saved "default server" URL follows the page's scheme (wss on https, ws on http).
     try {
       const parsed = new URL(url);
@@ -1124,12 +1129,14 @@ class Tab {
     win.addEventListener("DOMContentLoaded", () => refresh());
     win.addEventListener("popstate", () => refresh("traverse"));
     win.addEventListener("hashchange", () => refresh());
+    const historyProto = Object.getPrototypeOf(win.history);
     for (const method of ["pushState", "replaceState"]) {
-      const original = win.history[method];
-      if (typeof original !== "function") continue;
+      if (typeof historyProto?.[method] !== "function") continue;
       const how = method === "replaceState" ? "replace" : undefined;
       win.history[method] = function (...args) {
-        const result = original.apply(this, args);
+        // Looked up per call, not kept: the page fixes in src/client/proxy-entry.js wrap the
+        // prototype's methods, and may do so after this runs.
+        const result = historyProto[method].apply(this, args);
         queueMicrotask(() => refresh(how));
         return result;
       };

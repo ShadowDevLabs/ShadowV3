@@ -13,7 +13,7 @@ import { dirname, join } from "path";
 import { users, port, brokenSites } from "./config.js";
 import session from "express-session";
 import { build, isBuilt } from "./scripts/build.mjs";
-import { installObfuscation } from "./src/server/obfuscation.mjs";
+import { domainMatcher, installObfuscation } from "./src/server/obfuscation.mjs";
 import { syncRouter } from "./src/server/sync.js";
 
 import dotenv from "dotenv";
@@ -75,6 +75,12 @@ function ttlCache(ttl, max) {
 function fetchWithTimeout(url, options = {}, ms = 5000) {
   return fetch(url, { ...options, signal: AbortSignal.timeout(ms) });
 }
+// Caddy's on_demand TLS `ask`: a certificate only for SHADOW_DOMAINS. Before basic auth, since Caddy sends none.
+// Only registered when domains are listed, so other deploys don't answer at this path.
+if (process.env.SHADOW_DOMAINS) {
+  const listedDomain = domainMatcher(process.env.SHADOW_DOMAINS);
+  app.get("/v1/api/tls-ask", (req, res) => res.sendStatus(listedDomain(req.query.domain) ? 200 : 403));
+}
 if (Object.keys(users).length > 0)
   app.use(basicAuth({ users, challenge: true }));
 app.use((req, res, next) => {
@@ -90,20 +96,37 @@ app.use((req, res, next) => {
 //   /scramjet/    scramjet.js + scramjet.wasm (rewriter + client)
 //   /controller/  controller.api.js (page), controller.inject.js (proxied docs), controller.sw.js (service worker)
 //   /epoxy/, /libcurl/  wisp transports, picked in settings
-const runtimeStatic = { maxAge: 3600000 }; // 1 hour: these change whenever the packages are bumped
-app.use("/scramjet/", express.static(scramjetPath, runtimeStatic));
-app.use("/controller/", express.static(controllerPath, runtimeStatic));
-app.use("/epoxy/", express.static(epoxyPath, runtimeStatic));
-app.use("/libcurl/", express.static(libcurlPath, runtimeStatic));
-// In-page devtools console (menu -> Devtools), served locally so it doesn't depend on a CDN.
-app.use("/eruda/", express.static(erudaPath, runtimeStatic));
-// Our own bundles (scripts/build.mjs). Revalidated on every load so a redeploy takes effect immediately.
-app.use("/dist/", express.static(join(publicPath, "dist"), { maxAge: 0 }));
-app.get("/sw.js", (req, res) => {
-  res.set("Cache-Control", "no-cache");
-  res.sendFile(join(publicPath, "sw.js"));
-});
-const obfuscatedPage = installObfuscation(app, { publicPath });
+//   /eruda/       in-page devtools console (menu -> Devtools), served locally so it doesn't depend on a CDN
+//   /dist/        our own bundles (scripts/build.mjs)
+// With obfuscation on, installObfuscation serves these files from seeded paths instead, and the
+// well-known paths below are never mounted.
+const runtime = new Map([
+  ["/scramjet/scramjet.js", join(scramjetPath, "scramjet.js")],
+  ["/scramjet/scramjet.wasm", join(scramjetPath, "scramjet.wasm")],
+  ["/controller/controller.api.js", join(controllerPath, "controller.api.js")],
+  ["/controller/controller.inject.js", join(controllerPath, "controller.inject.js")],
+  ["/controller/controller.sw.js", join(controllerPath, "controller.sw.js")],
+  ["/epoxy/index.mjs", join(epoxyPath, "index.mjs")],
+  ["/libcurl/index.mjs", join(libcurlPath, "index.mjs")],
+  ["/eruda/eruda.js", join(erudaPath, "eruda.js")],
+  ["/dist/shadow-proxy.js", join(publicPath, "dist", "shadow-proxy.js")],
+  ["/dist/sapphire-sw-router.js", join(publicPath, "dist", "sapphire-sw-router.js")],
+]);
+const obfuscation = installObfuscation(app, { publicPath, runtime });
+if (!obfuscation) {
+  const runtimeStatic = { maxAge: 3600000 }; // 1 hour: these change whenever the packages are bumped
+  app.use("/scramjet/", express.static(scramjetPath, runtimeStatic));
+  app.use("/controller/", express.static(controllerPath, runtimeStatic));
+  app.use("/epoxy/", express.static(epoxyPath, runtimeStatic));
+  app.use("/libcurl/", express.static(libcurlPath, runtimeStatic));
+  app.use("/eruda/", express.static(erudaPath, runtimeStatic));
+  // Revalidated on every load so a redeploy takes effect immediately.
+  app.use("/dist/", express.static(join(publicPath, "dist"), { maxAge: 0 }));
+  app.get("/sw.js", (req, res) => {
+    res.set("Cache-Control", "no-cache");
+    res.sendFile(join(publicPath, "sw.js"));
+  });
+}
 app.use("/privacy", express.static(publicPath + "/privacy.html"));
 
 // Shadow's own files. Images and fonts rarely change, so they're cached for a
@@ -111,16 +134,16 @@ app.use("/privacy", express.static(publicPath + "/privacy.html"));
 // when nothing changed): the service worker already serves them instantly from
 // its own cache and refreshes in the background, and a long max-age here would
 // make that refresh read the browser's stale copy, hiding a deploy for days.
-app.use(
-  express.static(publicPath, {
-    maxAge: 604800000,
-    setHeaders(res, filePath) {
-      if (/\.(html?|js|mjs|css|json|webmanifest)$/i.test(filePath)) {
-        res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
-      }
-    },
-  }),
-);
+const shellStatic = express.static(publicPath, {
+  maxAge: 604800000,
+  setHeaders(res, filePath) {
+    if (/\.(html?|js|mjs|css|json|webmanifest)$/i.test(filePath)) {
+      res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+    }
+  },
+});
+// public/dist/ is runtime too: with obfuscation on it only answers at its seeded paths.
+app.use((req, res, next) => (obfuscation && req.path.startsWith("/dist/") ? next() : shellStatic(req, res, next)));
 // Game assets, for deployments that don't have the games submodule checked out
 // (when it is, express.static above has already answered). Fetched over https:
 // the plain-http address only answers with a redirect to https, which sent every
@@ -465,7 +488,7 @@ app.get("/v1/api/user-agents", async (req, res) => {
 });
 
 app.use((req, res) => {
-  const page = obfuscatedPage?.("/404.html");
+  const page = obfuscation?.page("/404.html", req.hostname);
   if (page) return res.status(404).type("html").send(page);
   res.status(404);
   res.sendFile(join(publicPath, "404.html"));
@@ -478,7 +501,9 @@ if (process.env.WISP_ALLOW_PRIVATE === "1") {
 }
 
 server.on("upgrade", (req, socket, head) => {
-  if (req.url.endsWith("/wisp/")) wisp.routeRequest(req, socket, head);
+  // The Host header without its port (also for [ipv6]:port).
+  const wispPath = obfuscation?.wispPath(req.headers.host?.replace(/:\d+$/, "")) ?? "/wisp/";
+  if (req.url.endsWith(wispPath)) wisp.routeRequest(req, socket, head);
   else socket.end();
 });
 

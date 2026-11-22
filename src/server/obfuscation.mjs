@@ -14,7 +14,8 @@
 //   4. Font cipher (fontcipher.mjs): every piece of text is kept as seeded Coptic letters
 //      that copies of the pages' web fonts draw as the real letters.
 //
-// SHADOW_OBFUSCATE=off turns all three off. This is evasion, not security: the same
+// SHADOW_DOMAINS gives each listed domain its own seed, for Caddy on_demand TLS fronting many domains.
+// SHADOW_OBFUSCATE=off turns it all off. This is evasion, not security: the same
 // kind of thing Ultraviolet's cloak and Holy Unblocker's rewriter do.
 
 import crypto from "node:crypto";
@@ -50,13 +51,13 @@ const word = (bytes, length) => {
 };
 const derive = (seed, label) => crypto.createHmac("sha256", seed).update(label).digest();
 
-/** SHADOW_CLOAK: a preset name, "random" (picked by the seed) or "off". Unknown names fall back to example1. */
+/** SHADOW_CLOAK: a preset name, "random" (picked by the seed, the default) or "off". Unknown names count as random. */
 export function resolveCloak(choice, seed) {
-  choice = (choice ?? "example1").toLowerCase();
+  choice = (choice ?? "random").toLowerCase();
   if (choice === "off") return null;
-  const names = Object.keys(CLOAK_PRESETS);
-  if (choice === "random") return CLOAK_PRESETS[names[derive(seed, "cloak")[0] % names.length]];
-  return CLOAK_PRESETS[Object.hasOwn(CLOAK_PRESETS, choice) ? choice : "example1"];
+  if (Object.hasOwn(CLOAK_PRESETS, choice)) return CLOAK_PRESETS[choice];
+  const names = Object.keys(CLOAK_PRESETS).filter((name) => CLOAK_PRESETS[name]);
+  return CLOAK_PRESETS[names[derive(seed, "cloak")[0] % names.length]];
 }
 
 const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -294,27 +295,65 @@ export function minifyAsset(path, text) {
 }
 
 /**
- * Wires all three pieces into the app. Call it after the runtime mounts (/dist,
- * /scramjet, /controller, …, which it never touches) and before the generic
- * express.static(publicPath), so it wins for the same paths. Returns the served body of a
- * page ("/404.html"), for handlers that send one themselves; undefined when turned off.
+ * SHADOW_DOMAINS: the comma-separated domains this server answers for. Each one gets its own
+ * seed (so its own names, paths, cloak, prefix and codec); its subdomains share it, so the
+ * number of sites built stays the number of domains listed. Returns a host -> listed domain
+ * lookup (undefined when unlisted), also used for Caddy's on_demand TLS (/v1/api/tls-ask in index.js).
  */
-export function installObfuscation(app, { publicPath }) {
-  const enabled = process.env.SHADOW_OBFUSCATE !== "off";
-  const seed = process.env.SHADOW_UI_SEED || crypto.randomBytes(16).toString("hex");
-  const reserved = new Set(readdirSync(publicPath));
-  const config = enabled ? proxyConfig(seed, reserved) : {}; // {} = the page keeps its built-in codec
-  app.get("/v1/api/config", (req, res) => {
-    res.set("Cache-Control", "no-store");
-    res.json(config);
-  });
-  if (!enabled) return;
+export function domainMatcher(list = "") {
+  const domains = list.split(",").map((d) => d.trim().toLowerCase().replace(/^\*?\./, "")).filter(Boolean);
+  return (host) => {
+    host = String(host ?? "").toLowerCase().replace(/\.$/, "");
+    return domains.find((d) => host === d || host.endsWith(`.${d}`));
+  };
+}
 
+// Globals and message names the runtime shares between the page, the worker and every proxied page,
+// where a site's scripts can see them. Seeded per site. Sapphire's own names stay: extensions save them.
+const runtimeName = /(?<![\w$])(?:\$scram[\w$]*|\$controller\$\w+|\$sw\$\w+|\$sapphireRouter|__scramjet_controller_channel)(?![\w$])/g;
+const COOKIE_DB = `_${word(derive("shadow", "cookie-db"), 11)}`;
+
+const replaceOnce = (text, from, to) => {
+  if (text.split(from).length !== 2) throw new Error(`[obfuscation] expected ${from} once in the Scramjet controller; check it after a package update`);
+  return text.replace(from, () => to);
+};
+
+/**
+ * Everything one seed serves: the proxy config, the Wisp path and every file by request path.
+ * `runtime` (well-known url -> bytes) is the proxy runtime: Scramjet, its controller, the
+ * transports, eruda and public/dist. It moves to seeded paths, and every reference to its
+ * well-known paths, in the shell and in the runtime itself, follows.
+ */
+function buildSite(seed, publicPath, reserved, runtime) {
+  const config = proxyConfig(seed, reserved);
   const cloak = resolveCloak(process.env.SHADOW_CLOAK, seed);
   const sources = new Map();
   readUiSources(publicPath, "", sources);
   sources.set("/index.html", applyCloak(sources.get("/index.html") ?? "", cloak));
-  const { render, assetPath } = buildUiRewrite(sources, seed, new Set([...reserved, config.prefix.slice(1, -1)]));
+
+  let runtimeDir;
+  for (let n = 0; !runtimeDir || reserved.has(runtimeDir); n++) runtimeDir = word(derive(seed, `runtime${n}`), 5);
+  const sha = (bytes) => crypto.createHash("sha256").update(bytes).digest("hex");
+  // The content hash is in the name, so a package update gets a new URL. .mjs is served as .js: modules go by MIME type.
+  const moved = new Map([...runtime].map(([url, bytes]) =>
+    [url, `/${runtimeDir}/${word(derive(seed, url + sha(bytes)), 10)}${url.endsWith(".wasm") ? ".wasm" : ".js"}`]));
+  const wispPath = `/${word(derive(seed, "wisp"), 7)}/`;
+  // Seeded names of the same length (see runtimeName), so the wasm's copies can be swapped in place.
+  // Plain words, not "$…": a page full of random $-globals would be a pattern of its own.
+  const names = new Map();
+  const rename = (name) => {
+    if (!names.has(name)) names.set(name, word(derive(seed, `name${name}`), name.length));
+    return names.get(name);
+  };
+  const scramtag = word(derive(seed, "scramtag"), 8);
+  const moveRuntime = (text) => {
+    for (const [from, to] of moved) text = text.replaceAll(from, to);
+    text = text.replace(runtimeName, rename).replaceAll("scramtag", scramtag);
+    // Only this server's own Wisp endpoint: custom Wisp servers keep /wisp/.
+    return text.replaceAll("${location.host}/wisp/", `\${location.host}${wispPath}`);
+  };
+  for (const [path, text] of sources) sources.set(path, moveRuntime(text));
+  const { render, assetPath } = buildUiRewrite(sources, seed, new Set([...reserved, runtimeDir, config.prefix.slice(1, -1)]));
   const assets = [...sources.keys()].filter((path) => /\.(?:css|m?js)$/.test(path));
   // The worker precaches every current CSS/JS path and drops older ones.
   const swSource = sources.get("/sw.js")?.replace("const UI_ASSETS = null;", () => `const UI_ASSETS = ${JSON.stringify(assets.map(assetPath))};`);
@@ -334,12 +373,81 @@ export function installObfuscation(app, { publicPath }) {
     if (path.endsWith(".json")) continue;
     const body = minifyAsset(path, render(path, path === "/sw.js" ? swSource : source));
     if (path.endsWith(".html")) add(path, cipher.render(body, fontUrl, linkedCss(path, source)), "public, max-age=0, must-revalidate");
-    else if (path === "/sw.js") add(assetPath(path), body, "no-cache", true); // /sw.js itself stays the unmodified original
+    else if (path === "/sw.js") {
+      add(assetPath(path), body, "no-cache", true);
+      add(path, body, "no-cache", true); // workers registered at /sw.js before update to this one: the original imports paths that are gone
+    }
     else {
       add(assetPath(path), body, "public, max-age=31536000, immutable"); // the path changes whenever the file does
       add(path, body, "public, max-age=0, must-revalidate"); // the original URL gets the same renamed copy, never a mismatched one
     }
   }
+
+  // Scramjet hides the script the controller injects into every proxied page, and its virtual wasm
+  // loader, from the page's stack traces and performance entries by file name (maskedfiles): rename
+  // them there too, and hide scramjet.js, which upstream leaves visible, as well.
+  const basename = (url) => moved.has(url) && posix.basename(moved.get(url));
+  const injectName = basename("/controller/controller.inject.js");
+  const scramjetName = basename("/scramjet/scramjet.js");
+  const virtualWasm = `${word(derive(seed, "virtualwasm"), 8)}.js`;
+  // The wasm last: it takes the names the scripts were given.
+  for (const [url, bytes] of [...runtime].sort(([a], [b]) => a.endsWith(".wasm") - b.endsWith(".wasm"))) {
+    const tag = derive(seed, `tag${url}`).subarray(0, 16); // per-deploy bytes, so no two deploys share a file hash
+    let body;
+    if (url.endsWith(".wasm")) {
+      // The rewriter writes some runtime names into rewritten code itself ("$scramerr(", "/*scramtag").
+      // Longest first, so "$scramjet" can't eat into "$scramjet$setrealmfn".
+      let text = bytes.toString("latin1").replaceAll("scramtag", scramtag);
+      for (const [from, to] of [...names].sort(([a], [b]) => b.length - a.length)) text = text.replaceAll(from, to);
+      if (/\$scram|scramtag/.test(text)) throw new Error(`[obfuscation] ${url} still names a runtime global the scripts don't; check it after a package update`);
+      body = Buffer.concat([Buffer.from(text, "latin1"), Buffer.from([0, 18, 1, 0x78]), tag]); // a custom section "x": still valid wasm
+    } else {
+      body = moveRuntime(bytes.toString("utf8")).replace(/\n\/\/# sourceMappingURL=\S+\s*$/, "");
+      if (url === "/controller/controller.api.js") {
+        body = replaceOnce(body, 'virtualWasmPath:"scramjet.wasm.js"', `virtualWasmPath:"${virtualWasm}"`);
+        body = replaceOnce(body, 'maskedfiles:["inject.js","scramjet.wasm.js"]', `maskedfiles:${JSON.stringify([injectName, virtualWasm, scramjetName].filter(Boolean))}`);
+        // The cookie jar of every proxied site: a fixed name, so a new seed doesn't log everyone out.
+        body = replaceOnce(body, 'indexedDB.open("__scramjet_controller"', `indexedDB.open("${COOKIE_DB}"`);
+      }
+      body += `\n/*${tag.toString("hex")}*/`;
+    }
+    add(moved.get(url), body, "public, max-age=31536000, immutable");
+  }
+  return { config, served, wispPath };
+}
+
+/**
+ * Wires all of it into the app, before the generic express.static(publicPath) so it wins for the
+ * same paths. `runtime` maps each proxy runtime file's well-known url to its file on disk
+ * (see buildSite); the caller mounts those well-known paths only when this returns undefined
+ * (turned off). Otherwise returns { page(path, host), wispPath(host) }: the served body of a page,
+ * for handlers that send one themselves, and the path the Wisp server answers at.
+ *
+ * Each SHADOW_DOMAINS domain gets a site built from its own seed, on its first request.
+ * Any other Host header gets the default site, so a made-up Host can't make the server build more.
+ */
+export function installObfuscation(app, { publicPath, runtime = new Map() }) {
+  const enabled = process.env.SHADOW_OBFUSCATE !== "off";
+  const seed = process.env.SHADOW_UI_SEED || crypto.randomBytes(16).toString("hex");
+  const listedDomain = domainMatcher(process.env.SHADOW_DOMAINS);
+
+  const reserved = new Set(readdirSync(publicPath));
+  // Minified once here, the same for every seed (the seeded steps come after, in buildSite).
+  const runtimeBytes = new Map([...runtime].map(([url, file]) =>
+    [url, url.endsWith(".wasm") ? readFileSync(file) : Buffer.from(minifyAsset(url, readFileSync(file, "utf8")))]));
+  const sites = new Map(); // listed domain ("" = default) -> site; one per listed domain at most
+  const site = (host) => {
+    const domain = listedDomain(host) ?? "";
+    if (!sites.has(domain)) sites.set(domain, buildSite(domain ? derive(seed, `host:${domain}`).toString("hex") : seed, publicPath, reserved, runtimeBytes));
+    return sites.get(domain);
+  };
+
+  app.get("/v1/api/config", (req, res) => {
+    res.set("Cache-Control", "no-store");
+    res.json(enabled ? site(req.hostname).config : {}); // {} = the page keeps its built-in codec
+  });
+  if (!enabled) return;
+  site(); // build the default site at startup, so a broken source fails now and not on a request
 
   app.use((req, res, next) => {
     if (req.method !== "GET" && req.method !== "HEAD") return next();
@@ -351,12 +459,13 @@ export function installObfuscation(app, { publicPath }) {
     }
     if (path.endsWith("/")) path += "index.html";
     if (path === "/privacy") path = "/privacy.html";
-    const asset = served.get(path);
+    const asset = site(req.hostname).served.get(path);
     if (!asset) return next();
     res.set("Cache-Control", asset.cache);
     if (asset.worker) res.set("Service-Worker-Allowed", "/"); // registered with scope "/" from outside its folder
     res.set("ETag", asset.etag);
+    res.vary("Host"); // one URL, a different body per domain: shared caches must not mix them
     res.type(posix.extname(path)).send(asset.body);
   });
-  return (path) => served.get(path)?.body;
+  return { page: (path, host) => site(host).served.get(path)?.body, wispPath: (host) => site(host).wispPath };
 }

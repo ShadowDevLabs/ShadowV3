@@ -209,6 +209,22 @@ body::before {
   margin-bottom: 28px;
 }
 
+/* Groups the General page's settings: a quiet label and a wider gap, no box or line of its own. */
+.settings-group-title {
+  margin: 64px 0 14px;
+  color: var(--text-muted);
+  opacity: 0.6;
+  font-family: "Poppins", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+}
+
+.content-title + .settings-group-title {
+  margin-top: 0;
+}
+
 /* One line of controls: inputs stretch, buttons keep their size, all centred. */
 .row {
   display: flex;
@@ -367,38 +383,70 @@ button {
   transform-origin: left;
 }
 
-.input-field select {
-  width: 100%;
-  padding: 14px;
-  border: 2px solid var(--border);
-  border-radius: 12px;
+/* The selects carry .input-field themselves. */
+select.input-field {
+  appearance: none;
+  cursor: pointer;
+  padding-right: 42px;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%23bae6fd' viewBox='0 0 24 24'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+}
+
+/* The open list. Every browser takes these colours... */
+select.input-field option {
   font-family: "Poppins", sans-serif;
   color: var(--text);
   background-color: var(--secondary);
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%23bae6fd' viewBox='0 0 24 24'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
-  transition: all 0.3s ease;
 }
 
-.input-field select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-glow);
-  transform: translateY(-2px);
+select.input-field option:checked {
+  color: #fff;
+  background-color: var(--accent);
 }
 
-#themeSelector option {
-  padding: 12px;
-  font-family: "Poppins", sans-serif;
-  background-color: var(--primary);
-}
+/* ...and Chromium 135+ lets the whole list be styled like the rest of the page. */
+@supports (appearance: base-select) {
+  select.input-field,
+  select.input-field::picker(select) {
+    appearance: base-select;
+  }
 
-select option {
-  font-family: "Poppins", sans-serif;
-  padding: 14px;
+  select.input-field::picker-icon {
+    display: none; /* the chevron above stays */
+  }
+
+  select.input-field::picker(select) {
+    margin-top: 4px;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--secondary);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  select.input-field option {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    background: transparent;
+  }
+
+  select.input-field option::checkmark {
+    display: none;
+  }
+
+  select.input-field option:hover,
+  select.input-field option:focus-visible {
+    outline: none;
+    background-color: var(--accent-glow);
+  }
+
+  select.input-field option:checked {
+    color: var(--accent-light);
+    background-color: var(--accent-glow);
+  }
 }
 
 .box {
