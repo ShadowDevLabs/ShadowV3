@@ -66,33 +66,14 @@ export async function setTheme(theme) {
 }
 
 // ---------------------------------------------------------------- customizer
-// Layered on top of whichever theme is active (Settings → Themes → Customize):
-//   theme-accent     a hex color that replaces the theme's accent colors
+// Layered on top of whichever theme is active (Settings → Themes → Wallpaper & CSS):
 //   theme-wallpaper  an image (URL or data: URL) behind Shadow's own pages
 //   theme-css        free-form CSS added to the shell and every internal page
-const ACCENT_VARS = ["--accent", "--accent-light", "--accent-glow", "--border"];
 const isShell = window === window.top || !!document.getElementById("tabs-container");
 
 export async function applyCustomizations() {
   const root = document.documentElement;
-  const [accent, wallpaper, css] = await Promise.all([
-    settings.get("theme-accent"),
-    settings.get("theme-wallpaper"),
-    settings.get("theme-css"),
-  ]);
-
-  if (typeof accent === "string" && /^#[0-9a-f]{6}$/i.test(accent)) {
-    root.style.setProperty("--accent", accent);
-    root.style.setProperty("--accent-light", shadeColor(accent, 30));
-    root.style.setProperty("--accent-glow", `rgba(${hexToRgb(accent)}, 0.2)`);
-    root.style.setProperty("--border", `rgba(${hexToRgb(accent)}, 0.3)`);
-    root.dataset.customAccent = "1";
-  } else if (root.dataset.customAccent) {
-    // Back to the theme's own values (a "custom" theme re-sets them in setTheme).
-    delete root.dataset.customAccent;
-    if (root.className !== "custom") ACCENT_VARS.forEach((key) => root.style.removeProperty(key));
-    else return setTheme("custom");
-  }
+  const [wallpaper, css] = await Promise.all([settings.get("theme-wallpaper"), settings.get("theme-css")]);
 
   let style = document.getElementById("shadow-customizer");
   const rules = [];
@@ -174,28 +155,48 @@ function hexToRgb(hex) {
 }
 
 
-function genTheme(baseColor) {
-  const themeVariables = {
-    background: `linear-gradient(145deg, ${shadeColor(baseColor, -75)}, ${shadeColor(baseColor, -60)})`,
-    homeBg: `linear-gradient(145deg, ${shadeColor(baseColor, -45)}, ${shadeColor(baseColor, -75)}, ${shadeColor(baseColor, -90)})`,
-    primary: shadeColor(baseColor, -75),
-    primaryDark: shadeColor(baseColor, -85),
-    secondary: shadeColor(baseColor, -65),
-    accent: shadeColor(baseColor, 20),
-    accentLight: shadeColor(baseColor, 40),
-    accentGlow: `rgba(${hexToRgb(baseColor)}, 0.2)`,
-    border: `rgba(${hexToRgb(baseColor)}, 0.3)`,
-    text: '#fff',
-    textMuted: `rgba(${hexToRgb(shadeColor(baseColor, 60))}, 0.8)`,
+// Builds every theme variable from the four colors the Custom Theme pickers offer.
+function genTheme({ bg, surface, accent, text }) {
+  const rgb = (hex, a) => `rgba(${hexToRgb(hex)}, ${a})`;
+  return {
+    background: `linear-gradient(145deg, ${bg}, ${surface})`,
+    homeBg: `linear-gradient(145deg, ${surface}, ${bg})`,
+    primary: bg,
+    primaryDark: shadeColor(bg, -40),
+    secondary: surface,
+    accent,
+    accentLight: mixWhite(accent, 0.45),
+    accentGlow: rgb(accent, 0.2),
+    border: rgb(accent, 0.3),
+    text,
+    textMuted: rgb(text, 0.7),
     hoverDanger: '#f87171',
-    activeTab: `linear-gradient(145deg, ${shadeColor(baseColor, -20)}, ${shadeColor(baseColor, -65)})`
+    activeTab: `linear-gradient(145deg, ${rgb(accent, 0.35)}, ${surface})`
   };
-  return themeVariables;
+}
+
+function mixWhite(hex, amount) {
+  return "#" + [1, 3, 5].map((i) => {
+    const c = parseInt(hex.substring(i, i + 2), 16);
+    return Math.round(c + (255 - c) * amount).toString(16).padStart(2, "0");
+  }).join("");
+}
+
+const PICKERS = { bg: "customBg", surface: "customSurface", accent: "customAccent", text: "customText" };
+
+// Start the pickers from whatever theme is showing, so a tweak begins from it.
+export function fillCustomPickers() {
+  const style = getComputedStyle(document.documentElement);
+  const from = { bg: "--primary", surface: "--secondary", accent: "--accent", text: "--text" };
+  for (const [key, id] of Object.entries(PICKERS)) {
+    const value = style.getPropertyValue(from[key]).trim();
+    const input = document.getElementById(id);
+    if (input && /^#[0-9a-f]{6}$/i.test(value)) input.value = value;
+  }
 }
 
 export async function applyCustomTheme() {
-  const color = document.getElementById('themeColorPicker').value;
-  const themeVars = genTheme(color);
-  await settings.set("custom", JSON.stringify(themeVars, null, 2));
+  const colors = Object.fromEntries(Object.entries(PICKERS).map(([key, id]) => [key, document.getElementById(id).value]));
+  await settings.set("custom", JSON.stringify(genTheme(colors), null, 2));
   changeTheme("custom");
 }

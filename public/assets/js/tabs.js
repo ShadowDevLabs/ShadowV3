@@ -866,6 +866,14 @@ class Tab {
       this.saveTabs();
     });
     el.addEventListener("dragover", (e) => {
+      if (this.draggingGroup) {
+        if (tab.groupId === this.draggingGroup) return;
+        e.preventDefault();
+        const rect = el.getBoundingClientRect();
+        const before = this.verticalTabs ? e.clientY < rect.top + rect.height / 2 : e.clientX < rect.left + rect.width / 2;
+        this.groups.moveGroup(this.draggingGroup, tab, before);
+        return;
+      }
       const dragged = this.dragging;
       if (!dragged || dragged === tab) return;
       e.preventDefault();

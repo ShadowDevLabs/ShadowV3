@@ -11,53 +11,70 @@
   <link rel="icon" href="/assets/imgs/icons/pages/store.png" />
 </head>
 <body>
-  <header class="store-header">
+  <!-- Icons: Lucide (lucide.dev, ISC) -->
+  <header class="topbar">
     <div class="brand">
-      <div class="logo">S</div>
-      <div>
-        <h1>Shadow Web Store</h1>
-        <p class="tagline">Chrome extensions, installed straight into Shadow</p>
-      </div>
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.39 4.39a1 1 0 0 0 1.68-.474 2.5 2.5 0 1 1 3.014 3.015 1 1 0 0 0-.474 1.68l1.683 1.682a2.414 2.414 0 0 1 0 3.414L19.61 15.39a1 1 0 0 1-1.68-.474 2.5 2.5 0 1 0-3.014 3.015 1 1 0 0 1 .474 1.68l-1.683 1.682a2.414 2.414 0 0 1-3.414 0L8.61 19.61a1 1 0 0 0-1.68.474 2.5 2.5 0 1 1-3.014-3.015 1 1 0 0 0 .474-1.68l-1.683-1.682a2.414 2.414 0 0 1 0-3.414L4.39 8.61a1 1 0 0 1 1.68.474 2.5 2.5 0 1 0 3.014-3.015 1 1 0 0 1-.474-1.68l1.683-1.682a2.414 2.414 0 0 1 3.414 0z"/></svg>
+      </span>
+      <span class="brand-name">Web Store</span>
     </div>
-    <div class="search-wrap">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-      </svg>
-      <input id="search" type="search" placeholder="Search extensions…" autocomplete="off" spellcheck="false" />
+    <label class="search-wrap">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+      <input id="search" type="search" placeholder="Search extensions" autocomplete="off" spellcheck="false" />
+    </label>
+    <div class="top-actions">
+      <button id="add-url" class="btn">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        <span>Add by URL</span>
+      </button>
+      <a href="/extensions/" class="btn">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+        <span>Manage</span>
+      </a>
     </div>
-    <button id="add-url" class="ghost">Add by URL / ID</button>
-    <a href="/extensions/" class="manage-link">Manage installed</a>
   </header>
 
-  <div id="unavailable" class="notice" hidden>
-    Extensions need the proxy, and it didn't start in this window. Reload Shadow and reopen the store.
+  <div class="content">
+      <section class="intro">
+        <h1>Extensions for Shadow</h1>
+        <p class="muted">Chrome extensions, installed straight into the browser. Pick one below, or paste any Chrome Web Store link.</p>
+      </section>
+
+      <nav id="categories" class="categories" aria-label="Categories"></nav>
+
+      <div id="unavailable" class="notice" hidden>
+        Extensions need the proxy, and it didn't start in this window. Reload Shadow and reopen the store.
+      </div>
+
+      <!-- Add from the real Chrome Web Store (any extension, not just the catalog) -->
+      <div id="url-box" class="url-box" hidden>
+        <div class="url-row">
+          <input id="url-input" type="text" placeholder="Chrome Web Store link or 32-character extension ID" autocomplete="off" spellcheck="false" />
+          <button id="url-install" class="btn primary">Install</button>
+          <button id="url-cancel" class="btn ghost">Cancel</button>
+        </div>
+        <p id="url-status" class="status" role="status"></p>
+      </div>
+
+      <section id="featured-section" class="section" hidden>
+        <h2 class="section-head">Featured</h2>
+        <div id="featured" class="featured-row"></div>
+      </section>
+
+      <main class="section">
+        <h2 class="section-head"><span id="grid-title">All extensions</span><span id="count" class="count"></span></h2>
+        <div id="grid" class="grid"></div>
+        <p id="empty" class="empty muted" hidden>No extensions match your search.</p>
+      </main>
   </div>
-
-  <!-- Add from the real Chrome Web Store (any extension, not just the catalog) -->
-  <div id="url-box" class="url-box" hidden>
-    <input id="url-input" type="text" placeholder="Paste a Chrome Web Store link or a 32-character extension ID" autocomplete="off" spellcheck="false" />
-    <button id="url-install" class="primary">Install</button>
-    <button id="url-cancel" class="ghost">Cancel</button>
-    <p id="url-status" class="status" role="status"></p>
-  </div>
-
-  <nav id="categories" class="categories"></nav>
-
-  <section id="featured-section" class="featured" hidden>
-    <h2 class="section-head">Featured</h2>
-    <div id="featured" class="featured-row"></div>
-  </section>
-
-  <main>
-    <h2 class="section-head"><span id="grid-title">All extensions</span><span id="count" class="count"></span></h2>
-    <div id="grid" class="grid"></div>
-    <p id="empty" class="muted" hidden>No extensions match your search.</p>
-  </main>
 
   <!-- Detail modal -->
   <div id="modal" class="modal" hidden>
-    <div class="modal-card">
-      <button id="modal-close" class="modal-close" title="Close" aria-label="Close">✕</button>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-name">
+      <button id="modal-close" class="icon-btn modal-close" title="Close" aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
       <div class="modal-head">
         <div class="ext-ico" id="modal-ico"></div>
         <div>
@@ -65,32 +82,31 @@
           <p class="muted" id="modal-meta"></p>
         </div>
       </div>
-      <p id="modal-desc" class="modal-desc"></p>
-      <div id="modal-perms" class="modal-perms"></div>
       <div class="modal-actions">
-        <button id="modal-install" class="primary"></button>
+        <button id="modal-install" class="btn primary"></button>
         <span id="modal-status" class="status"></span>
       </div>
-      <p class="muted small">
-        Installs the package from the Chrome Web Store through Shadow. Only install extensions you trust —
-        an extension can read and change the pages you open here, same as in Chrome.
+      <p id="modal-desc" class="modal-desc"></p>
+      <p id="modal-perms" class="modal-perms"></p>
+      <p class="modal-warn">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        <span>Installs the package from the Chrome Web Store through Shadow. Only install extensions you trust:
+        an extension can read and change the pages you open here, same as in Chrome.</span>
       </p>
     </div>
   </div>
 
   <template id="card-tpl">
     <article class="card" tabindex="0">
-      <div class="card-head">
-        <div class="ext-ico card-ico"></div>
-        <div class="card-titles">
-          <h3 class="card-name"></h3>
-          <p class="card-author muted"></p>
+      <div class="ext-ico card-ico"></div>
+      <div class="card-body">
+        <h3 class="card-name"></h3>
+        <p class="card-author muted"></p>
+        <p class="card-desc"></p>
+        <div class="card-foot">
+          <span class="card-cat"></span>
+          <button class="card-btn btn primary">Add</button>
         </div>
-      </div>
-      <p class="card-desc"></p>
-      <div class="card-foot">
-        <span class="card-cat"></span>
-        <button class="card-btn primary">Add</button>
       </div>
     </article>
   </template>

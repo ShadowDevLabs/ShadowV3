@@ -55,7 +55,9 @@
   <div id="content">
     <div id="general-content">
       <div class="content-title">General</div>
-      <!-- Tabs Cloak -->
+
+      <div class="settings-group">
+        <h2 class="group-title">Privacy &amp; Cloaking</h2>
       <div class="settings-section">
         <h2 class="section-title">Tab Cloak</h2>
         <div class="section-content">
@@ -97,9 +99,6 @@
           </div>
         </div>
       </div>
-
-      <br /><br />
-      <!-- About:blank -->
       <div class="settings-section">
         <h2 class="section-title">About:Blank</h2>
         <div class="section-content">
@@ -116,66 +115,26 @@
           </button>
         </div>
       </div>
-      <br /><br />
-      <div class="settings-section">
-        <h2 class="section-title">Auto Blank</h2>
-        <div class="section-content">
-          <p class="section-text">
-            Enable automatic about:blank cloaking. This can help prevent the site from showing up in your search
-            history, and hides the site from some blockers.
-          </p>
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3 class="setting-name">Auto Blank</h3>
+            <p class="setting-desc">Open Shadow inside about:blank automatically, keeping it out of your history and away from some blockers.</p>
+          </div>
           <div class="switch">
             <input type="checkbox" class="switch" id="autoBlankSwitch" onclick="setAutoBlank();" />
             <label for="autoBlankSwitch" class="slider"></label>
           </div>
         </div>
-      </div>
-      <br />
-      <!--Toggle auto save/load tabs-->
-      <div class="settings-section">
-        <h2 class="section-title">Auto Save/Load Tabs</h2>
-        <div class="section-content">
-          <p class="section-text">
-            Automatically reload tabs from older sessions, toggle auto saving
-            and loading here.
-          </p>
-          <div class="switch">
-            <input type="checkbox" class="switch" id="saveTabsSwitch" onclick="setSaveTabs();" />
-            <label for="saveTabsSwitch" class="slider"></label>
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3 class="setting-name">Close Protection</h3>
+            <p class="setting-desc">Ask for confirmation whenever something tries to close the page.</p>
           </div>
-        </div>
-      </div>
-      <br />
-      <div class="settings-section">
-        <h2 class="section-title">History</h2>
-        <div class="section-content">
-          <p class="section-text">
-            Save your history! History is accessibly at <span style="cursor: pointer; color: var(--accent);"
-              onclick="top.tabs.createTab('shadow:/\/history')">shadow://history</span>
-          </p>
-          <div class="switch">
-            <input type="checkbox" class="switch" id="historySwitch" onclick="toggleHistory();" />
-            <label for="historySwitch" class="slider"></label>
-          </div>
-        </div>
-      </div>
-      <br />
-      <!-- Close Protection -->
-      <div class="settings-section">
-        <h2 class="section-title">Close Protection</h2>
-        <div class="section-content">
-          <p class="section-text">
-            Prevent extensions and teachers from closing tabs! Will present a confirmation popup whenever an attempt to
-            close the page occurs.
-          </p>
           <div class="switch">
             <input type="checkbox" class="switch" id="closeProtSwitch" onclick="toggleCloseProt()" />
             <label for="closeProtSwitch" class="slider"></label>
           </div>
         </div>
-      </div>
-
-      <!-- Panic Key -->
       <div class="settings-section">
         <h2 class="section-title">Panic Key</h2>
         <div class="section-content">
@@ -193,45 +152,72 @@
             onchange="savePanicUrl()" />
         </div>
       </div>
-      <br /><br />
-      <!-- Browser layout and page behaviour (settings/features.js) -->
-      <div class="settings-section">
-        <h2 class="section-title">Vertical Tabs</h2>
-        <div class="section-content">
-          <p class="section-text">Show tabs in a column down the left side instead of a strip along the top. (Alt+V)</p>
+      </div>
+
+      <div class="settings-group">
+        <h2 class="group-title">Tabs &amp; Browsing</h2>
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3 class="setting-name">Restore Tabs</h3>
+            <p class="setting-desc">Reopen the tabs from your last session.</p>
+          </div>
           <div class="switch">
-            <input type="checkbox" class="switch" id="verticalTabsSwitch" />
-            <label for="verticalTabsSwitch" class="slider"></label>
+            <input type="checkbox" class="switch" id="saveTabsSwitch" onclick="setSaveTabs();" />
+            <label for="saveTabsSwitch" class="slider"></label>
           </div>
         </div>
-      </div>
-      <div class="settings-section">
-        <h2 class="section-title">Bookmarks Bar</h2>
-        <div class="section-content">
-          <p class="section-text">Show your bookmarks under the address bar. Use the star in the address bar to add the page you're on. (Alt+B)</p>
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3 class="setting-name">History</h3>
+            <p class="setting-desc">Keep a history of visited pages at <span style="cursor: pointer; color: var(--accent);" onclick="top.tabs.createTab('shadow:/\/history')">shadow://history</span>.</p>
+          </div>
           <div class="switch">
-            <input type="checkbox" class="switch" id="bookmarksBarSwitch" />
-            <label for="bookmarksBarSwitch" class="slider"></label>
+            <input type="checkbox" class="switch" id="historySwitch" onclick="toggleHistory();" />
+            <label for="historySwitch" class="slider"></label>
           </div>
         </div>
-      </div>
-      <div class="settings-section">
-        <h2 class="section-title">Dark Mode For Every Site</h2>
-        <div class="section-content">
-          <p class="section-text">Darken light websites automatically. Sites that are already dark are left alone, and you can override it per site from the site settings button in the address bar.</p>
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3 class="setting-name">Dark Mode For Every Site</h3>
+            <p class="setting-desc">Darken light websites. Override it per site from the site settings button in the address bar.</p>
+          </div>
           <div class="switch">
             <input type="checkbox" class="switch" id="forceDarkSwitch" />
             <label for="forceDarkSwitch" class="slider"></label>
           </div>
         </div>
-      </div>
-      <div class="settings-section">
-        <h2 class="section-title">Save Downloads Automatically</h2>
-        <div class="section-content">
-          <p class="section-text">Hand finished downloads straight to your device. When off, files wait in the downloads list until you save them.</p>
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3 class="setting-name">Save Downloads Automatically</h3>
+            <p class="setting-desc">Hand finished downloads straight to your device instead of holding them in the downloads list.</p>
+          </div>
           <div class="switch">
             <input type="checkbox" class="switch" id="downloadsAutosaveSwitch" />
             <label for="downloadsAutosaveSwitch" class="slider"></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h2 class="group-title">Layout</h2>
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3 class="setting-name">Vertical Tabs</h3>
+            <p class="setting-desc">Show tabs in a sidebar on the left instead of a strip along the top. (Alt+V)</p>
+          </div>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="verticalTabsSwitch" />
+            <label for="verticalTabsSwitch" class="slider"></label>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3 class="setting-name">Bookmarks Bar</h3>
+            <p class="setting-desc">Show your bookmarks under the address bar. (Alt+B)</p>
+          </div>
+          <div class="switch">
+            <input type="checkbox" class="switch" id="bookmarksBarSwitch" />
+            <label for="bookmarksBarSwitch" class="slider"></label>
           </div>
         </div>
       </div>
@@ -240,64 +226,61 @@
     <!-- Themes -->
     <div id="themes-content">
       <div class="content-title">Themes</div>
-
-      <!-- Premade -->
       <div class="settings-section">
         <h2 class="section-title">Pre-Made Themes</h2>
         <div class="section-content">
-          <p class="section-text">
-            Choose between the following themes. This will change the
-            appearance of the site.
-          </p>
+          <p class="section-text">Pick a theme. This also clears any custom theme you made.</p>
           <div class="themes-container" id="themes-container">
             <!-- Theme Buttons Get Loaded here-->
           </div>
         </div>
       </div>
-
-      <!-- Custom -->
       <div class="settings-section">
-        <h2 class="section-title">Custom Themes</h2>
+        <h2 class="section-title">Custom Theme</h2>
         <div class="section-content">
-          <p class="section-text">
-            Create your own theme with the custom theme maker! Enter a base color, and we'll generate a theme for you!
-          </p>
-          <input type="color" id="themeColorPicker" name="themeColorPicker" value="#000000"> <br><br>
-          <button class="icon-button" onclick="applyCustomTheme()">
-            <svg xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;"
-              viewBox="0 0 448 512"><!--!Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fontassets/imgs/icons, Inc.-->
-              <path
-                d="M288 0L160 0 128 0C110.3 0 96 14.3 96 32s14.3 32 32 32l0 132.8c0 11.8-3.3 23.5-9.5 33.5L10.3 406.2C3.6 417.2 0 429.7 0 442.6C0 480.9 31.1 512 69.4 512l309.2 0c38.3 0 69.4-31.1 69.4-69.4c0-12.8-3.6-25.4-10.3-36.4L329.5 230.4c-6.2-10.1-9.5-21.7-9.5-33.5L320 64c17.7 0 32-14.3 32-32s-14.3-32-32-32L288 0zM192 196.8L192 64l64 0 0 132.8c0 23.7 6.6 46.9 19 67.1L309.5 320l-171 0L173 263.9c12.4-20.2 19-43.4 19-67.1z" />
-            </svg>
-            Apply Theme
-          </button>
+          <p class="section-text">The pickers start from the theme you're using. Change any of them, then apply.</p>
+          <div class="color-grid">
+            <label class="color-field">
+              <input type="color" id="customBg">
+              <span>Background</span>
+            </label>
+            <label class="color-field">
+              <input type="color" id="customSurface">
+              <span>Surface</span>
+            </label>
+            <label class="color-field">
+              <input type="color" id="customAccent">
+              <span>Accent</span>
+            </label>
+            <label class="color-field">
+              <input type="color" id="customText">
+              <span>Text</span>
+            </label>
+          </div>
+          <div class="row">
+            <button class="icon-button" onclick="applyCustomTheme()">Apply Theme</button>
+          </div>
         </div>
       </div>
-
-      <!-- Customizer: layered on top of whichever theme is active (settings/features.js) -->
+      <!-- Layered on top of whichever theme is active (settings/features.js) -->
       <div class="settings-section">
-        <h2 class="section-title">Customize</h2>
+        <h2 class="section-title">Wallpaper &amp; CSS</h2>
         <div class="section-content">
-          <p class="section-text">Fine-tune the theme you picked: your own accent color, a wallpaper behind Shadow's pages, and custom CSS.</p>
-          <p class="section-text"><b>Accent color</b></p>
-          <input type="color" id="accentPicker" value="#3b82f6">
-          <button class="icon-button" id="accentReset" style="display:inline-flex; margin-left: 10px;">Use theme color</button>
-          <br><br>
-          <p class="section-text"><b>Wallpaper</b> — an image address, or pick a file (up to 2 MB, stored on this device only).</p>
-          <input class="input-field" style="width:90%;" id="wallpaperUrl" placeholder="https://example.com/wallpaper.jpg" />
-          <br><br>
-          <input type="file" id="wallpaperFile" accept="image/*" hidden>
-          <button class="icon-button" id="wallpaperPick" style="display:inline-flex;">Choose image…</button>
-          <button class="icon-button" id="wallpaperClear" style="display:inline-flex; margin-left: 10px;">Remove wallpaper</button>
-          <br><br>
-          <p class="section-text"><b>Custom CSS</b> — applied to Shadow's own interface (not to websites).</p>
-          <textarea class="input-field" id="customCss" rows="7" spellcheck="false" style="width:90%; font-family: ui-monospace, Menlo, Consolas, monospace; resize: vertical;" placeholder=".tab { border-radius: 4px; }"></textarea>
-          <br><br>
-          <button class="icon-button" id="customCssApply" style="display:inline-flex;">Apply CSS</button>
-          <span id="customizeStatus" class="section-text" style="margin-left: 12px;"></span>
+          <p class="section-text"><b>Wallpaper</b>: an image address, or pick a file (up to 2 MB, stored on this device only).</p>
+          <div class="row">
+            <input class="input-field" id="wallpaperUrl" placeholder="https://example.com/wallpaper.jpg" />
+            <input type="file" id="wallpaperFile" accept="image/*" hidden>
+            <button class="icon-button" id="wallpaperPick">Choose image…</button>
+            <button class="icon-button secondary" id="wallpaperClear">Remove</button>
+          </div>
+          <p class="section-text"><b>Custom CSS</b>: applied to Shadow's own interface (not to websites).</p>
+          <textarea class="input-field" id="customCss" rows="7" spellcheck="false" style="width:100%; box-sizing:border-box; font-family: ui-monospace, Menlo, Consolas, monospace; resize: vertical;" placeholder=".tab { border-radius: 4px; }"></textarea>
+          <div class="row">
+            <button class="icon-button" id="customCssApply">Apply CSS</button>
+            <span id="customizeStatus" class="section-text"></span>
+          </div>
         </div>
       </div>
-
     </div>
 
     <div id="search-content">
@@ -491,11 +474,12 @@
     <script type="module">
       import { SettingsManager } from "/assets/js/settings_manager.js"
       import { checkWispUrl } from "/assets/js/wispchecker.js"
-      import { changeTheme as _changeTheme, applyCustomTheme as _applyCustomTheme } from "/assets/js/themes.js"
+      import { changeTheme as _changeTheme, applyCustomTheme as _applyCustomTheme, fillCustomPickers } from "/assets/js/themes.js"
       import { HistoryHelper } from "/assets/js/history_helper.js"
 
       window.changeTheme = _changeTheme;
       window.applyCustomTheme = _applyCustomTheme;
+      window.fillCustomPickers = fillCustomPickers;
       window.settings = new SettingsManager();
       window.historyHelper = new HistoryHelper();
       document.getElementById("autoBlankSwitch").checked = await window.settings.get('auto-blank');
@@ -622,6 +606,8 @@
         if (selectedSection) {
           selectedSection.style.display = "block";
         }
+        document.querySelectorAll(".menu-item").forEach((item) => item.classList.toggle("active", item.getAttribute("onclick") === `showContent('${contentId}')`));
+        if (contentId === "themes") window.fillCustomPickers?.();
       }
 
       async function updateEngine() {

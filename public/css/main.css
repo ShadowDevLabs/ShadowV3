@@ -45,7 +45,7 @@ html {
   padding: 0 2rem;
   position: relative;
   z-index: 1;
-  margin-top: -8vh;
+  margin-top: 0;
 }
 
 h1 {
@@ -150,13 +150,14 @@ h1 {
   fill: currentColor;
 }
 
+/* Speed dial: a centred grid of tiles, icon on a plate with the name always
+   shown underneath, like a launcher rather than floating buttons. */
 .shortcuts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 96px);
+  gap: 8px 12px;
   justify-content: center;
-  align-items: flex-start;
-  width: min(640px, 90vw);
+  width: min(680px, 92vw);
   animation: MoveUp 0.8s ease 0.4s forwards;
   animation-fill-mode: both;
 }
@@ -165,98 +166,72 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
+  padding: 14px 6px 10px;
   text-decoration: none;
   color: var(--text);
-  width: 80px;
   cursor: pointer;
-  height: 80px;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  position: relative;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: visible;
+  border-radius: 14px;
+  transition: background-color 0.15s ease;
 }
 
-.shortcut::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, var(--accent-glow), transparent);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  border-radius: 16px;
-}
-
-.shortcut:hover {
-  transform: translateY(-4px) scale(1.05);
-  background: rgba(0, 0, 0, 0.8);
-  border-color: var(--accent);
-  box-shadow:
-    0 12px 32px rgba(0, 0, 0, 0.4),
-    0 4px 16px var(--accent-glow),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-.shortcut:hover::before {
-  opacity: 1;
+.shortcut:hover,
+.shortcut:focus-visible {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  outline: none;
 }
 
 .shortcut img {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-  position: relative;
-  z-index: 1;
+  width: 56px;
+  height: 56px;
+  padding: 13px;
+  border-radius: 50%;
+  object-fit: contain;
+  background: color-mix(in srgb, var(--primary) 85%, transparent);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  transition: border-color 0.15s ease;
 }
 
 .shortcut:hover img {
-  transform: scale(1.1);
+  border-color: var(--accent);
 }
 
 .shortcut p {
-  position: absolute;
-  bottom: -50px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--primary-dark);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  color: var(--text);
-  padding: 10px 14px;
-  border-radius: 8px;
+  margin: 0;
+  max-width: 100%;
   font-size: 13px;
   font-weight: 500;
+  color: var(--text-muted);
   white-space: nowrap;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  z-index: 1000;
-  min-width: max-content;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .shortcut:hover p {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(-8px);
+  color: var(--text);
 }
 
-.add img {
-  background: linear-gradient(135deg, var(--accent), var(--accent-light));
-  border-radius: 10px;
-  padding: 8px;
-  object-fit: contain;
+.add .shortcut-plate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px dashed var(--border);
+  color: var(--accent-light);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.add .shortcut-plate svg {
+  width: 24px;
+  height: 24px;
+}
+
+.add:hover .shortcut-plate {
+  border-color: var(--accent);
+  color: var(--text);
 }
 
 .modal {
@@ -485,17 +460,13 @@ svg {
   }
 
   .shortcuts {
-    gap: 20px;
-  }
-
-  .shortcut {
-    width: 70px;
-    height: 70px;
+    grid-template-columns: repeat(auto-fit, 84px);
   }
 
   .shortcut img {
-    width: 36px;
-    height: 36px;
+    width: 50px;
+    height: 50px;
+    padding: 11px;
   }
 }
 
@@ -506,16 +477,13 @@ svg {
   }
 
   .shortcuts {
-    gap: 16px;
-  }
-
-  .shortcut {
-    width: 60px;
-    height: 60px;
+    grid-template-columns: repeat(auto-fit, 76px);
+    gap: 4px 6px;
   }
 
   .shortcut img {
-    width: 32px;
-    height: 32px;
+    width: 46px;
+    height: 46px;
+    padding: 10px;
   }
 }

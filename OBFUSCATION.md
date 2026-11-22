@@ -1,7 +1,6 @@
 # Anti-fingerprinting (obfuscation)
 
-`src/server/obfuscation.mjs` makes each deployment look different to a content
-filter: it randomises the shell's identifying DOM ids/classes, cloaks the page
+`src/server/obfuscation.mjs` makes each deployment look different to a scraper tryna scrape data -  it randomises the shell's identifying DOM ids/classes, cloaks the page
 as an innocuous site, and (optionally) gives each deploy its own URL-codec key
 and proxy prefix. It's **opt-in** and ships un-wired.
 
@@ -45,14 +44,14 @@ cloak block of `public/index.html` in markers so the server can replace it:
 
 ```html
 <!--CLOAK:START-->
-  <title>IXL | Math, Language Arts, Science, Social Studies, and Spanish</title>
+  <title>example 1</title>
   <meta name="description" content="…" />
   <!-- existing og: tags + <link rel="icon"> -->
 <!--CLOAK:END-->
 ```
 
-Pick the preset with `SHADOW_CLOAK=ixl|classroom|khan|canvas|drive|random|off`
-(default `ixl`, which matches today's hardcoded head). Without the markers the id
+Pick the preset with `SHADOW_CLOAK=example1|example2|random|off`
+(default `example1`, which matches today's hardcoded head). Without the markers the id
 randomisation still works; only the cloak no-ops.
 
 ## 2. Per-deploy URL codec (optional, client change)

@@ -1,4 +1,4 @@
-// Settings page: browser layout toggles, the theme customizer and cloud sync.
+// Settings page: browser layout toggles, wallpaper/CSS and cloud sync.
 // (The older sections are wired by the inline script in index.html.)
 import { SettingsManager } from "/assets/js/settings_manager.js";
 import { applyCustomizations } from "/assets/js/themes.js";
@@ -53,14 +53,11 @@ const saveCustom = async (key, value) => {
 };
 
 (async () => {
-  const [accent, wallpaper, css] = await Promise.all([settings.get("theme-accent"), settings.get("theme-wallpaper"), settings.get("theme-css")]);
-  if (accent) $("accentPicker").value = accent;
+  const [wallpaper, css] = await Promise.all([settings.get("theme-wallpaper"), settings.get("theme-css")]);
   if (wallpaper && !wallpaper.startsWith("data:")) $("wallpaperUrl").value = wallpaper;
   if (css) $("customCss").value = css;
 })();
 
-$("accentPicker").addEventListener("input", (e) => saveCustom("theme-accent", e.target.value));
-$("accentReset").addEventListener("click", () => saveCustom("theme-accent", "").then(() => flash("Using the theme's accent color.")));
 
 $("wallpaperUrl").addEventListener("change", (e) => {
   const url = e.target.value.trim();

@@ -18,7 +18,7 @@ const settings = new SettingsManager();
 // Settings that follow the user. Device-specific ones (proxy server, transport,
 // wallpaper image, cloaking) and sync's own state stay local.
 const SYNCED = [
-  "theme", "custom", "theme-accent", "theme-css",
+  "theme", "custom", "theme-css",
   "search-engine", "search-suggestions", "search-suggestions-engine",
   "history", "save-tabs", "bookmarks-bar", "vertical-tabs", "force-dark", "translate-lang",
   "downloads-autosave", "history-group-by-site", "reader",

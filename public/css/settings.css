@@ -205,6 +205,110 @@ body::before {
   margin-top: 5px;
 }
 
+.settings-section {
+  margin-bottom: 28px;
+}
+
+/* One line of controls: inputs stretch, buttons keep their size, all centred. */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 18px;
+}
+
+.row .input-field {
+  flex: 1 1 240px;
+  width: auto;
+  margin: 0;
+  padding: 10px 14px;
+}
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 14px;
+  margin: 14px 0 4px;
+  max-width: 600px;
+}
+
+.color-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.color-field input[type="color"] {
+  width: 100%;
+}
+
+/* General page: cards of related settings, toggles as label-left/switch-right rows. */
+.settings-group {
+  background: var(--primary);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 6px 22px 10px;
+  margin-bottom: 22px;
+}
+
+.group-title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 14px 0 4px;
+}
+
+.settings-group > .settings-section,
+.setting-row {
+  margin: 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+}
+
+.settings-group > .settings-section .section-title {
+  font-size: 17px;
+  margin-top: 0;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.setting-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--accent-light);
+  font-family: "Roboto", sans-serif;
+  margin: 0 0 4px;
+}
+
+.setting-desc {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.setting-row .switch {
+  flex: none;
+}
+
+.menu-item.active {
+  background: var(--active-tab);
+}
+
+.menu-item.active::before {
+  transform: scaleY(1);
+}
+
 .buttons {
   display: flex;
   justify-content: space-between;
@@ -214,33 +318,6 @@ body::before {
 
 button {
   font-family: "Poppins", sans-serif;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  position: relative;
-  overflow: hidden;
-}
-
-button::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, var(--accent-glow) 10%, transparent 60%);
-  opacity: 0;
-  transform: scale(0.5);
-  transition: transform 0.5s ease, opacity 0.5s ease;
-  pointer-events: none;
-}
-
-button:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px var(--accent-glow);
-}
-
-button:hover::after {
-  opacity: 0.4;
-  transform: scale(1);
 }
 
 .input-field {
@@ -260,7 +337,6 @@ button:hover::after {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow), inset 0 2px 4px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
 }
 
 .select-buttons {
@@ -273,48 +349,41 @@ button:hover::after {
 
 .select-buttons .icon-button,
 .icon-button {
-  background: linear-gradient(145deg, var(--accent), var(--primary-dark));
-  background-size: 200% 200%;
-  animation: gradient-shift 5s ease infinite;
+  background: var(--accent);
   color: var(--text);
-  border: none;
-  text-decoration: none;
-  display: flex;
+  border: 1px solid transparent;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
-  padding: 12px 20px;
+  gap: 8px;
+  border-radius: 10px;
+  padding: 10px 18px;
   cursor: pointer;
   font-size: 15px;
   font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px var(--accent-glow);
-  position: relative;
-  overflow: hidden;
-}
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  line-height: 1.2;
+  transition: filter 0.15s ease, background-color 0.15s ease;
 }
 
 .icon-button:hover {
-  background-color: var(--accent-light);
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 8px 16px var(--accent-glow);
+  filter: brightness(1.12);
+}
+
+.icon-button.secondary {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--accent-light);
+}
+
+.icon-button.secondary:hover {
+  background: var(--accent-glow);
+  filter: none;
 }
 
 .icon-button svg {
-  fill: var(--text);
-  width: 20px;
-  margin-right: 10px;
-  height: 20px;
-  transition: transform 0.3s ease;
-}
-
-.icon-button:hover svg {
-  transform: rotate(10deg) scale(1.1);
+  fill: currentColor;
+  width: 18px;
+  height: 18px;
 }
 
 .select-buttons button {
@@ -332,8 +401,7 @@ button:hover::after {
 }
 
 .select-buttons button:hover {
-  background-color: rgba(59, 130, 246, 0.15);
-  transform: translateY(-2px);
+  background-color: var(--accent-glow);
 }
 
 .select-buttons button::before {
@@ -573,8 +641,6 @@ input[type="color"] {
 
 input[type="color"]:hover {
   border-color: var(--accent);
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px var(--accent-glow);
 }
 
 input[type="color"]::-webkit-color-swatch {

@@ -7,7 +7,7 @@ fetch('themes.json')
       const themeDiv = document.createElement('div');
       themeDiv.classList.add('theme');
       themeDiv.onclick = () => {
-        changeTheme(theme.value);
+        changeTheme(theme.value).then(() => window.fillCustomPickers?.());
       };
       themeDiv.style.backgroundColor = theme.css['primary'];
       themeDiv.style.color = theme.css['text'];

@@ -104,6 +104,36 @@ export class TabGroups {
     this.changed();
   }
 
+  /**
+   * Moves a whole group, as one block, next to `anchor` (a tab outside it).
+   * An anchor inside another group snaps to that group's edge, so groups never interleave.
+   */
+  moveGroup(id, anchor, before) {
+    const tabs = this.tabs;
+    const arr = tabs.tabsArr;
+    const members = this.members(id);
+    if (!members.length || !anchor || members.includes(anchor)) return;
+    if (anchor.groupId) {
+      const other = this.members(anchor.groupId);
+      anchor = before ? other[0] : other[other.length - 1];
+    }
+    const rest = arr.filter((tab) => tab.groupId !== id);
+    const pinned = rest.filter((tab) => tab.pinned).length;
+    const at = Math.max(rest.indexOf(anchor) + (before ? 0 : 1), pinned);
+    rest.splice(at, 0, ...members);
+    if (rest.every((tab, i) => tab === arr[i])) return;
+    const active = arr[tabs.activeTabIndex];
+    arr.splice(0, arr.length, ...rest);
+    // Only the strip is reordered; iframes stay put, so nothing reloads.
+    let ref = rest[at + members.length]?.tab ?? this.strip.querySelector(".addtab-btn");
+    for (const tab of [...members].reverse()) {
+      this.strip.insertBefore(tab.tab, ref);
+      ref = tab.tab;
+    }
+    tabs.activeTabIndex = arr.indexOf(active);
+    this.render();
+  }
+
   ungroup(id) {
     for (const tab of this.members(id)) tab.groupId = null;
     this.changed();
@@ -232,8 +262,7 @@ export class TabGroups {
   buildChip(group) {
     const chip = h(
       "div",
-      { class: "tab-group-chip", role: "button", tabIndex: 0 },
-      h("span", { class: "tab-group-dot" }),
+      { class: "tab-group-chip", role: "button", tabIndex: 0, draggable: true },
       h("span", { class: "tab-group-name" }),
       h("span", { class: "tab-group-count" }),
       // Chevron: points down while open, right while folded.
@@ -250,8 +279,30 @@ export class TabGroups {
       e.preventDefault();
       this.showGroupMenu(group.id, e.clientX, e.clientY);
     });
-    // Dropping a tab on the chip adds it to the group.
+    // Dragging the chip carries the whole group (see Tabs.makeDraggable's dragover).
+    chip.addEventListener("dragstart", (e) => {
+      this.tabs.draggingGroup = group.id;
+      chip.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", group.name || "group");
+    });
+    chip.addEventListener("dragend", () => {
+      this.tabs.draggingGroup = null;
+      chip.classList.remove("dragging");
+      this.tabs.saveTabs();
+    });
+    // Dropping a tab on the chip adds it to the group; a dragged group goes before or after this one.
     chip.addEventListener("dragover", (e) => {
+      const dragging = this.tabs.draggingGroup;
+      if (dragging) {
+        if (dragging === group.id) return;
+        e.preventDefault();
+        const rect = chip.getBoundingClientRect();
+        const before = this.tabs.verticalTabs ? e.clientY < rect.top + rect.height / 2 : e.clientX < rect.left + rect.width / 2;
+        const members = this.members(group.id);
+        this.moveGroup(dragging, before ? members[0] : members[members.length - 1], before);
+        return;
+      }
       const dragged = this.tabs.dragging;
       if (!dragged || dragged.pinned || dragged.groupId === group.id) return;
       e.preventDefault();

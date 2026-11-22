@@ -13,8 +13,8 @@
 //      brand strings in the served HTML/CSS/JS are swapped for random names,
 //      consistently across every text asset. An id and every reference to it
 //      change together, so the page still works.
-//   3. A document cloak: the shell page's <title>, meta and favicon are swapped
-//      for an innocuous preset (IXL, Google Classroom, …).
+//   3. A document cloak: the shell page's <title>, meta and favicon are changed 
+//      for an another present/website to fight against scrapers whether it's a known site or not like (example1, example2).
 //
 // This is evasion, not security — the same category of thing Ultraviolet's cloak
 // and Holy Unblocker's rewriter already do for the same reason.
@@ -25,7 +25,7 @@ import { join } from "node:path";
 
 const OBFUSCATE = process.env.SHADOW_OBFUSCATE !== "off";
 
-// DOM signatures a filter is likely to key on. A prefix like "shadow-menu" also
+// DOM signatures a scraper is likely to key on. A prefix like "shadow-menu" also
 // covers "shadow-menu-item" etc. Keep these mutually non-substring; replacement
 // is longest-first so a token that is a prefix of another is handled after it.
 const SIGNATURE_TOKENS = [
@@ -43,18 +43,22 @@ const SIGNATURE_TOKENS = [
 
 const CLOAK_PRESETS = {
   off: null,
-  ixl: { title: "IXL | Math, Language Arts, Science, Social Studies, and Spanish",
-    description: "IXL is the world's most popular subscription-based learning site for K-12.",
-    siteName: "IXL Learning", url: "https://www.ixl.com", favicon: "https://www.ixl.com/favicon.ico", lang: "en" },
-  classroom: { title: "Classes", description: "Sign in to continue to Google Classroom.",
-    siteName: "Google Classroom", url: "https://classroom.google.com", favicon: "/assets/imgs/icons/cloaks/Classroom.png", lang: "en" },
-  khan: { title: "Dashboard | Khan Academy",
-    description: "Learn for free about math, art, computer programming, economics, and more.",
-    siteName: "Khan Academy", url: "https://www.khanacademy.org", favicon: "/assets/imgs/icons/cloaks/Khan Academy.ico", lang: "en" },
-  canvas: { title: "Dashboard", description: "Canvas by Instructure.",
-    siteName: "Canvas", url: "https://canvas.instructure.com", favicon: "/assets/imgs/icons/cloaks/Canvas.ico", lang: "en" },
-  drive: { title: "My Drive - Google Drive", description: "Sign in to continue to Google Drive.",
-    siteName: "Google Drive", url: "https://drive.google.com", favicon: "/assets/imgs/icons/cloaks/Google Drive.ico", lang: "en" },
+  example1: {
+    title: "Example Site 1",
+    description: "This is an example website.",
+    siteName: "Example Site 1",
+    url: "https://example.com",
+    favicon: "https://example.com/favicon.ico",
+    lang: "en"
+  },
+  example2: {
+    title: "Example Site 2",
+    description: "This is another example website.",
+    siteName: "Example Site 2",
+    url: "https://example.org",
+    favicon: "https://example.org/favicon.ico",
+    lang: "en"
+  },
 };
 
 function randToken(length = 8) {
@@ -73,12 +77,12 @@ function buildTokenMap() {
 }
 
 function resolveCloak() {
-  const choice = (process.env.SHADOW_CLOAK ?? "ixl").toLowerCase();
+  const choice = (process.env.SHADOW_CLOAK ?? "example1").toLowerCase();
   if (choice === "random") {
     const names = Object.keys(CLOAK_PRESETS).filter((n) => CLOAK_PRESETS[n]);
     return CLOAK_PRESETS[names[crypto.randomInt(names.length)]];
   }
-  return CLOAK_PRESETS[choice] ?? CLOAK_PRESETS.ixl;
+  return CLOAK_PRESETS[choice] ?? CLOAK_PRESETS.example1;
 }
 
 const state = {

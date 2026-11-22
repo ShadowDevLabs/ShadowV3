@@ -11,12 +11,22 @@ const shortcutForm = document.getElementById("shortcut-form");
 const $ = (id) => document.getElementById(id);
 
 const defaultShortcuts = [
-  { name: "Roblox", url: "https://astra.pxi-fusion.com/embed/shadow/roblox", icon: "assets/imgs/icons/apps/2.png" },
-  { name: "Clash Royale", url: "https://astra.pxi-fusion.com/embed/shadow/clash-royale", icon: "assets/imgs/icons/apps/5.webp" },
-  { name: "Fortnite", url: "https://astra.pxi-fusion.com/embed/shadow/fortnite", icon: "assets/imgs/icons/apps/4.jpg" },
-  { name: "Brawl Stars", url: "https://astra.pxi-fusion.com/embed/shadow/brawl-stars", icon: "assets/imgs/icons/apps/6.jpg" },
-  { name: "G@me$", url: "shadow://books", icon: "assets/imgs/icons/apps/3.png" },
+  { name: "Google", url: "https://www.google.com" },
+  { name: "TikTok", url: "https://www.tiktok.com" },
+  { name: "Discord", url: "https://discord.com/app" },
+  { name: "Spotify", url: "https://open.spotify.com" },
+  { name: "Animetsu", url: "https://animetsu.site" },
+  { name: "Instagram", url: "https://www.instagram.com" },
+  { name: "Invidious", url: "https://invidious.tiekoetter.com" },
 ];
+// The previous defaults stopped working; anyone who still has exactly those gets the new set.
+const retiredDefaults = new Set([
+  "https://astra.pxi-fusion.com/embed/shadow/roblox",
+  "https://astra.pxi-fusion.com/embed/shadow/clash-royale",
+  "https://astra.pxi-fusion.com/embed/shadow/fortnite",
+  "https://astra.pxi-fusion.com/embed/shadow/brawl-stars",
+  "shadow://books",
+]);
 
 let shortcuts = [];
 let selectedIndex = -1;
@@ -99,8 +109,9 @@ function render() {
 
 async function loadShortcuts() {
   const stored = await settings.get("shortcuts");
-  if (Array.isArray(stored) && stored.length) {
-    shortcuts = stored.filter((s) => s && s.url);
+  const valid = Array.isArray(stored) ? stored.filter((s) => s && s.url) : [];
+  if (valid.length && !valid.every((s) => retiredDefaults.has(s.url))) {
+    shortcuts = valid;
   } else {
     shortcuts = defaultShortcuts.map((s) => ({ ...s }));
     await save();
