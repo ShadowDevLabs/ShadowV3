@@ -101,11 +101,15 @@ test("SHADOW_DOMAINS: each listed domain gets its own site, shared by its subdom
   for (const host of ["evila.test", "a.test.evil", "", undefined]) assert.equal(listed(host), undefined);
   assert.equal(domainMatcher("")("a.test"), undefined);
 
-  Object.assign(process.env, { SHADOW_DOMAINS: "a.test,b.test", SHADOW_UI_SEED: "s", SHADOW_OBFUSCATE: "on" });
+  // A cache of one site: every switch between domains evicts one and rebuilds the other.
+  Object.assign(process.env, { SHADOW_DOMAINS: "a.test,b.test", SHADOW_UI_SEED: "s", SHADOW_OBFUSCATE: "on", SHADOW_SITE_CACHE: "1" });
   const routes = {};
   const app = { get: (path, fn) => (routes[path] = fn), use() {} };
   const { page } = installObfuscation(app, { publicPath: fileURLToPath(new URL("../public", import.meta.url)) });
-  for (const name of ["SHADOW_DOMAINS", "SHADOW_UI_SEED", "SHADOW_OBFUSCATE"]) delete process.env[name];
+  for (const name of ["SHADOW_DOMAINS", "SHADOW_UI_SEED", "SHADOW_OBFUSCATE", "SHADOW_SITE_CACHE"]) delete process.env[name];
+  const first = page("/index.html", "a.test");
+  page("/index.html", "b.test");
+  assert.equal(page("/index.html", "a.test"), first, "a site rebuilt after eviction is the same site");
   const call = (path, req) => { let out; routes[path](req, { set() {}, json: (v) => (out = v) }); return out; };
   const config = (hostname) => call("/v1/api/config", { hostname });
   assert.notDeepEqual(config("a.test"), config("b.test"));

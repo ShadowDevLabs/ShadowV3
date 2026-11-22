@@ -3,6 +3,7 @@
 //   shadow-proxy.js          Sapphire (chrome.* extension emulation) + Shadow's own
 //                            Scramjet frame plugin, as one ES module.
 //   sapphire-sw-router.js    Sapphire's service-worker router (serves extension files).
+//   markdown.js              marked + DOMPurify, for the AI page: replies become sanitized HTML.
 //
 // Scramjet and scramjet-controller themselves are prebuilt IIFE bundles served
 // straight out of node_modules by index.js; the bundle above picks them up from
@@ -24,6 +25,7 @@ export const outDir = join(root, "public", "dist");
 export const outputs = [
   join(outDir, "shadow-proxy.js"),
   join(outDir, "sapphire-sw-router.js"),
+  join(outDir, "markdown.js"),
 ];
 
 // --- The one patch we apply to a dependency -----------------------------------
@@ -94,6 +96,12 @@ export async function build({ quiet = false } = {}) {
       entryPoints: [join(sapphireRoot, "src", "router", "swEntry.ts")],
       format: "iife",
       outfile: outputs[1],
+    }),
+    esbuild({
+      ...common,
+      entryPoints: [join(root, "src", "client", "markdown-entry.js")],
+      format: "esm",
+      outfile: outputs[2],
     }),
   ]);
   if (!quiet) console.log("[build] wrote public/dist/");

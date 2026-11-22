@@ -26,7 +26,9 @@ Set these before starting Node, and restart after changing them.
 | `SHADOW_OBFUSCATE` | on | `off` turns everything off and serves files as they are on disk |
 | `SHADOW_UI_SEED` | random on each start | Drives the names, asset paths, prefix, codec key and `random` cloak. Set it to keep them the same across restarts. **Mirrors behind one load balancer must share it**, or a page from one server gets CSS from another |
 | `SHADOW_CLOAK` | `random` | A preset name from `CLOAK_PRESETS`, `random` (chosen by the seed, so each `SHADOW_DOMAINS` domain gets its own) or `off`. An unknown name counts as `random` |
-| `SHADOW_DOMAINS` | none | Comma-separated domains (`a.com,b.org`). Each one gets its own site: its own names, asset paths, cloak, font cipher, prefix and codec, built from `SHADOW_UI_SEED` and the domain on its first request (about 0.2 s). Its subdomains share that site, so made-up subdomains can't make the server build more. Any other `Host` gets the default site. It's also the list Caddy may get certificates for (below) |
+| `SHADOW_DOMAINS` | none | Comma-separated domains (`a.com,b.org`). Each one gets its own site: its own names, asset paths, cloak, font cipher, prefix and codec, built from `SHADOW_UI_SEED` and the domain on its first request (about 0.2 s, once per worker). Its subdomains share that site, so made-up subdomains can't make the server build more. Any other `Host` gets the default site. It's also the list Caddy may get certificates for (below) |
+| `SHADOW_SITE_CACHE` | 300 | How many domains' sites each process keeps in memory (about 3 MB each, stored gzipped), most recently used first. Others are rebuilt when visited again |
+| `SHADOW_WORKERS` | 1 | Processes `npm start` runs (`start.js`), sharing one port. Each keeps its own site cache |
 
 Edit `CLOAK_PRESETS` in `src/server/obfuscation.mjs` to the sites you want the
 shell to pass as.
@@ -64,6 +66,23 @@ through unchanged, and Node picks the site from that header. Responses carry `Va
 Domains look unrelated to each other in the HTML, CSS, JS and URLs they serve, but they
 come from one server: same IP, same TLS fingerprint, and the same paths for `/v1/api/*`,
 `/dist/`, `/scramjet/` and the other runtime files.
+
+## Running on one large server
+
+On a many-core machine, put these in `.env` next to `index.js`:
+
+```sh
+SHADOW_UI_SEED=<32+ random characters>   # required with more than one worker: all must serve the same paths
+CSRF_SECRET=<64 random characters>        # the AI page's tokens; random per process otherwise
+SHADOW_WORKERS=16                         # leave some cores for Caddy's TLS
+SHADOW_DOMAINS=a.com,b.org,…
+```
+
+Memory is roughly `SHADOW_WORKERS × (150 MB + SHADOW_SITE_CACHE × 3 MB)` at most: 16 workers
+with the default cache stay under 20 GB (measured: one process serving 1,000 domains levels off
+at 1.1 GB). Only Caddy should reach Node: block the Node port
+from outside (`ufw deny 8080`). Node trusts `X-Forwarded-For` only from localhost, so rate
+limits see the real client address.
 
 ## How each piece works
 

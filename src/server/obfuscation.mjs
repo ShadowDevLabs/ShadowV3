@@ -21,6 +21,7 @@
 import crypto from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, posix } from "node:path";
+import { gunzipSync, gzipSync } from "node:zlib";
 import { transformSync } from "esbuild";
 import { cipherTable, createFontCipher } from "./fontcipher.mjs";
 
@@ -241,22 +242,29 @@ function randomNames(names, taken, seed) {
   return map;
 }
 
-/**
- * Discovers every DOM name in `sources` (url path -> text) and returns the random
- * map, each CSS/JS file's random path (`assetPath`) and a renderer that applies both.
- * `reserved` holds top-level names the asset folder must not take.
- */
-export function buildUiRewrite(sources, seed, reserved = new Set()) {
+/** Every DOM name in `sources` (url path -> text), which of them are safe to rename, and a hash of the sources. The same for every seed. */
+function discoverNames(sources) {
   const found = new Set(), keep = new Set();
   const record = (n) => (found.add(n), n);
   for (const [path, text] of sources) rewriteUiText(path, text, record, keep);
   const fragments = [...keep].filter((k) => k.startsWith("fragment:")).map((k) => k.slice(9));
   const renamable = [...found].filter((n) =>
     !keep.has(n) && !externalName.test(n) && !fragments.some((f) => (f.startsWith("-") ? n.endsWith(f) : n.startsWith(f))));
-  const map = randomNames(renamable, found, seed);
+  const hash = crypto.createHash("sha256").update(JSON.stringify([...sources])).digest("hex");
+  return { found, renamable, hash };
+}
+
+/**
+ * Gives the DOM names in `sources` (url path -> text) random names and returns the
+ * map, each CSS/JS file's random path (`assetPath`) and a renderer that applies both.
+ * `reserved` holds top-level names the asset folder must not take. `names` is
+ * discoverNames(sources), passed in when it was worked out once for many seeds.
+ */
+export function buildUiRewrite(sources, seed, reserved = new Set(), names = discoverNames(sources)) {
+  const map = randomNames(names.renamable, names.found, seed);
   const swap = (n) => map.get(n) ?? n;
   // The content hash is in every asset path, so a changed file gets a new URL.
-  const build = crypto.createHash("sha256").update(seed).update(JSON.stringify([...sources])).digest("hex");
+  const build = derive(seed, `build${names.hash}`);
   let assetDir;
   for (let n = 0; !assetDir || reserved.has(assetDir); n++) assetDir = word(derive(seed, `assets${n}`), 5);
   const assetPath = (path) => `/${assetDir}/${word(derive(build, path), 10)}.${path.endsWith(".css") ? "css" : "js"}`;
@@ -291,7 +299,8 @@ export function minifyAsset(path, text) {
       return /\bsrc=/i.test(attrs) || !isJs || !body.trim() ? m : open + minify(body, "js") + close;
     })
     .replace(/(<style\b[^>]*>)([\s\S]*?)(<\/style>)/gi, (m, open, body, close) => open + minify(body, "css") + close)
-    .replace(/(<script\b[\s\S]*?<\/script>)|<!--(?!\[if)[\s\S]*?-->\n?/gi, (m, script) => script ?? "");
+    // The cloak markers stay for applyCloak, which always removes them.
+    .replace(/(<script\b[\s\S]*?<\/script>)|<!--(?!\[if|CLOAK:)[\s\S]*?-->\n?/gi, (m, script) => script ?? "");
 }
 
 /**
@@ -301,10 +310,12 @@ export function minifyAsset(path, text) {
  * lookup (undefined when unlisted), also used for Caddy's on_demand TLS (/v1/api/tls-ask in index.js).
  */
 export function domainMatcher(list = "") {
-  const domains = list.split(",").map((d) => d.trim().toLowerCase().replace(/^\*?\./, "")).filter(Boolean);
+  const domains = new Set(list.split(",").map((d) => d.trim().toLowerCase().replace(/^\*?\./, "")).filter(Boolean));
+  // The host, then each parent domain: a few Set lookups per request, however many domains are listed.
   return (host) => {
-    host = String(host ?? "").toLowerCase().replace(/\.$/, "");
-    return domains.find((d) => host === d || host.endsWith(`.${d}`));
+    for (let d = String(host ?? "").toLowerCase().replace(/\.$/, ""); d; d = d.slice(d.indexOf(".") + 1 || d.length)) {
+      if (domains.has(d)) return d;
+    }
   };
 }
 
@@ -319,16 +330,33 @@ const replaceOnce = (text, from, to) => {
 };
 
 /**
- * Everything one seed serves: the proxy config, the Wisp path and every file by request path.
- * `runtime` (well-known url -> bytes) is the proxy runtime: Scramjet, its controller, the
- * transports, eruda and public/dist. It moves to seeded paths, and every reference to its
- * well-known paths, in the shell and in the runtime itself, follows.
+ * The seed-independent part of every site, worked out once at startup (see buildSite): the
+ * shell's files, already minified, the DOM names in them, and the minified proxy runtime.
+ * /sw.js stays unminified: buildSite fills in its UI_ASSETS placeholder, then minifies it.
  */
-function buildSite(seed, publicPath, reserved, runtime) {
-  const config = proxyConfig(seed, reserved);
-  const cloak = resolveCloak(process.env.SHADOW_CLOAK, seed);
+function prepareShell(publicPath, runtime) {
   const sources = new Map();
   readUiSources(publicPath, "", sources);
+  for (const [path, text] of sources) if (path !== "/sw.js" && !path.endsWith(".json")) sources.set(path, minifyAsset(path, text));
+  return {
+    sources,
+    names: discoverNames(sources),
+    runtime: new Map([...runtime].map(([url, file]) =>
+      [url, url.endsWith(".wasm") ? readFileSync(file) : Buffer.from(minifyAsset(url, readFileSync(file, "utf8")))])),
+  };
+}
+
+/**
+ * Everything one seed serves: the proxy config, the Wisp path and every file by request path.
+ * `shell` is prepareShell(). Its `runtime` (well-known url -> bytes) is the proxy runtime:
+ * Scramjet, its controller, the transports, eruda and public/dist. It moves to seeded paths,
+ * and every reference to its well-known paths, in the shell and in the runtime itself, follows.
+ */
+function buildSite(seed, shell, reserved) {
+  const { runtime } = shell;
+  const config = proxyConfig(seed, reserved);
+  const cloak = resolveCloak(process.env.SHADOW_CLOAK, seed);
+  const sources = new Map(shell.sources);
   sources.set("/index.html", applyCloak(sources.get("/index.html") ?? "", cloak));
 
   let runtimeDir;
@@ -353,14 +381,20 @@ function buildSite(seed, publicPath, reserved, runtime) {
     return text.replaceAll("${location.host}/wisp/", `\${location.host}${wispPath}`);
   };
   for (const [path, text] of sources) sources.set(path, moveRuntime(text));
-  const { render, assetPath } = buildUiRewrite(sources, seed, new Set([...reserved, runtimeDir, config.prefix.slice(1, -1)]));
+  const { render, assetPath } = buildUiRewrite(sources, seed, new Set([...reserved, runtimeDir, config.prefix.slice(1, -1)]), shell.names);
   const assets = [...sources.keys()].filter((path) => /\.(?:css|m?js)$/.test(path));
   // The worker precaches every current CSS/JS path and drops older ones.
   const swSource = sources.get("/sw.js")?.replace("const UI_ASSETS = null;", () => `const UI_ASSETS = ${JSON.stringify(assets.map(assetPath))};`);
 
-  const served = new Map(); // request path -> { body, etag, cache, worker }
-  const add = (url, body, cache, worker = false) =>
-    served.set(url, { body, cache, worker, etag: `W/"${crypto.createHash("sha256").update(body).digest("hex").slice(0, 32)}"` });
+  // Kept gzipped only: what almost every browser asks for, and about a third of the memory
+  // (a site is ~3 MB instead of ~8 MB). A file served at two paths is stored once.
+  const served = new Map(); // request path -> { gzip, etag, cache, worker }
+  const packed = new Map(); // body -> its gzip
+  const add = (url, body, cache, worker = false) => {
+    // Copied to its exact size: zlib returns small results as views into a 16 KB buffer.
+    if (!packed.has(body)) packed.set(body, Buffer.from(gzipSync(body, { level: 4 })));
+    served.set(url, { gzip: packed.get(body), cache, worker, etag: `W/"${crypto.createHash("sha256").update(body).digest("hex").slice(0, 32)}"` });
+  };
   // Font cipher: pages carry Coptic letters that only this seed's fonts draw as real text.
   const table = cipherTable((label) => derive(seed, `cipher${label}`).readUInt32BE(0));
   const cipher = createFontCipher(table);
@@ -371,7 +405,7 @@ function buildSite(seed, publicPath, reserved, runtime) {
     .map((m) => sources.get(new URL(m[1], new URL(path, "http://shadow.invalid")).pathname) ?? "").join("\n");
   for (const [path, source] of sources) {
     if (path.endsWith(".json")) continue;
-    const body = minifyAsset(path, render(path, path === "/sw.js" ? swSource : source));
+    const body = path === "/sw.js" ? minifyAsset(path, render(path, swSource)) : render(path, source); // the rest was minified once
     if (path.endsWith(".html")) add(path, cipher.render(body, fontUrl, linkedCss(path, source)), "public, max-age=0, must-revalidate");
     else if (path === "/sw.js") {
       add(assetPath(path), body, "no-cache", true);
@@ -423,8 +457,11 @@ function buildSite(seed, publicPath, reserved, runtime) {
  * (turned off). Otherwise returns { page(path, host), wispPath(host) }: the served body of a page,
  * for handlers that send one themselves, and the path the Wisp server answers at.
  *
- * Each SHADOW_DOMAINS domain gets a site built from its own seed, on its first request.
- * Any other Host header gets the default site, so a made-up Host can't make the server build more.
+ * Each SHADOW_DOMAINS domain gets a site built from its own seed, on its first request (~0.2 s,
+ * mostly gzip: the seed-independent work is done once, in prepareShell). Only the most recently
+ * used SHADOW_SITE_CACHE sites (default 300, ~3 MB each) stay in memory; others are rebuilt
+ * when asked for again. Any other Host header gets the default site, so a made-up Host can't
+ * make the server build more.
  */
 export function installObfuscation(app, { publicPath, runtime = new Map() }) {
   const enabled = process.env.SHADOW_OBFUSCATE !== "off";
@@ -432,14 +469,17 @@ export function installObfuscation(app, { publicPath, runtime = new Map() }) {
   const listedDomain = domainMatcher(process.env.SHADOW_DOMAINS);
 
   const reserved = new Set(readdirSync(publicPath));
-  // Minified once here, the same for every seed (the seeded steps come after, in buildSite).
-  const runtimeBytes = new Map([...runtime].map(([url, file]) =>
-    [url, url.endsWith(".wasm") ? readFileSync(file) : Buffer.from(minifyAsset(url, readFileSync(file, "utf8")))]));
-  const sites = new Map(); // listed domain ("" = default) -> site; one per listed domain at most
+  const maxSites = Math.max(1, Number(process.env.SHADOW_SITE_CACHE) || 300);
+  let shell; // prepareShell(), once, and only when obfuscation is on
+  const sites = new Map(); // listed domain ("" = default) -> site, least recently used first
   const site = (host) => {
     const domain = listedDomain(host) ?? "";
-    if (!sites.has(domain)) sites.set(domain, buildSite(domain ? derive(seed, `host:${domain}`).toString("hex") : seed, publicPath, reserved, runtimeBytes));
-    return sites.get(domain);
+    let built = sites.get(domain);
+    if (built) sites.delete(domain); // re-added below, as the most recently used
+    else built = buildSite(domain ? derive(seed, `host:${domain}`).toString("hex") : seed, (shell ??= prepareShell(publicPath, runtime)), reserved);
+    sites.set(domain, built);
+    if (sites.size > maxSites) sites.delete(sites.keys().next().value);
+    return built;
   };
 
   app.get("/v1/api/config", (req, res) => {
@@ -465,7 +505,19 @@ export function installObfuscation(app, { publicPath, runtime = new Map() }) {
     if (asset.worker) res.set("Service-Worker-Allowed", "/"); // registered with scope "/" from outside its folder
     res.set("ETag", asset.etag);
     res.vary("Host"); // one URL, a different body per domain: shared caches must not mix them
-    res.type(posix.extname(path)).send(asset.body);
+    res.vary("Accept-Encoding");
+    res.type(posix.extname(path));
+    // Stored compressed (see buildSite), so not compressed per request; compression() skips a
+    // response that already is. The rare client without gzip gets it unpacked.
+    if (!req.acceptsEncodings("gzip")) return res.send(gunzipSync(asset.gzip));
+    res.set("Content-Encoding", "gzip");
+    res.send(asset.gzip);
   });
-  return { page: (path, host) => site(host).served.get(path)?.body, wispPath: (host) => site(host).wispPath };
+  return {
+    page: (path, host) => {
+      const asset = site(host).served.get(path);
+      return asset && (path.endsWith(".wasm") ? gunzipSync(asset.gzip) : gunzipSync(asset.gzip).toString());
+    },
+    wispPath: (host) => site(host).wispPath,
+  };
 }

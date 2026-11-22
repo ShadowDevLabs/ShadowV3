@@ -8,7 +8,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "start": "node index.js",
+    "start": "node start.js",
     "dev": "node index.js 9090",
     "shadow": "node index.js",
     "build": "node scripts/build.mjs",
@@ -32,13 +32,14 @@
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.7",
     "csrf-csrf": "^3.1.0",
+    "dompurify": "^3.5.0",
     "dotenv": "^16.4.7",
     "eruda": "^3.4.3",
     "esbuild": "^0.25.0",
     "express": "^5.0.0",
     "express-basic-auth": "^1.2.1",
-    "express-session": "^1.18.2",
     "jszip": "^3.10.1",
+    "marked": "^18.2.1",
     "ws": "^8.16.0"
   },
   "devDependencies": {

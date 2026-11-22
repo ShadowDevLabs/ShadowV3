@@ -50,6 +50,9 @@ const tabStrip = document.getElementById("tabs-container");
 const iframesContainer = document.getElementById("iframes-container");
 
 const DEFAULT_ICON = "/assets/imgs/icons/logo.png";
+// A site whose icon can't be loaded gets a plain globe, not Shadow's logo.
+const GLOBE_ICON = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#9aa0a6" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>')}`;
+const googleFavicon = (host) => `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=32`;
 const MAX_CLOSED_TABS = 25;
 // Recently closed tabs survive a reload of the shell (but not the browser tab closing).
 const CLOSED_TABS_KEY = "shadow-closed-tabs";
@@ -714,8 +717,13 @@ class Tab {
     tab.img.className = "tab-icon";
     tab.img.alt = "";
     tab.img.draggable = false;
+    // The site's own icon failed (none, or it doesn't load through the proxy): try Google's copy of
+    // it, then a globe. Only the tab's internal pages fall back to Shadow's logo.
     tab.img.onerror = () => {
-      if (!tab.img.src.endsWith(DEFAULT_ICON)) tab.img.src = DEFAULT_ICON;
+      const url = tab.pendingUrl ?? tab.url ?? "";
+      const host = /^https?:/i.test(url) && hostnameOf(url);
+      const next = !host ? DEFAULT_ICON : tab.img.src === googleFavicon(host) ? GLOBE_ICON : googleFavicon(host);
+      if (tab.img.src !== next && tab.img.src !== GLOBE_ICON) tab.img.src = next;
     };
     tab.tab.appendChild(tab.img);
 
@@ -1450,6 +1458,7 @@ class Tab {
 
   titleFor(tab) {
     if (tab.title) return tab.title;
+    if (/^shadow:\/\/(?:home|new)$/.test(tab.pendingUrl ?? tab.url ?? "")) return "New Tab"; // the start page too, whatever its <title>
     let title = "";
     if (!tab.pendingUrl) {
       try {
@@ -1490,7 +1499,7 @@ class Tab {
       } catch {}
     }
     const host = hostnameOf(url);
-    return host ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=32` : DEFAULT_ICON;
+    return host ? googleFavicon(host) : DEFAULT_ICON;
   }
 
   renderTab(tab) {

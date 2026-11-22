@@ -7,14 +7,16 @@ import cookieParser from "cookie-parser";
 import * as cheerio from "cheerio";
 import { doubleCsrf } from "csrf-csrf";
 import { createServer } from "http";
+import { randomBytes } from "node:crypto";
 import { createRequire } from "module";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { users, port, brokenSites } from "./config.js";
-import session from "express-session";
 import { build, isBuilt } from "./scripts/build.mjs";
 import { domainMatcher, installObfuscation } from "./src/server/obfuscation.mjs";
 import { syncRouter } from "./src/server/sync.js";
+import { rateLimit } from "./src/server/ratelimit.js";
+import { Readable } from "node:stream";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -42,6 +44,9 @@ if (!isBuilt()) {
 const app = express();
 const server = createServer(app);
 app.disable("x-powered-by");
+// req.ip: the client address Caddy (on this machine) passes in X-Forwarded-For. A request from
+// anywhere else keeps its socket address, so a client can't name its own IP.
+app.set("trust proxy", "loopback");
 // gzip/brotli for text responses (scripts, styles, pages, JSON, wasm): the shell's
 // JavaScript and the Scramjet runtime go out at roughly a quarter of their size.
 app.use(compression());
@@ -111,6 +116,7 @@ const runtime = new Map([
   ["/eruda/eruda.js", join(erudaPath, "eruda.js")],
   ["/dist/shadow-proxy.js", join(publicPath, "dist", "shadow-proxy.js")],
   ["/dist/sapphire-sw-router.js", join(publicPath, "dist", "sapphire-sw-router.js")],
+  ["/dist/markdown.js", join(publicPath, "dist", "markdown.js")],
 ]);
 const obfuscation = installObfuscation(app, { publicPath, runtime });
 if (!obfuscation) {
@@ -169,6 +175,8 @@ app.use("/books/files/", (req, res) => {
   let safePath = rawPath.startsWith("/") ? rawPath : `/${rawPath}`;
   baseUrl.pathname = baseUrl.pathname.replace(/\/+$/, "") + safePath;
   baseUrl.search = rawQuery ? `?${rawQuery}` : "";
+  // Checked after URL parsing, which also resolves encoded dots (%2e%2e) the check above can't see.
+  if (!baseUrl.pathname.startsWith(mountPath)) return res.status(400).end("Invalid path");
 
   const sourceUrl = baseUrl.toString();
 
@@ -180,6 +188,7 @@ app.use("/books/files/", (req, res) => {
   const upstream = https
     .get(sourceUrl, { headers, timeout: 20000, agent: gamesAgent, method: req.method }, (sourceResponse) => {
       const outHeaders = { ...sourceResponse.headers };
+      delete outHeaders["set-cookie"]; // the mirror's cookies would land on this site
       // Game assets never change in place: let browsers (and any CDN in front)
       // keep them instead of pulling every file through this server again.
       if (sourceResponse.statusCode === 200 && !outHeaders["cache-control"]) {
@@ -288,25 +297,30 @@ app.get("/v1/api/crx/:id", async (req, res) => {
         .status(upstream.status === 204 ? 404 : 502)
         .json({ error: "The Chrome Web Store has no package for that ID" });
     }
-    // Refuse oversized packages before buffering them.
-    if (Number(upstream.headers.get("content-length")) > CRX_MAX_BYTES) {
-      await upstream.body?.cancel().catch(() => {});
+    const length = upstream.headers.get("content-length");
+    if (!upstream.body || length === "0") {
+      return res.status(404).json({ error: "The Chrome Web Store has no package for that ID" });
+    }
+    if (Number(length) > CRX_MAX_BYTES) {
+      await upstream.body.cancel().catch(() => {});
       return res.status(413).json({ error: "Extension package is too large" });
     }
-    const body = Buffer.from(await upstream.arrayBuffer());
-    if (body.length === 0) {
-      return res
-        .status(404)
-        .json({ error: "The Chrome Web Store has no package for that ID" });
-    }
-    if (body.length > CRX_MAX_BYTES) {
-      return res.status(413).json({ error: "Extension package is too large" });
-    }
+    // Streamed through, never held in memory: many people installing a large extension at once
+    // would otherwise buffer it once each.
     res.set("Content-Type", "application/x-chrome-extension");
     res.set("Cache-Control", "public, max-age=3600");
-    res.send(body);
+    if (length) res.set("Content-Length", length);
+    let sent = 0;
+    const body = Readable.fromWeb(upstream.body);
+    body.on("data", (chunk) => {
+      if ((sent += chunk.length) > CRX_MAX_BYTES) body.destroy(new Error("package too large"));
+    });
+    body.on("error", () => res.destroy());
+    res.on("close", () => body.destroy());
+    body.pipe(res);
   } catch (error) {
     console.error("[crx]", error);
+    if (res.headersSent) return res.destroy();
     res.status(502).json({ error: "Could not reach the Chrome Web Store" });
   }
 });
@@ -322,6 +336,7 @@ app.get("/v1/api/ext-meta/:id", async (req, res) => {
   if (!/^[a-p]{32}$/.test(id)) return res.status(400).json({ error: "Bad extension ID" });
 
   const hit = extMetaCache.get(id);
+  if (hit === null) return res.status(404).json({ error: "Not found in the Web Store" });
   if (hit) {
     res.set("Cache-Control", "public, max-age=21600");
     return res.json(hit);
@@ -333,6 +348,7 @@ app.get("/v1/api/ext-meta/:id", async (req, res) => {
       headers: { "User-Agent": "Mozilla/5.0 (compatible; ShadowStore/1.0)", "Accept-Language": "en" },
       signal: controller.signal,
     }).finally(() => clearTimeout(timer));
+    if (page.status === 404) extMetaCache.set(id, null); // so made-up IDs don't each cost a scrape
     if (!page.ok) return res.status(page.status === 404 ? 404 : 502).json({ error: "Not found in the Web Store" });
 
     const $ = cheerio.load(await page.text());
@@ -349,6 +365,7 @@ app.get("/v1/api/ext-meta/:id", async (req, res) => {
     // A removed/invalid item redirects to the store home, whose og: tags are
     // generic. Treat that as not-found so the client keeps its catalog data.
     if (data.name === "Chrome Web Store" || /chromewebstore\.google\.com\/?$/.test(data.url)) {
+      extMetaCache.set(id, null);
       return res.status(404).json({ error: "Not found in the Web Store" });
     }
     extMetaCache.set(id, data);
@@ -362,32 +379,19 @@ app.get("/v1/api/ext-meta/:id", async (req, res) => {
 
 // AI STUFF
 
-// Sessions exist only for the AI endpoints below. They used to be mounted for
-// every request that got this far with saveUninitialized on, so each stray 404
-// left a session behind in memory for half an hour.
-const sessionStore = new session.MemoryStore();
-const aiSession = [
-  cookieParser(),
-  session({
-    store: sessionStore,
-    secret: process.env.SESSION_SECRET || "putyoursecretkeyhere",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 1000 * 60 * 30,
-    },
-  }),
-];
-// The memory store only drops an expired session when that session is asked for
-// again; listing them is what sweeps out the ones nobody came back for.
-setInterval(() => sessionStore.all(() => {}), 10 * 60 * 1000).unref();
+// The models the AI page offers (public/ai.html). Anything else would let a script pick the most
+// expensive model on this server's key.
+const AI_MODELS = new Set(["shuttleai/auto", "openai/gpt-5.2", "google/gemini-3-flash-preview"]);
+const AI_ROLES = new Set(["system", "user", "assistant"]);
+if (!process.env.CSRF_SECRET) console.warn("[ai] CSRF_SECRET is not set: using a random one, so AI page tokens break on restart and differ between workers");
+const csrfSecret = process.env.CSRF_SECRET || randomBytes(32).toString("hex");
 
+// Stateless: the CSRF cookie + header pair is what proves the caller loaded the AI page, so no
+// session is kept on the server (nothing to fill memory, and any worker process can answer).
 const { generateToken, validateRequest } = doubleCsrf({
-  getSecret: () => process.env.CSRF_SECRET || "your-secret-key",
-  cookieName: undefined,
+  getSecret: () => csrfSecret,
+  cookieName: "_ai_csrf",
+  cookieOptions: { sameSite: "strict", secure: process.env.NODE_ENV === "production" },
   size: 64,
   getTokenFromRequest: (req) => req.headers["x-csrf-token"],
 });
@@ -405,28 +409,25 @@ const csrfProtection = (req, res, next) => {
   }
 };
 
-function requireSession(req, res, next) {
-  if (req.session?.hasSession) return next();
-  res.status(401).json({ error: "Missing or invalid session" });
-}
-
 // Route to get CSRF token
-app.get("/csrf-token", aiSession, (req, res) => {
-  req.session.hasSession = true;
+app.get("/csrf-token", cookieParser(), (req, res) => {
   res.json({ csrfToken: generateToken(req, res) });
 });
 
-app.post("/ask", aiSession, express.json({ limit: "12mb" }), requireSession, csrfProtection, async (req, res) => {
-  const { messages, model } = req.body;
+// Screenshots are sent inline (a 1280px JPEG is well under 2 MB as base64).
+app.post("/ask", rateLimit(20, "Too many AI requests; wait a minute."), cookieParser(), csrfProtection, express.json({ limit: "2mb" }), async (req, res) => {
+  const { messages, model } = req.body ?? {};
 
-  if (!Array.isArray(messages)) {
+  if (
+    !Array.isArray(messages) || messages.length === 0 || messages.length > 60 ||
+    !messages.every((m) => AI_ROLES.has(m?.role) && (typeof m.content === "string" || Array.isArray(m.content)))
+  ) {
     return res
       .status(400)
       .json({ error: "msgs need to be in an array format." });
   }
 
-  const requestedModel =
-    typeof model === "string" && model.trim() ? model.trim() : "shuttleai/auto";
+  const requestedModel = AI_MODELS.has(model) ? model : "shuttleai/auto";
 
   try {
     const response = await fetchWithTimeout(
@@ -494,6 +495,9 @@ app.use((req, res) => {
   res.sendFile(join(publicPath, "404.html"));
 });
 
+// No outgoing mail (SMTP): no website uses port 25, and open port 25 gets a server's IP
+// blacklisted for spam. Everything else stays open.
+wisp.options.port_blacklist = [25];
 // Local development only: lets the proxy reach localhost / LAN targets.
 if (process.env.WISP_ALLOW_PRIVATE === "1") {
   wisp.options.allow_loopback_ips = true;

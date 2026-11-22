@@ -24,6 +24,7 @@ import express from "express";
 import { createHash, timingSafeEqual } from "node:crypto";
 import { promises as fs } from "node:fs";
 import { join, resolve } from "node:path";
+import { rateLimit } from "./ratelimit.js";
 
 const ID = /^[0-9a-f]{32}$/;
 const TOKEN = /^[0-9a-f]{32,128}$/;
@@ -37,18 +38,12 @@ export function syncRouter({
 } = {}) {
   const router = express.Router();
   let ready = null; // resolves true once the directory is usable, false if it never will be
-  let accountCount = null;
-  const hits = new Map(); // ip -> [windowStart, count]
-  const locks = new Map(); // id -> promise chain, so writes to one account don't interleave
+  const limit = rateLimit(ratePerMinute, "Too many sync requests; try again in a minute.");
 
   const prepare = () =>
     (ready ??= fs
       .mkdir(dir, { recursive: true })
-      .then(() => fs.readdir(dir))
-      .then((names) => {
-        accountCount = names.filter((name) => name.endsWith(".json")).length;
-        return true;
-      })
+      .then(() => true)
       .catch((e) => {
         console.warn(`[sync] storage unavailable (${e.code ?? e.message}); sync is off`);
         return false;
@@ -73,29 +68,33 @@ export function syncRouter({
     await fs.rename(tmp, fileFor(id));
   }
 
-  const withLock = (id, run) => {
-    const next = (locks.get(id) ?? Promise.resolve()).then(run, run);
-    locks.set(
-      id,
-      next.catch(() => {}).finally(() => {
-        if (locks.get(id) === settled) locks.delete(id);
-      }),
-    );
-    const settled = locks.get(id);
-    return next;
-  };
+  // Writes to one account never interleave, also between worker processes (SHADOW_WORKERS):
+  // the lock is a file that only one process can create.
+  async function withLock(id, run) {
+    const lock = `${fileFor(id)}.lock`;
+    for (let waited = 0; ; waited += 20) {
+      try {
+        await fs.writeFile(lock, String(process.pid), { flag: "wx" });
+        break;
+      } catch (e) {
+        if (e.code !== "EEXIST") throw e;
+        if (waited >= 3000) await fs.rm(lock, { force: true }); // left by a crashed process: writes take milliseconds
+        else await new Promise((r) => setTimeout(r, 20));
+      }
+    }
+    try {
+      return await run();
+    } finally {
+      await fs.rm(lock, { force: true });
+    }
+  }
+  // Counted on disk, so every worker process sees the same number. Only new accounts pay for it.
+  const accountCount = async () => (await fs.readdir(dir)).filter((name) => name.endsWith(".json")).length;
 
   router.use(async (req, res, next) => {
     res.set("Cache-Control", "no-store");
     if (disabled || !(await prepare())) return res.status(503).json({ error: "Sync isn't available on this server." });
-    // Soft per-IP limit; it only has to stop a runaway client or a casual flood.
-    const ip = String(req.headers["x-forwarded-for"] ?? "").split(",")[0].trim() || req.socket.remoteAddress || "?";
-    const now = Date.now();
-    const entry = hits.get(ip);
-    if (!entry || now - entry[0] > 60_000) hits.set(ip, [now, 1]);
-    else if (++entry[1] > ratePerMinute) return res.status(429).json({ error: "Too many sync requests; try again in a minute." });
-    if (hits.size > 50_000) hits.clear();
-    next();
+    limit(req, res, next); // soft: it only has to stop a runaway client or a casual flood
   });
 
   router.param("id", (req, res, next, id) => {
@@ -125,8 +124,7 @@ export function syncRouter({
       await withLock(req.params.id, async () => {
         const record = await read(req.params.id);
         if (!record) {
-          if (accountCount >= maxAccounts) return res.status(507).json({ error: "This server isn't accepting new sync accounts." });
-          accountCount++;
+          if ((await accountCount()) >= maxAccounts) return res.status(507).json({ error: "This server isn't accepting new sync accounts." });
           await write(req.params.id, { auth: req.syncToken, version: 1, updatedAt: Date.now(), data });
           return res.status(201).json({ version: 1 });
         }
@@ -152,7 +150,6 @@ export function syncRouter({
         if (!record) return res.status(204).end();
         if (!sameHash(record.auth, req.syncToken)) return res.status(403).json({ error: "Wrong sync code." });
         await fs.unlink(fileFor(req.params.id));
-        accountCount = Math.max(0, accountCount - 1);
         res.status(204).end();
       });
     } catch (e) {

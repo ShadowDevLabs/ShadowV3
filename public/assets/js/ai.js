@@ -1,4 +1,4 @@
-import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
+import { renderMarkdown } from "/dist/markdown.js";
 
 const textarea = document.querySelector(".input-container textarea");
 const sendBtn = document.querySelector(".send-btn");
@@ -293,7 +293,7 @@ function renderAssistantWindow() {
   elements.askBtn.disabled = assistantState.isAsking;
   elements.askBtn.textContent = assistantState.isAsking ? "Thinking..." : "Ask";
   elements.outputWrap.style.display = hasOutput ? "block" : "none";
-  elements.outputWrap.innerHTML = hasOutput ? marked(output) : "";
+  elements.outputWrap.innerHTML = hasOutput ? renderMarkdown(output) : "";
 }
 
 function closeAssistantWindow() {
@@ -769,7 +769,7 @@ function addMsg(content, role, isLoading = false) {
     msgElement.classList.add("loading");
     msgElement.innerHTML = `<div class="spinner"></div>${content}`;
   } else {
-    msgElement.innerHTML = marked(content);
+    msgElement.innerHTML = renderMarkdown(content);
   }
 
   messagesContainer.appendChild(msgElement);
@@ -832,7 +832,7 @@ async function sendMsg() {
     );
 
     if (activeSessionId === requestSessionId && loadingMsg.isConnected) {
-      loadingMsg.innerHTML = marked(aiMsg);
+      loadingMsg.innerHTML = renderMarkdown(aiMsg);
       loadingMsg.classList.remove("loading");
       loadingMsg.classList.add("show");
       loadingMsg.addEventListener("click", () => {
