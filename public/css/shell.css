@@ -21,7 +21,7 @@
   width: 14px;
   height: 14px;
   box-sizing: border-box;
-  border: 2px solid var(--border);
+  border: 2px solid var(--line-strong);
   border-top-color: var(--accent);
   border-radius: 50%;
   animation: shadow-spin 0.7s linear infinite;
@@ -75,7 +75,7 @@
 }
 
 .tab .tab-audio:hover {
-  background: var(--accent-glow);
+  background: var(--surface-hover);
 }
 
 /* ---- tab groups ------------------------------------------------------------ */
@@ -91,10 +91,11 @@
   gap: 7px;
   max-width: 170px;
   box-sizing: border-box;
-  padding: 8px 10px 8px 11px;
-  background: linear-gradient(145deg, color-mix(in srgb, var(--group-color) 22%, var(--primary)), var(--secondary));
-  border: 1px solid color-mix(in srgb, var(--group-color) 65%, transparent);
-  border-radius: 10px;
+  height: 34px;
+  padding: 0 10px 0 11px;
+  background: color-mix(in srgb, var(--group-color) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--group-color) 50%, transparent);
+  border-radius: var(--r);
   color: var(--text);
   font-size: 13px;
   font-weight: 600;
@@ -102,13 +103,11 @@
   white-space: nowrap;
   cursor: pointer;
   user-select: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.2s ease;
+  transition: border-color 0.15s var(--ease), background-color 0.15s var(--ease);
 }
 
 .tab-group-chip:hover {
   border-color: var(--group-color);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--group-color) 35%, transparent);
-  transform: translateY(-2px);
 }
 
 .tab-group-chip:focus-visible {
@@ -157,15 +156,13 @@
 }
 
 .tab.grouped {
-  background: linear-gradient(145deg, color-mix(in srgb, var(--group-color) 13%, var(--primary)), var(--secondary));
-  border-color: color-mix(in srgb, var(--group-color) 50%, transparent);
-  box-shadow: 0 0 6px color-mix(in srgb, var(--group-color) 18%, transparent);
+  background: color-mix(in srgb, var(--group-color) 7%, transparent);
+  border-color: color-mix(in srgb, var(--group-color) 30%, transparent);
 }
 
 .tab.grouped.active {
-  background: linear-gradient(145deg, color-mix(in srgb, var(--group-color) 38%, var(--primary)), var(--secondary));
-  border-color: var(--group-color);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--group-color) 40%, transparent);
+  background: color-mix(in srgb, var(--group-color) 20%, transparent);
+  border-color: color-mix(in srgb, var(--group-color) 70%, transparent);
 }
 
 .tab.group-collapsed {
@@ -184,7 +181,7 @@ body.vertical-tabs .tab-group-chip {
 }
 
 body.vertical-tabs .tab-group-chip:hover {
-  transform: translateX(2px);
+  background: color-mix(in srgb, var(--group-color) 22%, transparent);
 }
 
 body.vertical-tabs .tab-group-chip + .tab.grouped,
@@ -291,7 +288,7 @@ body.vertical-tabs .tab.grouped {
   right: 16px;
   z-index: 10000;
   background: #fff;
-  border: 1px solid var(--border);
+  border: 1px solid var(--line-strong);
   border-radius: 10px;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
   overflow: hidden;
@@ -330,7 +327,7 @@ body.vertical-tabs .tab.grouped {
   padding: 6px;
   background: var(--primary);
   color: var(--text);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line-strong);
   border-radius: 10px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
   font-size: 13px;
@@ -422,7 +419,7 @@ body.vertical-tabs .tab.grouped {
 
 .shadow-menu-item.active,
 .shadow-menu-item.open {
-  background: var(--accent-glow);
+  background: var(--surface-hover);
 }
 
 .shadow-menu-item.disabled {
@@ -456,7 +453,7 @@ body.vertical-tabs .tab.grouped {
 }
 
 .shadow-menu-controls button:hover {
-  background: var(--accent-glow);
+  background: var(--surface-hover);
 }
 
 .shadow-menu-readout {
@@ -480,7 +477,7 @@ body.vertical-tabs .tab.grouped {
 /* Full-bleed rule, edge to edge of the menu. */
 .shadow-menu-separator {
   margin: 5px -6px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--line-strong);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -509,7 +506,7 @@ body.vertical-tabs .tab.grouped {
   padding: 10px 14px;
   background: var(--primary);
   color: var(--text);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line-strong);
   border-radius: 10px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   font-size: 13px;
@@ -538,14 +535,14 @@ body.vertical-tabs .tab.grouped {
   padding: 3px 10px;
   background: transparent;
   color: var(--text);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line-strong);
   border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
 }
 
 .shadow-toast-body button:hover {
-  background: var(--accent-glow);
+  background: var(--surface-hover);
 }
 
 /* ---- content ----------------------------------------------------------------- */
@@ -580,7 +577,7 @@ body.immersive #iframes-container > iframe { border: 0 !important; border-radius
   display: flex;
   flex-direction: column;
   background: var(--primary);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line-strong);
   border-radius: 14px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
   overflow: hidden;
@@ -589,7 +586,7 @@ body.immersive #iframes-container > iframe { border: 0 !important; border-radius
   padding: 16px 18px;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--line-strong);
   color: var(--text);
   font-size: 16px;
   font-family: inherit;
@@ -606,13 +603,13 @@ body.immersive #iframes-container > iframe { border: 0 !important; border-radius
   font-size: 14px;
   color: var(--text);
 }
-.cmd-item.active { background: var(--accent-glow); }
+.cmd-item.active { background: var(--surface-strong); }
 .cmd-item img { width: 18px; height: 18px; border-radius: 4px; object-fit: contain; flex: 0 0 auto; }
 .cmd-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin: 0 6px; flex: 0 0 auto; }
 .cmd-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cmd-kind {
   font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em;
-  color: var(--text-muted); border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px;
+  color: var(--text-muted); border: 1px solid var(--line-strong); border-radius: 5px; padding: 1px 6px;
 }
 .cmd-hint { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
 
@@ -628,7 +625,7 @@ body.immersive #iframes-container > iframe { border: 0 !important; border-radius
   gap: 4px;
   padding: 6px 8px;
   background: var(--primary);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line-strong);
   border-radius: 10px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
@@ -640,8 +637,8 @@ body.immersive #iframes-container > iframe { border: 0 !important; border-radius
 #find-count { font-size: 12px; color: var(--text-muted); min-width: 42px; text-align: center; font-variant-numeric: tabular-nums; }
 #find-bar button {
   width: 28px; height: 28px; padding: 0; display: flex; align-items: center; justify-content: center;
-  background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px;
+  background: transparent; color: var(--text); border: 1px solid var(--line-strong); border-radius: 6px; cursor: pointer; font-size: 12px;
 }
-#find-bar button:hover { background: var(--accent-glow); }
+#find-bar button:hover { background: var(--surface-hover); }
 mark.__shadow-find { background: #ffe066; color: #111; border-radius: 2px; }
 mark.__shadow-find.current { background: #ff9f1a; box-shadow: 0 0 0 2px #ff9f1a; }

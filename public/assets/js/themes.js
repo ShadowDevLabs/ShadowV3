@@ -21,7 +21,11 @@ function clearRootVars(variableKeys) {
   variableKeys.forEach(key => root.style.removeProperty(key));
 }
 
+// Themes that were removed: anyone still on one (saved or synced) gets the default look and card.
+const RETIRED_THEMES = ["redsunset", "kayspink", "operagx", "golden"];
+
 export async function setTheme(theme) {
+  if (RETIRED_THEMES.includes(theme)) theme = "default";
   const root = document.documentElement;
 
   const cssVariables = {
@@ -116,7 +120,8 @@ window.addEventListener("storage", function (e) {
 });
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const theme = localStorage.getItem("theme") || await settings.get("theme");
+  let theme = localStorage.getItem("theme") || await settings.get("theme");
+  if (RETIRED_THEMES.includes(theme)) theme = "default";
   if (!theme) applyCustomizations();
   if (theme) {
     setTheme(theme);

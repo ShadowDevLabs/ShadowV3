@@ -1,3 +1,24 @@
+/* Design tokens shared by every page. Surfaces and lines are tinted from each theme's own
+   text and accent colors, so every theme (and a custom one) gets the same quiet-glass look. */
+:root {
+  --font: "Poppins", system-ui, sans-serif;
+  --r-sm: 8px;
+  --r: 12px;
+  --r-lg: 18px;
+  --surface: color-mix(in srgb, var(--text) 4%, transparent);
+  --surface-hover: color-mix(in srgb, var(--text) 7%, transparent);
+  --surface-strong: color-mix(in srgb, var(--text) 11%, transparent);
+  --line: color-mix(in srgb, var(--text) 9%, transparent);
+  --line-strong: color-mix(in srgb, var(--text) 16%, transparent);
+  --muted: color-mix(in srgb, var(--text) 60%, transparent);
+  --faint: color-mix(in srgb, var(--text) 38%, transparent);
+  --ring: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+  --shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* Text and icons drawn on the accent colour. */
+  --on-accent: #fff;
+}
+
 :root {
   --background: linear-gradient(145deg, #010310, #080c17);
   --home-bg: url("/assets/imgs/backgrounds/home/blue.jpg");
@@ -30,21 +51,6 @@
   --active-tab: linear-gradient(145deg, #6b21a8, var(--secondary));
 }
 
-:root.redsunset {
-  --background: linear-gradient(145deg, #2b001b, #490000);
-  --home-bg: url("/assets/imgs/backgrounds/home/red.jpg");
-  --primary: #2e020e;
-  --primary-dark: #1f0101;
-  --secondary: #450202;
-  --accent: #ef4444;
-  --accent-light: #f87171;
-  --accent-glow: rgba(239, 68, 68, 0.2);
-  --border: rgba(239, 68, 68, 0.3);
-  --text: #fef2f2;
-  --text-muted: #fee2e2;
-  --hover-danger: #9b1c1c;
-  --active-tab: linear-gradient(145deg, #ef4444, var(--secondary));
-}
 
 :root.matrix {
   --background: linear-gradient(145deg, #000c05, #001a0f);
@@ -62,21 +68,6 @@
   --active-tab: linear-gradient(145deg, #39ff14, var(--secondary));
 }
 
-:root.operagx {
-  --background: linear-gradient(145deg, #0d0606, #040000);
-  --home-bg: url("/assets/imgs/backgrounds/home/operagx.jpg");
-  --primary: #090505;
-  --primary-dark: #0a0b10;
-  --secondary: #000;
-  --accent: #ff0050; 
-  --accent-light: #ff4f87;
-  --accent-glow: rgba(255, 0, 80, 0.15);
-  --border: rgba(255, 0, 80, 0.25);
-  --text: #f0f0f5;
-  --text-muted: #a0a0b2;
-  --hover-danger: #ff4f87;
-  --active-tab: linear-gradient(145deg, #ff0050, #1a1b22);
-}
 
 
 :root.midnight {
@@ -95,35 +86,85 @@
   --active-tab: linear-gradient(145deg, #4338ca, var(--secondary));
 }
 
-:root.golden {
-  --background: linear-gradient(145deg, #1a1200, #2d1f00);
-  --home-bg: url("/assets/imgs/backgrounds/home/golden.jpg");
-  --primary: #2d1f00;
-  --primary-dark: #1a1200;
-  --secondary: #3d2f10;
-  --accent: #ffd700;
-  --accent-light: #ffed4e;
-  --accent-glow: rgba(255, 215, 0, 0.2);
-  --border: rgba(255, 215, 0, 0.3);
-  --text: #fffacd;
-  --text-muted: #f0e68c;
-  --hover-danger: #ff8c00;
-  --active-tab: linear-gradient(145deg, #b8860b, var(--secondary));
+
+:root.aurora {
+  --background: linear-gradient(145deg, #010b0d, #03161a);
+  --home-bg: url("/assets/imgs/backgrounds/home/blue.jpg");
+  --primary: #03171b;
+  --primary-dark: #010c0e;
+  --secondary: #062328;
+  --accent: #2dd4bf;
+  --accent-light: #99f6e4;
+  --accent-glow: rgba(45, 212, 191, 0.2);
+  --border: rgba(45, 212, 191, 0.3);
+  --text: #ecfeff;
+  --text-muted: #a5f3fc;
+  --hover-danger: #fb7185;
+  --active-tab: linear-gradient(145deg, #0f766e, var(--secondary));
 }
 
+:root.ember {
+  --background: linear-gradient(145deg, #0d0705, #1a0d07);
+  --home-bg: url("/assets/imgs/backgrounds/home/red.jpg");
+  --primary: #1a0e08;
+  --primary-dark: #0d0604;
+  --secondary: #26140b;
+  --accent: #f97316;
+  --accent-light: #fdba74;
+  --accent-glow: rgba(249, 115, 22, 0.2);
+  --border: rgba(249, 115, 22, 0.3);
+  --text: #fff7ed;
+  --text-muted: #fed7aa;
+  --hover-danger: #f87171;
+  --active-tab: linear-gradient(145deg, #c2410c, var(--secondary));
+}
 
-:root.kayspink {
-  --background: linear-gradient(145deg, #0a0012, #17001c);
-  --home-bg: url("https://images4.alphacoders.com/646/thumb-1920-646665.png");
-  --primary: #120016;
-  --primary-dark: #0a000f;
-  --secondary: #1a001f;
-  --accent: #ff0090;
-  --accent-light: #ff7bc6;
-  --accent-glow: rgba(255, 0, 144, 0.2);
-  --border: rgba(255, 0, 144, 0.3);
-  --text: #ffe4f3;
-  --text-muted: #ffb8dc;
-  --hover-danger: #ff5e7e;
-  --active-tab: linear-gradient(145deg, #8a005e, var(--secondary));
+:root.obsidian {
+  --background: linear-gradient(145deg, #070708, #0e0e10);
+  --home-bg: url("/assets/imgs/backgrounds/home/blue.jpg");
+  --primary: #111113;
+  --primary-dark: #08080a;
+  --secondary: #18181b;
+  --accent: #d4d4d8;
+  --accent-light: #fafafa;
+  --accent-glow: rgba(212, 212, 216, 0.14);
+  --border: rgba(212, 212, 216, 0.2);
+  --text: #f4f4f5;
+  --text-muted: #a1a1aa;
+  --hover-danger: #f87171;
+  --active-tab: linear-gradient(145deg, #3f3f46, var(--secondary));
+  --on-accent: #0b0b0d;
+}
+
+:root.rosewood {
+  --background: linear-gradient(145deg, #0d0507, #18080d);
+  --home-bg: url("/assets/imgs/backgrounds/home/red.jpg");
+  --primary: #1a0a0f;
+  --primary-dark: #0d0508;
+  --secondary: #261017;
+  --accent: #f43f5e;
+  --accent-light: #fda4af;
+  --accent-glow: rgba(244, 63, 94, 0.2);
+  --border: rgba(244, 63, 94, 0.3);
+  --text: #fff1f2;
+  --text-muted: #fecdd3;
+  --hover-danger: #fb923c;
+  --active-tab: linear-gradient(145deg, #9f1239, var(--secondary));
+}
+
+:root.champagne {
+  --background: linear-gradient(145deg, #0b0a08, #15130f);
+  --home-bg: url("/assets/imgs/backgrounds/home/blue.jpg");
+  --primary: #16140f;
+  --primary-dark: #0b0a07;
+  --secondary: #211e17;
+  --accent: #d9b56a;
+  --accent-light: #f3e2b3;
+  --accent-glow: rgba(217, 181, 106, 0.18);
+  --border: rgba(217, 181, 106, 0.28);
+  --text: #fbf7ee;
+  --text-muted: #e7dcc3;
+  --hover-danger: #f87171;
+  --active-tab: linear-gradient(145deg, #8a6d2f, var(--secondary));
+  --on-accent: #1a1406;
 }

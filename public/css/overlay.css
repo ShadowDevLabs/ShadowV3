@@ -11,7 +11,7 @@
     align-items: center;
     z-index: 1000;
     color: white;
-    font-family: "Poppins", sans-serif;
+    font-family: var(--font, sans-serif);
     font-size: 2rem;
     text-align: center;
   }

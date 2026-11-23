@@ -6,11 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="/css/home.css" />
   <link rel="stylesheet" href="/css/themes.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/png" href="/assets/imgs/icons/pages/home.png" />
   <title>Home</title>
   <!-- Google tag (gtag.js) -->
-  <script src="/ana.js"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
@@ -22,11 +21,19 @@
 </head>
 
 <body>
-  <div class="background-animated"></div>
+  <div class="bg-dots"><canvas></canvas></div>
 
-  <img src="/assets/imgs/icons/plain_logo.webp" alt="Shadow Logo">
-  <h1>Shadow</h1>
-  <p>discord.gg/goshadow</p>
+  <main class="hero">
+    <img src="/assets/imgs/icons/plain_logo.webp" alt="Shadow logo">
+    <h1>Shadow</h1>
+    <a class="chip" href="https://discord.gg/goshadow" target="_blank" rel="noopener">
+      <!-- Lucide "message-circle" (lucide.dev, ISC) -->
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      discord.gg/goshadow
+    </a>
+  </main>
+
+  <script src="/assets/js/waves.js" defer></script>
 
 </body>
 </html>

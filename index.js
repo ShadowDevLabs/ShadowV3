@@ -18,6 +18,7 @@ import { syncRouter } from "./src/server/sync.js";
 import { rateLimit } from "./src/server/ratelimit.js";
 import { patchRuntime } from "./src/server/runtime-patches.mjs";
 import { readFileSync } from "node:fs";
+import { installDev } from "./src/server/dev.mjs";
 import { Readable } from "node:stream";
 
 import dotenv from "dotenv";
@@ -52,6 +53,8 @@ app.set("trust proxy", "loopback");
 // gzip/brotli for text responses (scripts, styles, pages, JSON, wasm): the shell's
 // JavaScript and the Scramjet runtime go out at roughly a quarter of their size.
 app.use(compression());
+// npm run dev (dev.js): no caching, live reload. Before every route, so its handlers win.
+if (process.env.SHADOW_DEV === "1") installDev(app, publicPath);
 
 /**
  * Small in-memory cache with a time limit and a size cap, for upstream lookups

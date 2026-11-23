@@ -1,64 +1,80 @@
+/* shadow://history and shadow://downloads, on the shared tokens in themes.css. */
 body {
-  background: var(--background);
-  overflow-y: hidden;
-  background-image: var(--home-bg);
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: 0% 50%;
-  font-family: 'Poppins', sans-serif;
-  color: var(--text);
-  min-height: 100vh;
   margin: 0;
   padding: 0;
+  min-height: 100vh;
+  overflow-y: hidden;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 70%),
+    var(--background);
+  background-attachment: fixed;
+  font-family: var(--font);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
 }
 
 .container {
-  width: 90%;
-  margin: 20px auto;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 52px 24px 80px;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 28px;
 }
 
 .header h1 {
-  font-size: 24px;
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .searchBar {
-  width: 200px;
-  padding: 12px;
-  border-radius: 4px;
-  background-color: var(--secondary);
+  width: 240px;
+  height: 42px;
+  box-sizing: border-box;
+  padding: 0 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r);
+  background: color-mix(in srgb, var(--primary) 65%, transparent);
   color: var(--text);
-  font-family: 'Poppins', sans-serif;
-  border: 1px solid var(--border);
-  transition: background-color 0.3s;
+  font-family: inherit;
+  font-size: 14px;
+  transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+
+.searchBar::placeholder {
+  color: var(--faint);
 }
 
 .searchBar:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 75%, transparent);
+  box-shadow: var(--ring);
 }
 
 .day-section {
-  margin-bottom: 20px;
+  margin-bottom: 28px;
 }
 
 .day-section h2 {
-  margin-bottom: 10px;
-  font-size: 18px;
-  color: var(--accent);
+  margin: 0 0 10px 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent-light);
 }
 
 .history-list {
-  background-color: var(--secondary);
-  border-radius: 8px;
-  padding: 10px;
-  border: 1px solid var(--border);
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
 }
 
 .history-item {
@@ -66,33 +82,44 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px;
-  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--r);
+  transition: background-color 0.12s var(--ease);
 }
 
-.history-item:last-child {
-  border-bottom: none;
+.history-item:hover {
+  background: var(--surface-hover);
 }
 
 .history-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  min-width: 0;
 }
 
 .favicon {
-  width: 20px;
-  height: 20px;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
 }
 
 .history-time {
-  font-size: 14px;
-  color: var(--text-muted);
+  flex: 0 0 auto;
+  font-size: 13px;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
 }
 
 .history-title {
   color: var(--text);
-  font-size: 16px;
+  font-size: 14.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60vw;
 }
 
 .history-actions {
@@ -104,29 +131,44 @@ body {
   appearance: none;
   width: 18px;
   height: 18px;
-  border: 2px solid var(--accent);
-  border-radius: 4px;
-  cursor: pointer;
   margin-right: 10px;
-  transition: background-color 0.3s;
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.15s var(--ease), border-color 0.15s var(--ease);
 }
 
 .history-actions input[type="checkbox"]:checked {
-  background-color: var(--accent);
-  border: none;
+  background: var(--accent);
+  border-color: transparent;
 }
 
 .deleteBtn {
-  display: inline-block;
-  background-color: var(--border);
+  display: inline-flex;
+  align-items: center;
+  height: 42px;
+  box-sizing: border-box;
+  padding: 0 18px;
+  background: transparent;
   color: var(--text);
-  font-family: 'Poppins', sans-serif;
-  padding: 12px 16px;
-  margin-left: auto;
-  margin-right: 15px;
-  border: none;
-  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r);
   cursor: pointer;
+  transition: background-color 0.15s var(--ease), border-color 0.15s var(--ease), color 0.15s var(--ease);
+}
+
+.deleteBtn:hover {
+  background: var(--surface-hover);
+}
+
+#deleteBtn:hover,
+#clear:hover {
+  background: color-mix(in srgb, var(--hover-danger) 12%, transparent);
+  border-color: color-mix(in srgb, var(--hover-danger) 60%, transparent);
+  color: var(--hover-danger);
 }
 
 ::-webkit-scrollbar {
@@ -134,35 +176,35 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: var(--accent);
+  background: var(--line-strong);
   border-radius: 10px;
+  border: 3px solid transparent;
+  background-clip: content-box;
 }
 
 /* ---- search, grouping, per-entry delete ---- */
-.history-item {
-  justify-content: space-between;
-}
 
 .history-remove {
   flex: 0 0 auto;
   background: transparent;
-  color: var(--text-muted);
+  color: var(--muted);
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   padding: 4px 8px;
   cursor: pointer;
   opacity: 0;
   font-family: inherit;
+  transition: opacity 0.12s var(--ease), color 0.12s var(--ease), background-color 0.12s var(--ease);
 }
 
 .history-item:hover .history-remove,
 .day-section h2:hover .history-remove {
-  opacity: 0.8;
+  opacity: 1;
 }
 
 .history-remove:hover {
   color: var(--hover-danger);
-  opacity: 1;
+  background: color-mix(in srgb, var(--hover-danger) 12%, transparent);
 }
 
 .history-remove.day {
@@ -182,7 +224,7 @@ body {
 
 .history-group > summary::after {
   content: "▸";
-  color: var(--text-muted);
+  color: var(--faint);
   padding: 0 8px;
 }
 
@@ -191,12 +233,13 @@ body {
 }
 
 .history-group > .history-item:not(summary) {
-  padding-left: 34px;
+  padding-left: 42px;
 }
 
-.history-title {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 60vw;
+.deleteBtn[hidden] {
+  display: none;
+}
+
+.inline-toggle input {
+  accent-color: var(--accent);
 }

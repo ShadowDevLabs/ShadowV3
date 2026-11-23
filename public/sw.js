@@ -25,8 +25,13 @@ const CACHEABLE_EXT = /\.(css|js|mjs|png|jpe?g|svg|ico|webp|gif|woff2?|ttf|otf|j
 // Never cache: the proxy runtime routes, the live config/transport, API responses.
 const NO_CACHE = /^\/(wisp|epoxy|libcurl|v1\/api)(\/|$)/;
 
+// The dev server (src/server/dev.mjs) serves this file with DEV = true: nothing is cached, so an
+// edited file shows on the next reload.
+const DEV = false;
+
 function isCacheableStatic(url, request) {
   return (
+    !DEV &&
     request.method === "GET" &&
     url.origin === self.location.origin &&
     request.mode !== "navigate" &&
@@ -94,6 +99,7 @@ const pageKey = (url) => url.origin + url.pathname;
 const UI_ASSETS = null;
 
 async function precache() {
+  if (DEV) return;
   const pages = await caches.open(PAGE_CACHE);
   const assets = await caches.open(STATIC_CACHE);
   const add = async (cache, path, key) => {

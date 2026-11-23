@@ -27,7 +27,7 @@ body {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
   padding: 32px;
   backdrop-filter: blur(10px);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line-strong);
   position: relative;
   overflow: hidden;
 }
@@ -67,8 +67,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 15px var(--accent-glow);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line-strong);
 }
 
 .shadowicon{
@@ -143,7 +142,7 @@ label {
   width: 100%;
   padding: 12px 12px 12px 42px;
   background-color: var(--primary);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line-strong);
   border-radius: 8px;
   color: var(--text);
   font-size: 14px;
@@ -187,7 +186,7 @@ label {
   appearance: none;
   width: 16px;
   height: 16px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--line-strong);
   border-radius: 4px;
   background-color: var(--primary);
   cursor: pointer;
@@ -230,7 +229,7 @@ label {
 
 .login-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px var(--accent-glow);
+  box-shadow: var(--shadow);
 }
 
 .login-button:active {

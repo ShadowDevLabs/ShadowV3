@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "node start.js",
-    "dev": "node index.js 9090",
+    "dev": "node --watch dev.js 9090",
     "shadow": "node index.js",
     "build": "node scripts/build.mjs",
     "test": "node --test",

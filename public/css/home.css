@@ -1,65 +1,119 @@
+/* Home: the new tab's look (drifting glow, glowing wordmark) as a welcome screen. */
 * {
   box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font);
 }
 
 body {
-  color: var(--text);
+  margin: 0;
+  min-height: 100vh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
-  gap: 1.4rem;
-  min-height: 100vh;
-  overflow: hidden;
-  background:var(--home-bg);
-  background-position: 0% 50%;
-  background-repeat: no-repeat;
-  background-size: cover;
-  
+  color: var(--text);
+  background: var(--background);
 }
 
-
-img {
-  width: 90px;
-  height: 90px;
-  filter: drop-shadow(0 0 12px var(--accent-glow));
-  transition: 0.3s ease;
-  margin-top: 3rem;
+/* The glow, drawn by waves.js. */
+.bg-dots {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  mask-image: radial-gradient(ellipse 90% 80% at center, rgba(0, 0, 0, 0.9) 50%, rgba(0, 0, 0, 0.5) 75%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 80% at center, rgba(0, 0, 0, 0.9) 50%, rgba(0, 0, 0, 0.5) 75%, rgba(0, 0, 0, 0) 100%);
 }
 
+.bg-dots canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* A faint, still dot texture over the glow. */
+.bg-dots::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(var(--text) 8%, transparent 10%) 0 0 / 4px 4px;
+  opacity: 0.05;
+}
+
+.hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero img {
+  width: 72px;
+  height: 72px;
+  filter: drop-shadow(0 0 18px color-mix(in srgb, var(--accent) 55%, transparent));
+  animation: rise 0.8s var(--ease) both;
+}
+
+/* Same treatment as the new tab's title. The side padding gives the gradient room: it only paints
+   inside the element's box, and the tight letter-spacing would otherwise cut off the final "w". */
 h1 {
-  font-size: 10rem;
-  font-weight: 800;
-  background: linear-gradient(90deg, var(--accent), var(--accent-light));
+  margin: 6px 0 22px;
+  padding: 0 0.12em 0.05em;
+  font-size: clamp(5rem, 12vw, 9rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.05em;
+  background: linear-gradient(135deg, var(--accent-light), var(--accent), var(--text));
   -webkit-background-clip: text;
   background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 12px var(--accent-glow);
-  cursor:pointer;
-  letter-spacing: -1px;
-  margin-top: 0.5rem;
+  color: transparent;
+  filter: drop-shadow(0 0 32px color-mix(in srgb, var(--accent) 45%, transparent));
+  cursor: pointer;
+  animation: rise 0.8s var(--ease) 0.08s both;
 }
 
-@keyframes textGlow {
-  0% {
-    text-shadow: 0 0 12px var(--accent-glow);
-  }
-  50% {
-    text-shadow: 0 0 24px var(--accent), 0 0 12px var(--accent-glow);
-  }
-  100% {
-    text-shadow: 0 0 12px var(--accent-glow);
+/* The Discord invite, as a glass chip like the new tab's search bar. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: none;
+  background: color-mix(in srgb, var(--primary) 55%, transparent);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 var(--line);
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  animation: rise 0.8s var(--ease) 0.16s both;
+}
+
+.chip svg {
+  width: 18px;
+  height: 18px;
+  fill: var(--accent-light);
+}
+
+.chip:hover {
+  border-color: color-mix(in srgb, var(--accent) 75%, transparent);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), var(--ring);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
   }
 }
 
-p {
-  font-size: 1.1rem;
-  color: var(--text-muted);
-  max-width: 700px;
-  letter-spacing: 0.4px;
-  cursor:pointer;
-  line-height: 1.6;
-  margin-top: -9.9rem;
-  opacity: 0.9;
+@media (prefers-reduced-motion: reduce) {
+  .hero img, h1, .chip {
+    animation: none;
+  }
 }

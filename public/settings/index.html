@@ -5,16 +5,13 @@
   <script src="/assets/js/themes.js" type="module"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" />
-  <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" />
   <link rel="stylesheet" href="/css/settings.css" />
   <link rel="stylesheet" href="/css/themes.css" />
   <title>Settings</title>
   <link rel="icon" href="/assets/imgs/icons/logo.png" type="image/x-icon" />
   <script src="/assets/js/settings.js" type="module"></script>
   <!-- Google tag (gtag.js) -->
-  <script src="/ana.js"></script>
   <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-NCTSG4T1B6');</script>
 </head>
 
@@ -151,13 +148,13 @@
             Set a key that instantly sends the whole window to a safe site. Works from inside pages too, so one tap
             gets you out fast. The key is ignored while you're typing in a text box.
           </p>
-          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
-            <button class="input-field" id="panicKeyBtn" style="cursor:pointer; min-width:150px;" onclick="capturePanicKey()">
+          <div class="buttons">
+            <button class="icon-button" id="panicKeyBtn" onclick="capturePanicKey()">
               Click, then press a key
             </button>
-            <button class="input-field" style="cursor:pointer;" onclick="clearPanicKey()">Disable</button>
+            <button class="icon-button secondary" onclick="clearPanicKey()">Disable</button>
           </div>
-          <input class="input-field" style="width:90%;" id="panicUrl" placeholder="https://classroom.google.com"
+          <input class="input-field" id="panicUrl" placeholder="https://classroom.google.com"
             onchange="savePanicUrl()" />
         </div>
       </div>
@@ -405,7 +402,7 @@
           </select>
           <br>
 
-          <input value="phantom.lol" style="width:90%; display:none; margin-top: 2.5vh;" class="input-field"
+          <input value="phantom.lol" style="display:none;" class="input-field"
             id="wispURL" /> <br>
 
           <div class="flex-div" style="display:none;" id="wispBtn">
@@ -427,7 +424,7 @@
         <h2 class="section-title">Custom User Agent</h2>
         <div class="section-content">
           <p class="section-text">Switch between different user agents. Some agents may cause issues.</p>
-          <input placeholder="" style="width:90%;" class="input-field" id="customUserAgent" /> <br><br>
+          <input placeholder="" class="input-field" id="customUserAgent" /> <br><br>
           <button class="icon-button" id="ua"
             onclick="customUA = document.getElementById('customUserAgent').value; setUA(customUA);">Choose
             Agent</button>
