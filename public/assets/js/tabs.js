@@ -267,15 +267,23 @@ class Tab {
     this.searchSuggestionsEngine = await this.settings.get("search-suggestions-engine");
     this.searchSuggestions = await this.settings.get("search-suggestions");
     this.searchEngine = await this.settings.get("search-engine");
-    this.userAgent = (await this.settings.get("user-agent")) || null;
     await this.settings.default("panic-url", "https://classroom.google.com");
-    this.panicKey = (await this.settings.get("panic-key")) || null;
+    const [userAgent, panicKey, forceDark, maskText, autoSave, verticalTabs] = await Promise.all([
+      this.settings.get("user-agent"),
+      this.settings.get("panic-key"),
+      this.settings.get("force-dark"),
+      this.settings.get("mask-text"),
+      this.settings.get("downloads-autosave"),
+      this.settings.get("vertical-tabs"),
+      this.siteSettings.ready,
+    ]);
+    this.userAgent = userAgent || null;
+    this.panicKey = panicKey || null;
     this.panicUrl = (await this.settings.get("panic-url")) || "https://www.google.com";
-    this.forceDark = !!(await this.settings.get("force-dark"));
-    this.maskText = (await this.settings.get("mask-text")) !== false;
-    this.downloads.autoSave = (await this.settings.get("downloads-autosave")) !== false;
-    this.setVerticalTabs(!!(await this.settings.get("vertical-tabs")), false);
-    await this.siteSettings.ready;
+    this.forceDark = !!forceDark;
+    this.maskText = maskText !== false;
+    this.downloads.autoSave = autoSave !== false;
+    this.setVerticalTabs(!!verticalTabs, false);
 
     // The service worker also caches the shell and saves the session, so it is
     // registered up front; Scramjet itself waits for the first proxied page.
@@ -295,9 +303,9 @@ class Tab {
       history.replaceState(null, "", location.pathname + (query ? `?${query}` : ""));
     }
 
-    const open = await this.history.getOpen();
-    if (!deepLink && (await this.settings.get("save-tabs")) && Array.isArray(open) && open.length > 1) {
-      await this.loadAllTabs(open);
+    if (!deepLink && (await this.settings.get("save-tabs"))) {
+      const open = await this.history.getOpen();
+      if (Array.isArray(open) && open.length > 1) await this.loadAllTabs(open);
     }
     if (deepLink) await this.createTab(deepLink);
     if (this.tabsArr.length === 0) await this.createTab();
@@ -347,14 +355,24 @@ class Tab {
 
   /** Service worker -> transport -> Scramjet controller -> Sapphire (extensions). */
   async bootProxy() {
-    // Classic scripts that set $scramjet / $scramjetController; the bundle
-    // imported right after builds on those globals, so the order matters.
-    if (typeof $scramjet === "undefined") await loadScript("/scramjet/scramjet.js");
-    if (typeof $scramjetController === "undefined") await loadScript("/controller/controller.api.js");
-    if (typeof $scramjet === "undefined" || typeof $scramjetController === "undefined") {
-      throw new Error("Scramjet failed to load.");
+    const configReady = loadProxyConfig();
+    const controllerUrl = "/controller/controller.api.js";
+    const bundleUrl = "/dist/shadow-proxy.js";
+    // Fetch dependencies together while keeping execution in dependency order.
+    const apiPreload = Object.assign(document.createElement("link"), { rel: "preload", as: "script", href: controllerUrl });
+    const bundlePreload = Object.assign(document.createElement("link"), { rel: "modulepreload", href: bundleUrl });
+    document.head.append(apiPreload, bundlePreload);
+    try {
+      if (typeof $scramjet === "undefined") await loadScript("/scramjet/scramjet.js");
+      if (typeof $scramjetController === "undefined") await loadScript(controllerUrl);
+      if (typeof $scramjet === "undefined" || typeof $scramjetController === "undefined") {
+        throw new Error("Scramjet failed to load.");
+      }
+      ({ Controller, Sapphire, ShadowPlugin } = await import(bundleUrl));
+    } finally {
+      apiPreload.remove();
+      bundlePreload.remove();
     }
-    ({ Controller, Sapphire, ShadowPlugin } = await import("/dist/shadow-proxy.js"));
 
     const registration = await this.registerServiceWorker();
     await navigator.serviceWorker.ready;
@@ -370,7 +388,7 @@ class Tab {
     const serviceworker = navigator.serviceWorker.controller ?? registration.active;
     if (!serviceworker) throw new Error("The service worker never became active.");
 
-    await Promise.all([this.setTransport(), loadProxyConfig()]);
+    await Promise.all([this.setTransport(), configReady]);
 
     const controller = new Controller({
       serviceworker,

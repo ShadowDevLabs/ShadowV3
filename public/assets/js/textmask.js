@@ -1,33 +1,27 @@
-// "Hide page text" (Settings → General): the text of proxied pages, as filters that scan a page
-// for keywords read it. Looks the same on screen, but 24 Latin letters become their look-alikes
-// from Cyrillic (a → а, e → е, o → о, …), so "minecraft" in the page is "mіnесrаft" and no
-// keyword list matches it. Words made only of letters without a twin (b d f g h k l m n q r t u
-// v w z) stay as they are. No font files are involved, so every font works: a font without
-// Cyrillic draws those letters from a fallback font.
-//
-// It runs after the page has loaded (frameworks compare their HTML with what they render while
-// loading), then on new text as it appears. Masking is idempotent: masked text masks to itself,
-// so the observer never loops on its own writes. Page scripts that read their own text get the
-// masked text; what the user types (inputs, text areas, editors) is left alone.
+// "Hide page text" masks Latin letters and digits after the proxied page has loaded.
+const ALNUM = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+const FIRST_PUA = 0xefc0;
+export const MASK_TABLE = Object.fromEntries([...ALNUM].map((c, i) => [c, String.fromCharCode(FIRST_PUA + i)]));
+const PUA = new RegExp(`[${MASK_TABLE.A}-${MASK_TABLE[9]}]`, "g");
+const unmaskString = (text) => text.replace(PUA, (c) => ALNUM[c.charCodeAt(0) - FIRST_PUA]);
+const DISPLAY_TAG = "shadow-page-text";
+const SOURCE_TAG = "shadow-page-source";
+const DISPLAY_TEXT = "--shadow-page-text";
+const CSS_ESCAPES = Array.from({ length: 128 }, (_, n) => `\\${n.toString(16)} `);
 
-const LOOKALIKE = {
-  a: "а", c: "с", e: "е", i: "і", j: "ј", o: "о", p: "р", s: "ѕ", x: "х", y: "у",
-  A: "А", B: "В", C: "С", E: "Е", H: "Н", I: "І", J: "Ј", K: "К", M: "М", O: "О", P: "Р", S: "Ѕ", T: "Т", X: "Х",
-};
-const SWAPPABLE = new RegExp(`[${Object.keys(LOOKALIKE).join("")}]`, "g");
+// Keep the display string escaped in CSS, including quotes and line breaks from the page.
+export const cssString = (text) => `"${text.replace(/[A-Za-z0-9"\\\x00-\x1f\x7f]/g, (c) => CSS_ESCAPES[c.charCodeAt(0)])}"`;
 
 /** The masked form of a string. maskString(maskString(s)) === maskString(s). */
-export const maskString = (text) => text.replace(SWAPPABLE, (c) => LOOKALIKE[c]);
+export const maskString = (text) => text.replace(/[A-Za-z0-9](?!\p{M})/gu, (c) => MASK_TABLE[c]);
 
-// Not page text: code that runs, styles, and what the user is typing.
-const SKIP = "script,style,noscript,template,textarea,[contenteditable]:not([contenteditable=false])";
-const SKIP_TAGS = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEMPLATE", "TEXTAREA", "script", "style"]); // SVG keeps lowercase
+// Code, editable text, and text displayed by native controls use their original characters.
+const SKIP_ELEMENTS = "head,script,style,noscript,template,textarea,select,option,datalist,svg,math";
+const SKIP = `${SKIP_ELEMENTS},[contenteditable]:not([contenteditable=false])`;
+const SKIP_TAGS = new Set(SKIP_ELEMENTS.split(","));
 // The same test as SKIP for one element, without running a selector (the walk does it per element).
-const skipped = (el) => SKIP_TAGS.has(el.tagName) || (el.hasAttribute("contenteditable") && el.getAttribute("contenteditable") !== "false");
-// Text that shows as tooltips, image text, hints and screen-reader labels.
-const ATTRS = ["title", "alt", "placeholder", "aria-label"];
-const BUTTON_TYPES = /^(?:button|submit|reset)$/i; // <input value="…"> shown as a button's text
-const HAS_SWAPPABLE = /[aceijopsxyABCEHIJKMOPSTX]/;
+const skipped = (el) => SKIP_TAGS.has(el.localName) || (el.hasAttribute("contenteditable") && el.getAttribute("contenteditable") !== "false");
+const HAS_SWAPPABLE = /[A-Za-z0-9]/;
 
 // Decoys: a few blocks of school-subject sentences per page, laid out but clipped to nothing.
 // A filter that reads the page's text (textContent or innerText) finds them; people don't see
@@ -65,6 +59,31 @@ const randomClass = () => String.fromCharCode(97 + Math.floor(Math.random() * 26
 /** Masks a proxied document's text now and as it changes. `win` is the proxied window. */
 export function maskDocument(win) {
   const doc = win.document;
+  if (!win.CSSStyleSheet?.prototype.replaceSync || !("adoptedStyleSheets" in doc)) return;
+  const sheet = new win.CSSStyleSheet();
+  sheet.replaceSync(`
+    ${DISPLAY_TAG} { all: unset !important; display: contents !important; }
+    ${DISPLAY_TAG}::before { all: unset !important; content: var(${DISPLAY_TEXT}) !important; }
+    ${SOURCE_TAG} { display: none !important; }
+  `);
+  const displayTemplate = doc.createElement(DISPLAY_TAG);
+  displayTemplate.appendChild(doc.createElement(SOURCE_TAG)).hidden = true;
+  const displays = new WeakSet();
+  const sources = new WeakMap();
+
+  const showText = (node, entry, original, masked) => {
+    entry.display.style.setProperty(DISPLAY_TEXT, cssString(original));
+    entry.masked = masked;
+    if (node.data !== masked) node.data = masked;
+  };
+
+  const release = (node, entry) => {
+    sources.delete(node);
+    entry.display.remove();
+    node.data = unmaskString(node.data);
+    return node.data;
+  };
+
   const decoys = [];
   const decoySet = new WeakSet();
   // At random places in <body> (never first: that would shift :first-child styles), and back in
@@ -91,20 +110,36 @@ export function maskDocument(win) {
   };
   // `inside`: the caller already knows no ancestor is skipped (a walk that rejects skipped subtrees).
   const maskText = (node, inside = false) => {
-    const value = node.nodeValue;
-    if (!value || !HAS_SWAPPABLE.test(value)) return;
-    const parent = node.parentElement;
-    if (decoySet.has(parent) || (!inside && parent?.closest(SKIP))) return;
-    node.nodeValue = maskString(value);
-  };
-  const maskAttr = (el, name) => {
-    const value = el.getAttribute(name);
-    if (value && HAS_SWAPPABLE.test(value)) el.setAttribute(name, maskString(value));
+    let value = node.data;
+    const entry = sources.get(node);
+    if (entry) {
+      if (node.parentNode === entry.source) {
+        if (value === entry.masked) return;
+        // An in-place edit can leave some of the previous masked characters intact.
+        const original = unmaskString(value);
+        showText(node, entry, original, maskString(original));
+        return;
+      }
+      value = release(node, entry);
+    }
+    if (!value || !HAS_SWAPPABLE.test(value) || value.search(PUA) !== -1) return;
+    const parent = node.parentNode;
+    if (!parent || decoySet.has(parent) || (!inside && parent.closest?.(SKIP))) return;
+    const masked = maskString(value);
+    if (masked === value) return;
+    const display = displayTemplate.cloneNode(true);
+    const source = display.firstChild;
+    displays.add(display);
+    const render = { display, source };
+    sources.set(node, render);
+    // shortcut: sites that require the original Text to stay a direct child can use masking off.
+    const next = node.nextSibling;
+    source.append(node);
+    showText(node, render, value, masked);
+    parent.insertBefore(display, next);
   };
   const shadows = new WeakSet();
   const maskElement = (el) => {
-    for (const name of ATTRS) maskAttr(el, name);
-    if (el.tagName === "INPUT" && BUTTON_TYPES.test(el.type)) maskAttr(el, "value");
     // Web components keep their text in their own (open) shadow tree: mask and watch it too.
     if (el.shadowRoot && !shadows.has(el.shadowRoot)) {
       shadows.add(el.shadowRoot);
@@ -113,59 +148,86 @@ export function maskDocument(win) {
     }
   };
   // Skips whole <script>/<style>/editor subtrees instead of looking at each node inside them.
-  const filter = { acceptNode: (n) => (n.nodeType === Node.ELEMENT_NODE && (skipped(n) || decoySet.has(n)) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT) };
+  const filter = { acceptNode: (n) => (n.nodeType === Node.ELEMENT_NODE && (skipped(n) || decoySet.has(n) || displays.has(n)) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT) };
   const walk = (root) => doc.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, filter);
   const maskNode = (node) => (node.nodeType === Node.TEXT_NODE ? maskText(node, true) : maskElement(node)); // from walks only
-  const maskTree = (root) => {
-    if (root.nodeType === Node.TEXT_NODE) return maskText(root);
-    if (root.nodeType === Node.ELEMENT_NODE) {
-      if (decoySet.has(root) || root.closest(SKIP)) return;
-      maskElement(root);
-    }
-    const walker = walk(root);
-    for (let node = walker.nextNode(); node; node = walker.nextNode()) maskNode(node);
+  const queue = new Set();
+  let walker, scheduled = false;
+  const schedule = () => {
+    if (scheduled) return;
+    scheduled = true;
+    if (win.scheduler?.postTask) win.scheduler.postTask(flush, { priority: "background" });
+    else if (win.requestIdleCallback) win.requestIdleCallback(flush, { timeout: 100 });
+    else win.requestAnimationFrame(flush);
   };
-
-  // New and changed text, batched: one pass per frame however many mutations arrive.
-  let queue = new Set();
   const flush = () => {
-    const batch = queue;
-    queue = new Set();
-    for (const node of batch) if (node.isConnected) maskTree(node);
+    // Bound both the first walk and later batches so large page updates yield to input.
+    const until = performance.now() + 5;
+    const roots = queue.values();
+    do {
+      if (walker?.root.isConnected) {
+        if (!walker.currentNode.isConnected) walker.currentNode = walker.root;
+        const node = walker.nextNode();
+        if (node) {
+          maskNode(node);
+          continue;
+        }
+      }
+      walker = undefined;
+      const root = roots.next().value;
+      if (!root) break;
+      queue.delete(root);
+      if (!root.isConnected) continue;
+      if (root.nodeType === Node.TEXT_NODE) {
+        maskText(root);
+        continue;
+      }
+      if (root.nodeType === Node.ELEMENT_NODE) {
+        if (displays.has(root) || decoySet.has(root) || root.closest(SKIP)) continue;
+        maskElement(root);
+        const child = root.firstChild;
+        if (!child) continue;
+        if (child.nodeType === Node.TEXT_NODE && !child.nextSibling) {
+          maskText(child, true);
+          continue;
+        }
+      }
+      walker = walk(root);
+    } while (performance.now() < until);
     if (decoys.some((el) => !el.isConnected)) placeDecoys();
+    scheduled = false;
+    if (walker || queue.size) schedule();
   };
   const observer = new MutationObserver((records) => {
-    const wasEmpty = queue.size === 0;
     for (const r of records) {
-      if (r.type === "childList") for (const node of r.addedNodes) queue.add(node);
-      else queue.add(r.target); // characterData, or one of the attributes below
+      if (r.type === "characterData") {
+        if (sources.get(r.target)?.masked !== r.target.data) queue.add(r.target);
+        continue;
+      }
+      for (const node of r.removedNodes) {
+        const entry = sources.get(node);
+        if (entry && node.parentNode !== entry.source) release(node, entry);
+      }
+      for (const node of r.addedNodes) {
+        if (!displays.has(node) && sources.get(node)?.source !== r.target) queue.add(node);
+      }
     }
-    if (wasEmpty && queue.size) win.requestAnimationFrame(flush);
+    if (queue.size) schedule();
   });
   // Masking writes only what changes and masked text masks to itself, so these never loop.
-  const watch = (root) =>
-    observer.observe(root, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: [...ATTRS, "value"] });
+  const watch = (root) => {
+    root.adoptedStyleSheets = [...root.adoptedStyleSheets, sheet];
+    observer.observe(root, { childList: true, subtree: true, characterData: true });
+  };
 
   let started = false;
   const start = () => {
     if (started || !doc.documentElement) return;
     started = true;
-    watch(doc.documentElement); // the whole document, <title> included, and a replaced <body>
+    watch(doc); // includes a replaced <body>
     placeDecoys();
-    // The existing text in slices, so a long page never holds up input for more than a few ms.
-    const walker = walk(doc.documentElement);
-    // 5 ms of work per slice, not the idle deadline: on a busy page (ads) the browser is never
-    // idle and the timeout fallback hands over a deadline of 0, which would mask one node a slice.
-    const slice = () => {
-      const until = performance.now() + 5;
-      let node;
-      while ((node = walker.nextNode())) {
-        maskNode(node);
-        if (performance.now() > until) return win.requestIdleCallback(slice, { timeout: 100 });
-      }
-      if (queue.size) win.requestAnimationFrame(flush); // shadow trees found on the way
-    };
-    win.requestIdleCallback(slice, { timeout: 500 });
+    queue.add(doc.documentElement);
+    schedule();
   };
   // Shortly after the HTML is in, not at "load", which pages full of ads may not reach for a long
   // time. The delay leaves frameworks (React, Vue, …) time to check their HTML against what they render.
