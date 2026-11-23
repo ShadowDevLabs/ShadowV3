@@ -34,15 +34,14 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: linear-gradient(145deg, var(--primary), var(--secondary));
+  background: color-mix(in srgb, var(--primary) 70%, transparent);
   border: 1px solid var(--border);
   padding: 8px 14px;
   border-radius: 10px;
   color: var(--text);
   cursor: pointer;
   position: relative;
-  transition: all 0.2s ease;
-  box-shadow: 0 0 6px var(--accent-glow);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -59,19 +58,18 @@ body {
 }
 
 .tab:hover {
-  transform: translateY(-2px);
+  background: var(--primary);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
 }
 
 .tab.active {
   background: var(--active-tab);
   border-color: var(--accent);
-  box-shadow: 0 0 12px var(--accent-glow);
 }
 
 .tab-icon {
   width: 20px;
   height: 20px;
-  filter: drop-shadow(0 0 4px var(--accent-glow));
 }
 
 .close-tab-button {
@@ -83,18 +81,16 @@ body {
 }
 
 .close-tab-button:hover {
-  color: var(--hover-danger);
-  transform: scale(1.2);
+  color: var(--text);
 }
 
 .addtab-btn {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
   padding: 6px;
   cursor: pointer;
-  transition: 0.2s ease;
-  box-shadow: 0 0 8px var(--accent-glow);
+  transition: background-color 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -120,7 +116,7 @@ body {
 }
 
 .addtab-btn:hover {
-  box-shadow: 0 0 16px var(--accent-glow);
+  background: var(--primary);
 }
 
 .icons {
@@ -141,8 +137,8 @@ body {
 }
 
 .control-button {
-  background: linear-gradient(145deg, var(--primary), var(--secondary));
-  border: 1px solid var(--border);
+  background: transparent;
+  border: 1px solid transparent;
   border-radius: 50px;
   padding: 8px;
   display: flex;
@@ -150,25 +146,44 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 0 6px var(--accent-glow);
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease;
 }
 
 .control-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 10px var(--accent-glow);
+  background: var(--primary);
 }
 
 .inputcontainermain {
   flex: 1;
   display: flex;
   align-items: center;
-  background: linear-gradient(145deg, var(--primary), var(--secondary));
+  background: var(--primary);
   border: 1px solid var(--border);
   border-radius: 50px;
   padding: 6px 12px;
   margin: 0 10px;
-  box-shadow: 0 0 6px var(--accent-glow);
+  transition: border-color 0.15s ease;
+  anchor-name: --omnibox;
+}
+
+.inputcontainermain:focus-within {
+  border-color: var(--accent);
+}
+
+/* With suggestions open, the bar and the list read as one panel: the bar's bottom edge opens up
+   and the list (moved up over it by 1px) continues its outline, with an inset divider. */
+body:has(#suggestions:not(.hidden)) .inputcontainermain {
+  border-radius: 20px 20px 0 0;
+  border-bottom-color: transparent;
+}
+
+.suggestions::before {
+  content: "";
+  display: block;
+  flex: none;
+  height: 1px;
+  margin: 0 16px 4px;
+  background: var(--border);
 }
 
 
@@ -186,22 +201,20 @@ body {
 
 
 .menu-button {
-  background: linear-gradient(145deg, var(--primary), var(--secondary));
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
   padding: 7px;
   cursor: pointer;
   margin-left: -3px;
-  box-shadow: 0 0 6px var(--accent-glow);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: box-shadow 0.2s ease, background 0.2s ease;
+  transition: background-color 0.15s ease;
 }
 
 .menu-button:hover {
-  box-shadow: 0 0 10px var(--accent-glow), 0 0 4px var(--accent-glow);
-  background: linear-gradient(145deg, var(--secondary), var(--primary));
+  background: var(--primary);
 }
 
 
@@ -218,28 +231,38 @@ body {
   left: 0;
   right: 0;
   background-color: var(--primary);
-  border: 1px solid var(--border);
+  border: 1px solid var(--accent);
   border-top: none;
-  border-radius: 5px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+  border-radius: 0 0 20px 20px;
+  padding-bottom: 8px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
   z-index: 9999;
   max-height: 25rem;
   box-sizing: border-box;
-  margin-left: 150px;
-  width: calc(100% - 220px);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
 
 
+/* Pinned to the address bar by the browser, so it stays flush at any zoom or layout. */
+@supports (anchor-name: --a) {
+  .suggestions {
+    position: fixed;
+    position-anchor: --omnibox;
+    top: calc(anchor(bottom) - 1px);
+    left: anchor(left);
+    right: auto;
+    width: anchor-size(width);
+  }
+}
+
 .suggestions.hidden {
   display: none;
 }
 
 .suggestion-item {
-  padding: 10px 14px;
+  padding: 9px 20px;
   color: var(--text);
   cursor: pointer;
   transition: background 0.2s;
@@ -353,9 +376,8 @@ iframe {
   flex: 1;
   display: none;
   width: 100%;
-  border: none;
-  border: 1px solid var(--accent);
-  border-radius: 5px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
 }
 
 iframe.active {

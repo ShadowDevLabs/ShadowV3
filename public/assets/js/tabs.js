@@ -1485,7 +1485,9 @@ class Tab {
 
   titleFor(tab) {
     if (tab.title) return tab.title;
-    if (/^shadow:\/\/(?:home|new)$/.test(tab.pendingUrl ?? tab.url ?? "")) return "New Tab"; // the start page too, whatever its <title>
+    // Fixed names: the cloak rewrites these pages' <title>.
+    const start = (tab.pendingUrl ?? tab.url ?? "").match(/^shadow:\/\/(home|new)$/)?.[1];
+    if (start) return start === "home" ? "Home" : "New Tab";
     let title = "";
     if (!tab.pendingUrl) {
       try {
@@ -1591,10 +1593,14 @@ class Tab {
     }
     // Hang the list from the address bar itself, wherever the layout has put it
     // (vertical tabs, extension buttons and the downloads button all move it).
-    const form = document.getElementById("uv-form").getBoundingClientRect();
-    const wrap = container.parentElement.getBoundingClientRect();
-    container.style.marginLeft = `${Math.round(form.left - wrap.left + 16)}px`;
-    container.style.width = `${Math.round(form.width - 32)}px`;
+    // CSS anchor positioning does this exactly (index.css); measure only where it's missing.
+    if (!CSS.supports("anchor-name: --a")) {
+      const form = document.getElementById("uv-form").getBoundingClientRect();
+      const wrap = container.parentElement.getBoundingClientRect();
+      container.style.marginLeft = `${form.left - wrap.left}px`;
+      container.style.width = `${form.width}px`;
+      container.style.top = `${form.bottom - wrap.top - 1}px`;
+    }
     container.classList.remove("hidden");
     [...container.children].forEach((elem, i) => {
       const text = suggestions[i];
@@ -1691,13 +1697,18 @@ class Tab {
   refresh(i = this.activeTabIndex) {
     const tab = this.tabsArr[i];
     if (!tab) return;
-    if (tab.pendingUrl) return void this.load(tab.pendingUrl, i);
-    if (tab.proxyFailed) return void this.load(tab.url, i);
+    this.hideSuggestions();
+    const url = this.currentUrl(tab);
+    if (tab.pendingUrl || tab.proxyFailed) return this.load(url, i, { history: false });
     this.setLoading(tab, true);
     try {
-      tab.iframe.contentWindow.location.reload();
+      const frame = tab.iframe.contentWindow;
+      if (!frame || (frame.location.href === "about:blank" && url !== "about:blank")) {
+        return this.load(url, i, { history: false });
+      }
+      frame.location.reload();
     } catch {
-      this.load(tab.url, i);
+      return this.load(url, i, { history: false });
     }
   }
 

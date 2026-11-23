@@ -19,21 +19,23 @@ html {
   position: fixed;
   width: 100%;
   height: 100%;
-  background: radial-gradient(var(--accent) 6%, transparent 8%) 0 0 / 30px 30px;
-  opacity: 0.15;
-  animation: dotsMove 8s linear infinite;
   mask-image: radial-gradient(ellipse 90% 80% at center, rgba(0, 0, 0, 0.9) 50%, rgba(0, 0, 0, 0.5) 75%, rgba(0, 0, 0, 0) 100%);
   -webkit-mask-image: radial-gradient(ellipse 90% 80% at center, rgba(0, 0, 0, 0.9) 50%, rgba(0, 0, 0, 0.5) 75%, rgba(0, 0, 0, 0) 100%);
 }
 
-@keyframes dotsMove {
-  from {
-    background-position: 0 0;
-  }
+.bg-dots canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 
-  to {
-    background-position: -30px -30px;
-  }
+/* A faint, still dot texture over the glow. */
+.bg-dots::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(var(--text) 8%, transparent 10%) 0 0 / 4px 4px;
+  opacity: 0.05;
 }
 
 .container {
