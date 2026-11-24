@@ -17,7 +17,6 @@ import {
   closeReader,
   readerIsOpen,
   readerTabChanged,
-  translatePage,
   screenshot,
   togglePictureInPicture,
   downloadVideo,
@@ -499,6 +498,9 @@ class Tab {
           this.extensions.showContextMenu(request);
         }, 60);
       },
+      // chrome.sidePanel: Shadow has no docked panel of its own, so the panel page opens beside the
+      // current tab in split view.
+      openSidePanel: (extId, path) => void this.openInSplit(`chrome-extension://${extId}/${String(path).replace(/^\/+/, "")}`),
       requestPermissions: (extId, permissions, origins) =>
         this.extensions.requestPermissions(extId, permissions, origins),
     };
@@ -574,7 +576,9 @@ class Tab {
     }
 
     let url = self.resolveInput(src, this.searchEngine);
-    if (/^https?:/i.test(url)) {
+    // An extension can replace the new tab page (manifest chrome_url_overrides.newtab), as in Chrome.
+    if (url === "shadow://new") url = (await this.newTabOverride()) ?? url;
+    if (/^https?:/i.test(url) && !this.isExtensionUrl(url)) {
       const broken = await this.checkSite(url);
       if (broken && (await this.brokenDisclaimer(broken))) {
         url = self.resolveInput(broken, this.searchEngine);
@@ -625,6 +629,19 @@ class Tab {
     }
     this.saveTabs();
     return true;
+  }
+
+  /** The URL of the extension page that replaces the new tab page, if an enabled extension asks to. */
+  async newTabOverride() {
+    if (!this.sapphire) {
+      if (!(await this.hasExtensions())) return null;
+      await this.ensureProxy().catch(() => {});
+    }
+    return this.sapphire?.getNewTabOverride()?.url ?? null;
+  }
+
+  isExtensionUrl(url) {
+    return /^https:\/\/[a-p]{32}\.sapphire-extension\.invalid\//.test(url);
   }
 
   showProxyError(tab, url) {
@@ -1551,8 +1568,19 @@ class Tab {
     this.updateNavButtons();
     if (!tab || document.activeElement === searchInput) return;
     const url = this.currentUrl(tab) ?? "";
-    searchInput.value = url === "shadow://new" || url === "shadow://home" || url.startsWith("blob:") ? "" : url;
+    // An extension's new tab page keeps the bar empty too, like Chrome's.
+    const override = this.sapphire?.getNewTabOverride();
+    const newTab = url === "shadow://new" || (!!override && url === this.sapphire.displayUrl(override.url));
+    searchInput.value = newTab || url === "shadow://home" || url.startsWith("blob:") ? "" : url;
     document.getElementById("uv-form").classList.toggle("private", !!tab.private);
+    // The page info chip, as in Chrome: tune icon on websites, "Not secure" on plain http, an info
+    // icon on Shadow's own pages and a plain search icon (not clickable) on the new tab page.
+    const site = document.getElementById("site-button");
+    if (site) {
+      const kind = !searchInput.value ? "search" : /^http:/i.test(url) ? "insecure" : /^https:/i.test(url) ? "secure" : "internal";
+      site.dataset.kind = kind;
+      site.disabled = kind === "search";
+    }
     window.bookmarksManager?.updateStar(url);
   }
 

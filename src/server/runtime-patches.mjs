@@ -15,6 +15,18 @@ const PATCHES = {
       'const e=r.natives.call("Document.prototype.querySelector",r.global.document,"base");',
       'const h=r.descriptors.get("Document.prototype.head",r.global.document),e=h?r.natives.call("Element.prototype.querySelector",h,"base"):null;',
     ],
+    // Its localStorage/sessionStorage proxy read every unknown property as a stored item, so methods
+    // a site or extension adds to Storage.prototype (Momentum's getObject) came back null. Like the
+    // real Storage, the prototype wins.
+    [
+      'default:if(r in Object.prototype||"symbol"==typeof r)return(0,i.rF)(t,r);',
+      'default:if(r in Object.prototype||"symbol"==typeof r||r in Object.getPrototypeOf(t))return(0,i.rF)(t,r);',
+    ],
+    // And key(n) returned the n-th item's value instead of its name, so loops over the keys broke.
+    [
+      'case"key":return r=>{let n=(0,i.BR)(t).filter(t=>t.startsWith(e.url.host));return t.getItem(n[r])};',
+      'case"key":return r=>{let n=(0,i.BR)(t).filter(t=>t.startsWith(e.url.host+"@"));return n[r]?.slice(e.url.host.length+1)??null};',
+    ],
   ],
 };
 

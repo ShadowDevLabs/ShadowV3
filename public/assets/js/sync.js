@@ -20,7 +20,7 @@ const settings = new SettingsManager();
 const SYNCED = [
   "theme", "custom", "theme-css",
   "search-engine", "search-suggestions", "search-suggestions-engine",
-  "history", "save-tabs", "bookmarks-bar", "vertical-tabs", "force-dark", "translate-lang",
+  "history", "save-tabs", "bookmarks-bar", "vertical-tabs", "force-dark",
   "downloads-autosave", "mask-text", "history-group-by-site", "reader",
   "bookmarks", "shortcuts", "workspaces", "site-settings",
 ];

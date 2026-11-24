@@ -55,6 +55,56 @@ body > .desc {
 
 #site-button {
   margin-right: 6px;
+  gap: 4px;
+  font: inherit;
+  transition: background-color 0.12s var(--ease), opacity 0.12s var(--ease);
+}
+
+#site-button > * {
+  display: none;
+}
+
+#site-button:not([data-kind]) .i-secure,
+#site-button[data-kind="secure"] .i-secure,
+#site-button[data-kind="search"] .i-search,
+#site-button[data-kind="internal"] .i-info,
+#site-button[data-kind="insecure"] .i-warn {
+  display: block;
+}
+
+#site-button:active:not(:disabled) {
+  background: var(--surface-strong);
+}
+
+#site-button:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+#site-button:disabled {
+  cursor: default;
+  opacity: 0.6;
+  background: transparent;
+}
+
+/* Plain http: a chip with the label, like Chrome's "Not secure". */
+#site-button[data-kind="insecure"] {
+  width: auto;
+  padding: 0 9px 0 5px;
+  border-radius: 13px;
+  background: var(--surface);
+}
+
+#site-button[data-kind="insecure"] .omni-label {
+  display: inline;
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+#site-button[data-kind="insecure"]:hover {
+  background: var(--surface-hover);
 }
 
 #bookmark-star {
@@ -889,4 +939,17 @@ body.offline #header::after {
 
 .list-page .download-list.page .download-item:first-child {
   border-top: 0;
+}
+
+/* Narrow windows: the "Not secure" chip keeps only its icon, as Chrome's does. */
+@media (max-width: 600px) {
+  #site-button[data-kind="insecure"] {
+    width: 26px;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  #site-button[data-kind="insecure"] .omni-label {
+    display: none;
+  }
 }

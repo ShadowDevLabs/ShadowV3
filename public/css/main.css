@@ -97,16 +97,24 @@ h1 {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), var(--ring);
 }
 
+/* The form fills the bar, and typed text stops short of the search icon. */
+.search-container form {
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+}
+
 .search-container input {
   border: none;
   outline: none;
-  width: 235%;
-  flex: 1;
+  width: 100%;
+  min-width: 0;
   font-size: 16px;
   font-weight: 400;
   color: var(--text);
   background: transparent;
-  padding: 0 24px;
+  padding: 0 60px 0 24px;
   transition: all 0.3s ease;
   letter-spacing: -0.01em;
 }

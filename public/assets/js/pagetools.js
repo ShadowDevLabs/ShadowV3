@@ -1,9 +1,9 @@
-// Page tools for the browser shell: reader mode, translate, screenshot / clip,
+// Page tools for the browser shell: reader mode, screenshot / clip,
 // media controls (picture-in-picture, save video), forced dark mode, and the
 // right-click menu for proxied pages. tabs.js wires the shortcuts and hooks;
 // everything here works on the active tab's document, which is same-origin
 // with the shell because every proxied page is served from Shadow's origin.
-import { showMenu, toast, dialog, h } from "/assets/js/ui.js";
+import { showMenu, toast, h } from "/assets/js/ui.js";
 import { filenameFor } from "/assets/js/downloads.js";
 
 const activeTab = (tabs) => tabs.tabsArr[tabs.activeTabIndex];
@@ -271,54 +271,6 @@ export async function toggleReader(tabs) {
 /** tabs.js calls this when a tab navigates, closes or loses focus. */
 export function readerTabChanged(tab) {
   if (readerEl && (!tab || tab === readerTab)) closeReader();
-}
-
-// ================================================================= translate
-
-const LANGUAGES = [
-  ["en", "English"], ["es", "Spanish"], ["fr", "French"], ["de", "German"], ["it", "Italian"], ["pt", "Portuguese"],
-  ["nl", "Dutch"], ["pl", "Polish"], ["ru", "Russian"], ["uk", "Ukrainian"], ["tr", "Turkish"], ["ar", "Arabic"],
-  ["he", "Hebrew"], ["hi", "Hindi"], ["bn", "Bengali"], ["ur", "Urdu"], ["id", "Indonesian"], ["vi", "Vietnamese"],
-  ["th", "Thai"], ["zh-CN", "Chinese (Simplified)"], ["zh-TW", "Chinese (Traditional)"], ["ja", "Japanese"],
-  ["ko", "Korean"], ["tl", "Filipino"], ["sw", "Swahili"], ["el", "Greek"], ["sv", "Swedish"], ["ro", "Romanian"],
-];
-
-export async function translatePage(tabs, { ask = false } = {}) {
-  const tab = activeTab(tabs);
-  const url = tab ? tabs.currentUrl(tab) : "";
-  if (!/^https?:/i.test(url)) return toast("Only websites can be translated.", { timeout: 2500 });
-  // Already a translated copy: go back to the original.
-  try {
-    const parsed = new URL(url);
-    if (parsed.hostname === "translate.google.com" && parsed.searchParams.get("u")) return tabs.load(parsed.searchParams.get("u"));
-    if (parsed.hostname.endsWith(".translate.goog")) {
-      const host = parsed.hostname.slice(0, -".translate.goog".length).replace(/--/g, "\u0000").replace(/-/g, ".").replace(/\u0000/g, "-");
-      for (const key of [...parsed.searchParams.keys()]) if (key.startsWith("_x_tr_")) parsed.searchParams.delete(key);
-      return tabs.load(`https://${host}${parsed.pathname}${parsed.search}${parsed.hash}`);
-    }
-  } catch {}
-
-  let lang = await tabs.settings.get("translate-lang");
-  if (!lang || ask) {
-    const guess = navigator.language?.split("-")[0] || "en";
-    const result = await dialog({
-      title: "Translate this page",
-      message: "The page is reloaded through Google Translate. Run Translate again to go back to the original.",
-      confirm: "Translate",
-      fields: [
-        {
-          name: "lang",
-          label: "Translate to",
-          value: lang || (LANGUAGES.some(([code]) => code === guess) ? guess : "en"),
-          options: LANGUAGES.map(([value, label]) => ({ value, label })),
-        },
-      ],
-    });
-    if (!result) return;
-    lang = result.lang;
-    tabs.settings.set("translate-lang", lang);
-  }
-  tabs.load(`https://translate.google.com/translate?sl=auto&tl=${encodeURIComponent(lang)}&u=${encodeURIComponent(url)}`);
 }
 
 // ================================================================= screenshot
@@ -602,14 +554,21 @@ export function refreshTabDarkMode(tabs, tab) {
 
 // ================================================================= page menu
 
-function translateToShell(win, x, y) {
+// Scramjet hides frameElement (and parent) from a proxied page's top document, so the walk can't
+// rely on them there: the tab's own iframe is known, and nested frames are found in their parent.
+function translateToShell(tab, win, x, y) {
   try {
     let current = win;
-    while (current && current.frameElement) {
-      const rect = current.frameElement.getBoundingClientRect();
-      x += rect.left;
-      y += rect.top;
-      current = current.parent === current ? null : current.parent;
+    while (current && current !== window) {
+      const host =
+        current === tab.iframe.contentWindow
+          ? tab.iframe
+          : (current.frameElement ?? [...current.parent.document.querySelectorAll("iframe, frame")].find((f) => f.contentWindow === current));
+      if (!host) break;
+      const rect = host.getBoundingClientRect();
+      x += rect.left + host.clientLeft;
+      y += rect.top + host.clientTop;
+      current = host.ownerDocument.defaultView;
     }
   } catch {}
   return { x, y };
@@ -732,18 +691,29 @@ export function showPageMenu(tabs, tab, win, event, extensionItems = []) {
       { label: "Bookmark this page", onclick: () => window.bookmarksManager?.toggleCurrent() },
       { label: "Save page as…", onclick: () => savePage(tabs, tab) },
       { label: "Reader mode", onclick: () => toggleReader(tabs) },
-      { label: "Translate page", onclick: () => translatePage(tabs, { ask: true }) },
       { label: "Take screenshot", onclick: () => screenshot(tabs) },
       { separator: true },
     );
   }
   if (extensionItems.length) items.push(...extensionItems, { separator: true });
+  // The page as a real browser tab of its own, still through the proxy: for sites that refuse to
+  // work inside a frame (sign-in pages that must be "opened directly").
+  const proxiedHref = (() => {
+    try {
+      return /^https?:/i.test(tabs.currentUrl(tab)) ? tab.iframe.contentWindow.location.href : "";
+    } catch {
+      return "";
+    }
+  })();
   items.push(
     { label: "Copy page address", onclick: () => copy(tabs.currentUrl(tab), "Address") },
+    { label: "Open in new browser tab", disabled: !proxiedHref, onclick: () => window.open(proxiedHref, "_blank") },
     { label: "Inspect (devtools)", onclick: () => tabs.toggleDevTools(index()) },
+    { separator: true },
+    { label: "Close tab", onclick: () => tabs.closeTab(index()) },
   );
 
-  const { x, y } = translateToShell(win, event.clientX, event.clientY);
+  const { x, y } = translateToShell(tab, win, event.clientX, event.clientY);
   showMenu(x, y, items);
 }
 
@@ -763,7 +733,6 @@ export function toolsMenuItems(tabs) {
   return [
     { label: "Find in page", shortcut: "Alt+F", onclick: () => tabs.openFind() },
     { label: "Reader mode", shortcut: "Alt+Shift+R", checked: readerIsOpen(), onclick: () => toggleReader(tabs) },
-    { label: "Translate page…", disabled: !web, onclick: () => translatePage(tabs, { ask: true }) },
     { label: "Take screenshot", shortcut: "Alt+Shift+S", onclick: () => screenshot(tabs) },
     { label: "Save page as…", disabled: !web, onclick: () => savePage(tabs) },
     { separator: true },

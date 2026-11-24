@@ -57,7 +57,6 @@ function actionsFor(tabs) {
     { label: tabs.split ? "Exit split view" : "Split view", hint: "Alt+S", run: () => tabs.toggleSplit() },
     { label: tabs.verticalTabs ? "Horizontal tabs" : "Vertical tabs", hint: "Alt+V", run: () => tabs.setVerticalTabs(!tabs.verticalTabs) },
     { label: "Reader mode", hint: "Alt+Shift+R", run: () => import("/assets/js/pagetools.js").then((m) => m.toggleReader(tabs)) },
-    { label: "Translate page", run: () => import("/assets/js/pagetools.js").then((m) => m.translatePage(tabs, { ask: true })) },
     { label: "Take screenshot", hint: "Alt+Shift+S", run: () => import("/assets/js/pagetools.js").then((m) => m.screenshot(tabs)) },
     { label: "Picture in picture", run: () => import("/assets/js/pagetools.js").then((m) => m.togglePictureInPicture(tabs)) },
     { label: "Download this video", run: () => import("/assets/js/pagetools.js").then((m) => m.downloadVideo(tabs)) },

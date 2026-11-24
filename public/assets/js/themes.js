@@ -22,7 +22,7 @@ function clearRootVars(variableKeys) {
 }
 
 // Themes that were removed: anyone still on one (saved or synced) gets the default look and card.
-const RETIRED_THEMES = ["redsunset", "kayspink", "operagx", "golden"];
+const RETIRED_THEMES = ["redsunset", "kayspink", "operagx", "golden", "gta6"];
 
 export async function setTheme(theme) {
   if (RETIRED_THEMES.includes(theme)) theme = "default";

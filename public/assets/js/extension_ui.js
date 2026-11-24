@@ -159,30 +159,31 @@ export class ExtensionUI {
   // ---------------------------------------------------------------- host prompts
 
   /** An extension context-menu request as showMenu() items. */
+  /** One row per extension (icon, name, arrow) whose items open beside it, so they never crowd the page menu. */
   menuItems(request) {
-    const items = [];
-    const add = (entry, depth) => {
-      if (entry.type === "separator") return items.push({ separator: true });
-      if (entry.children?.length) {
-        items.push({ header: true, label: entry.title });
-        for (const child of entry.children) add(child, depth + 1);
-        return;
-      }
-      items.push({
+    const toItem = (entry) => {
+      if (entry.type === "separator") return { separator: true };
+      if (entry.children?.length) return { label: entry.title, disabled: entry.enabled === false, submenu: entry.children.map(toItem) };
+      return {
         label: entry.title,
-        indent: depth,
         disabled: entry.enabled === false,
         checked: entry.type === "checkbox" || entry.type === "radio" ? !!entry.checked : undefined,
         onclick: () => request.select(entry),
-      });
+      };
     };
+    const byExtension = new Map();
     for (const entry of request.items) {
-      items.push({ header: true, label: entry.extName });
+      const group = byExtension.get(entry.extId) ?? { name: entry.extName, entries: [] };
       // Sapphire groups an extension's top-level items under a synthetic root.
-      if (String(entry.id).startsWith("__sapphire_root_")) for (const child of entry.children) add(child, 0);
-      else add(entry, 0);
+      if (String(entry.id).startsWith("__sapphire_root_")) group.entries.push(...entry.children);
+      else group.entries.push(entry);
+      byExtension.set(entry.extId, group);
     }
-    return items;
+    return [...byExtension].map(([extId, { name, entries }]) => ({
+      label: name,
+      badge: this.summary(extId)?.iconUrl || "/assets/imgs/icons/default-extension.png",
+      submenu: entries.map(toItem),
+    }));
   }
 
   showContextMenu(request) {

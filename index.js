@@ -53,7 +53,7 @@ app.set("trust proxy", "loopback");
 // gzip/brotli for text responses (scripts, styles, pages, JSON, wasm): the shell's
 // JavaScript and the Scramjet runtime go out at roughly a quarter of their size.
 app.use(compression());
-// npm run dev (dev.js): no caching, live reload. Before every route, so its handlers win.
+// npm run dev (dev.js): no caching. Before every route, so its handlers win.
 if (process.env.SHADOW_DEV === "1") installDev(app, publicPath);
 
 /**

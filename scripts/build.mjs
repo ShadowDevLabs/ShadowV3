@@ -28,45 +28,54 @@ export const outputs = [
   join(outDir, "markdown.js"),
 ];
 
-// --- The one patch we apply to a dependency -----------------------------------
-// Sapphire 0.1.4 recovers real URLs from proxied ones in unproxyUrl()
-// (src/frames.ts) with a regex that only matches Scramjet's default
-// encodeURIComponent codec. Shadow uses an XOR codec so hostnames don't sit in
-// the address bar in plain text, and with it MV3 extension service workers
-// can't importScripts() their own files. The patch below adds a fallback to
-// globalThis.__shadowUnproxy (defined in public/assets/js/tabs.js, where the
-// codec lives). It is applied in memory while bundling; node_modules is not
-// modified. If Sapphire changes that function the build fails loudly instead of
-// shipping a silently broken bundle — re-check the patch, or drop it if upstream
-// has learned about custom codecs.
-const UNPROXY_ORIGINAL = "if (!m) return ref;";
-const UNPROXY_PATCHED =
-  'if (!m) { try { const fn = globalThis.__shadowUnproxy; if (typeof fn === "function") return fn(ref); } catch {} return ref; }';
-
+// --- Patches to a dependency ------------------------------------------------
+// Applied in memory to Sapphire's src/frames.ts while bundling; node_modules is not modified.
+// Each "from" must appear exactly once: if Sapphire changes it, the build fails loudly instead of
+// shipping a silently broken bundle. Re-check the patch then, or drop it if upstream fixed it.
+const SAPPHIRE_PATCHES = [
+  // unproxyUrl() recovers real URLs from proxied ones with a regex that only matches Scramjet's
+  // default encodeURIComponent codec. Shadow uses an XOR codec so hostnames don't sit in the
+  // address bar in plain text, and with it MV3 extension service workers can't importScripts()
+  // their own files. Fall back to globalThis.__shadowUnproxy (public/assets/js/tabs.js, where the
+  // codec lives).
+  [
+    "if (!m) return ref;",
+    'if (!m) { try { const fn = globalThis.__shadowUnproxy; if (typeof fn === "function") return fn(ref); } catch {} return ref; }',
+  ],
+  // A message from an extension page to its service worker arrived with event.source null. In
+  // Chrome it is always the sending Client, and workers answer with event.source.postMessage()
+  // (Momentum's does for every message, so it threw on each one). Give it a Client that replies
+  // through the page's navigator.serviceWorker, like a real one, and the waitUntil() of a worker's
+  // ExtendableMessageEvent.
+  [
+    'const event = new bgWin.MessageEvent("message", { data: message, ports, origin: extensionUrl(ext.id, "").slice(0, -1) });',
+    'const event = new bgWin.MessageEvent("message", { data: message, ports, origin: extensionUrl(ext.id, "").slice(0, -1) });' +
+      " Object.defineProperty(event, \"waitUntil\", { value: () => {} });" +
+      " Object.defineProperty(event, \"source\", { value: { id: String(ctx.id), url: ctx.url, type: \"window\", frameType: \"top-level\", focused: true, visibilityState: \"visible\"," +
+      " postMessage: (data: unknown, t?: Transferable[] | { transfer?: Transferable[] }) => { const reply = new win.MessageEvent(\"message\", { data, ports: (Array.isArray(t) ? t : (t?.transfer ?? [])) as MessagePort[], origin: extensionUrl(ext.id, \"\").slice(0, -1) });" +
+      " setTimeout(() => { target.dispatchEvent(reply); const h = container.onmessage; if (typeof h === \"function\") (h as (e: Event) => void).call(container, reply); }, 0); } } });",
+  ],
+];
 function sapphirePatch(sapphireRoot) {
   const target = join(sapphireRoot, "src", "frames.ts");
   return {
-    name: "shadow-sapphire-codec-patch",
+    name: "shadow-sapphire-patches",
     setup(b) {
       let applied = false;
       b.onLoad({ filter: /[\\/]frames\.ts$/ }, async (args) => {
         if (args.path !== target) return undefined;
-        const source = await readFile(args.path, "utf8");
-        const start = source.indexOf("export function unproxyUrl(");
-        const at = start === -1 ? -1 : source.indexOf(UNPROXY_ORIGINAL, start);
-        if (at === -1 || at - start > 200) {
-          throw new Error(
-            "Sapphire's unproxyUrl() no longer looks the way scripts/build.mjs expects; update or remove the codec patch.",
-          );
+        let source = await readFile(args.path, "utf8");
+        for (const [from, to] of SAPPHIRE_PATCHES) {
+          if (source.split(from).length !== 2) {
+            throw new Error(`Sapphire's src/frames.ts no longer looks the way scripts/build.mjs expects; update or remove this patch: ${from}`);
+          }
+          source = source.replace(from, () => to);
         }
         applied = true;
-        return {
-          contents: source.slice(0, at) + UNPROXY_PATCHED + source.slice(at + UNPROXY_ORIGINAL.length),
-          loader: "ts",
-        };
+        return { contents: source, loader: "ts" };
       });
       b.onEnd(() => {
-        if (!applied) throw new Error("The Sapphire codec patch was never applied (src/frames.ts not bundled?).");
+        if (!applied) throw new Error("The Sapphire patches were never applied (src/frames.ts not bundled?).");
       });
     },
   };

@@ -121,6 +121,8 @@ function menuKey(e) {
  * @property {string} [label]
  * @property {string} [icon] Material Symbols path data, shown before the label
  * @property {string} [image] URL of a small image shown before the label (favicons)
+ * @property {string} [badge] URL of a small image inside the row, before its label, that
+ *   doesn't give the menu's other rows a leading slot (an extension's row in the page menu)
  * @property {string} [dot] a CSS colour, shown as a small disc before the label (tab groups)
  * @property {string} [shortcut] keyboard hint shown at the right edge
  * @property {boolean} [checked] shows a check mark (or an empty slot) before the label
@@ -160,7 +162,7 @@ function buildMenu(items, depth) {
     else if (item.icon) lead.append(svgIcon(item.icon));
     else if (item.image) lead.append(h("img", { src: item.image, alt: "", onerror: (e) => e.target.remove() }));
     else if (item.dot) lead.append(h("span", { class: "shadow-menu-dot", style: { background: item.dot } }));
-    const row = h("div", { class: "shadow-menu-item", role: "menuitem", title: item.title }, lead, h("span", { class: "shadow-menu-label" }, item.label ?? ""));
+    const row = h("div", { class: "shadow-menu-item", role: "menuitem", title: item.title }, lead, h("span", { class: "shadow-menu-label" }, item.badge && h("img", { class: "shadow-menu-badge", src: item.badge, alt: "", onerror: (e) => e.target.remove() }), item.label ?? ""));
     if (item.indent) row.style.paddingLeft = `${10 + item.indent * 14}px`;
 
     if (item.controls) {

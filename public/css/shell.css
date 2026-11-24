@@ -403,6 +403,16 @@ body.vertical-tabs .tab.grouped {
   text-overflow: ellipsis;
 }
 
+.shadow-menu-badge {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  vertical-align: -3px;
+  border-radius: 3px;
+  object-fit: contain;
+}
+
 .shadow-menu-hint {
   flex: 0 0 auto;
   margin-left: 18px;
@@ -593,6 +603,21 @@ body.immersive #iframes-container > iframe { border: 0 !important; border-radius
   outline: none;
 }
 #cmd-list { overflow-y: auto; padding: 6px; }
+/* A slim inset thumb that clears the box's rounded corners; accent while hovered or dragged. */
+#cmd-list::-webkit-scrollbar { width: 12px; }
+#cmd-list::-webkit-scrollbar-track { background: transparent; margin: 8px 0; }
+#cmd-list::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border: 4px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+  min-height: 32px;
+}
+#cmd-list::-webkit-scrollbar-thumb:hover,
+#cmd-list::-webkit-scrollbar-thumb:active { background-color: color-mix(in srgb, var(--accent) 70%, transparent); }
+@supports not selector(::-webkit-scrollbar) {
+  #cmd-list { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+}
 .cmd-item {
   display: flex;
   align-items: center;

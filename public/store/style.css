@@ -57,7 +57,7 @@ svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; s
 }
 .brand-name { font-size: 16px; font-weight: 600; }
 .search-wrap {
-  flex: 1; max-width: 560px; display: flex; align-items: center; gap: 10px;
+  flex: 1; min-width: 0; max-width: 560px; display: flex; align-items: center; gap: 10px;
   height: 40px; padding: 0 14px; border-radius: var(--r); cursor: text;
   background: var(--surface); border: 1px solid var(--line-strong); color: var(--muted);
   transition: border-color .15s var(--ease), box-shadow .15s var(--ease);
@@ -173,5 +173,5 @@ svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; s
   .topbar { gap: 12px; padding: 0 14px; }
   .brand-name, .top-actions .btn span { display: none; }
   .content { padding: 20px 14px 48px; }
-  .grid, .featured-row { grid-template-columns: 1fr; }
+  .grid, .featured-row { grid-template-columns: minmax(0, 1fr); }
 }
