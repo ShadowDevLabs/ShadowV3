@@ -1,9 +1,6 @@
 // Install-as-app support and the offline indicator.
 //
-// The manifest (/manifest.webmanifest) plus the service worker make Shadow
-// installable. Browsers that support it fire `beforeinstallprompt`; we keep the
-// event and offer it from the toolbar menu ("Install Shadow") and the palette.
-import { toast } from "/assets/js/ui.js";
+// We keep the `beforeinstallprompt` event and offer it from the toolbar menu and the palette.
 
 let installEvent = null;
 const row = document.getElementById("install-row");

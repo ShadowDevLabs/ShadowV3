@@ -1,10 +1,6 @@
-// Font cipher: the pages' text is served, and kept by a script in the page, as Coptic letters
-// (a->ⲭ, A->Ⲭ, ...) instead of Latin ones. Each web font the pages load is served again under
-// its own name with those Coptic code points added to its character map, pointing at the real
-// letters' glyphs. People see the real text; anything reading the HTML or the live DOM
-// (scrapers, filters, Inspect Element, copy/paste, screen readers) gets Coptic.
-// Only the character map grows: glyphs, kerning and ligatures are keyed by glyph, and every
-// original code point still maps as before, so typed text and untouched text look the same.
+// Font cipher: page text is served as Coptic letters (a->ⲭ, A->Ⲭ, ...). Each web font is re-served
+// under its own name with Coptic code points mapped to the real glyphs. People see normal text; scrapers,
+// filters and copy/paste get Coptic. Only the character map grows.
 
 import { readFileSync } from "node:fs";
 
@@ -37,9 +33,8 @@ const LOWER = "abcdefghijklmnopqrstuvwxyz", DIGITS = "0123456789";
 const COPTIC = 0x2c80; // 50 case pairs: U+2C80 Ⲁ / U+2C81 ⲁ, U+2C82 / U+2C83, …
 
 /**
- * Real character -> the Coptic character it's served as. Each letter gets its own Coptic case
- * pair, picked by the seed, so CSS text-transform on served text still lands on the right
- * case. Digits get a pair too (both cases draw the digit). `random(label)` is 32 bits.
+ * Real character -> the Coptic one it's served as. Each letter gets a seeded case pair so
+ * text-transform still works; digits too. `random(label)` is 32 bits.
  */
 export function cipherTable(random) {
   const pairs = [...Array(50).keys()];
@@ -121,7 +116,7 @@ const checksum = (buf, at, length) => {
   return sum;
 };
 
-/** The TrueType font with table's code points added: table[c] (and, for a digit, its upper case) draws c's glyph. */
+/** The font with `table`'s code points added, drawing the glyphs of the characters they stand for. */
 export function cipherFont(font, table) {
   const count = font.readUInt16BE(4), tables = [];
   for (let i = 0; i < count; i++) {
@@ -164,10 +159,8 @@ const htmlToken = /<!--[\s\S]*?-->|<(script|style|textarea|title|select|svg|math
 const ascii = (value) => JSON.stringify(value).replace(/[^\x20-\x7e]/g, (c) => "\\u" + c.charCodeAt(0).toString(16).padStart(4, "0"));
 
 /**
- * The in-page half. It keeps every text node drawn in a ciphered font swapped, including text
- * that scripts add or change later (a MutationObserver runs before the next paint), and swaps
- * back text whose font isn't ciphered (monospace, system and icon fonts, italics), which the
- * server can't tell apart. One getComputedStyle per parent element per batch of changes.
+ * The in-page half. Keeps text in ciphered fonts swapped (including text added later, via
+ * MutationObserver) and swaps back text in fonts we don't cipher (monospace, icons, italics).
  */
 const client = (encode, decode, families) => `(()=>{
 const E=${ascii(encode)},D=${ascii(decode)},F=new Set(${ascii(families)});
@@ -188,9 +181,8 @@ document.addEventListener("DOMContentLoaded",()=>{m=new Map;walk(document.body)}
 })()`;
 
 /**
- * `table` from cipherTable. Returns the ciphered fonts (key -> TTF), the client script, and a
- * function that swaps a page's text and adds the fonts and the script, given each font key's
- * URL and the text of the page's stylesheets (for their @import of Google Fonts).
+ * Takes `table` from cipherTable. Returns the ciphered fonts (key -> TTF), the client script, and a
+ * function that swaps a page's text and adds both, given each font's URL and the page's CSS.
  */
 export function createFontCipher(table) {
   const fonts = new Map();
@@ -212,8 +204,7 @@ export function createFontCipher(table) {
     let out = "";
     htmlToken.lastIndex = 0;
     for (let m; (m = htmlToken.exec(html)); ) out += m[0][0] === "<" ? m[0] : encode(m[0]);
-    // Declared after the page's Google Fonts, under the same names and weights, so these faces
-    // win for every character and weights fall back exactly as before.
+    // Declared after the page's Google Fonts with the same names and weights, so these win.
     const faces = [...loaded].flatMap(([family, weights]) => weights.map((w) =>
       `@font-face{font-family:"${family}";src:url(${fontUrl(fontKey(family, w))}) format("truetype");font-weight:${w};font-display:block}`)).join("");
     const head = `<style>${faces}</style><script>${client(table, decode, [...loaded.keys()].map((f) => f.toLowerCase()))}</script>`;

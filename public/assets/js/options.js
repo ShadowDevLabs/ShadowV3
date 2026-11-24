@@ -67,9 +67,7 @@ function abtblank() {
 }
 
 function iframeabtblank() {
-  // Proxied pages are served by the Scramjet controller living in *this* page, so
-  // the encoded iframe URL dies as soon as we navigate away. Open a fresh Shadow
-  // inside the about:blank window instead, pointed straight at the tab's real URL.
+  // The proxied iframe URL dies once we navigate away, so open a fresh Shadow in the about:blank window at the real URL.
   const current = tabs.parseUrl();
   const url = `${location.origin}/?url=${encodeURIComponent(current)}`;
   const width = window.innerWidth;

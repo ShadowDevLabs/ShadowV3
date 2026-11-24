@@ -1,14 +1,12 @@
 // Cloud sync: settings, bookmarks, shortcuts, workspaces, site settings and the
 // list of open tabs, shared between a user's devices.
 //
-// The "account" is a sync code generated on the first device and typed into the
-// others. Everything is derived from it locally (PBKDF2): an account id and auth
-// token for the server, and an AES-GCM key that never leaves the browser — the
-// server (src/server/sync.js) stores one opaque blob per account.
+// The account is a sync code made on the first device and typed into the others. PBKDF2 turns it into
+// an account id and token for the server, and an AES-GCM key that stays in the browser (src/server/sync.js
+// stores one opaque blob per account).
 //
-// Merging is deliberately simple: each device remembers which keys it changed
-// since its last sync. On pull, the remote copy wins except for those keys; on
-// push, a stale write is rejected by the server (409) and retried after a pull.
+// Merging is simple: each device tracks keys it changed since its last sync. Pulls let remote win except
+// for those; a stale push gets a 409 and retries after a pull.
 import { SettingsManager } from "/assets/js/settings_manager.js";
 import { toast } from "/assets/js/ui.js";
 

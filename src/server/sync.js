@@ -1,22 +1,17 @@
 // Cloud sync storage: the "tiny account layer".
 //
-// The server never sees anything readable. A browser derives three things from
-// its sync code (see public/assets/js/sync.js): an account id, an auth token and
-// an encryption key. Only the first two ever leave the device:
+// The server never sees anything readable. A sync code gives the browser an account id, auth token and
+// encryption key (see public/assets/js/sync.js); only the first two leave the device.
 //
 //   GET    /v1/api/sync/:id   -> { version, updatedAt, data }      (404 if none)
 //   PUT    /v1/api/sync/:id   <- { data, baseVersion }              -> { version }
 //                                409 + the current record if baseVersion is stale
 //   DELETE /v1/api/sync/:id
 //
-// all with `Authorization: Bearer <token>`. `data` is an opaque AES-GCM blob. The
-// first PUT for an id claims it; after that the token has to match (its SHA-256
-// is what's stored, so neither the files nor the access logs contain a usable
-// credential).
+// All need `Authorization: Bearer <token>`. `data` is an opaque AES-GCM blob. The first PUT claims the id;
+// after that the token must match (only its SHA-256 is stored).
 //
-// One JSON file per account under SYNC_DIR (default ./data/sync). With several
-// app servers behind one name, point SYNC_DIR at shared storage. Environment:
-//   SYNC_DISABLED=1          turn the endpoints off (they answer 503)
+// One JSON file per account in SYNC_DIR (default ./data/sync), shareable across servers. Environment:
 //   SYNC_DIR=/path           where records live
 //   SYNC_MAX_ACCOUNTS=20000  refuse new accounts past this many
 //   SYNC_MAX_BYTES=65536     largest accepted blob
@@ -68,8 +63,7 @@ export function syncRouter({
     await fs.rename(tmp, fileFor(id));
   }
 
-  // Writes to one account never interleave, also between worker processes (SHADOW_WORKERS):
-  // the lock is a file that only one process can create.
+  // Per-account lock (a file only one process can create), so writes never interleave across workers.
   async function withLock(id, run) {
     const lock = `${fileFor(id)}.lock`;
     for (let waited = 0; ; waited += 20) {

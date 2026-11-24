@@ -1,8 +1,7 @@
 // Workspaces: named sets of tabs that can be saved and brought back later.
 //
-// A workspace is just [{url, pinned}] under a name, stored with the other
-// settings (so it syncs). Opening one either adds its tabs to the window or
-// swaps the current tabs out for it.
+// A workspace is [{url, pinned}] under a name, stored with the other settings (so it syncs).
+// Opening one adds its tabs or replaces the current ones.
 import { showPopover, hidePopover, promptDialog, confirmDialog, toast, h } from "/assets/js/ui.js";
 
 const KEY = "workspaces";

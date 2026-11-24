@@ -1,17 +1,10 @@
 // Which tabs are making sound, and muting them.
 //
-// There is no browser API for "is this iframe audible" or "mute this iframe", so
-// each proxied document is watched from the inside (tabs.js calls watchAudio()
-// from onDocument, before any of the page's own scripts run):
+// Browsers can't report or mute iframe audio, so tabs.js calls watchAudio() to watch each document from inside.
 //
-//   <audio>/<video>   media events are caught at the document, and play() is
-//                     wrapped so elements that never join the DOM (new Audio())
-//                     are seen too. Muting sets .muted on them.
-//   Web Audio         connections to a context's destination are routed through
-//                     a gain node of ours: that's the mute switch, and an
-//                     analyser beside it says whether anything is coming out.
-//
-// Everything here is best effort and wrapped so a page never breaks over it.
+//   <audio>/<video>   events caught at the document, play() wrapped to catch detached elements. Muting sets .muted.
+//   Web Audio         routed through our gain node (mute) and an analyser (is it audible).
+// Best effort; never break the page.
 
 const MEDIA_EVENTS = ["play", "playing", "pause", "ended", "emptied", "volumechange", "loadeddata"];
 // How long a Web Audio context counts as audible after the last sound seen.

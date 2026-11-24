@@ -23,9 +23,8 @@ const SKIP_TAGS = new Set(SKIP_ELEMENTS.split(","));
 const skipped = (el) => SKIP_TAGS.has(el.localName) || (el.hasAttribute("contenteditable") && el.getAttribute("contenteditable") !== "false");
 const HAS_SWAPPABLE = /[A-Za-z0-9]/;
 
-// Decoys: a few blocks of school-subject sentences per page, laid out but clipped to nothing.
-// A filter that reads the page's text (textContent or innerText) finds them; people don't see
-// them and screen readers skip them (aria-hidden). They are never masked.
+// Decoys: a few clipped, aria-hidden blocks of school-subject text per page, for filters that read
+// textContent/innerText. People and screen readers never see them. Never masked.
 const EDU = [
   "Photosynthesis converts light energy into chemical energy stored in glucose.",
   "The mitochondria produce most of the cell's supply of adenosine triphosphate.",

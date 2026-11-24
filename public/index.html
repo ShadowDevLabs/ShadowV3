@@ -209,9 +209,7 @@
   <script src="/assets/js/sync.js" type="module"></script>
   <script src="/assets/js/pwa.js" type="module"></script>
   <script>
-    // Right after an update the service worker can hand back last version's copy
-    // of a script for one load (it refreshes its cache in the background). If the
-    // shell didn't come up as this page expects, reload once to pick up the new files.
+    // After an update the service worker may serve one stale script load. If the shell didn't come up, reload once.
     window.addEventListener("load", () => {
       setTimeout(() => {
         const ok = window.tabs && typeof window.tabs.showMainMenu === "function" && window.bookmarksManager?.isBookmarked;

@@ -1,6 +1,5 @@
 // Per-site settings: zoom, user agent, JavaScript on/off and forced dark mode,
-// remembered per hostname. tabs.js applies them; this module owns the storage
-// and the little panel behind the "tune" button in the address bar.
+// remembered per hostname. tabs.js applies them; this owns the storage and the address-bar panel.
 import { showPopover, hidePopover, h, toast } from "/assets/js/ui.js";
 
 const KEY = "site-settings";

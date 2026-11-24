@@ -1,6 +1,5 @@
 // New tab page: the search box and the speed dial (customizable shortcuts).
-// Shortcuts are [{name, url, icon?}] under the "shortcuts" setting; they can be
-// added, edited, deleted and dragged into a different order.
+// Shortcuts are [{name, url, icon?}] under the "shortcuts" setting.
 const maxShortcuts = 24;
 const shortcutsContainer = document.querySelector(".shortcuts");
 const addShortcutButton = document.querySelector(".shortcut.add");

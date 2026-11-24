@@ -1,9 +1,7 @@
 // Tab groups: named, coloured, collapsible runs of neighbouring tabs.
 //
-// A group is {id, name, color, collapsed}; a tab belongs to one through
-// tab.groupId. Members always sit next to each other in the strip, with the
-// group's chip in front of the first one. tabs.js owns the tabs and calls in
-// here whenever the strip changes (render) or a tab lands somewhere new (settle).
+// A group is {id, name, color, collapsed}; tabs join via tab.groupId and sit together behind the group's chip.
+// tabs.js calls render() when the strip changes and settle() when a tab moves.
 import { showMenu, promptDialog, h, svgIcon } from "/assets/js/ui.js";
 
 export const GROUP_COLORS = [
@@ -21,7 +19,7 @@ const isColor = (value) => GROUP_COLORS.some(([, hex]) => hex === value);
 export class TabGroups {
   /**
    * @param {object} tabs the Tab instance
-   * @param {HTMLElement} strip the tab strip element
+   * @param {HTMLElement} strip the tab strip
    */
   constructor(tabs, strip) {
     this.tabs = tabs;
@@ -105,8 +103,7 @@ export class TabGroups {
   }
 
   /**
-   * Moves a whole group, as one block, next to `anchor` (a tab outside it).
-   * An anchor inside another group snaps to that group's edge, so groups never interleave.
+   * Moves a whole group next to `anchor`. An anchor inside another group snaps to its edge.
    */
   moveGroup(id, anchor, before) {
     const tabs = this.tabs;
@@ -166,8 +163,7 @@ export class TabGroups {
   }
 
   /**
-   * A tab was dropped or inserted somewhere: between two tabs of one group it
-   * joins that group; away from the rest of its own group it leaves it.
+   * A tab landed somewhere: between two tabs of a group it joins, away from its own group it leaves.
    */
   settle(tab) {
     const arr = this.tabs.tabsArr;
@@ -194,8 +190,7 @@ export class TabGroups {
   }
 
   /**
-   * Rebuilds groups for restored tabs. `saved[i]` is serialize()'s output for
-   * `tabList[i]` (or nothing).
+   * Rebuilds groups from serialize() output, one entry per restored tab.
    */
   restore(tabList, saved) {
     const byOldId = new Map();
@@ -216,8 +211,7 @@ export class TabGroups {
 
   render() {
     const arr = this.tabs.tabsArr;
-    // Safety net: a group is one unbroken run. Anything that breaks that (or
-    // points at a group that's gone) drops out of its group.
+    // Safety net: groups must be one unbroken run. Anything else drops out of its group.
     const finished = new Set();
     let previous = null;
     for (const tab of arr) {

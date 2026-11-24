@@ -1,7 +1,6 @@
-// Draws the new tab / home background off the page's main thread (see waves.js): big soft
-// glowing waves that slowly morph, in the theme's accent colours. Drawn on a canvas a tenth of
-// the screen size and stretched by CSS: the stretch is the blur, so each frame is only a few
-// thousand pixels. Capped at 30 fps; drawn once and left still with reduced motion.
+// Draws the new tab/home background off the main thread (see waves.js): soft glowing waves in the
+// theme's accent colours. Rendered at a tenth of the screen size and stretched by CSS, which doubles as
+// the blur. 30 fps cap; one still frame with reduced motion.
 const SCALE = 10, FRAME = 1000 / 30;
 let ctx, w, h, accent, light, still = false, paused = false, running = false, last = 0;
 

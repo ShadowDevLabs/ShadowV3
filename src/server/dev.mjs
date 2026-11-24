@@ -1,8 +1,7 @@
 // Development mode (npm run dev, via dev.js): no caching. Never loaded in production.
 //
-// - Every response is sent with no-store, so a manual reload always shows the files as they are.
-// - The service worker is served with DEV = true, which turns off its own file cache.
-// (Server files restart the process: node --watch. Pages are never reloaded for you.)
+// Responses are no-store and the service worker gets DEV = true (no file cache).
+// Server files restart via node --watch. Pages never reload by themselves.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 

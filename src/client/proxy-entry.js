@@ -1,24 +1,15 @@
 // Entry for public/dist/shadow-proxy.js (see scripts/build.mjs).
 //
-// Requires /scramjet/scramjet.js and /controller/controller.api.js to have been
-// loaded as classic scripts first: the two @mercuryworkshop imports below resolve
-// to stubs that re-export globalThis.$scramjet / $scramjetController.
+// Needs scramjet.js and controller.api.js loaded first as classic scripts; the imports below are stubs for their globals.
 import { Controller, ManagedPlugin } from "@mercuryworkshop/scramjet-controller";
 import { Sapphire } from "@x8r/sapphire";
 
 /**
- * One per tab frame. Gives tabs.js the two things Ultraviolet used to give it
- * through uv.config.js / the service worker:
- *   - onDocument(ctx): called for every document that finishes initialising in
- *     the frame (top level and subframes), so the tab strip / omnibox / history
- *     can update without polling the iframe.
- *   - getUserAgent(): custom user-agent override, applied to outgoing requests.
- *   - onNavigationResponse({url, destination, status, headers, body}): the raw
- *     response to a document navigation, before Scramjet rewrites it. Returning
- *     true means "I took the body" (a download): the navigation is then answered
- *     with 204 No Content, so the frame stays on the page it was showing.
- *   - onResponse({url, destination, status, headers}): every response after
- *     rewriting; `headers` is live, so response headers can be added here.
+ * One per tab frame. Hooks for tabs.js:
+ *   - onDocument(ctx): each document in the frame once initialised
+ *   - getUserAgent(): user-agent override
+ *   - onNavigationResponse(...): raw navigation response before rewriting. Return true if a download took it (frame gets a 204)
+ *   - onResponse(...): every response after rewriting; `headers` is live
  */
 export class ShadowPlugin extends ManagedPlugin {
   constructor(handlers = {}) {
@@ -38,9 +29,8 @@ export class ShadowPlugin extends ManagedPlugin {
       }
     });
 
-    // A Chromium bug crashes YouTube (STATUS_BREAKPOINT) when a proxied page runs a view
-    // transition, so every transition is finished at once. Scramjet's workaround until Chromium
-    // fixes it: https://github.com/MercuryWorkshop/scramjet/issues/222
+    // Chromium bug: view transitions crash YouTube, so finish them at once.
+    // https://github.com/MercuryWorkshop/scramjet/issues/222
     this.tap(frame.hooks.init.post, (ctx) => {
       const client = ctx?.client;
       client?.Proxy("Document.prototype.startViewTransition", {
@@ -48,9 +38,8 @@ export class ShadowPlugin extends ManagedPlugin {
           call.call()?.skipTransition(); // call() also hands the page its ViewTransition
         },
       });
-      // pushState/replaceState without a URL (or with null) keep the current one. Scramjet's own
-      // hook (which runs after this one) turns it into the path "undefined", so DuckDuckGo's
-      // "/?q=hi" showed as "/undefined" in the address bar and history. Pass the current URL instead.
+      // pushState/replaceState with no URL should keep the current one, but Scramjet's hook turns it into
+      // "/undefined" (seen on DuckDuckGo). Pass the current URL explicitly.
       client?.Proxy(["History.prototype.pushState", "History.prototype.replaceState"], {
         apply(call) {
           if (call.args[2] == null) call.args[2] = client.url.href;

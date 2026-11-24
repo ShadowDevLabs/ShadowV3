@@ -37,9 +37,7 @@ class HistoryHelper {
   }
 
   /**
-   * Adds a visit to the front of the list. Read and write happen in one
-   * transaction, so two tabs finishing a page load at the same moment can't
-   * overwrite each other's entry (and the list is only read once per visit).
+   * Adds a visit to the front of the list. Read and write share one transaction, so two tabs can't clobber each other.
    */
   async add(obj) {
     try {

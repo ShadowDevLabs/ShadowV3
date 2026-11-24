@@ -1,10 +1,7 @@
 // Browser-shell side of Chrome extension support.
 //
-// Sapphire (https://github.com/x8rr/sapphire) emulates the chrome.* APIs inside
-// Scramjet frames and runs the extensions' background pages, content scripts and
-// popups. This file is the part Sapphire leaves to the host: the toolbar icons,
-// the popup window, context menus, notifications, permission prompts and
-// installing packages. shadow://extensions talks to it through parent.tabs.extensions.
+// Sapphire emulates chrome.* and runs the extensions. This is the shell side: toolbar icons, popups,
+// context menus, notifications, permission prompts and installs. shadow://extensions uses parent.tabs.extensions.
 import { showMenu, toast } from "/assets/js/ui.js";
 
 const MAX_PACKAGE_BYTES = 64 * 1024 * 1024;
@@ -159,7 +156,7 @@ export class ExtensionUI {
   // ---------------------------------------------------------------- host prompts
 
   /** An extension context-menu request as showMenu() items. */
-  /** One row per extension (icon, name, arrow) whose items open beside it, so they never crowd the page menu. */
+  /** One row per extension, with its items in a submenu. */
   menuItems(request) {
     const toItem = (entry) => {
       if (entry.type === "separator") return { separator: true };

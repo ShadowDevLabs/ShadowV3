@@ -2,8 +2,7 @@
 // tabs.js owns the Tab instance and wires the shortcuts; this module owns the UI.
 
 // ----------------------------------------------------------------- fuzzy match
-// Subsequence scorer: every char of `q` must appear in order in `text`.
-// Rewards contiguous runs and word-boundary hits so "set" ranks Settings high.
+// Subsequence scorer: every char of `q` must appear in order. Contiguous runs and word starts score higher.
 function fuzzy(q, text) {
   if (!q) return 0;
   q = q.toLowerCase();

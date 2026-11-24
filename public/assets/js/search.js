@@ -9,8 +9,7 @@
  *   example.com/path         -> https://example.com/path
  *   anything else            -> the search engine template with %s filled in
  *
- * The result is a plain URL; encoding it for the proxy is tabs.js' job.
- *
+ * Encoding for the proxy is tabs.js' job.
  * @param {string} input
  * @param {string} template search URL containing %s
  * @returns {string}
@@ -23,9 +22,7 @@ function resolveInput(input, template) {
   if (/^chrome-extension:\/\//i.test(input)) return input;
   // A blob: this page created (a finished download opened in a tab).
   if (/^blob:/i.test(input)) return input;
-  // Site-absolute local path (e.g. /pages/embed/) — a Shadow page,
-  // not something to proxy or search for. "//" is protocol-relative, so exclude it.
-  // (Browsers read "/\\" as "//" too.)
+  // Local absolute path (/pages/embed/): a Shadow page. Exclude "//" and "/\\", which browsers read as protocol-relative.
   if (/^\/[^/\\]/.test(input)) return input;
 
   if (/^[a-z][a-z0-9+.-]*:\/\//i.test(input)) {

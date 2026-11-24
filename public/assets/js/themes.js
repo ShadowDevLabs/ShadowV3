@@ -70,9 +70,9 @@ export async function setTheme(theme) {
 }
 
 // ---------------------------------------------------------------- customizer
-// Layered on top of whichever theme is active (Settings → Themes → Wallpaper & CSS):
-//   theme-wallpaper  an image (URL or data: URL) behind Shadow's own pages
-//   theme-css        free-form CSS added to the shell and every internal page
+// Layered on the active theme (Settings → Themes → Wallpaper & CSS):
+//   theme-wallpaper  image (URL or data:) behind Shadow's pages
+//   theme-css        extra CSS for the shell and internal pages
 const isShell = window === window.top || !!document.getElementById("tabs-container");
 
 export async function applyCustomizations() {

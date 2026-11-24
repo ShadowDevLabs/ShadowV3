@@ -1,24 +1,13 @@
 // Per-site compatibility patches.
 //
-// Scramjet rewrites almost everything, but some sites still need a nudge: a bit
-// of CSS to undo a layout that assumes it owns the top frame, or a small script
-// to stub something the proxy can't provide. tabs.js calls applySitePatches()
-// once per top-level proxied document, matched by hostname.
+// CSS or script tweaks for sites that still break after Scramjet. tabs.js calls applySitePatches()
+// once per top-level proxied document.
 //
-// Two kinds of patch:
-//   - CSS patches live in /assets/data/site-patches.json so they can be added
-//     without touching code (and shipped/edited per deployment). Shape:
-//       [{ "match": "example.com", "css": "…", "note": "why" }]
-//   - JS patches live in JS_PATCHES below, because they need a function.
+//   - CSS: /assets/data/site-patches.json, [{ "match": "example.com", "css": "…", "note": "why" }]
+//   - JS: JS_PATCHES below
 //
-// `match` is a hostname rule: "example.com" (exact or any subdomain),
-// "*.example.com" (subdomains only), or "~substring" (hostname contains it).
-//
-// NOTE: the entries here are a small, deliberately-safe starting set. Real
-// per-site fixes have to be written and checked against the live site — this
-// build environment has no outside network, so anything beyond "it injects and
-// doesn't throw" is unverified. Each patch is wrapped in try/catch and is a
-// no-op when its target isn't present, so a stale patch can't break a page.
+// `match`: "example.com" (host or subdomain), "*.example.com" (subdomains only), "~text" (host contains it).
+// Patches are wrapped in try/catch and should do nothing when their target is missing.
 
 function hostMatches(rule, host) {
   if (!rule || !host) return false;
@@ -32,15 +21,7 @@ function hostMatches(rule, host) {
   return host === rule || host.endsWith("." + rule);
 }
 
-// Script patches. Each entry is { match, run(win, url), note }, where `run`
-// executes inside the proxied page's own realm. Set `all: true` instead of a
-// match to run on every page. Keep each tiny, guarded (wrap DOM access in your
-// own checks), and reversible — a patch must be a no-op when its target isn't
-// there, so a stale one can't break an unrelated page.
-//
-// Shipped empty on purpose: real script fixes have to be written against a live
-// site, which this build environment can't reach. The framework below loads and
-// runs whatever you add here. Template:
+// Script patches: { match, run(win, url), note }. `all: true` runs everywhere. Empty for now.
 //
 //   { match: "docs.google.com", note: "why",
 //     run(win) { const el = win.document.querySelector("…"); if (el) el.remove(); } },
@@ -71,8 +52,7 @@ function injectCss(win, css, key) {
 }
 
 /**
- * Apply every patch matching `url`'s hostname to the proxied window `win`.
- * Safe to call more than once per document; patches de-dupe themselves.
+ * Applies every patch matching `url`'s host to `win`. Safe to call twice.
  */
 export async function applySitePatches(win, url) {
   let host;

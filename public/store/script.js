@@ -1,7 +1,5 @@
-// shadow://store — a storefront over the extension runtime (extension_ui.js in
-// the top window). Catalog entries install from the Chrome Web Store through
-// /v1/api/crx/:id (or a self-hosted package); the "Add by URL / ID" box takes
-// anything the catalog doesn't list, so the whole Web Store is reachable.
+// shadow://store: a storefront over the extension runtime. Catalog entries install from the Web Store
+// via /v1/api/crx/:id; "Add by URL / ID" handles anything not listed.
 
 const $ = (id) => document.getElementById(id);
 
@@ -47,10 +45,8 @@ function setIcon(box, entry) {
 }
 
 // --- live sync with the Chrome Web Store -----------------------------------
-// Each catalog entry is enriched with the real name/icon/description from the
-// store (server-cached at /v1/api/ext-meta/:id). Cards show catalog data
-// instantly and upgrade in place as metadata arrives, lazily per visible card.
-const metaCache = new Map();
+// Catalog entries get the real name/icon/description from the store (cached server-side at
+// /v1/api/ext-meta/:id). Cards show catalog data first and upgrade in place as it arrives.
 async function fetchMeta(id) {
   if (metaCache.has(id)) return metaCache.get(id);
   const ssKey = `extmeta:${id}`;
@@ -78,9 +74,8 @@ function applyMeta(entry, meta) {
   if (meta.description) entry.description = meta.description;
 }
 
-// Fetch (cached by id) and apply live data. The same catalog object can back
-// several cards (featured + grid), so each card updates itself — the flag only
-// gates the network call, not the per-card DOM update.
+// Fetches live data (cached by id) and applies it. One catalog object can back several cards,
+// so each card updates itself; the flag only gates the network call.
 async function enrich(entry) {
   if (!entry.id) return null;
   const meta = await fetchMeta(entry.id);

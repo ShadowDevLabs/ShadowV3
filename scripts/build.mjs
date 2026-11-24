@@ -1,16 +1,12 @@
 // Bundles the client pieces that need a build step into public/dist/:
 //
-//   shadow-proxy.js          Sapphire (chrome.* extension emulation) + Shadow's own
-//                            Scramjet frame plugin, as one ES module.
+//   shadow-proxy.js          Sapphire (chrome.* emulation) + Shadow's Scramjet frame plugin
+//   sapphire-sw-router.js    Sapphire's service-worker router
 //   sapphire-sw-router.js    Sapphire's service-worker router (serves extension files).
 //   markdown.js              marked + DOMPurify, for the AI page: replies become sanitized HTML.
 //
-// Scramjet and scramjet-controller themselves are prebuilt IIFE bundles served
-// straight out of node_modules by index.js; the bundle above picks them up from
-// globalThis.$scramjet / $scramjetController.
-//
-// Runs on `npm install` (postinstall), `npm run build`, and on server start if
-// the output is missing.
+// Scramjet itself is prebuilt and served from node_modules by index.js.
+// Runs on postinstall, `npm run build`, and on start if the output is missing.
 import { build as esbuild } from "esbuild";
 import { createRequire } from "node:module";
 import { existsSync } from "node:fs";
@@ -29,24 +25,17 @@ export const outputs = [
 ];
 
 // --- Patches to a dependency ------------------------------------------------
-// Applied in memory to Sapphire's src/frames.ts while bundling; node_modules is not modified.
-// Each "from" must appear exactly once: if Sapphire changes it, the build fails loudly instead of
-// shipping a silently broken bundle. Re-check the patch then, or drop it if upstream fixed it.
+// Applied in memory to Sapphire's src/frames.ts. Each "from" must match exactly once, so the build
+// fails if Sapphire changes. Re-check or drop the patch then.
 const SAPPHIRE_PATCHES = [
-  // unproxyUrl() recovers real URLs from proxied ones with a regex that only matches Scramjet's
-  // default encodeURIComponent codec. Shadow uses an XOR codec so hostnames don't sit in the
-  // address bar in plain text, and with it MV3 extension service workers can't importScripts()
-  // their own files. Fall back to globalThis.__shadowUnproxy (public/assets/js/tabs.js, where the
-  // codec lives).
+  // unproxyUrl() only matches Scramjet's default codec, so with our XOR codec MV3 extension workers
+  // can't importScripts() their own files. Fall back to globalThis.__shadowUnproxy (see tabs.js).
   [
     "if (!m) return ref;",
     'if (!m) { try { const fn = globalThis.__shadowUnproxy; if (typeof fn === "function") return fn(ref); } catch {} return ref; }',
   ],
-  // A message from an extension page to its service worker arrived with event.source null. In
-  // Chrome it is always the sending Client, and workers answer with event.source.postMessage()
-  // (Momentum's does for every message, so it threw on each one). Give it a Client that replies
-  // through the page's navigator.serviceWorker, like a real one, and the waitUntil() of a worker's
-  // ExtendableMessageEvent.
+  // Extension page messages reached the worker with event.source null (Momentum's threw each time).
+  // Supply a Client that replies via navigator.serviceWorker, plus waitUntil().
   [
     'const event = new bgWin.MessageEvent("message", { data: message, ports, origin: extensionUrl(ext.id, "").slice(0, -1) });',
     'const event = new bgWin.MessageEvent("message", { data: message, ports, origin: extensionUrl(ext.id, "").slice(0, -1) });' +

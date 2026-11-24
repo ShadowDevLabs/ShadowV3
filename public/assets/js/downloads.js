@@ -1,14 +1,7 @@
 // Downloads manager.
 //
-// Files reach it three ways:
-//   - a navigation whose response is an attachment (or a type the browser can't
-//     display): the proxy plugin hands the raw response over instead of letting
-//     the iframe swallow it (see ShadowPlugin in src/client/proxy-entry.js);
-//   - <a download> links, the page menu's "Save link/image/video", and the
-//     screenshot tool, which call start() / fromBlob();
-// Each one is streamed into a Blob here, in the page, so there's a progress bar,
-// a list (shadow://downloads) and a copy that can be opened in a tab or saved
-// again — handy on machines where the browser's own downloads are locked down.
+// Handles attachment responses, <a download> links, the page menu's Save options and screenshots.
+// Each file streams into a Blob, so there's a progress bar, a list (shadow://downloads) and a copy to reopen or save again.
 import { SettingsManager } from "/assets/js/settings_manager.js";
 import { toast, showPopover, hidePopover, popoverOpenFor, h, formatBytes, hostnameOf } from "/assets/js/ui.js";
 
@@ -203,7 +196,7 @@ export class Downloads {
   }
 
   /**
-   * Consume a response body into a download.
+   * Turns a response body into a download.
    * @param {{body: ReadableStream|Blob|ArrayBuffer|string|null, url?: string, name?: string,
    *   mime?: string, size?: number, abort?: AbortController}} source
    */
@@ -213,8 +206,7 @@ export class Downloads {
     this.changed();
     try {
       let blob;
-      // Duck-typed: bodies from a proxied page's fetch() belong to that frame's
-      // realm, so `instanceof ReadableStream` / `instanceof Blob` would say no.
+      // Duck-typed: bodies from a proxied fetch() come from another realm, so instanceof fails.
       if (typeof body?.getReader === "function") {
         const reader = body.getReader();
         item.cancelStream = () => reader.cancel().catch(() => {});
@@ -257,9 +249,7 @@ export class Downloads {
   }
 
   /**
-   * Fetch a URL into a download. `win` is the proxied page it belongs to: its
-   * own fetch() goes through the proxy with that site's cookies. URLs that are
-   * already proxied (or local) are fetched from here directly.
+   * Fetches a URL into a download. `win` is the proxied page it came from (so cookies carry over).
    */
   async start({ url, name, win }) {
     const abort = new AbortController();
@@ -271,8 +261,7 @@ export class Downloads {
         return false;
       }
     })();
-    // An already-proxied address (a <video>'s currentSrc, say): name the file
-    // after the real URL behind it, not the encoded proxy path.
+    // Already proxied (a <video>'s currentSrc): name the file after the real URL.
     let realUrl = url;
     if (local) {
       try {

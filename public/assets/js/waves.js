@@ -1,6 +1,5 @@
-// New tab / home background. The drawing runs in waves-worker.js on an OffscreenCanvas, so its
-// frames never take time from the page itself (typing, scrolling, clicks): that matters on
-// Chromebooks. This side only hands over the canvas and tells the worker about size and colours.
+// New tab/home background. Drawing happens in waves-worker.js on an OffscreenCanvas so it never slows
+// the page down (matters on Chromebooks). This side hands over the canvas, size and colours.
 const canvas = document.querySelector(".bg-dots canvas");
 
 if (canvas?.transferControlToOffscreen) {

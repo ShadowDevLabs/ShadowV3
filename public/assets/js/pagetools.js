@@ -1,8 +1,5 @@
-// Page tools for the browser shell: reader mode, screenshot / clip,
-// media controls (picture-in-picture, save video), forced dark mode, and the
-// right-click menu for proxied pages. tabs.js wires the shortcuts and hooks;
-// everything here works on the active tab's document, which is same-origin
-// with the shell because every proxied page is served from Shadow's origin.
+// Page tools: reader mode, screenshots, media controls, forced dark mode and the page right-click menu.
+// tabs.js wires up the shortcuts. Proxied pages are same-origin, so we can reach their documents.
 import { showMenu, toast, h } from "/assets/js/ui.js";
 import { filenameFor } from "/assets/js/downloads.js";
 
@@ -187,10 +184,8 @@ export async function toggleReader(tabs) {
   const prefs = (await tabs.settings.get("reader")) ?? {};
   const state = { theme: prefs.theme ?? "auto", size: prefs.size ?? 19, sans: !!prefs.sans };
 
-  // The article is rebuilt inside a shadow root in the shell: its styles are
-  // isolated from the shell's, and its (proxied) images load like the tab icons
-  // do. Nothing from the page is parsed as HTML here — copyReadable() creates
-  // every element itself from a whitelist — so nothing of the page's can run.
+  // Rebuilt in a shadow root so styles stay isolated. Elements come from a whitelist in
+  // copyReadable(), never parsed as HTML, so nothing from the page can run.
   const host = h("div", { class: "reader-host", tabIndex: -1 });
   const root = host.attachShadow({ mode: "open" });
   const scroll = h("div", { class: "scroll" });
@@ -313,9 +308,7 @@ function cropCanvas(source, x, y, width, height) {
 const canvasBlob = (canvas) => new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 
 /**
- * Captures the active tab's page. The browser asks which surface to share; the
- * capture is the whole Shadow window, which is cropped down to the page here.
- * Then a clip overlay lets the user keep everything or drag out a region.
+ * Captures the active tab: grabs the whole window, crops to the page, then lets the user drag out a region.
  */
 export async function screenshot(tabs) {
   const tab = activeTab(tabs);
@@ -461,8 +454,7 @@ export async function togglePictureInPicture(tabs) {
 }
 
 export function videoSource(video) {
-  // .src goes through the page's own getter (the real URL); currentSrc is the
-  // proxied address, kept as a fallback since it can still be fetched from here.
+  // Prefer .src (the real URL); currentSrc is the proxied fallback.
   const candidates = [video.src, ...[...video.querySelectorAll("source")].map((s) => s.src), video.currentSrc];
   return candidates.find((src) => src && !/^blob:|^mediasource:/i.test(src)) ?? "";
 }
@@ -545,8 +537,7 @@ export function refreshTabDarkMode(tabs, tab) {
       setDarkMode(frame, true, enabled);
       topDark = !!frame.document.getElementById(DARK_ID);
     } else {
-      // Subframes are inverted by the top document's filter; they only need
-      // their media flipped back — and only if the top really was inverted.
+      // The top document's filter already inverts subframes. They only need their media flipped back.
       setDarkMode(frame, false, topDark);
     }
   }
@@ -554,8 +545,7 @@ export function refreshTabDarkMode(tabs, tab) {
 
 // ================================================================= page menu
 
-// Scramjet hides frameElement (and parent) from a proxied page's top document, so the walk can't
-// rely on them there: the tab's own iframe is known, and nested frames are found in their parent.
+// Scramjet hides frameElement/parent from the top document, so use the tab's iframe and find nested frames from their parent.
 function translateToShell(tab, win, x, y) {
   try {
     let current = win;
@@ -575,11 +565,7 @@ function translateToShell(tab, win, x, y) {
 }
 
 /**
- * Right-click menu for a proxied page. Shift+right-click (or right-clicking
- * twice) falls through to the browser's own menu.
- *
- * @param extensionItems entries Sapphire collected for this click, already in
- *   showMenu() shape (see ExtensionUI.menuItems()).
+ * Right-click menu for a proxied page. Shift+right-click gets the browser's.
  */
 export function showPageMenu(tabs, tab, win, event, extensionItems = []) {
   const target = event.target;
@@ -696,8 +682,7 @@ export function showPageMenu(tabs, tab, win, event, extensionItems = []) {
     );
   }
   if (extensionItems.length) items.push(...extensionItems, { separator: true });
-  // The page as a real browser tab of its own, still through the proxy: for sites that refuse to
-  // work inside a frame (sign-in pages that must be "opened directly").
+  // Opens the page in a real browser tab, still proxied, for sites that won't work in a frame.
   const proxiedHref = (() => {
     try {
       return /^https?:/i.test(tabs.currentUrl(tab)) ? tab.iframe.contentWindow.location.href : "";

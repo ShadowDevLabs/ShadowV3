@@ -47,18 +47,15 @@ if (!isBuilt()) {
 const app = express();
 const server = createServer(app);
 app.disable("x-powered-by");
-// req.ip: the client address Caddy (on this machine) passes in X-Forwarded-For. A request from
-// anywhere else keeps its socket address, so a client can't name its own IP.
+// req.ip comes from Caddy's X-Forwarded-For; other requests keep their socket address.
 app.set("trust proxy", "loopback");
-// gzip/brotli for text responses (scripts, styles, pages, JSON, wasm): the shell's
-// JavaScript and the Scramjet runtime go out at roughly a quarter of their size.
+// gzip/brotli for text responses.
 app.use(compression());
 // npm run dev (dev.js): no caching. Before every route, so its handlers win.
 if (process.env.SHADOW_DEV === "1") installDev(app, publicPath);
 
 /**
- * Small in-memory cache with a time limit and a size cap, for upstream lookups
- * that many users ask for at once (suggestions, extension metadata, …).
+ * Small in-memory cache with a TTL and size cap, for upstream lookups many users share.
  */
 function ttlCache(ttl, max) {
   const map = new Map();
@@ -85,8 +82,8 @@ function ttlCache(ttl, max) {
 function fetchWithTimeout(url, options = {}, ms = 5000) {
   return fetch(url, { ...options, signal: AbortSignal.timeout(ms) });
 }
-// Caddy's on_demand TLS `ask`: a certificate only for SHADOW_DOMAINS. Before basic auth, since Caddy sends none.
-// Only registered when domains are listed, so other deploys don't answer at this path.
+// Caddy's on_demand TLS `ask`: certificates only for SHADOW_DOMAINS. Before basic auth, which Caddy doesn't send.
+// Only registered when domains are listed.
 if (process.env.SHADOW_DOMAINS) {
   const listedDomain = domainMatcher(process.env.SHADOW_DOMAINS);
   app.get("/v1/api/tls-ask", (req, res) => res.sendStatus(listedDomain(req.query.domain) ? 200 : 403));
@@ -102,14 +99,13 @@ app.use((req, res, next) => {
   }
   next();
 });
-// Proxy runtime, served straight from node_modules.
-//   /scramjet/    scramjet.js + scramjet.wasm (rewriter + client)
-//   /controller/  controller.api.js (page), controller.inject.js (proxied docs), controller.sw.js (service worker)
-//   /epoxy/, /libcurl/  wisp transports, picked in settings
-//   /eruda/       in-page devtools console (menu -> Devtools), served locally so it doesn't depend on a CDN
-//   /dist/        our own bundles (scripts/build.mjs)
-// With obfuscation on, installObfuscation serves these files from seeded paths instead, and the
-// well-known paths below are never mounted.
+// Proxy runtime, served from node_modules.
+//   /scramjet/    rewriter + client
+//   /controller/  page, injected and service worker scripts
+//   /epoxy/, /libcurl/  wisp transports
+//   /eruda/       devtools console
+//   /dist/        our bundles (scripts/build.mjs)
+// With obfuscation on these are served from seeded paths and never mounted here.
 const runtime = new Map([
   ["/scramjet/scramjet.js", join(scramjetPath, "scramjet.js")],
   ["/scramjet/scramjet.wasm", join(scramjetPath, "scramjet.wasm")],
@@ -142,11 +138,8 @@ if (!obfuscation) {
 }
 app.use("/privacy", express.static(publicPath + "/privacy.html"));
 
-// Shadow's own files. Images and fonts rarely change, so they're cached for a
-// week. Pages, scripts, styles and data are revalidated instead (a cheap 304
-// when nothing changed): the service worker already serves them instantly from
-// its own cache and refreshes in the background, and a long max-age here would
-// make that refresh read the browser's stale copy, hiding a deploy for days.
+// Shadow's own files. Images and fonts are cached for a week. Everything else is revalidated,
+// because a long max-age would make the service worker's background refresh hide a deploy.
 const shellStatic = express.static(publicPath, {
   maxAge: 604800000,
   setHeaders(res, filePath) {
@@ -157,10 +150,8 @@ const shellStatic = express.static(publicPath, {
 });
 // public/dist/ is runtime too: with obfuscation on it only answers at its seeded paths.
 app.use((req, res, next) => (obfuscation && req.path.startsWith("/dist/") ? next() : shellStatic(req, res, next)));
-// Game assets, for deployments that don't have the games submodule checked out
-// (when it is, express.static above has already answered). Fetched over https:
-// the plain-http address only answers with a redirect to https, which sent every
-// visitor's browser to phantom.lol directly instead of through this mirror.
+// Game assets for deployments without the games submodule. Fetched over https, since the
+// http address redirects and would send visitors straight to phantom.lol.
 const gamesAgent = new https.Agent({ keepAlive: true, maxSockets: 64 });
 app.use("/books/files/", (req, res) => {
   if (req.method !== "GET" && req.method !== "HEAD") return res.status(405).end();
@@ -196,8 +187,7 @@ app.use("/books/files/", (req, res) => {
     .get(sourceUrl, { headers, timeout: 20000, agent: gamesAgent, method: req.method }, (sourceResponse) => {
       const outHeaders = { ...sourceResponse.headers };
       delete outHeaders["set-cookie"]; // the mirror's cookies would land on this site
-      // Game assets never change in place: let browsers (and any CDN in front)
-      // keep them instead of pulling every file through this server again.
+      // Game assets never change in place, so let browsers and CDNs cache them.
       if (sourceResponse.statusCode === 200 && !outHeaders["cache-control"]) {
         outHeaders["cache-control"] = "public, max-age=86400";
       }
@@ -241,8 +231,7 @@ app.get("/v1/api/broken-sites", async (req, res) => {
   res.status(200).send(brokenSitesCache.value);
 });
 
-// Address-bar suggestions: one request per keystroke per user, so answers are
-// cached here (the same prefixes are typed over and over) and in the browser.
+// Address-bar suggestions fire per keystroke, so they're cached here and in the browser.
 const suggestionCache = ttlCache(10 * 60 * 1000, 5000);
 const SUGGEST_SOURCES = {
   duckduckgo: {
@@ -285,8 +274,7 @@ app.get("/v1/api/search-suggestions", async (req, res) => {
   res.json(results);
 });
 
-// Downloads an extension package from the Chrome Web Store so the client can
-// install it (the store doesn't send CORS headers, so the browser can't).
+// Fetches an extension package from the Chrome Web Store (no CORS headers, so the browser can't).
 const CRX_MAX_BYTES = 64 * 1024 * 1024;
 app.get("/v1/api/crx/:id", async (req, res) => {
   const id = req.params.id;
@@ -312,8 +300,7 @@ app.get("/v1/api/crx/:id", async (req, res) => {
       await upstream.body.cancel().catch(() => {});
       return res.status(413).json({ error: "Extension package is too large" });
     }
-    // Streamed through, never held in memory: many people installing a large extension at once
-    // would otherwise buffer it once each.
+    // Streamed, not buffered, so many simultaneous installs don't eat memory.
     res.set("Content-Type", "application/x-chrome-extension");
     res.set("Cache-Control", "public, max-age=3600");
     if (length) res.set("Content-Length", length);
@@ -332,10 +319,7 @@ app.get("/v1/api/crx/:id", async (req, res) => {
   }
 });
 
-// Live metadata (name, icon, description) for a Web Store extension, scraped from
-// its public detail page so the storefront can sync with the real store instead
-// of relying on a hand-written catalog. Cached in memory so 30k users don't turn
-// into 30k scrapes.
+// Live Web Store metadata (name, icon, description), scraped from the public page and cached.
 const EXT_META_TTL = 6 * 60 * 60 * 1000; // 6h
 const extMetaCache = ttlCache(EXT_META_TTL, 5000); // id -> data
 app.get("/v1/api/ext-meta/:id", async (req, res) => {
@@ -369,8 +353,7 @@ app.get("/v1/api/ext-meta/:id", async (req, res) => {
       url: pick('meta[property="og:url"]', "content") || `https://chromewebstore.google.com/detail/${id}`,
     };
     if (!data.name && !data.icon) return res.status(502).json({ error: "Could not parse store page" });
-    // A removed/invalid item redirects to the store home, whose og: tags are
-    // generic. Treat that as not-found so the client keeps its catalog data.
+    // Removed items redirect to the store home with generic tags. Treat as not found.
     if (data.name === "Chrome Web Store" || /chromewebstore\.google\.com\/?$/.test(data.url)) {
       extMetaCache.set(id, null);
       return res.status(404).json({ error: "Not found in the Web Store" });
@@ -386,15 +369,13 @@ app.get("/v1/api/ext-meta/:id", async (req, res) => {
 
 // AI STUFF
 
-// The models the AI page offers (public/ai.html). Anything else would let a script pick the most
-// expensive model on this server's key.
+// Models the AI page offers. Anything else would let a script pick the priciest one on our key.
 const AI_MODELS = new Set(["shuttleai/auto", "openai/gpt-5.2", "google/gemini-3-flash-preview"]);
 const AI_ROLES = new Set(["system", "user", "assistant"]);
 if (!process.env.CSRF_SECRET) console.warn("[ai] CSRF_SECRET is not set: using a random one, so AI page tokens break on restart and differ between workers");
 const csrfSecret = process.env.CSRF_SECRET || randomBytes(32).toString("hex");
 
-// Stateless: the CSRF cookie + header pair is what proves the caller loaded the AI page, so no
-// session is kept on the server (nothing to fill memory, and any worker process can answer).
+// Stateless: the CSRF cookie + header pair proves the caller loaded the AI page.
 const { generateToken, validateRequest } = doubleCsrf({
   getSecret: () => csrfSecret,
   cookieName: "_ai_csrf",
@@ -502,8 +483,7 @@ app.use((req, res) => {
   res.sendFile(join(publicPath, "404.html"));
 });
 
-// No outgoing mail (SMTP): no website uses port 25, and open port 25 gets a server's IP
-// blacklisted for spam. Everything else stays open.
+// Block port 25 so the server's IP doesn't get blacklisted for spam. Everything else stays open.
 wisp.options.port_blacklist = [25];
 // Local development only: lets the proxy reach localhost / LAN targets.
 if (process.env.WISP_ALLOW_PRIVATE === "1") {

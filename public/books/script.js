@@ -129,9 +129,8 @@ function buildCard(game) {
   return a;
 }
 
-// Windowed rendering: with ~900 games, building every card up front is the main
-// jank source on weak hardware. Render in batches and grow as the user scrolls
-// (a sentinel near the bottom pulls the next batch in).
+// Windowed rendering: with ~900 games, building every card at once janks on weak hardware.
+// Render in batches and load more as the user nears the bottom.
 const BATCH = 60;
 let rendered = 0;
 let sentinel = null;

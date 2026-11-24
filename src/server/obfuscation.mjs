@@ -1,23 +1,12 @@
-// Anti-fingerprinting for Shadow's own pages, wired in index.js by
-// installObfuscation(). Three pieces, all derived from one seed (SHADOW_UI_SEED,
-// random per start when unset) so mirrors that share a seed serve the same thing:
+// Anti-fingerprinting for Shadow's own pages, wired up in index.js by installObfuscation().
+// Everything derives from one seed (SHADOW_UI_SEED, random per start if unset).
 //
-//   1. DOM renaming: every id and class the shell's HTML, CSS and JS use gets a
-//      random name, the same in every file (see "Shell DOM renaming" below).
-//      Every CSS/JS file is served minified from a random path (/abcde/k3j9x0q2mz.js),
-//      inline <script>/<style> are minified and HTML comments are dropped.
-//   2. Cloak (SHADOW_CLOAK): the shell's <title>, meta tags, favicon, language and
-//      loading-screen brand are swapped for another site's.
-//   3. Proxy URLs: /v1/api/config gives the page a per-deploy codec key and proxy
-//      prefix (public/assets/js/tabs.js, loadProxyConfig), so proxied URLs differ
-//      between deployments.
-//   4. Font cipher (fontcipher.mjs): every piece of text is kept as seeded Coptic letters
-//      that copies of the pages' web fonts draw as the real letters.
+//   1. DOM renaming: ids/classes get random names; CSS/JS is minified onto random paths.
+//   2. Cloak (SHADOW_CLOAK): title, meta, favicon, language and loading brand mimic another site.
+//   3. Proxy URLs: /v1/api/config hands out a per-deploy codec key and prefix (see tabs.js).
+//   4. Font cipher (fontcipher.mjs): text is stored as Coptic letters that seeded fonts draw as real ones.
 //
-// SHADOW_DOMAINS gives each listed domain its own seed, for Caddy on_demand TLS fronting many domains.
-// SHADOW_OBFUSCATE=off turns it all off. This is evasion, not security: the same
-// kind of thing Ultraviolet's cloak and Holy Unblocker's rewriter do.
-
+// SHADOW_DOMAINS gives each domain its own seed. SHADOW_OBFUSCATE=off disables it all. This is evasion, not security.
 import crypto from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, posix } from "node:path";
@@ -53,7 +42,7 @@ const word = (bytes, length) => {
 };
 const derive = (seed, label) => crypto.createHmac("sha256", seed).update(label).digest();
 
-/** SHADOW_CLOAK: a preset name, "random" (picked by the seed, the default) or "off". Unknown names count as random. */
+/** SHADOW_CLOAK: a preset name, "random" (default, seeded) or "off". Unknown names count as random. */
 export function resolveCloak(choice, seed) {
   choice = (choice ?? "random").toLowerCase();
   if (choice === "off") return null;
@@ -65,8 +54,7 @@ export function resolveCloak(choice, seed) {
 const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
 /**
- * Replaces the <!--CLOAK:START-->…<!--CLOAK:END--> block, the <html lang> and the
- * "ShadowV3" brand. The markers never reach the browser: they'd be a signature.
+ * Replaces the CLOAK block, <html lang> and the "ShadowV3" brand. The markers never reach the browser.
  */
 export function applyCloak(html, cloak) {
   const markers = /[ \t]*<!--CLOAK:START-->\n?([\s\S]*?)[ \t]*<!--CLOAK:END-->\n?/;
@@ -96,17 +84,14 @@ export function proxyConfig(seed, reserved = new Set()) {
 }
 
 // ---------------------------------------------------------------------------
-// Shell DOM renaming. Every id and class the shell's own
-// HTML, CSS and JS use is discovered at startup and given a random name, the
-// same in every file. A name is renamed only where it is certainly a DOM name:
-//   CSS   .name / #name in selectors (never in property values)
+// Shell DOM renaming. Every id and class the shell uses gets a random name, the same in every file.
+// A name is only renamed where it's certainly a DOM name:
+//   CSS   .name / #name in selectors
 //   HTML  id, class, for, aria-* references, href="#name", inline <style>/<script>/on*
-//   JS    string literals passed to getElementById, classList.*, querySelector*,
-//         closest, matches, assigned to .className, under a `class:` key, a literal
-//         that is itself a selector (".x"/"#x"), and class=/id= inside markup strings
-// A name that also shows up as plain data (any other bare JS literal, an HTML
-// value=/data-* attribute, a JSON string, a "-suffix"/"prefix-" fragment that is
-// concatenated into ids) keeps its original name everywhere, so it can't break.
+//   JS    literals passed to getElementById, classList.*, querySelector*, closest, matches,
+//         .className, `class:` keys, selector literals, and class=/id= in markup strings
+// If a name also appears as plain data (other JS literals, value=/data-*, JSON, concatenated
+// fragments), it keeps its original name everywhere so nothing breaks.
 
 const IDENT = /^-?[A-Za-z_][\w-]*$/;
 const skipDirectories = new Set(["/dist", "/books/files", "/assets/imgs"]);
@@ -243,7 +228,7 @@ function randomNames(names, taken, seed) {
   return map;
 }
 
-/** Every DOM name in `sources` (url path -> text), which of them are safe to rename, and a hash of the sources. The same for every seed. */
+/** Finds every DOM name in `sources` (url path -> text) and which are safe to rename. Same for every seed. */
 function discoverNames(sources) {
   const found = new Set(), keep = new Set();
   const record = (n) => (found.add(n), n);
@@ -256,10 +241,9 @@ function discoverNames(sources) {
 }
 
 /**
- * Gives the DOM names in `sources` (url path -> text) random names and returns the
- * map, each CSS/JS file's random path (`assetPath`) and a renderer that applies both.
- * `reserved` holds top-level names the asset folder must not take. `names` is
- * discoverNames(sources), passed in when it was worked out once for many seeds.
+ * Gives the DOM names in `sources` (url path -> text) random names. Returns the name map,
+ * each file's random `assetPath`, and a renderer that applies both.
+ * `reserved` are top-level names the asset folder can't take; `names` is a precomputed discoverNames(sources).
  */
 export function buildUiRewrite(sources, seed, reserved = new Set(), names = discoverNames(sources)) {
   const map = randomNames(names.renamable, names.found, seed);
@@ -277,11 +261,10 @@ export function buildUiRewrite(sources, seed, reserved = new Set(), names = disc
   return { map, assetPath, render };
 }
 
-// Quoted references to the shell's own CSS/JS (link/script tags, imports, the
-// service worker): rendered pages load them from their random paths instead.
+// Quoted references to the shell's CSS/JS get swapped for their random paths.
 const assetReference = /(["'`])((?!\/\/)[\w./%-]+\.(?:css|m?js)(?:\?[^"'\s`#]*)?(?:#[^"'\s`]*)?)\1/g;
 
-/** Minifies CSS/JS (and the scripts, styles and comments in HTML) so served files don't read like their source. */
+/** Minifies CSS/JS and the inline scripts, styles and comments in HTML. */
 export function minifyAsset(path, text) {
   const minify = (code, loader) => {
     try {
@@ -305,10 +288,9 @@ export function minifyAsset(path, text) {
 }
 
 /**
- * SHADOW_DOMAINS: the comma-separated domains this server answers for. Each one gets its own
- * seed (so its own names, paths, cloak, prefix and codec); its subdomains share it, so the
- * number of sites built stays the number of domains listed. Returns a host -> listed domain
- * lookup (undefined when unlisted), also used for Caddy's on_demand TLS (/v1/api/tls-ask in index.js).
+ * SHADOW_DOMAINS: comma-separated domains this server answers for. Each gets its own seed
+ * (names, paths, cloak, prefix, codec); subdomains share it. Returns a host -> listed domain
+ * lookup (undefined if unlisted), also used for Caddy's on_demand TLS (/v1/api/tls-ask).
  */
 export function domainMatcher(list = "") {
   const domains = new Set(list.split(",").map((d) => d.trim().toLowerCase().replace(/^\*?\./, "")).filter(Boolean));
@@ -320,8 +302,8 @@ export function domainMatcher(list = "") {
   };
 }
 
-// Globals and message names the runtime shares between the page, the worker and every proxied page,
-// where a site's scripts can see them. Seeded per site. Sapphire's own names stay: extensions save them.
+// Globals and message names shared between the page, worker and proxied pages, seeded per site.
+// Sapphire's own names stay since extensions save them.
 const runtimeName = /(?<![\w$])(?:\$scram[\w$]*|\$controller\$\w+|\$sw\$\w+|\$sapphireRouter|__scramjet_controller_channel)(?![\w$])/g;
 const COOKIE_DB = `_${word(derive("shadow", "cookie-db"), 11)}`;
 
@@ -331,9 +313,8 @@ const replaceOnce = (text, from, to) => {
 };
 
 /**
- * The seed-independent part of every site, worked out once at startup (see buildSite): the
- * shell's files, already minified, the DOM names in them, and the minified proxy runtime.
- * /sw.js stays unminified: buildSite fills in its UI_ASSETS placeholder, then minifies it.
+ * The seed-independent part of every site, built once at startup: minified shell files,
+ * their DOM names and the minified proxy runtime. /sw.js is minified later, in buildSite.
  */
 function prepareShell(publicPath, runtime) {
   const sources = new Map();
@@ -348,10 +329,9 @@ function prepareShell(publicPath, runtime) {
 }
 
 /**
- * Everything one seed serves: the proxy config, the Wisp path and every file by request path.
- * `shell` is prepareShell(). Its `runtime` (well-known url -> bytes) is the proxy runtime:
- * Scramjet, its controller, the transports, eruda and public/dist. It moves to seeded paths,
- * and every reference to its well-known paths, in the shell and in the runtime itself, follows.
+ * Everything one seed serves: proxy config, Wisp path and every file by request path.
+ * `shell` is prepareShell(). Its `runtime` (Scramjet, transports, eruda, public/dist) moves
+ * to seeded paths, and all references to the well-known paths are rewritten to match.
  */
 function buildSite(seed, shell, reserved) {
   const { runtime } = shell;
@@ -363,7 +343,7 @@ function buildSite(seed, shell, reserved) {
   let runtimeDir;
   for (let n = 0; !runtimeDir || reserved.has(runtimeDir); n++) runtimeDir = word(derive(seed, `runtime${n}`), 5);
   const sha = (bytes) => crypto.createHash("sha256").update(bytes).digest("hex");
-  // The content hash is in the name, so a package update gets a new URL. .mjs is served as .js: modules go by MIME type.
+  // The hash is in the name, so updates get a new URL. .mjs is served as .js (modules go by MIME type).
   const moved = new Map([...runtime].map(([url, bytes]) =>
     [url, `/${runtimeDir}/${word(derive(seed, url + sha(bytes)), 10)}${url.endsWith(".wasm") ? ".wasm" : ".js"}`]));
   const wispPath = `/${word(derive(seed, "wisp"), 7)}/`;
@@ -387,8 +367,7 @@ function buildSite(seed, shell, reserved) {
   // The worker precaches every current CSS/JS path and drops older ones.
   const swSource = sources.get("/sw.js")?.replace("const UI_ASSETS = null;", () => `const UI_ASSETS = ${JSON.stringify(assets.map(assetPath))};`);
 
-  // Kept gzipped only: what almost every browser asks for, and about a third of the memory
-  // (a site is ~3 MB instead of ~8 MB). A file served at two paths is stored once.
+  // Stored gzipped only: nearly every browser accepts it, and a site drops from ~8 MB to ~3 MB.
   const served = new Map(); // request path -> { gzip, etag, cache, worker }
   const packed = new Map(); // body -> its gzip
   const add = (url, body, cache, worker = false) => {
@@ -418,9 +397,8 @@ function buildSite(seed, shell, reserved) {
     }
   }
 
-  // Scramjet hides the script the controller injects into every proxied page, and its virtual wasm
-  // loader, from the page's stack traces and performance entries by file name (maskedfiles): rename
-  // them there too, and hide scramjet.js, which upstream leaves visible, as well.
+  // Scramjet hides some of its files from stack traces and performance entries by name (maskedfiles).
+  // Rename those too, and mask scramjet.js, which upstream leaves visible.
   const basename = (url) => moved.has(url) && posix.basename(moved.get(url));
   const injectName = basename("/controller/controller.inject.js");
   const scramjetName = basename("/scramjet/scramjet.js");
@@ -452,17 +430,14 @@ function buildSite(seed, shell, reserved) {
 }
 
 /**
- * Wires all of it into the app, before the generic express.static(publicPath) so it wins for the
- * same paths. `runtime` maps each proxy runtime file's well-known url to its file on disk
- * (see buildSite); the caller mounts those well-known paths only when this returns undefined
- * (turned off). Otherwise returns { page(path, host), wispPath(host) }: the served body of a page,
- * for handlers that send one themselves, and the path the Wisp server answers at.
+ * Wires everything into the app, ahead of express.static so it wins for the same paths.
+ * `runtime` maps each runtime file's well-known url to its file on disk; the caller mounts
+ * those only when this returns undefined (obfuscation off). Otherwise returns
+ * { page(path, host), wispPath(host) }.
  *
- * Each SHADOW_DOMAINS domain gets a site built from its own seed, on its first request (~0.2 s,
- * mostly gzip: the seed-independent work is done once, in prepareShell). Only the most recently
- * used SHADOW_SITE_CACHE sites (default 300, ~3 MB each) stay in memory; others are rebuilt
- * when asked for again. Any other Host header gets the default site, so a made-up Host can't
- * make the server build more.
+ * Each SHADOW_DOMAINS domain builds its site on first request (~0.2 s). Only the most recent
+ * SHADOW_SITE_CACHE sites (default 300, ~3 MB each) stay in memory. Unknown Host headers get the
+ * default site, so a made-up Host can't make the server build more.
  */
 export function installObfuscation(app, { publicPath, runtime = new Map() }) {
   const enabled = process.env.SHADOW_OBFUSCATE !== "off";

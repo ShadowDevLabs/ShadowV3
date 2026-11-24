@@ -24,9 +24,7 @@ import {
   refreshTabDarkMode,
 } from "/assets/js/pagetools.js";
 
-// Scramjet, its controller and /dist/shadow-proxy.js (Sapphire + ShadowPlugin) are
-// only loaded when the first proxied page is opened — see Tab.bootProxy(). A visit
-// that never opens a website never downloads or boots any of it.
+// The proxy stack (Scramjet, Sapphire, ShadowPlugin) only loads on the first proxied page. See bootProxy().
 let Controller, Sapphire, ShadowPlugin;
 
 function loadScript(src) {
@@ -61,15 +59,13 @@ const MAX_TAB_HISTORY = 50;
 const wsScheme = location.protocol === "https:" ? "wss" : "ws";
 const defaultWisp = `${wsScheme}://${location.host}/wisp/`;
 
-// Proxied URLs look like /~/s/<controller id>/<frame id>/<encoded url>. The ids are
-// random per page load, so an encoded URL is never valid after a reload — anything
-// that has to survive one (saved tabs, history, bookmarks) stores the real URL.
+// Proxied URLs look like /~/s/<controller id>/<frame id>/<encoded url>. The ids change on
+// every load, so saved tabs, history and bookmarks store the real URL instead.
 //
-// The codec functions are stringified into every proxied document by the
-// controller, so they must be self-contained (no closures, no imports).
-// The server usually swaps both for per-deploy ones first (loadProxyConfig).
+// The codec gets stringified into each proxied page, so it has to be self-contained.
+// The server normally swaps in per-deploy versions (see loadProxyConfig).
 const uvCodec = {
-  // Same XOR scheme Ultraviolet used: keeps hostnames out of the URL bar/filters.
+  // Same XOR scheme Ultraviolet used.
   encode: (url) => {
     if (!url) return url;
     let out = "";
@@ -89,7 +85,7 @@ const uvCodec = {
 };
 const proxyConfig = { prefix: "/~/s/", codec: uvCodec };
 
-/** A codec that XORs character i by key digit i (0-7). The key is inlined so the functions stay self-contained. */
+/** XORs character i by key digit i (0-7). The key is inlined to stay self-contained. */
 function keyedCodec(key) {
   const xor = `for(var k="${key}",o="",i=0;i<s.length;i++)o+=String.fromCharCode(s.charCodeAt(i)^(k.charCodeAt(i%k.length)-48));`;
   return {
@@ -110,8 +106,7 @@ async function loadProxyConfig() {
   }
 }
 
-// Sapphire only knows how to undo Scramjet's default codec; scripts/build.mjs
-// patches it to ask us when it sees a URL encoded with ours.
+// Sapphire only understands Scramjet's default codec, so scripts/build.mjs patches it to ask us for ours.
 globalThis.__shadowUnproxy = (ref) => {
   const path = new URL(String(ref), location.href).pathname;
   if (!path.startsWith(proxyConfig.prefix)) return ref;
@@ -140,8 +135,7 @@ const ICON = {
 };
 
 const isInternal = (url) => url.startsWith("shadow://");
-// A same-origin Shadow page loaded straight into the iframe (arcade embed, games),
-// or a blob: this page made (an opened download) — never run through the proxy.
+// Shadow pages and blob: downloads load directly, never through the proxy.
 const isLocalPath = (url) => /^\/[^/\\]/.test(url) || url.startsWith(`blob:${location.origin}/`);
 // Pages that talk to the extension runtime, so they need the proxy booted first.
 const needsProxy = (url) => /^shadow:\/\/(extensions|store)\b/.test(url);
@@ -284,12 +278,10 @@ class Tab {
     this.downloads.autoSave = autoSave !== false;
     this.setVerticalTabs(!!verticalTabs, false);
 
-    // The service worker also caches the shell and saves the session, so it is
-    // registered up front; Scramjet itself waits for the first proxied page.
+    // Register the service worker now; Scramjet waits for the first proxied page.
     this.registerServiceWorker().catch((e) => console.debug("[SW]", e));
     if (await this.hasExtensions()) {
-      // Installed extensions have background pages and toolbar buttons that
-      // should be there from the start, so boot right away for those users.
+      // Extensions need their background pages and toolbar buttons up front.
       this.ensureProxy().catch(() => {});
     }
 
@@ -333,8 +325,7 @@ class Tab {
   }
 
   /**
-   * Boots the proxy once, on first use. Resolves when proxied pages can load;
-   * rejects (and can be retried by the next call) if it couldn't start.
+   * Boots the proxy once, on first use. Rejects if it can't start; the next call retries.
    */
   ensureProxy() {
     if (this.controller) return Promise.resolve();
@@ -375,9 +366,8 @@ class Tab {
 
     const registration = await this.registerServiceWorker();
     await navigator.serviceWorker.ready;
-    // First visit (or a hard reload), or a new worker after a deploy or a new seed: it takes over
-    // as soon as it installs (skipWaiting + claim), so wait for it. Otherwise the controller below
-    // binds to the worker that is about to be replaced, and no proxied page loads until a reload.
+    // After a first visit, hard reload or deploy the new worker takes over right away.
+    // Wait for it, or the controller binds to the worker being replaced.
     if (!navigator.serviceWorker.controller || registration.installing || registration.waiting) {
       await new Promise((resolve) => {
         navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true });
@@ -487,9 +477,7 @@ class Tab {
       createNotification: (extId, id, options, callbacks) =>
         this.extensions.notify(extId, id, options, callbacks),
       clearNotification: (extId, id) => this.extensions.clearNotification(extId, id),
-      // Sapphire's contextmenu listener runs just before ours (onDocument): park
-      // its entries so they're shown inside the page menu. If nothing picks them
-      // up, they get a menu of their own.
+      // Sapphire's contextmenu listener fires first. Park its entries for our menu to pick up.
       showContextMenu: (request) => {
         this.pendingExtMenu = request;
         setTimeout(() => {
@@ -498,8 +486,7 @@ class Tab {
           this.extensions.showContextMenu(request);
         }, 60);
       },
-      // chrome.sidePanel: Shadow has no docked panel of its own, so the panel page opens beside the
-      // current tab in split view.
+      // No docked side panel here, so it opens in split view.
       openSidePanel: (extId, path) => void this.openInSplit(`chrome-extension://${extId}/${String(path).replace(/^\/+/, "")}`),
       requestPermissions: (extId, permissions, origins) =>
         this.extensions.requestPermissions(extId, permissions, origins),
@@ -529,8 +516,7 @@ class Tab {
   async setTransport(url, transport) {
     url = url ?? ((await this.settings.get("server")) || defaultWisp);
     transport = transport ?? ((await this.settings.get("transport")) || "/epoxy/index.mjs");
-    // The server may serve these from seeded paths (it rewrites both strings below), so a value
-    // saved before that, or under an older seed, is matched by name.
+    // The server may rewrite these paths per seed, so older saved values are matched by name.
     const transports = ["/epoxy/index.mjs", "/libcurl/index.mjs"];
     if (!transports.includes(transport)) transport = transports[/libcurl/.test(transport) ? 1 : 0];
     // A saved "default server" URL follows the page's scheme (wss on https, ws on http).
@@ -562,8 +548,7 @@ class Tab {
   }
 
   /**
-   * @param {{history?: boolean}} [options] history=false is Back/Forward revisiting
-   *   an entry (goToHistory), which must not add a new one.
+   * @param {{history?: boolean}} [options] history=false means Back/Forward revisiting an entry.
    */
   async load(src, i = this.activeTabIndex, { history = true } = {}) {
     this.hideSuggestions();
@@ -670,10 +655,9 @@ class Tab {
    * @param {string} [src] URL / search text / shadow:// page
    * @param {string} [title] fixed title for the tab
    * @param {{active?: boolean, lazy?: boolean, pinned?: boolean, index?: number, private?: boolean, groupId?: string|null}} [options]
-   *   lazy tabs aren't loaded until they're first shown (used when restoring a session).
-   *   private tabs leave no trace in history, the saved session or "reopen closed tab".
-   *   groupId puts the tab in a tab group; left out, a tab opened at a position
-   *   (a link opened beside its page) joins the group of the tab before it.
+   *   lazy: don't load until first shown (session restore).
+   *   private: leaves no trace in history, the saved session or "reopen closed tab".
+   *   groupId: tab group to join. A tab opened at a position joins the previous tab's group.
    */
   async createTab(
     src = this.tabsArr.length === 0 ? "shadow://home" : "shadow://new",
@@ -1090,9 +1074,7 @@ class Tab {
   // ---------------------------------------------------------------- frame events
 
   /**
-   * Called by ShadowPlugin for every proxied document (top level and subframes)
-   * as soon as Scramjet has initialised it. This replaces the old onload hook
-   * that lived in uv.config.js and the 5 second polling loop.
+   * Called by ShadowPlugin for each proxied document (top level and subframes).
    */
   onDocument(tab, { window: win, isTopLevel, client }) {
     const refresh = (how) => this.noteNavigation(tab, typeof how === "string" ? how : undefined);
@@ -1137,8 +1119,7 @@ class Tab {
       },
       true,
     );
-    // Forced dark mode goes in as early as possible so the page doesn't flash
-    // white; it is re-checked once the page's own styles have loaded.
+    // Inject forced dark mode early so the page doesn't flash white. Re-checked after styles load.
     const dark = () => setDarkMode(win, isTopLevel, this.darkModeFor(tab) && (isTopLevel || !!tab.iframe.contentDocument?.getElementById("__shadow-dark")));
     try {
       dark();
@@ -1186,8 +1167,7 @@ class Tab {
       if (typeof historyProto?.[method] !== "function") continue;
       const how = method === "replaceState" ? "replace" : undefined;
       win.history[method] = function (...args) {
-        // Looked up per call, not kept: the page fixes in src/client/proxy-entry.js wrap the
-        // prototype's methods, and may do so after this runs.
+        // Looked up per call because proxy-entry.js may wrap these later.
         const result = historyProto[method].apply(this, args);
         queueMicrotask(() => refresh(how));
         return result;
@@ -1247,10 +1227,8 @@ class Tab {
   }
 
   /**
-   * A document navigation got its response (ShadowPlugin, before any rewriting).
-   * Attachments and types the browser can't show are taken over by the downloads
-   * manager; returning true tells the plugin to answer the navigation with
-   * "204 No Content", which leaves the tab on the page it was on.
+   * A navigation got its response. Attachments and types the browser can't show go to downloads;
+      * returning true answers with a 204 so the tab stays put.
    */
   onNavigationResponse(tab, { url, headers, body }) {
     const header = (name) => headers.find(([key]) => key.toLowerCase() === name)?.[1] ?? "";
@@ -1336,17 +1314,12 @@ class Tab {
   // ---------------------------------------------------------------- back / forward
 
   /**
-   * Each tab keeps its own list of pages. (The browser only has one history for
-   * the whole window, shared by every tab's iframe, so history.back() in one tab
-   * would undo whichever tab navigated last.)
+   * Each tab keeps its own history, since the browser's is shared by every iframe.
    *
-   * A page becomes a new entry when the user caused the navigation: something
-   * typed or clicked in the shell, or a click / key press in the page since the
-   * last entry. Navigations a page makes on its own (redirects, replaceState)
-   * replace the current entry instead, so Back never bounces off a redirect.
+   * User-caused navigations (typing, clicking) add an entry. Ones the page makes itself
+   * (redirects, replaceState) replace the current one, so Back never bounces off a redirect.
    *
-   * @param {"replace" | "traverse"} [how] replaceState, or the page moving
-   *   through history itself (popstate)
+   * @param {"replace" | "traverse"} [how] replaceState, or the page moving through history (popstate)
    */
   recordHistory(tab, url, how) {
     if (!url || url === "about:blank") return;
@@ -1529,10 +1502,7 @@ class Tab {
         const doc = tab.iframe.contentDocument;
         const link = doc?.querySelector('link[rel~="icon" i], link[rel="shortcut icon" i], link[rel="apple-touch-icon" i]');
         if (link) {
-          // Scramjet already rewrote the attribute in the document, so the raw
-          // value is a proxied URL that loads through this tab's frame. Read it
-          // with this window's untouched getAttribute — the frame's own one is
-          // hooked to hand pages back the original, unproxied value.
+          // Scramjet already rewrote this; use this window's getAttribute, since the frame's returns the original.
           const raw = Element.prototype.getAttribute.call(link, "href");
           if (raw) return new URL(raw, tab.iframe.contentWindow.location.href).href;
         }
@@ -1619,9 +1589,7 @@ class Tab {
       container.classList.add("hidden");
       return;
     }
-    // Hang the list from the address bar itself, wherever the layout has put it
-    // (vertical tabs, extension buttons and the downloads button all move it).
-    // CSS anchor positioning does this exactly (index.css); measure only where it's missing.
+    // CSS anchor positioning handles this (index.css); measure only as a fallback.
     if (!CSS.supports("anchor-name: --a")) {
       const form = document.getElementById("uv-form").getBoundingClientRect();
       const wrap = container.parentElement.getBoundingClientRect();
@@ -1668,9 +1636,8 @@ class Tab {
   }
 
   /**
-   * Saved tabs are [...entries, activeIndex]. Entries are {url, pinned}; sessions
-   * saved before the Scramjet migration are strings holding Ultraviolet-encoded
-   * paths, which are decoded here so nobody loses their tabs on update.
+   * Saved tabs are [...entries, activeIndex], entries being {url, pinned}. Old sessions
+   * stored Ultraviolet-encoded strings, which are decoded here.
    */
   async loadAllTabs(open) {
     const legacyDecode = (src) => {
@@ -1791,8 +1758,7 @@ class Tab {
           return res.text();
         });
         const source = await this.erudaSource;
-        // Run it with the frame's own Function constructor so it lands in that realm
-        // without going through the proxy's script rewriting.
+        // Use the frame's own Function so it runs in that realm, skipping script rewriting.
         new win.Function(source).call(win);
       }
       win.eruda.init();
@@ -1807,8 +1773,7 @@ class Tab {
   // ---------------------------------------------------------------- keyboard
 
   /**
-   * Shortcuts use Alt because the real browser owns the Ctrl ones. Bound on the
-   * shell and inside every tab, so they work wherever focus is.
+   * Shortcuts use Alt since the browser owns Ctrl. Bound on the shell and in every tab.
    */
   // ---------------------------------------------------------------- view
 
@@ -1928,8 +1893,7 @@ class Tab {
   }
 
   /**
-   * The toolbar (three dots) menu. Drops from the button, right edges aligned;
-   * View, Page tools and More open beside their row.
+   * The toolbar (three dots) menu. View, Page tools and More open beside their row.
    */
   showMainMenu(anchor = document.getElementById("menu-button")) {
     if (menuOpenFor(anchor)) return hideMenu();
@@ -2029,9 +1993,8 @@ class Tab {
   // ---------------------------------------------------------------- prewarm
 
   /**
-   * Opens the connection to a site the user is probably about to visit (hovering
-   * a bookmark or suggestion, typing an address), so the real navigation skips
-   * the DNS + TLS setup. One cheap HEAD per origin, rate limited.
+   * Warms up the connection to a site the user is likely to visit next, skipping DNS + TLS later.
+   * One cheap HEAD per origin, rate limited.
    */
   prewarm(input) {
     let url;
@@ -2075,8 +2038,7 @@ class Tab {
   }
 
   handleKey(e) {
-    // Panic key: one press anywhere (shell or inside a page) jumps the whole
-    // window to a safe site. Ignored while typing so the key can still be typed.
+    // Panic key: jumps the window to a safe site. Ignored while typing.
     if (this.panicKey && e.key === this.panicKey) {
       const el = e.target;
       const typing = el && (/^(input|textarea|select)$/i.test(el.tagName || "") || el.isContentEditable);
@@ -2156,8 +2118,7 @@ searchInput.addEventListener("focus", () => {
   if (searchInput.value != "") tabs.displaySearchSuggestions();
 });
 searchInput.addEventListener("blur", () => setTimeout(() => tabs.updateOmni(), 150));
-// Someone clicking into the address bar is about to browse: get the proxy ready
-// now, and warm up the connection to wherever they seem to be headed.
+// Clicking the address bar means a visit is coming: start the proxy and warm the connection.
 searchInput.addEventListener("focus", () => tabs.prewarm(tabs.searchEngine?.replace("%s", "") ?? ""));
 let warmTimer;
 searchInput.addEventListener("input", () => {

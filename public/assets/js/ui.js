@@ -3,10 +3,8 @@
 let toastsEl;
 
 // ----------------------------------------------------------------- menus
-// One menu system for the whole shell: the toolbar (three dots) menu, its
-// submenus, and every right-click menu. A menu is a column of rows; a row with
-// `submenu` opens another menu beside it, flush against the parent and lined up
-// with the row, flipping to the other side when the window edge is in the way.
+// One menu system for the whole shell (toolbar menu, submenus, right-click menus).
+// A row with `submenu` opens another menu beside it, flipping sides at the window edge.
 
 /** Open menus, root first: [{el, row}] where `row` is the parent row that opened it. */
 let menuStack = [];
@@ -121,8 +119,7 @@ function menuKey(e) {
  * @property {string} [label]
  * @property {string} [icon] Material Symbols path data, shown before the label
  * @property {string} [image] URL of a small image shown before the label (favicons)
- * @property {string} [badge] URL of a small image inside the row, before its label, that
- *   doesn't give the menu's other rows a leading slot (an extension's row in the page menu)
+ * @property {string} [badge] small image inside the row that doesn't reserve a leading slot for other rows
  * @property {string} [dot] a CSS colour, shown as a small disc before the label (tab groups)
  * @property {string} [shortcut] keyboard hint shown at the right edge
  * @property {boolean} [checked] shows a check mark (or an empty slot) before the label
@@ -133,9 +130,8 @@ function menuKey(e) {
  * @property {() => void} [onclick]
  * @property {MenuItem[] | (() => MenuItem[])} [submenu] opens beside the row
  * @property {Array<{label?: string, icon?: string, title?: string, onclick?: () => void,
- *   close?: boolean, text?: () => string}>} [controls] inline buttons / read-outs on the
- *   right of a row that isn't itself clickable (the zoom row). Buttons keep the menu open
- *   unless `close` is set; `text` entries are re-read after every click.
+ *   close?: boolean, text?: () => string}>} [controls] inline buttons / read-outs for a non-clickable
+ *   row (the zoom row). Buttons keep the menu open unless `close` is set.
  */
 
 function buildMenu(items, depth) {
@@ -238,8 +234,7 @@ function buildMenu(items, depth) {
     row.addEventListener("mouseenter", () => {
       clearTimeout(menuTimer);
       if (!item.disabled) setActiveRow(el, row);
-      // A short pause either way, so sweeping the pointer diagonally towards an
-      // open submenu doesn't close it or open the neighbours on the way.
+      // Short delay so moving diagonally toward a submenu doesn't close it or open neighbours.
       if (row.openSubmenu) menuTimer = setTimeout(() => row.openSubmenu(), 130);
       else menuTimer = setTimeout(() => closeMenusFrom(depth + 1), 200);
     });
@@ -257,8 +252,7 @@ function placeSubmenu(sub, parent, row) {
   const p = parent.getBoundingClientRect();
   const r = row.getBoundingClientRect();
   const box = sub.getBoundingClientRect();
-  // Beside the parent, overlapping it by a hair like a native menu; whichever
-  // side has room, preferring the right.
+  // Beside the parent, on whichever side has room (right first).
   let left = p.right - 3;
   if (left + box.width > window.innerWidth - EDGE) left = p.left - box.width + 3;
   if (left < EDGE) left = Math.max(EDGE, window.innerWidth - box.width - EDGE);
@@ -277,8 +271,7 @@ function placeSubmenu(sub, parent, row) {
  * @param {number} y
  * @param {MenuItem[]} items
  * @param {{anchor?: Element, align?: "start" | "end", width?: number}} [options]
- *   With an anchor, x/y are ignored: the menu drops below it, lined up with its
- *   left ("start") or right ("end", the default) edge.
+ *   With an anchor, x/y are ignored and the menu drops below it, aligned to its start or end (default).
  */
 export function showMenu(x, y, items, { anchor = null, align = "end", width } = {}) {
   wireMenus();
@@ -370,8 +363,7 @@ export function toast(text, options = {}) {
 }
 
 // ----------------------------------------------------------------- dialogs
-// In-page replacements for alert()/prompt()/confirm(): those block the whole
-// window (and every proxied tab in it) while they're open.
+// In-page replacements for alert()/prompt()/confirm(), which would block every tab.
 
 let dialogEl;
 
@@ -384,8 +376,7 @@ function closeDialog(result) {
 }
 
 /**
- * A small modal. `fields` become inputs; resolves with {name: value, …} when the
- * primary button is used, or null when dismissed.
+ * A small modal. Resolves with {name: value} from `fields`, or null if dismissed.
  *
  * @param {{title: string, message?: string, body?: Node,
  *   fields?: Array<{name: string, label?: string, value?: string, placeholder?: string,

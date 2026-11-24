@@ -1,13 +1,7 @@
 // Shadow service worker.
 //
-// With Scramjet v2 the worker is only a router for proxied traffic: those
-// requests are forwarded over a MessagePort to the page's Controller, which does
-// the rewriting and the network I/O. Extension resources (chrome-extension://…)
-// are served by Sapphire. On top of that, it stale-while-revalidate caches
-// Shadow's own static assets so repeat visits are instant and the origin (and
-// the mirror fleet) take far fewer hits, precaches the shell at install, and
-// falls back to cached pages when the network is gone — which is what makes
-// Shadow installable.
+// Proxied requests go to the page's Controller for rewriting. Sapphire serves extension files.
+// Shadow's own assets are cached stale-while-revalidate, the shell is precached, and pages work offline.
 importScripts("/dist/sapphire-sw-router.js");
 importScripts("/controller/controller.sw.js");
 importScripts("/assets/js/settings_manager_sw.js");
@@ -16,8 +10,7 @@ importScripts("/assets/js/history_helper_sw.js");
 self.settings = new SettingsManager();
 self.history = new HistoryHelper();
 
-// Bump to invalidate the static cache after a shell asset change that can't wait
-// for the background refresh (rare — SWR already keeps assets fresh within a load).
+// Bump to invalidate the static cache when a change can't wait for the background refresh.
 const STATIC_CACHE = "shadow-static-v3";
 // Shadow's own HTML pages, kept for offline use (network first, see pageRequest()).
 const PAGE_CACHE = "shadow-pages-v1";
@@ -52,9 +45,7 @@ async function staleWhileRevalidate(request) {
   return cached || network;
 }
 
-// Fetched at install so the shell works offline from the first
-// visit on (the first page load happens before this worker controls anything, so
-// nothing it loaded went through the cache). Missing entries are skipped.
+// Fetched at install so the shell works offline from the first visit. Missing entries are skipped.
 const PRECACHE_PAGES = [
   "/",
   "/new.html",
@@ -93,9 +84,8 @@ const PRECACHE_ASSETS = [
 // cached copy per path serves every ?url=… variant.
 const pageKey = (url) => url.origin + url.pathname;
 
-// When the server randomises asset paths (src/server/obfuscation.mjs) it fills this
-// in with the CSS/JS paths its pages use; they replace PRECACHE_ASSETS' CSS/JS, and
-// cached CSS/JS from an older run are dropped on activate.
+// With obfuscation on, the server fills this with its random CSS/JS paths, replacing the ones in
+// PRECACHE_ASSETS. Older cached CSS/JS is dropped on activate.
 const UI_ASSETS = null;
 
 async function precache() {

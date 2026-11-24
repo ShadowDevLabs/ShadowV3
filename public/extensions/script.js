@@ -1,7 +1,6 @@
 // shadow://extensions — install and manage Chrome extensions.
 //
-// The extension runtime lives in the top window (tabs.js + extension_ui.js);
-// this page is only a front end for parent.tabs.extensions.
+// The runtime lives in the top window (tabs.js + extension_ui.js); this is just a front end.
 
 const $ = (id) => document.getElementById(id);
 const list = $("list");
