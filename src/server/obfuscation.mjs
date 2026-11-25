@@ -355,9 +355,15 @@ function buildSite(seed, shell, reserved) {
     return names.get(name);
   };
   const scramtag = word(derive(seed, "scramtag"), 8);
+  // The attributes Scramjet adds to proxied pages' elements: scramjet-attr-href (the original
+  // value of a rewritten href) and scramjet-injected. Seeded words, lowercase like any HTML
+  // attribute name, so the checks Scramjet makes on them still match.
+  const attrPrefix = word(derive(seed, "attr"), 6);
+  const injectedAttr = word(derive(seed, "injected"), 9);
   const moveRuntime = (text) => {
     for (const [from, to] of moved) text = text.replaceAll(from, to);
     text = text.replace(runtimeName, rename).replaceAll("scramtag", scramtag);
+    text = text.replaceAll("scramjet-attr", attrPrefix).replaceAll("scramjet-injected", injectedAttr);
     // Only this server's own Wisp endpoint: custom Wisp servers keep /wisp/.
     return text.replaceAll("${location.host}/wisp/", `\${location.host}${wispPath}`);
   };

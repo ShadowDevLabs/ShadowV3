@@ -23,12 +23,19 @@ body {
   padding: 8px 10px 4px;
   max-width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
+  /* Many tabs: they shrink to their icon, then the strip scrolls (wheel or trackpad). */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+#tabs-container::-webkit-scrollbar {
+  display: none;
 }
 
 .tab {
   flex: 1 1 120px;
-  min-width: 60px;
+  min-width: 40px;
   max-width: 200px;
   height: 34px;
   box-sizing: border-box;
@@ -112,6 +119,43 @@ body {
 
 .addtab-btn:hover {
   background: var(--surface-hover);
+}
+
+/* The + stays in reach however many tabs there are: it sticks to the strip's right edge, over
+   the tabs that scroll beneath it. */
+body:not(.vertical-tabs) .addtab-btn {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  /* The page background, pinned to the viewport so it lines up with the strip behind it. */
+  background: var(--background) fixed;
+  box-shadow: -10px 0 10px -2px var(--primary-dark);
+}
+
+body:not(.vertical-tabs) .addtab-btn:hover {
+  background: linear-gradient(var(--surface-hover), var(--surface-hover)), var(--background) fixed;
+}
+
+/* Narrow tabs, like Chrome's: the title goes first, then the close button (except on the
+   active tab), leaving the icon centred. */
+body:not(.vertical-tabs) .tab:not(.pinned) {
+  container-type: inline-size;
+}
+
+@container (max-width: 84px) {
+  .tab-title {
+    display: none;
+  }
+}
+
+@container (max-width: 60px) {
+  .tab:not(.active) .close-tab-button {
+    display: none;
+  }
+
+  .tab-icon {
+    margin: 0 auto;
+  }
 }
 
 .icons {

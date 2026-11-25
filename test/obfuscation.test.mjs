@@ -31,7 +31,7 @@ test("proxy config is seeded, avoids reserved paths, and its codec round-trips",
 
   // The client's keyedCodec, taken from tabs.js so this tests the shipped code.
   const source = readFileSync(new URL("../public/assets/js/tabs.js", import.meta.url), "utf8");
-  const keyedCodec = new Function(source.match(/function keyedCodec[\s\S]*?\n}\n/)[0] + "return keyedCodec;")();
+  const keyedCodec = new Function(source.match(/function keyedCodec[\s\S]*?\r?\n}\r?\n/)[0] + "return keyedCodec;")();
   const { encode, decode } = keyedCodec(a.codecKey);
   for (const url of ["https://example.com/a/b?x=1&y=ü", "https://日本.jp/😀", ""]) {
     assert.ok(!encode(url).includes("/"));
@@ -151,6 +151,7 @@ test("the proxy runtime moves to seeded paths, references follow, and it still l
   assert.ok(page(scramjetJs)?.includes("globals:{wrapfn:"), "scramjet.js is served where the controller looks");
   for (const body of [tabs, worker, api, page(scramjetJs), page(injectJs)]) {
     assert.ok(!/\$scram|scramtag|__scramjet_controller"/.test(body), "no Scramjet global, marker or database name is left");
+    assert.ok(!/scramjet-attr|scramjet-injected/.test(body), "no Scramjet attribute name is left for proxied pages' elements");
   }
   assert.ok(page(injectJs), "the inject script is served where the controller looks");
   assert.ok(api.includes(`maskedfiles:["${injectJs.split("/").pop()}",`), "the inject script stays hidden from stack traces");

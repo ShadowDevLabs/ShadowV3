@@ -46,6 +46,17 @@ const searchInput = document.getElementById("__shadow-search-bar");
 const addTabButton = document.getElementById("add-tab");
 const tabStrip = document.getElementById("tabs-container");
 const iframesContainer = document.getElementById("iframes-container");
+// With more tabs than fit, a mouse wheel scrolls the strip sideways (its scrollbar is hidden).
+tabStrip?.addEventListener(
+  "wheel",
+  (e) => {
+    if (document.body.classList.contains("vertical-tabs") || tabStrip.scrollWidth <= tabStrip.clientWidth) return;
+    if (Math.abs(e.deltaX) >= Math.abs(e.deltaY)) return; // a trackpad's own sideways scroll
+    tabStrip.scrollLeft += e.deltaY;
+    e.preventDefault();
+  },
+  { passive: false },
+);
 
 const DEFAULT_ICON = "/assets/imgs/icons/logo.png";
 // A site whose icon can't be loaded gets a plain globe, not Shadow's logo.

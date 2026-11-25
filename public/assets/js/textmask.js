@@ -4,9 +4,10 @@ const FIRST_PUA = 0xefc0;
 export const MASK_TABLE = Object.fromEntries([...ALNUM].map((c, i) => [c, String.fromCharCode(FIRST_PUA + i)]));
 const PUA = new RegExp(`[${MASK_TABLE.A}-${MASK_TABLE[9]}]`, "g");
 const unmaskString = (text) => text.replace(PUA, (c) => ALNUM[c.charCodeAt(0) - FIRST_PUA]);
-const DISPLAY_TAG = "shadow-page-text";
-const SOURCE_TAG = "shadow-page-source";
-const DISPLAY_TEXT = "--shadow-page-text";
+// Element and variable names a page (or a filter reading it) sees: school-subject words.
+const DISPLAY_TAG = "funmathlesson";
+const SOURCE_TAG = "lessonnotes";
+const DISPLAY_TEXT = "--lesson-step";
 const CSS_ESCAPES = Array.from({ length: 128 }, (_, n) => `\\${n.toString(16)} `);
 
 // Keep the display string escaped in CSS, including quotes and line breaks from the page.
